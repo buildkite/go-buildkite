@@ -252,3 +252,20 @@ func addOptions(s string, opt interface{}) (string, error) {
 	u.RawQuery = qs.Encode()
 	return u.String(), nil
 }
+
+// Int is a helper routine that allocates a new int value
+// to store v and returns a pointer to it, but unlike Int
+// its argument value is an int.
+func Int(v int) *int {
+	p := new(int)
+	*p = v
+	return p
+}
+
+// String is a helper routine that allocates a new string value
+// to store v and returns a pointer to it.
+func String(v string) *string {
+	p := new(string)
+	*p = v
+	return p
+}

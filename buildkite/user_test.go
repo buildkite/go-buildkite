@@ -21,7 +21,7 @@ func TestUserService_Get(t *testing.T) {
 		t.Errorf("User.Get returned error: %v", err)
 	}
 
-	want := &User{ID: "123", Name: "Jane Doe", Email: "jane@doe.com"}
+	want := &User{ID: String("123"), Name: String("Jane Doe"), Email: String("jane@doe.com")}
 	if !reflect.DeepEqual(user, want) {
 		t.Errorf("User.Get returned %+v, want %+v", user, want)
 	}

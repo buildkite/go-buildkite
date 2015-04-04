@@ -58,7 +58,7 @@ func TestNewClient(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	c := NewClient(nil)
 	inURL, outURL := "/foo", defaultBaseURL+"foo"
-	inBody := &User{ID: "123", Name: "Jane Doe", Email: "jane@doe.com"}
+	inBody := &User{ID: String("123"), Name: String("Jane Doe"), Email: String("jane@doe.com")}
 	outBody := `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}` + "\n"
 
 	req, _ := c.NewRequest("GET", inURL, inBody)

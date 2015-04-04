@@ -21,7 +21,7 @@ func TestProjectsService_List(t *testing.T) {
 		t.Errorf("Projects.List returned error: %v", err)
 	}
 
-	want := []Project{{ID: "123"}, {ID: "1234"}}
+	want := []Project{{ID: String("123")}, {ID: String("1234")}}
 	if !reflect.DeepEqual(projects, want) {
 		t.Errorf("Projects.List returned %+v, want %+v", projects, want)
 	}

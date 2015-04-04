@@ -17,18 +17,18 @@ type AgentsService struct {
 
 // Agent represents a buildkite build agent.
 type Agent struct {
-	ID             string     `json:"id"`
-	URL            string     `json:"url"`
-	Name           string     `json:"name"`
-	ConnectedState string     `json:"connection_state"`
-	AgentToken     string     `json:"access_token"`
-	Hostname       string     `json:"hostname"`
-	IPAddress      string     `json:"ip_address"`
-	UserAgent      string     `json:"user_agent"`
+	ID             *string    `json:"id,omitempty"`
+	URL            *string    `json:"url,omitempty"`
+	Name           *string    `json:"name,omitempty"`
+	ConnectedState *string    `json:"connection_state,omitempty"`
+	AgentToken     *string    `json:"access_token,omitempty"`
+	Hostname       *string    `json:"hostname,omitempty"`
+	IPAddress      *string    `json:"ip_address,omitempty"`
+	UserAgent      *string    `json:"user_agent,omitempty"`
 	CreatedAt      *Timestamp `json:"created_at,omitempty"`
 
 	// the user which created the agent
-	Creator *User `json:"creator"`
+	Creator *User `json:"creator,omitempty"`
 }
 
 // AgentListOptions specifies the optional parameters to the
@@ -88,28 +88,24 @@ func (as *AgentsService) Get(org string, id string) (*Agent, *Response, error) {
 // Create a new buildkite agent.
 //
 // buildkite API docs: https://buildkite.com/docs/api/agents#create-an-agent
-func (as *AgentsService) Create(org string, name string) (*Agent, *Response, error) {
+func (as *AgentsService) Create(org string, agent *Agent) (*Agent, *Response, error) {
 
 	var u string
 
 	u = fmt.Sprintf("v1/organizations/%s/agents", org)
 
-	params := map[string]string{
-		"name": name,
-	}
-
-	req, err := as.client.NewRequest("POST", u, params)
+	req, err := as.client.NewRequest("POST", u, agent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	agent := new(Agent)
-	resp, err := as.client.Do(req, agent)
+	a := new(Agent)
+	resp, err := as.client.Do(req, a)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return agent, resp, err
+	return a, resp, err
 }
 
 // Delete an agent.

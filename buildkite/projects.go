@@ -17,57 +17,57 @@ type ProjectsService struct {
 
 // Project represents a buildkite project.
 type Project struct {
-	ID         string     `json:"id"`
-	URL        string     `json:"url"`
-	Name       string     `json:"name"`
-	Slug       string     `json:"slug"`
-	Repository string     `json:"repository"`
-	BuildsURL  string     `json:"builds_url"`
+	ID         *string    `json:"id,omitempty"`
+	URL        *string    `json:"url,omitempty"`
+	Name       *string    `json:"name,omitempty"`
+	Slug       *string    `json:"slug,omitempty"`
+	Repository *string    `json:"repository,omitempty"`
+	BuildsURL  *string    `json:"builds_url,omitempty"`
 	CreatedAt  *Timestamp `json:"created_at,omitempty"`
 
 	// the provider of sources
-	Provider *Provider `json:"provider"`
+	Provider *Provider `json:"provider,omitempty"`
 
 	// build featured when you view the project
-	FeaturedBuild *Build `json:"featured_build"`
+	FeaturedBuild *Build `json:"featured_build,omitempty"`
 
 	// build steps
-	Steps []*Step `json:"steps"`
+	Steps []*Step `json:"steps,omitempty"`
 }
 
 // Provider represents a source code provider.
 type Provider struct {
-	ID         string `json:"id"`
-	WebhookURL string `json:"webhook_url"`
+	ID         *string `json:"id,omitempty"`
+	WebhookURL *string `json:"webhook_url,omitempty"`
 }
 
 // Build represents a build which has run in buildkite
 type Build struct {
-	ID          string            `json:"id"`
-	URL         string            `json:"url"`
-	Number      int               `json:"number"`
-	State       string            `json:"state"`
-	Message     string            `json:"message"`
-	Commit      string            `json:"commit"`
-	Branch      string            `json:"branch"`
-	Env         map[string]string `json:"env"`
+	ID          *string           `json:"id,omitempty"`
+	URL         *string           `json:"url,omitempty"`
+	Number      *int              `json:"number,omitempty"`
+	State       *string           `json:"state,omitempty"`
+	Message     *string           `json:"message,omitempty"`
+	Commit      *string           `json:"commit,omitempty"`
+	Branch      *string           `json:"branch,omitempty"`
+	Env         map[string]string `json:"env,omitempty"`
 	CreatedAt   *Timestamp        `json:"created_at,omitempty"`
 	ScheduledAt *Timestamp        `json:"scheduled_at,omitempty"`
 	StartedAt   *Timestamp        `json:"started_at,omitempty"`
 	FinishedAt  *Timestamp        `json:"finished_at,omitempty"`
-	MetaData    interface{}       `json:"meta_data"`
+	MetaData    interface{}       `json:"meta_data,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
 type Step struct {
-	Type                string            `json:"type"`
-	Name                string            `json:"name"`
-	Command             string            `json:"command"`
-	ArtifactPaths       string            `json:"artifact_paths"`
-	BranchConfiguration string            `json:"branch_configuration"`
-	Env                 map[string]string `json:"env"`
-	TimeoutInMinutes    interface{}       `json:"timeout_in_minutes"` // *shrug*
-	AgentQueryRules     interface{}       `json:"agent_query_rules"`  // *shrug*
+	Type                *string           `json:"type,omitempty"`
+	Name                *string           `json:"name,omitempty"`
+	Command             *string           `json:"command,omitempty"`
+	ArtifactPaths       *string           `json:"artifact_paths,omitempty"`
+	BranchConfiguration *string           `json:"branch_configuration,omitempty"`
+	Env                 map[string]string `json:"env,omitempty"`
+	TimeoutInMinutes    interface{}       `json:"timeout_in_minutes,omitempty"` // *shrug*
+	AgentQueryRules     interface{}       `json:"agent_query_rules,omitempty"`  // *shrug*
 }
 
 // ProjectListOptions specifies the optional parameters to the
