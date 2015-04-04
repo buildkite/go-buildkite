@@ -40,6 +40,7 @@ type Client struct {
 	// Services used for talking to different parts of the buildkite API.
 	Projects      *ProjectsService
 	Organizations *OrganizationsService
+	User          *UserService
 }
 
 // ListOptions specifies the optional parameters to various List methods that
@@ -66,6 +67,7 @@ func NewClient(httpClient *http.Client) *Client {
 
 	c.Projects = &ProjectsService{c}
 	c.Organizations = &OrganizationsService{c}
+	c.User = &UserService{c}
 
 	return c
 }

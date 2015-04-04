@@ -26,7 +26,7 @@ type User struct {
 // Get the current user.
 //
 // buildkite API docs: https://buildkite.com/docs/api
-func (os *OrganizationsService) Get() (*User, *Response, error) {
+func (os *UserService) Get() (*User, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v1/user")

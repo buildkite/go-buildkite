@@ -16,13 +16,13 @@ func TestOrganizationsServicList(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	repos, _, err := client.Organizations.List(nil)
+	orgs, _, err := client.Organizations.List(nil)
 	if err != nil {
 		t.Errorf("Organizations.List returned error: %v", err)
 	}
 
 	want := []Organization{{ID: "123"}, {ID: "1234"}}
-	if !reflect.DeepEqual(repos, want) {
-		t.Errorf("Organizations.List returned %+v, want %+v", repos, want)
+	if !reflect.DeepEqual(orgs, want) {
+		t.Errorf("Organizations.List returned %+v, want %+v", orgs, want)
 	}
 }
