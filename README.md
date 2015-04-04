@@ -1,4 +1,4 @@
-# buildkite-go [![GoDoc](https://img.shields.io/badge/godoc-Reference-brightgreen.svg?style=flat)](http://godoc.org/github.com/wolfeidau/buildkite-go)
+# buildkite-go [![GoDoc](https://img.shields.io/badge/godoc-Reference-brightgreen.svg?style=flat)](http://godoc.org/github.com/wolfeidau/go-buildkite)
 
 A [golang](http://golang.org) client for the [buildkite](https://buildkite.com/) API. This project draws a lot of it's structure and testing methods from [go-github](https://github.com/google/go-github).
 
