@@ -80,3 +80,17 @@ func TestAgentsService_Create(t *testing.T) {
 	}
 
 }
+
+func TestAgentsService_Delete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v1/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Agents.Delete("my-great-org", "123")
+	if err != nil {
+		t.Errorf("Agents.Delete returned error: %v", err)
+	}
+}

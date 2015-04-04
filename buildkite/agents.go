@@ -111,3 +111,18 @@ func (as *AgentsService) Create(org string, name string) (*Agent, *Response, err
 
 	return agent, resp, err
 }
+
+// Delete an agent.
+//
+// buildkite API docs: https://buildkite.com/docs/api/agents#delete-an-agent
+func (as *AgentsService) Delete(org string, id string) (*Response, error) {
+
+	u := fmt.Sprintf("v1/organizations/%s/agents/%s", org, id)
+
+	req, err := as.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return as.client.Do(req, nil)
+}
