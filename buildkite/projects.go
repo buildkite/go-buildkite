@@ -45,7 +45,7 @@ type Provider struct {
 type Build struct {
 	ID          string            `json:"id"`
 	URL         string            `json:"url"`
-	Number      string            `json:"number"`
+	Number      int               `json:"number"`
 	State       string            `json:"state"`
 	Message     string            `json:"message"`
 	Commit      string            `json:"commit"`

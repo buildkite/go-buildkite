@@ -1,0 +1,42 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/wolfeidau/go-buildkite/buildkite"
+	"gopkg.in/alecthomas/kingpin.v1"
+)
+
+var (
+	apiToken = kingpin.Flag("apiToken", "API token").Required().String()
+	org      = kingpin.Flag("org", "Orginization slug").Required().String()
+)
+
+func main() {
+	kingpin.Parse()
+
+	config, err := buildkite.NewTokenConfig(*apiToken)
+
+	if err != nil {
+		log.Fatalf("client config failed: %s", err)
+	}
+
+	client := buildkite.NewClient(config.Client())
+
+	projects, _, err := client.Projects.List(*org, nil)
+
+	if err != nil {
+		log.Fatalf("list projects failed: %s", err)
+	}
+
+	data, err := json.MarshalIndent(projects, "", "\t")
+
+	if err != nil {
+		log.Fatalf("json encode failed: %s", err)
+	}
+
+	fmt.Fprintf(os.Stdout, "%s", string(data))
+}

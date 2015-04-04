@@ -1,0 +1,35 @@
+// Copyright 2014 Mark Wolfe. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package buildkite
+
+import (
+	"fmt"
+	"net/http"
+)
+
+// TokenAuthTransport manages injection of the API token for each request
+type TokenAuthTransport struct {
+	APIToken string
+}
+
+// RoundTrip invoked each time a request is made
+func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.APIToken))
+	return http.DefaultTransport.RoundTrip(req)
+}
+
+// Client builds a new http client.
+func (t *TokenAuthTransport) Client() *http.Client {
+	return &http.Client{Transport: t}
+}
+
+// NewTokenConfig configure authentication using an API token
+func NewTokenConfig(apiToken string) (*TokenAuthTransport, error) {
+	if apiToken == "" {
+		return nil, fmt.Errorf("Invalid token, empty string supplied")
+	}
+	return &TokenAuthTransport{APIToken: apiToken}, nil
+}
