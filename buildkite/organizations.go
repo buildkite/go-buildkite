@@ -17,14 +17,14 @@ type OrganizationsService struct {
 
 // Organization represents a buildkite organization.
 type Organization struct {
-	ID          string `json:"id"`
-	URL         string `json:"url"`
-	Name        string `json:"name"`
-	Slug        string `json:"slug"`
-	Repository  string `json:"repository"`
-	ProjectsURL string `json:"projects_url"`
-	AgentsURL   string `json:"agents_url"`
-	CreatedAt   string `json:"created_at"`
+	ID          string     `json:"id"`
+	URL         string     `json:"url"`
+	Name        string     `json:"name"`
+	Slug        string     `json:"slug"`
+	Repository  string     `json:"repository"`
+	ProjectsURL string     `json:"projects_url"`
+	AgentsURL   string     `json:"agents_url"`
+	CreatedAt   *Timestamp `json:"created_at"`
 }
 
 // OrganizationListOptions specifies the optional parameters to the

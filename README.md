@@ -6,7 +6,7 @@ A [golang](http://golang.org) client for the [buildkite](https://buildkite.com/)
 
 Simple example for listing all projects is provided below, see examples for more.
 
-```golang
+```go
 
 config, err := buildkite.NewTokenConfig(*apiToken)
 

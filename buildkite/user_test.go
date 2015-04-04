@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestUserServicGet(t *testing.T) {
+func TestUserService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 

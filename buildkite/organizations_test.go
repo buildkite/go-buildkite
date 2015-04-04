@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestOrganizationsServicList(t *testing.T) {
+func TestOrganizationsService_List(t *testing.T) {
 	setup()
 	defer teardown()
 

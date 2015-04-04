@@ -17,13 +17,13 @@ type ProjectsService struct {
 
 // Project represents a buildkite project.
 type Project struct {
-	ID         string `json:"id"`
-	URL        string `json:"url"`
-	Name       string `json:"name"`
-	Slug       string `json:"slug"`
-	Repository string `json:"repository"`
-	BuildsURL  string `json:"builds_url"`
-	CreatedAt  string `json:"created_at"`
+	ID         string     `json:"id"`
+	URL        string     `json:"url"`
+	Name       string     `json:"name"`
+	Slug       string     `json:"slug"`
+	Repository string     `json:"repository"`
+	BuildsURL  string     `json:"builds_url"`
+	CreatedAt  *Timestamp `json:"created_at,omitempty"`
 
 	// the provider of sources
 	Provider *Provider `json:"provider"`
@@ -51,10 +51,10 @@ type Build struct {
 	Commit      string            `json:"commit"`
 	Branch      string            `json:"branch"`
 	Env         map[string]string `json:"env"`
-	CreatedAt   string            `json:"created_at"`
-	ScheduledAt string            `json:"scheduled_at"`
-	StartedAt   string            `json:"started_at"`
-	FinishedAt  string            `json:"finished_at"`
+	CreatedAt   *Timestamp        `json:"created_at,omitempty"`
+	ScheduledAt *Timestamp        `json:"scheduled_at,omitempty"`
+	StartedAt   *Timestamp        `json:"started_at,omitempty"`
+	FinishedAt  *Timestamp        `json:"finished_at,omitempty"`
 	MetaData    interface{}       `json:"meta_data"`
 }
 
