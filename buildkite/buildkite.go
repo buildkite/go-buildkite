@@ -39,6 +39,7 @@ type Client struct {
 
 	// Services used for talking to different parts of the buildkite API.
 	Agents        *AgentsService
+	Builds        *BuildsService
 	Organizations *OrganizationsService
 	Projects      *ProjectsService
 	User          *UserService
@@ -67,6 +68,7 @@ func NewClient(httpClient *http.Client) *Client {
 	}
 
 	c.Agents = &AgentsService{c}
+	c.Builds = &BuildsService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.Projects = &ProjectsService{c}
 	c.User = &UserService{c}

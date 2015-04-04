@@ -41,23 +41,6 @@ type Provider struct {
 	WebhookURL *string `json:"webhook_url,omitempty"`
 }
 
-// Build represents a build which has run in buildkite
-type Build struct {
-	ID          *string           `json:"id,omitempty"`
-	URL         *string           `json:"url,omitempty"`
-	Number      *int              `json:"number,omitempty"`
-	State       *string           `json:"state,omitempty"`
-	Message     *string           `json:"message,omitempty"`
-	Commit      *string           `json:"commit,omitempty"`
-	Branch      *string           `json:"branch,omitempty"`
-	Env         map[string]string `json:"env,omitempty"`
-	CreatedAt   *Timestamp        `json:"created_at,omitempty"`
-	ScheduledAt *Timestamp        `json:"scheduled_at,omitempty"`
-	StartedAt   *Timestamp        `json:"started_at,omitempty"`
-	FinishedAt  *Timestamp        `json:"finished_at,omitempty"`
-	MetaData    interface{}       `json:"meta_data,omitempty"`
-}
-
 // Step represents a build step in buildkites build pipeline
 type Step struct {
 	Type                *string           `json:"type,omitempty"`
