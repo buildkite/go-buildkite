@@ -39,12 +39,12 @@ func TestAgentsService_Get(t *testing.T) {
 
 	agent, _, err := client.Agents.Get("my-great-org", "123")
 	if err != nil {
-		t.Errorf("Agents.List returned error: %v", err)
+		t.Errorf("Agents.Get returned error: %v", err)
 	}
 
 	want := &Agent{ID: String("123")}
 	if !reflect.DeepEqual(agent, want) {
-		t.Errorf("Agents.List returned %+v, want %+v", agent, want)
+		t.Errorf("Agents.Get returned %+v, want %+v", agent, want)
 	}
 }
 

@@ -27,6 +27,26 @@ func TestBuildsService_List(t *testing.T) {
 	}
 }
 
+func TestBuildsService_Get(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v1/organizations/my-great-org/projects/sup-keith/builds/123", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `{"id":"123"}`)
+	})
+
+	build, _, err := client.Builds.Get("my-great-org", "sup-keith", "123")
+	if err != nil {
+		t.Errorf("Builds.Get returned error: %v", err)
+	}
+
+	want := &Build{ID: String("123")}
+	if !reflect.DeepEqual(build, want) {
+		t.Errorf("Builds.Get returned %+v, want %+v", build, want)
+	}
+}
+
 func TestBuildsService_List_by_status(t *testing.T) {
 	setup()
 	defer teardown()

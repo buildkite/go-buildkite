@@ -69,6 +69,27 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
+// Get fetches a build.
+//
+// buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
+func (as *BuildsService) Get(org string, project string, id string) (*Build, *Response, error) {
+
+	u := fmt.Sprintf("v1/organizations/%s/projects/%s/builds/%s", org, project, id)
+
+	req, err := as.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	build := new(Build)
+	resp, err := as.client.Do(req, build)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return build, resp, err
+}
+
 // List the builds for the current user.
 //
 // buildkite API docs: https://buildkite.com/docs/api/organizations#list-organizations
