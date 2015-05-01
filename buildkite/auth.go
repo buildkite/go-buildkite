@@ -9,17 +9,22 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // TokenAuthTransport manages injection of the API token for each request
 type TokenAuthTransport struct {
 	APIToken string
+	Debug    bool
 }
 
 // RoundTrip invoked each time a request is made
 func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.APIToken))
-	return http.DefaultTransport.RoundTrip(req)
+	ts := time.Now()
+	res, err := http.DefaultTransport.RoundTrip(req)
+	fmt.Printf("DEBUG uri = %s time = %s", req.RequestURI, time.Now().Sub(ts))
+	return res, err
 }
 
 // Client builds a new http client.
@@ -28,11 +33,11 @@ func (t *TokenAuthTransport) Client() *http.Client {
 }
 
 // NewTokenConfig configure authentication using an API token
-func NewTokenConfig(apiToken string) (*TokenAuthTransport, error) {
+func NewTokenConfig(apiToken string, debug bool) (*TokenAuthTransport, error) {
 	if apiToken == "" {
 		return nil, fmt.Errorf("Invalid token, empty string supplied")
 	}
-	return &TokenAuthTransport{APIToken: apiToken}, nil
+	return &TokenAuthTransport{APIToken: apiToken, Debug: debug}, nil
 }
 
 // BasicAuthTransport manages injection of the authorization header

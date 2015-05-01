@@ -13,12 +13,13 @@ import (
 var (
 	apiToken = kingpin.Flag("apiToken", "API token").Required().String()
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
+	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
 	kingpin.Parse()
 
-	config, err := buildkite.NewTokenConfig(*apiToken)
+	config, err := buildkite.NewTokenConfig(*apiToken, *debug)
 
 	if err != nil {
 		log.Fatalf("client config failed: %s", err)
