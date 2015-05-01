@@ -23,7 +23,9 @@ func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.APIToken))
 	ts := time.Now()
 	res, err := http.DefaultTransport.RoundTrip(req)
-	fmt.Printf("DEBUG uri = %s time = %s\n", req.RequestURI, time.Now().Sub(ts))
+	if t.Debug {
+		fmt.Printf("DEBUG uri = %s time = %s\n", req.URL, time.Now().Sub(ts))
+	}
 	return res, err
 }
 
