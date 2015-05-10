@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	referenceTimeStr = `"2015-03-04 02:26:54 UTC"`
+	referenceTimeStr = `"2015-03-04T02:26:54Z"`
 )
 
 var (

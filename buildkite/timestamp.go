@@ -9,7 +9,7 @@ import "time"
 
 // BuildKiteDateFormat is the format of the dates used throughout the
 // api, note this odd string is used to parse/format dates in go
-const BuildKiteDateFormat = "2006-01-02 15:04:05 MST"
+const BuildKiteDateFormat = time.RFC3339Nano
 
 // Timestamp custom timestamp to support buildkite api timestamps
 type Timestamp struct {
