@@ -189,6 +189,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	}
 
 	defer resp.Body.Close()
+	defer io.Copy(ioutil.Discard, resp.Body)
 
 	response := newResponse(resp)
 
