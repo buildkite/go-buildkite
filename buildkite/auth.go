@@ -24,7 +24,7 @@ func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	ts := time.Now()
 	res, err := http.DefaultTransport.RoundTrip(req)
 	if t.Debug {
-		fmt.Printf("DEBUG uri = %s time = %s\n", req.URL, time.Now().Sub(ts))
+		fmt.Printf("DEBUG uri=%s time=%s\n", req.URL, time.Now().Sub(ts))
 	}
 	return res, err
 }
