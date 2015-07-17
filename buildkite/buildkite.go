@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -23,6 +24,10 @@ import (
 const (
 	defaultBaseURL = "https://api.buildkite.com/"
 	userAgent      = "go-buildkite/" + Version
+)
+
+var (
+	httpDebug = false
 )
 
 // A Client manages communication with the buildkite API.
@@ -74,6 +79,11 @@ func NewClient(httpClient *http.Client) *Client {
 	c.User = &UserService{c}
 
 	return c
+}
+
+// SetHttpDebug this enables global http request/response dumping for this API
+func SetHttpDebug(flag bool) {
+	httpDebug = flag
 }
 
 // NewRequest creates an API request. A relative URL can be provided in urlStr,
@@ -190,6 +200,26 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 
 	defer resp.Body.Close()
 	defer io.Copy(ioutil.Discard, resp.Body)
+
+	// dump requests
+	if httpDebug {
+		var (
+			dump []byte
+			err  error
+		)
+
+		dump, err = httputil.DumpRequest(req, true)
+
+		if err == nil {
+			fmt.Printf("DEBUG request uri=%s\n%s\n", req.URL, dump)
+		}
+
+		dump, err = httputil.DumpResponse(resp, true)
+
+		if err == nil {
+			fmt.Printf("DEBUG response uri=%s\n%s\n", req.URL, dump)
+		}
+	}
 
 	response := newResponse(resp)
 
