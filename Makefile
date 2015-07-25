@@ -6,12 +6,12 @@ all: deps test
 
 deps:
 	mkdir -p ${STAGING_PATH}
-	ln -s $(shell pwd) ${STAGING_PATH} || true
+	ln -s $(shell pwd) ${STAGING_PATH}/go-buildkite || true
 	cd ${STAGING_PATH}/go-buildkite
 	go get -d -v ./...
 
 test: deps
-	@cd ${STAGING_PATH}/go-buildkite
+	cd ${STAGING_PATH}/go-buildkite
 	go test -timeout=3s -v ./...
 
 docker:
