@@ -1,20 +1,23 @@
-GOPATH := ${PWD}/.gopath
-STAGING_PATH = ${PWD}/.gopath/src/github.com/wolfeidau
+GOPATH := $(shell pwd)/.gopath
+STAGING_PATH = $(shell pwd)/.gopath/src/github.com/wolfeidau
 DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 
 all: deps test
 
 deps:
-	@mkdir -p ${STAGING_PATH}
-	@ln -s ${PWD} ${STAGING_PATH} || true
-	@cd ${STAGING_PATH}/go-buildkite
+	mkdir -p ${STAGING_PATH}
+	ln -s $(shell pwd) ${STAGING_PATH} || true
+	cd ${STAGING_PATH}/go-buildkite
 	go get -d -v ./...
 
 test: deps
 	@cd ${STAGING_PATH}/go-buildkite
 	go test -timeout=3s -v ./...
 
-clean:
-	rm -rf ${PWD}/.gopath || true
+docker:
+	docker run --rm -v "$(shell pwd)":/go-buildkite -w /go-buildkite golang:1.4 make
 
-.PHONY: all deps test clean
+clean:
+	rm -rf $(shell pwd)/.gopath || true
+
+.PHONY: all deps test clean docker
