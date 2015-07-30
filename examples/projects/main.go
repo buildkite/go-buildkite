@@ -7,11 +7,11 @@ import (
 	"os"
 
 	"github.com/wolfeidau/go-buildkite/buildkite"
-	"gopkg.in/alecthomas/kingpin.v1"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	apiToken = kingpin.Flag("apiToken", "API token").Required().String()
+	apiToken = kingpin.Flag("token", "API token").Required().String()
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
 	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
