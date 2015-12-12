@@ -19,11 +19,18 @@ type ProjectsService struct {
 type Project struct {
 	ID         *string    `json:"id,omitempty"`
 	URL        *string    `json:"url,omitempty"`
+	WebURL     *string    `json:"web_url,omitempty"`
 	Name       *string    `json:"name,omitempty"`
 	Slug       *string    `json:"slug,omitempty"`
 	Repository *string    `json:"repository,omitempty"`
 	BuildsURL  *string    `json:"builds_url,omitempty"`
 	CreatedAt  *Timestamp `json:"created_at,omitempty"`
+
+	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty"`
+	RunningBuildsCount   *int `json:"running_builds_count,omitempty"`
+	ScheduledJobsCount   *int `json:"scheduled_jobs_count,omitempty"`
+	RunningJobsCount     *int `json:"running_jobs_count,omitempty"`
+	WaitingJobsCount     *int `json:"waiting_jobs_count,omitempty"`
 
 	// the provider of sources
 	Provider *Provider `json:"provider,omitempty"`
