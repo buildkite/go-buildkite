@@ -19,6 +19,7 @@ type OrganizationsService struct {
 type Organization struct {
 	ID          *string    `json:"id,omitempty"`
 	URL         *string    `json:"url,omitempty"`
+	WebURL      *string    `json:"web_url,omitempty"`
 	Name        *string    `json:"name,omitempty"`
 	Slug        *string    `json:"slug,omitempty"`
 	Repository  *string    `json:"repository,omitempty"`
@@ -58,4 +59,25 @@ func (os *OrganizationsService) List(opt *OrganizationListOptions) ([]Organizati
 	}
 
 	return *orgs, resp, err
+}
+
+// Get fetches an organization
+//
+// buildkite API docs: https://buildkite.com/docs/api/organizations#get-an-organization
+func (os *OrganizationsService) Get(slug string) (*Organization, *Response, error) {
+
+	u := fmt.Sprintf("v1/organizations/%s", slug)
+
+	req, err := os.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	organization := new(Organization)
+	resp, err := os.client.Do(req, organization)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return organization, resp, err
 }

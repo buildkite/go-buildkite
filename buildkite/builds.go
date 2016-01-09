@@ -19,6 +19,7 @@ type BuildsService struct {
 type Build struct {
 	ID          *string           `json:"id,omitempty"`
 	URL         *string           `json:"url,omitempty"`
+	WebURL      *string           `json:"web_url,omitempty"`
 	Number      *int              `json:"number,omitempty"`
 	State       *string           `json:"state,omitempty"`
 	Message     *string           `json:"message,omitempty"`
@@ -92,7 +93,7 @@ func (as *BuildsService) Get(org string, project string, id string) (*Build, *Re
 
 // List the builds for the current user.
 //
-// buildkite API docs: https://buildkite.com/docs/api/organizations#list-organizations
+// buildkite API docs: https://buildkite.com/docs/api/builds#list-all-builds
 func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
