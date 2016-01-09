@@ -19,6 +19,7 @@ type OrganizationsService struct {
 type Organization struct {
 	ID          *string    `json:"id,omitempty"`
 	URL         *string    `json:"url,omitempty"`
+	WebURL      *string    `json:"web_url,omitempty"`
 	Name        *string    `json:"name,omitempty"`
 	Slug        *string    `json:"slug,omitempty"`
 	Repository  *string    `json:"repository,omitempty"`
