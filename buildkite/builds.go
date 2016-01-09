@@ -93,7 +93,7 @@ func (as *BuildsService) Get(org string, project string, id string) (*Build, *Re
 
 // List the builds for the current user.
 //
-// buildkite API docs: https://buildkite.com/docs/api/organizations#list-organizations
+// buildkite API docs: https://buildkite.com/docs/api/builds#list-all-builds
 func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
