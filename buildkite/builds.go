@@ -19,6 +19,7 @@ type BuildsService struct {
 type Build struct {
 	ID          *string           `json:"id,omitempty"`
 	URL         *string           `json:"url,omitempty"`
+	WebURL      *string           `json:"web_url,omitempty"`
 	Number      *int              `json:"number,omitempty"`
 	State       *string           `json:"state,omitempty"`
 	Message     *string           `json:"message,omitempty"`
