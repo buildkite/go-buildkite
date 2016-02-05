@@ -6,11 +6,17 @@ A [golang](http://golang.org) client for the [buildkite](https://buildkite.com/)
 
 To get the package, execute:
 
+```
 go get gopkg.in/wolfeidau/go-buildkite.v1
+```
 
-Simple example for listing all projects is provided below, see examples for more.
+Simple shortened example for listing all projects is provided below, see examples for more.
 
 ```go
+import (
+    "gopkg.in/wolfeidau/go-buildkite.v1"
+)
+...
 
 config, err := buildkite.NewTokenConfig(*apiToken)
 
@@ -26,7 +32,8 @@ projects, _, err := client.Projects.List(*org, nil)
 
 # Disclaimer
 
-This is currently very early release, not everything in the [buildkite API](https://buildkite.com/docs/api/) is present here YET.
+Currently not everything in the [buildkite API](https://buildkite.com/docs/api/) is present here YET. If
+you find something you need is missing please make a pull request.
 
 # License
 

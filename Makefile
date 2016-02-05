@@ -15,7 +15,7 @@ test: deps
 	go test -timeout=3s -v ./...
 
 docker:
-	docker run --rm -v "$(shell pwd)":/go-buildkite -w /go-buildkite golang:1.4 make
+	docker run --rm -v "$(shell pwd)":/go-buildkite -w /go-buildkite golang:1.5 make
 
 clean:
 	rm -rf $(shell pwd)/.gopath || true
