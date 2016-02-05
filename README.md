@@ -4,6 +4,10 @@ A [golang](http://golang.org) client for the [buildkite](https://buildkite.com/)
 
 # Usage
 
+To get the package, execute:
+
+go get gopkg.in/wolfeidau/go-buildkite.v1
+
 Simple example for listing all projects is provided below, see examples for more.
 
 ```go

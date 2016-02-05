@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/wolfeidau/go-buildkite/buildkite"
+	"gopkg.in/wolfeidau/go-buildkite.v1"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
