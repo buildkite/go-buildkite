@@ -18,6 +18,15 @@ type BuildsService struct {
 	client *Client
 }
 
+// Creator represents who created a build
+type Creator struct {
+	AvatarURL string     `json:"avatar_url"`
+	CreatedAt *Timestamp `json:"created_at"`
+	Email     string     `json:"email"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+}
+
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          *string           `json:"id,omitempty"`
@@ -34,6 +43,7 @@ type Build struct {
 	StartedAt   *Timestamp        `json:"started_at,omitempty"`
 	FinishedAt  *Timestamp        `json:"finished_at,omitempty"`
 	MetaData    interface{}       `json:"meta_data,omitempty"`
+	Creator     *Creator  `json:"creator,omitempty"`
 
 	// jobs run during the build
 	Jobs []*Job `json:"jobs,omitempty"`
@@ -57,6 +67,9 @@ type Job struct {
 	ScheduledAt   *Timestamp `json:"scheduled_at,omitempty"`
 	StartedAt     *Timestamp `json:"started_at,omitempty"`
 	FinishedAt    *Timestamp `json:"finished_at,omitempty"`
+	Agent           Agent      `json:"agent,omitempty"`
+	AgentQueryRules []string   `json:"agent_query_rules,omitempty"`
+	WebURL          string     `json:"web_url"`
 }
 
 // BuildsListOptions specifies the optional parameters to the
