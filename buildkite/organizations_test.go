@@ -11,7 +11,7 @@ func TestOrganizationsService_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -31,7 +31,7 @@ func TestOrganizationsService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/babelstoemp", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/babelstoemp", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{"id":"123"}`)
 	})

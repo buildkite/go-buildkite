@@ -72,7 +72,7 @@ type PipelineListOptions struct {
 func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeline, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/organizations/%s/pipelines", org)
+	u = fmt.Sprintf("v2/organizations/%s/pipelines", org)
 
 	u, err := addOptions(u, opt)
 	if err != nil {

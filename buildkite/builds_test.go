@@ -12,7 +12,7 @@ func TestBuildsService_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/builds", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -32,7 +32,7 @@ func TestBuildsService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/pipelines/sup-keith/builds/123", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
@@ -52,7 +52,7 @@ func TestBuildsService_List_by_status(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/builds", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
 			"state": "running",
@@ -85,7 +85,7 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	mux.HandleFunc("/v1/builds", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
 			"created_from": "2016-03-24T01:00:00Z",
@@ -113,7 +113,7 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -133,7 +133,7 @@ func TestBuildsService_ListByPipeline(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})

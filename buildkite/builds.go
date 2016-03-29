@@ -102,8 +102,7 @@ type BuildsListOptions struct {
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
 func (as *BuildsService) Get(org string, pipeline string, id string) (*Build, *Response, error) {
-
-	u := fmt.Sprintf("v1/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
 
 	req, err := as.client.NewRequest("GET", u, nil)
 	if err != nil {
@@ -125,7 +124,7 @@ func (as *BuildsService) Get(org string, pipeline string, id string) (*Build, *R
 func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/builds")
+	u = fmt.Sprintf("v2/builds")
 
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -152,7 +151,7 @@ func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error
 func (bs *BuildsService) ListByOrg(org string, opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/organizations/%s/builds", org)
+	u = fmt.Sprintf("v2/organizations/%s/builds", org)
 
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -179,7 +178,7 @@ func (bs *BuildsService) ListByOrg(org string, opt *BuildsListOptions) ([]Build,
 func (bs *BuildsService) ListByPipeline(org string, pipeline string, opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/organizations/%s/pipelines/%s/builds", org, pipeline)
+	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds", org, pipeline)
 
 	u, err := addOptions(u, opt)
 	if err != nil {

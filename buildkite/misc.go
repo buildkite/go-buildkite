@@ -20,7 +20,7 @@ func (c *Client) ListEmojis(org string) ([]Emoji, *Response, error) {
 
 	var u string
 
-	u = fmt.Sprintf("v1/organizations/%s/emojis", org)
+	u = fmt.Sprintf("v2/organizations/%s/emojis", org)
 
 	req, err := c.NewRequest("GET", u, nil)
 	if err != nil {
