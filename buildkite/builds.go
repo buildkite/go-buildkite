@@ -29,21 +29,21 @@ type Creator struct {
 
 // Build represents a build which has run in buildkite
 type Build struct {
-	ID          *string           `json:"id,omitempty"`
-	URL         *string           `json:"url,omitempty"`
-	WebURL      *string           `json:"web_url,omitempty"`
-	Number      *int              `json:"number,omitempty"`
-	State       *string           `json:"state,omitempty"`
-	Message     *string           `json:"message,omitempty"`
-	Commit      *string           `json:"commit,omitempty"`
-	Branch      *string           `json:"branch,omitempty"`
-	Env         map[string]string `json:"env,omitempty"`
-	CreatedAt   *Timestamp        `json:"created_at,omitempty"`
-	ScheduledAt *Timestamp        `json:"scheduled_at,omitempty"`
-	StartedAt   *Timestamp        `json:"started_at,omitempty"`
-	FinishedAt  *Timestamp        `json:"finished_at,omitempty"`
-	MetaData    interface{}       `json:"meta_data,omitempty"`
-	Creator     *Creator  `json:"creator,omitempty"`
+	ID          *string                `json:"id,omitempty"`
+	URL         *string                `json:"url,omitempty"`
+	WebURL      *string                `json:"web_url,omitempty"`
+	Number      *int                   `json:"number,omitempty"`
+	State       *string                `json:"state,omitempty"`
+	Message     *string                `json:"message,omitempty"`
+	Commit      *string                `json:"commit,omitempty"`
+	Branch      *string                `json:"branch,omitempty"`
+	Env         map[string]interface{} `json:"env,omitempty"`
+	CreatedAt   *Timestamp             `json:"created_at,omitempty"`
+	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty"`
+	StartedAt   *Timestamp             `json:"started_at,omitempty"`
+	FinishedAt  *Timestamp             `json:"finished_at,omitempty"`
+	MetaData    interface{}            `json:"meta_data,omitempty"`
+	Creator     *Creator               `json:"creator,omitempty"`
 
 	// jobs run during the build
 	Jobs []*Job `json:"jobs,omitempty"`
@@ -54,19 +54,19 @@ type Build struct {
 
 // Job represents a job run during a build in buildkite
 type Job struct {
-	ID            *string    `json:"id,omitempty"`
-	Type          *string    `json:"type,omitempty"`
-	Name          *string    `json:"name,omitempty"`
-	State         *string    `json:"state,omitempty"`
-	LogsURL       *string    `json:"logs_url,omitempty"`
-	RawLogsURL    *string    `json:"raw_log_url,omitempty"`
-	Command       *string    `json:"command,omitempty"`
-	ExitStatus    *int       `json:"exit_status,omitempty"`
-	ArtifactPaths *string    `json:"artifact_paths,omitempty"`
-	CreatedAt     *Timestamp `json:"created_at,omitempty"`
-	ScheduledAt   *Timestamp `json:"scheduled_at,omitempty"`
-	StartedAt     *Timestamp `json:"started_at,omitempty"`
-	FinishedAt    *Timestamp `json:"finished_at,omitempty"`
+	ID              *string    `json:"id,omitempty"`
+	Type            *string    `json:"type,omitempty"`
+	Name            *string    `json:"name,omitempty"`
+	State           *string    `json:"state,omitempty"`
+	LogsURL         *string    `json:"logs_url,omitempty"`
+	RawLogsURL      *string    `json:"raw_log_url,omitempty"`
+	Command         *string    `json:"command,omitempty"`
+	ExitStatus      *int       `json:"exit_status,omitempty"`
+	ArtifactPaths   *string    `json:"artifact_paths,omitempty"`
+	CreatedAt       *Timestamp `json:"created_at,omitempty"`
+	ScheduledAt     *Timestamp `json:"scheduled_at,omitempty"`
+	StartedAt       *Timestamp `json:"started_at,omitempty"`
+	FinishedAt      *Timestamp `json:"finished_at,omitempty"`
 	Agent           Agent      `json:"agent,omitempty"`
 	AgentQueryRules []string   `json:"agent_query_rules,omitempty"`
 	WebURL          string     `json:"web_url"`
