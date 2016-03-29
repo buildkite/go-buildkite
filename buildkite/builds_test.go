@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestBuildsService_List(t *testing.T) {
@@ -60,13 +61,49 @@ func TestBuildsService_List_by_status(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	opt := &BuildsListOptions{"running", "", ListOptions{Page: 2}}
+	opt := &BuildsListOptions{
+		State:       "running",
+		ListOptions: ListOptions{Page: 2},
+	}
 	builds, _, err := client.Builds.List(opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	if !reflect.DeepEqual(builds, want) {
+		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	}
+}
+
+func TestBuildsService_List_by_created_date(t *testing.T) {
+	setup()
+	defer teardown()
+
+	ts, err := time.Parse(BuildKiteDateFormat, "2016-03-24T01:00:00Z")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	mux.HandleFunc("/v1/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"created_from": "2016-03-24T01:00:00Z",
+			"created_to":   "2016-03-24T02:00:00Z",
+		})
+		fmt.Fprint(w, `[{"id":"123"}]`)
+	})
+
+	opt := &BuildsListOptions{
+		CreatedFrom: ts,
+		CreatedTo:   ts.Add(time.Hour),
+	}
+	builds, _, err := client.Builds.List(opt)
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: String("123")}}
 	if !reflect.DeepEqual(builds, want) {
 		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
 	}
