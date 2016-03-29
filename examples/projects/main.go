@@ -28,13 +28,13 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	projects, _, err := client.Projects.List(*org, nil)
+	pipelines, _, err := client.Pipelines.List(*org, nil)
 
 	if err != nil {
-		log.Fatalf("list projects failed: %s", err)
+		log.Fatalf("list pipelines failed: %s", err)
 	}
 
-	data, err := json.MarshalIndent(projects, "", "\t")
+	data, err := json.MarshalIndent(pipelines, "", "\t")
 
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)

@@ -23,7 +23,7 @@ type Organization struct {
 	Name        *string    `json:"name,omitempty"`
 	Slug        *string    `json:"slug,omitempty"`
 	Repository  *string    `json:"repository,omitempty"`
-	ProjectsURL *string    `json:"projects_url,omitempty"`
+	PipelinesURL *string    `json:"pipelines_url,omitempty"`
 	AgentsURL   *string    `json:"agents_url,omitempty"`
 	CreatedAt   *Timestamp `json:"created_at,omitempty"`
 }

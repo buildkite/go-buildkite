@@ -10,7 +10,7 @@ To get the package, execute:
 go get gopkg.in/wolfeidau/go-buildkite.v1
 ```
 
-Simple shortened example for listing all projects is provided below, see examples for more.
+Simple shortened example for listing all pipelines is provided below, see examples for more.
 
 ```go
 import (
@@ -26,7 +26,7 @@ if err != nil {
 
 client := buildkite.NewClient(config.Client())
 
-projects, _, err := client.Projects.List(*org, nil)
+pipelines, _, err := client.Pipelines.List(*org, nil)
 
 ```
 

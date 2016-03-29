@@ -32,7 +32,7 @@ func TestBuildsService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/projects/sup-keith/builds/123", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v1/organizations/my-great-org/pipelines/sup-keith/builds/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
@@ -129,16 +129,16 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 	}
 }
 
-func TestBuildsService_ListByProject(t *testing.T) {
+func TestBuildsService_ListByPipeline(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/projects/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v1/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	builds, _, err := client.Builds.ListByProject("my-great-org", "sup-keith", nil)
+	builds, _, err := client.Builds.ListByPipeline("my-great-org", "sup-keith", nil)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}

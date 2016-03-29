@@ -46,7 +46,7 @@ type Client struct {
 	Agents        *AgentsService
 	Builds        *BuildsService
 	Organizations *OrganizationsService
-	Projects      *ProjectsService
+	Pipelines      *PipelinesService
 	User          *UserService
 }
 
@@ -75,7 +75,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Agents = &AgentsService{c}
 	c.Builds = &BuildsService{c}
 	c.Organizations = &OrganizationsService{c}
-	c.Projects = &ProjectsService{c}
+	c.Pipelines = &PipelinesService{c}
 	c.User = &UserService{c}
 
 	return c
