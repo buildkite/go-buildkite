@@ -5,7 +5,10 @@
 
 package buildkite
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // BuildsService handles communication with the build related
 // methods of the buildkite API.
@@ -59,6 +62,18 @@ type Job struct {
 // BuildsListOptions specifies the optional parameters to the
 // BuildsService.List method.
 type BuildsListOptions struct {
+
+	// Filters the results by the user who created the build
+	Creator string `url:"creator,omitempty"`
+
+	// Filters the results by builds created on or after the given time
+	CreatedFrom time.Time `url:"created_from,omitempty"`
+
+	// Filters the results by builds created before the given time
+	CreatedTo time.Time `url:"created_to,omitempty"`
+
+	// Filters the results by builds finished on or after the given time
+	FinishedFrom time.Time `url:"finished_from,omitempty"`
 
 	// State of builds to list.  Possible values are: running, scheduled, passed,
 	// failed, canceled, skipped and not_run. Default is "".
