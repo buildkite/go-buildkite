@@ -7,14 +7,14 @@ A [golang](http://golang.org) client for the [buildkite](https://buildkite.com/)
 To get the package, execute:
 
 ```
-go get gopkg.in/wolfeidau/go-buildkite.v1
+go get gopkg.in/wolfeidau/go-buildkite.v2
 ```
 
 Simple shortened example for listing all pipelines is provided below, see examples for more.
 
 ```go
 import (
-    "gopkg.in/wolfeidau/go-buildkite.v1"
+    "gopkg.in/wolfeidau/go-buildkite.v2"
 )
 ...
 
