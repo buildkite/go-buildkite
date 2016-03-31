@@ -1,6 +1,6 @@
 # buildkite-go [![GoDoc](https://img.shields.io/badge/godoc-Reference-brightgreen.svg?style=flat)](http://godoc.org/github.com/buildkite/go-buildkite) [![Build status](https://badge.buildkite.com/f7561b01d3f2886b819d0825464bf9a3c90cd0d0a1a96a517d.svg)](https://buildkite.com/mark-at-wolfe-dot-id-dot-au/go-buildkite)
 
-A [Go](http://golang.org) library and client for the [buildkite](https://buildkite.com/) API. This project draws a lot of it's structure and testing methods from [go-github](https://github.com/google/go-github).
+A [Go](http://golang.org) library and client for the [Buildkite API](https://buildkite.com/docs/api). This project draws a lot of it's structure and testing methods from [go-github](https://github.com/google/go-github).
 
 # Usage
 
