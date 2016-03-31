@@ -17,18 +17,25 @@ type AgentsService struct {
 
 // Agent represents a buildkite build agent.
 type Agent struct {
-	ID             *string    `json:"id,omitempty"`
-	URL            *string    `json:"url,omitempty"`
-	Name           *string    `json:"name,omitempty"`
-	ConnectedState *string    `json:"connection_state,omitempty"`
-	AgentToken     *string    `json:"access_token,omitempty"`
-	Hostname       *string    `json:"hostname,omitempty"`
-	IPAddress      *string    `json:"ip_address,omitempty"`
-	UserAgent      *string    `json:"user_agent,omitempty"`
-	CreatedAt      *Timestamp `json:"created_at,omitempty"`
+	ID                *string    `json:"id,omitempty"`
+	URL               *string    `json:"url,omitempty"`
+	WebURL            *string    `json:"web_url,omitempty"`
+	Name              *string    `json:"name,omitempty"`
+	ConnectedState    *string    `json:"connection_state,omitempty"`
+	AgentToken        *string    `json:"access_token,omitempty"`
+	Hostname          *string    `json:"hostname,omitempty"`
+	IPAddress         *string    `json:"ip_address,omitempty"`
+	UserAgent         *string    `json:"user_agent,omitempty"`
+	Version           *string    `json:"version,omitempty"`
+	CreatedAt         *Timestamp `json:"created_at,omitempty"`
+	LastJobFinishedAt *Timestamp `json:"last_job_finished_at,omitempty"`
+	Priority          *int       `json:"priority,omitempty"`
+	Metadata          []string   `json:"meta_data,omitempty"`
 
-	// the user which created the agent
+	// the user that created the agent
 	Creator *User `json:"creator,omitempty"`
+
+	Job *Job `json:"job,omitempty"`
 }
 
 // AgentListOptions specifies the optional parameters to the
