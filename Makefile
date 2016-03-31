@@ -1,5 +1,5 @@
 GOPATH := $(shell pwd)/.gopath
-STAGING_PATH = $(shell pwd)/.gopath/src/github.com/wolfeidau
+STAGING_PATH = $(shell pwd)/.gopath/src/github.com/buildkite
 DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 
 all: deps test
