@@ -46,7 +46,7 @@ type Client struct {
 	Agents        *AgentsService
 	Builds        *BuildsService
 	Organizations *OrganizationsService
-	Pipelines      *PipelinesService
+	Pipelines     *PipelinesService
 	User          *UserService
 }
 

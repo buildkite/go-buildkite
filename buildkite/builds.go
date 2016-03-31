@@ -90,7 +90,7 @@ type BuildsListOptions struct {
 
 	// State of builds to list.  Possible values are: running, scheduled, passed,
 	// failed, canceled, skipped and not_run. Default is "".
-	State string `url:"state,omitempty"`
+	State []string `url:"state,brackets,omitempty"`
 
 	// Branch filter by the name of the branch. Default is "".
 	Branch string `url:"branch,omitempty"`

@@ -55,14 +55,43 @@ func TestBuildsService_List_by_status(t *testing.T) {
 	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
-			"state": "running",
-			"page":  "2",
+			"state[]": "running",
+			"page":    "2",
 		})
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	opt := &BuildsListOptions{
-		State:       "running",
+		State:       []string{"running"},
+		ListOptions: ListOptions{Page: 2},
+	}
+	builds, _, err := client.Builds.List(opt)
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	if !reflect.DeepEqual(builds, want) {
+		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	}
+}
+
+func TestBuildsService_List_by_multiple_status(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValuesList(t, r, valuesList{
+			{"state[]", "running"},
+			{"state[]", "scheduled"},
+			{"page", "2"},
+		})
+		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+	})
+
+	opt := &BuildsListOptions{
+		State:       []string{"running", "scheduled"},
 		ListOptions: ListOptions{Page: 2},
 	}
 	builds, _, err := client.Builds.List(opt)
