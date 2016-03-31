@@ -30,7 +30,7 @@ pipelines, _, err := client.Pipelines.List(*org, nil)
 
 ```
 
-Not everything in the [buildkite API](https://buildkite.com/docs/api/) is present here yet—if you need something please make an issue or submit a pull request.
+Note: not everything in the API is present here just yet—if you need something please make an issue or submit a pull request.
 
 # License
 
