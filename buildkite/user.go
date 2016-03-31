@@ -29,7 +29,7 @@ type User struct {
 func (os *UserService) Get() (*User, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/user")
+	u = fmt.Sprintf("v2/user")
 
 	req, err := os.client.NewRequest("GET", u, nil)
 	if err != nil {

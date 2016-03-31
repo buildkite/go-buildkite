@@ -46,11 +46,24 @@ func testMethod(t *testing.T, r *http.Request, want string) {
 }
 
 type values map[string]string
+type valuesList []struct{ key, val string }
 
 func testFormValues(t *testing.T, r *http.Request, values values) {
 	want := url.Values{}
 	for k, v := range values {
 		want.Add(k, v)
+	}
+
+	r.ParseForm()
+	if got := r.Form; !reflect.DeepEqual(got, want) {
+		t.Errorf("Request parameters: %v, want %v", got, want)
+	}
+}
+
+func testFormValuesList(t *testing.T, r *http.Request, values valuesList) {
+	want := url.Values{}
+	for _, v := range values {
+		want.Add(v.key, v.val)
 	}
 
 	r.ParseForm()

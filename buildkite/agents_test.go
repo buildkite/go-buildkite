@@ -12,7 +12,7 @@ func TestAgentsService_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -32,7 +32,7 @@ func TestAgentsService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
@@ -54,7 +54,7 @@ func TestAgentsService_Create(t *testing.T) {
 
 	input := &Agent{Name: String("new_agent_bob")}
 
-	mux.HandleFunc("/v1/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
 		v := new(Agent)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -83,7 +83,7 @@ func TestAgentsService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 	})
 

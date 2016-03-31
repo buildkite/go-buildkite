@@ -23,7 +23,7 @@ type Organization struct {
 	Name        *string    `json:"name,omitempty"`
 	Slug        *string    `json:"slug,omitempty"`
 	Repository  *string    `json:"repository,omitempty"`
-	ProjectsURL *string    `json:"projects_url,omitempty"`
+	PipelinesURL *string    `json:"pipelines_url,omitempty"`
 	AgentsURL   *string    `json:"agents_url,omitempty"`
 	CreatedAt   *Timestamp `json:"created_at,omitempty"`
 }
@@ -40,7 +40,7 @@ type OrganizationListOptions struct {
 func (os *OrganizationsService) List(opt *OrganizationListOptions) ([]Organization, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/organizations")
+	u = fmt.Sprintf("v2/organizations")
 
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -66,7 +66,7 @@ func (os *OrganizationsService) List(opt *OrganizationListOptions) ([]Organizati
 // buildkite API docs: https://buildkite.com/docs/api/organizations#get-an-organization
 func (os *OrganizationsService) Get(slug string) (*Organization, *Response, error) {
 
-	u := fmt.Sprintf("v1/organizations/%s", slug)
+	u := fmt.Sprintf("v2/organizations/%s", slug)
 
 	req, err := os.client.NewRequest("GET", u, nil)
 	if err != nil {

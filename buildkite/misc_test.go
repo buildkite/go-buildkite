@@ -11,9 +11,9 @@ func TestListEmojis(t *testing.T) {
 	setup()
 	defer teardown()
 
-	mux.HandleFunc("/v1/organizations/my-great-org/emojis", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/emojis", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"name":"rocket","url":"https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v1"}]`)
+		fmt.Fprint(w, `[{"name":"rocket","url":"https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2"}]`)
 	})
 
 	emoji, _, err := client.ListEmojis("my-great-org")
@@ -21,7 +21,7 @@ func TestListEmojis(t *testing.T) {
 		t.Errorf("ListEmojis returned error: %v", err)
 	}
 
-	want := []Emoji{{Name: String("rocket"), URL: String("https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v1")}}
+	want := []Emoji{{Name: String("rocket"), URL: String("https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2")}}
 	if !reflect.DeepEqual(want, emoji) {
 		t.Errorf("ListEmojis returned %+v, want %+v", emoji, want)
 	}

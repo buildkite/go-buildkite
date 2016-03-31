@@ -7,16 +7,16 @@ package buildkite
 
 import "fmt"
 
-// ProjectsService handles communication with the project related
+// PipelinesService handles communication with the pipeline related
 // methods of the buildkite API.
 //
-// buildkite API docs: https://buildkite.com/docs/api/projects
-type ProjectsService struct {
+// buildkite API docs: https://buildkite.com/docs/api/pipelines
+type PipelinesService struct {
 	client *Client
 }
 
-// Project represents a buildkite project.
-type Project struct {
+// Pipeline represents a buildkite pipeline.
+type Pipeline struct {
 	ID         *string    `json:"id,omitempty"`
 	URL        *string    `json:"url,omitempty"`
 	WebURL     *string    `json:"web_url,omitempty"`
@@ -35,7 +35,7 @@ type Project struct {
 	// the provider of sources
 	Provider *Provider `json:"provider,omitempty"`
 
-	// build featured when you view the project
+	// build featured when you view the pipeline
 	FeaturedBuild *Build `json:"featured_build,omitempty"`
 
 	// build steps
@@ -60,19 +60,19 @@ type Step struct {
 	AgentQueryRules     interface{}       `json:"agent_query_rules,omitempty"`  // *shrug*
 }
 
-// ProjectListOptions specifies the optional parameters to the
-// ProjectsService.List method.
-type ProjectListOptions struct {
+// PipelineListOptions specifies the optional parameters to the
+// PipelinesService.List method.
+type PipelineListOptions struct {
 	ListOptions
 }
 
-// List the projects for a given orginisation.
+// List the pipelines for a given orginisation.
 //
-// buildkite API docs: https://buildkite.com/docs/api/projects#list-projects
-func (ps *ProjectsService) List(org string, opt *ProjectListOptions) ([]Project, *Response, error) {
+// buildkite API docs: https://buildkite.com/docs/api/pipelines#list-pipelines
+func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeline, *Response, error) {
 	var u string
 
-	u = fmt.Sprintf("v1/organizations/%s/projects", org)
+	u = fmt.Sprintf("v2/organizations/%s/pipelines", org)
 
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -84,11 +84,11 @@ func (ps *ProjectsService) List(org string, opt *ProjectListOptions) ([]Project,
 		return nil, nil, err
 	}
 
-	projects := new([]Project)
-	resp, err := ps.client.Do(req, projects)
+	pipelines := new([]Pipeline)
+	resp, err := ps.client.Do(req, pipelines)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return *projects, resp, err
+	return *pipelines, resp, err
 }
