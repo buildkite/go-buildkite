@@ -24,6 +24,7 @@ type Pipeline struct {
 	Slug       *string    `json:"slug,omitempty"`
 	Repository *string    `json:"repository,omitempty"`
 	BuildsURL  *string    `json:"builds_url,omitempty"`
+	BadgeURL   *string    `json:"badge_url,omitempty"`
 	CreatedAt  *Timestamp `json:"created_at,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty"`
