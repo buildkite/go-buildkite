@@ -36,9 +36,6 @@ type Pipeline struct {
 	// the provider of sources
 	Provider *Provider `json:"provider,omitempty"`
 
-	// build featured when you view the pipeline
-	FeaturedBuild *Build `json:"featured_build,omitempty"`
-
 	// build steps
 	Steps []*Step `json:"steps,omitempty"`
 }
