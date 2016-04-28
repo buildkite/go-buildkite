@@ -4,4 +4,4 @@ steps:
     command: "make"
     plugins:
       - ssh://git@github.com/buildkite/plugins/docker-compose:
-          container: "agent"
+          container: "app"
