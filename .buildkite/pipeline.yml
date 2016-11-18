@@ -1,7 +1,6 @@
 steps:
-  -
-    name: ":golang:"
-    command: "make"
+  - name: ":golang:"
+    command: make
     plugins:
-      - ssh://git@github.com/buildkite/plugins/docker-compose:
-          container: "app"
+      - docker-compose#ab65b07:
+          run: app
