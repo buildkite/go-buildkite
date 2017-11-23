@@ -8,6 +8,7 @@ package buildkite
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -226,7 +227,11 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 
 		// Check for rate limiting response on idempotent requests
 		if req.Method == http.MethodGet && resp.StatusCode == http.StatusTooManyRequests {
-			return fmt.Errorf("Too many requests, retry")
+			errMsg := resp.Header.Get("Rate-Limit-Warning")
+			if errMsg == "" {
+				errMsg = "Too many requests, retry"
+			}
+			return errors.New(errMsg)
 		}
 
 		respCh <- resp
@@ -235,7 +240,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 
 	notify := func(err error, delay time.Duration) {
 		if httpDebug {
-			fmt.Printf("DEBUG error %v, retry in %v", err, delay)
+			fmt.Printf("DEBUG error %v, retry in %v\n", err, delay)
 		}
 	}
 
