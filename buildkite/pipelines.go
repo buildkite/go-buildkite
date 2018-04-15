@@ -102,6 +102,27 @@ func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *R
 	return pipeline, resp, err
 }
 
+// Get fetches a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#get-a-pipeline
+func (ps *PipelinesService) Get(org string, slug string) (*Pipeline, *Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
+
+	req, err := ps.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pipeline := new(Pipeline)
+	resp, err := ps.client.Do(req, pipeline)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return pipeline, resp, err
+}
+
 // List the pipelines for a given organisation.
 //
 // buildkite API docs: https://buildkite.com/docs/api/pipelines#list-pipelines

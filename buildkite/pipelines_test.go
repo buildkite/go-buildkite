@@ -79,6 +79,27 @@ func TestPipelinesService_Create(t *testing.T) {
 
 }
 
+func TestPipelinesService_Get(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `{"id":"123",
+						"slug":"my-great-pipeline-slug"}`)
+	})
+
+	pipeline, _, err := client.Pipelines.Get("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.Get returned error: %v", err)
+	}
+
+	want := &Pipeline{ID: String("123"), Slug: String("my-great-pipeline-slug")}
+	if !reflect.DeepEqual(pipeline, want) {
+		t.Errorf("Pipelines.Get returned %+v, want %+v", pipeline, want)
+	}
+}
+
 func TestPipelinesService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
