@@ -15,6 +15,24 @@ type PipelinesService struct {
 	client *Client
 }
 
+// Create a Pipeline.
+type CreatePipeline struct {
+	Name       string `json:"name"`
+	Repository string `json:"repository"`
+	Steps      []Step `json:"steps"`
+
+	// Optional fields
+	Description                     string            `json:"description,omitempty"`
+	Env                             map[string]string `json:"env,omitempty"`
+	ProviderSettings                map[string]bool   `json:"provider_settings,omitempty"`
+	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
+	TeamUuids                       []string          `json:"team_uuids,omitempty"`
+}
+
 // Pipeline represents a buildkite pipeline.
 type Pipeline struct {
 	ID         *string    `json:"id,omitempty"`
@@ -64,7 +82,48 @@ type PipelineListOptions struct {
 	ListOptions
 }
 
-// List the pipelines for a given orginisation.
+// Creates a pipeline for a given organisation.
+//
+// buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#create-a-pipeline
+func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines", org)
+
+	req, err := ps.client.NewRequest("POST", u, p)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pipeline := new(Pipeline)
+	resp, err := ps.client.Do(req, pipeline)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return pipeline, resp, err
+}
+
+// Get fetches a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#get-a-pipeline
+func (ps *PipelinesService) Get(org string, slug string) (*Pipeline, *Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
+
+	req, err := ps.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pipeline := new(Pipeline)
+	resp, err := ps.client.Do(req, pipeline)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return pipeline, resp, err
+}
+
+// List the pipelines for a given organisation.
 //
 // buildkite API docs: https://buildkite.com/docs/api/pipelines#list-pipelines
 func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeline, *Response, error) {
@@ -89,4 +148,19 @@ func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeli
 	}
 
 	return *pipelines, resp, err
+}
+
+// Delete a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#delete-a-pipeline
+func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
+
+	req, err := ps.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
 }
