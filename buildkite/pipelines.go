@@ -15,7 +15,7 @@ type PipelinesService struct {
 	client *Client
 }
 
-// Create a build.
+// Create a Pipeline.
 type CreatePipeline struct {
 	Name       string `json:"name"`
 	Repository string `json:"repository"`
