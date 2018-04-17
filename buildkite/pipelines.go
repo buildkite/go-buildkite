@@ -5,7 +5,10 @@
 
 package buildkite
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // PipelinesService handles communication with the pipeline related
 // methods of the buildkite API.
@@ -163,4 +166,39 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 	}
 
 	return ps.client.Do(req, nil)
+}
+
+// Updates a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
+func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
+	if p == nil {
+		return nil, errors.New("pipeline must not be nil.")
+	}
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
+
+	// There is quite a lot of properties that are not represented by the Client-side
+	// Pipeline abstraction hence only a subset can be updated.
+	cp := &CreatePipeline{
+		Name:       *p.Name,
+		Repository: *p.Repository,
+		Steps:      make([]Step, len(p.Steps)),
+	}
+
+	for i := range p.Steps {
+		cp.Steps[i] = *p.Steps[i]
+	}
+
+	req, err := ps.client.NewRequest("PATCH", u, cp)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := ps.client.Do(req, p)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
 }
