@@ -5,7 +5,9 @@
 
 package buildkite
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // PipelinesService handles communication with the pipeline related
 // methods of the buildkite API.
@@ -49,14 +51,7 @@ type Pipeline struct {
 	WaitingJobsCount     *int       `json:"waiting_jobs_count,omitempty"`
 
 	// Write-only
-	ProviderSettings map[string]interface{} `json:"provider_settings,omitempty"`
-}
-
-// Provider represents a source code provider. It is read-only, but settings may be written using Pipeline.ProviderSettings.
-type Provider struct {
-	ID         *string                `json:"id"`
-	WebhookURL *string                `json:"webhook_url"`
-	Settings   map[string]interface{} `json:"settings"`
+	ProviderSettings ProviderSettings `json:"provider_settings,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
