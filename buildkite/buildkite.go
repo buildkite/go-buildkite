@@ -321,6 +321,14 @@ func addOptions(s string, opt interface{}) (string, error) {
 	return u.String(), nil
 }
 
+// Bool is a helper routine that allocates a new bool value
+// to store v and returns a pointer to it.
+func Bool(v bool) *bool {
+	p := new(bool)
+	*p = v
+	return p
+}
+
 // Int is a helper routine that allocates a new int value
 // to store v and returns a pointer to it, but unlike Int
 // its argument value is an int.
