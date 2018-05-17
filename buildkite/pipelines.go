@@ -27,7 +27,7 @@ type CreatePipeline struct {
 	// Optional fields
 	Description                     string            `json:"description,omitempty"`
 	Env                             map[string]string `json:"env,omitempty"`
-	ProviderSettings                map[string]bool   `json:"provider_settings,omitempty"`
+	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty"`
 	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
 	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty"`
 	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty"`
@@ -61,12 +61,6 @@ type Pipeline struct {
 	Steps []*Step `json:"steps,omitempty"`
 }
 
-// Provider represents a source code provider.
-type Provider struct {
-	ID         *string `json:"id,omitempty"`
-	WebhookURL *string `json:"webhook_url,omitempty"`
-}
-
 // Step represents a build step in buildkites build pipeline
 type Step struct {
 	Type                *string           `json:"type,omitempty"`
@@ -75,8 +69,8 @@ type Step struct {
 	ArtifactPaths       *string           `json:"artifact_paths,omitempty"`
 	BranchConfiguration *string           `json:"branch_configuration,omitempty"`
 	Env                 map[string]string `json:"env,omitempty"`
-	TimeoutInMinutes    interface{}       `json:"timeout_in_minutes,omitempty"` // *shrug*
-	AgentQueryRules     interface{}       `json:"agent_query_rules,omitempty"`  // *shrug*
+	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty"`
+	AgentQueryRules     []string          `json:"agent_query_rules,omitempty"`
 }
 
 // PipelineListOptions specifies the optional parameters to the
