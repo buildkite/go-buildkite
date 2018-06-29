@@ -75,8 +75,8 @@ type Step struct {
 	ArtifactPaths       *string           `json:"artifact_paths,omitempty"`
 	BranchConfiguration *string           `json:"branch_configuration,omitempty"`
 	Env                 map[string]string `json:"env,omitempty"`
-	TimeoutInMinutes    interface{}       `json:"timeout_in_minutes,omitempty"` // *shrug*
-	AgentQueryRules     interface{}       `json:"agent_query_rules,omitempty"`  // *shrug*
+	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty"`
+	AgentQueryRules     []string          `json:"agent_query_rules,omitempty"`
 }
 
 // PipelineListOptions specifies the optional parameters to the
