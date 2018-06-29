@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -175,5 +176,44 @@ func TestBuildsService_ListByPipeline(t *testing.T) {
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
 	if !reflect.DeepEqual(builds, want) {
 		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	}
+}
+
+func TestBuildsUnmarshalWebhook(t *testing.T) {
+	// payload taken from buildkite services console
+	sampleData := `{
+  "event": "build.scheduled",
+  "build": {
+    "id": "foo",
+    "url": "https://api.buildkite.com/v2/organizations/org/pipelines/greenpipe/builds/1",
+    "web_url": "https://buildkite.com/org/greenpipe/builds/1",
+    "number": 1,
+    "state": "scheduled",
+    "blocked": false,
+    "message": "doot",
+    "commit": "HEAD",
+    "branch": "master",
+    "tag": null,
+    "source": "ui",
+    "creator": {
+      "id": "foo",
+      "name": "Uhh, Jim",
+      "email": "slam@space.jam",
+      "created_at": "2018-03-22 23:13:16 UTC"
+    },
+    "created_at": "2018-03-25 03:58:14 UTC",
+    "scheduled_at": "2018-03-25 03:58:14 UTC"
+  }
+}`
+
+	type webhookPayload struct {
+		Event string
+		Build Build
+	}
+
+	var payload webhookPayload
+
+	if err := json.Unmarshal([]byte(sampleData), &payload); err != nil {
+		t.Fatalf("could not unmarshal: %v", err)
 	}
 }
