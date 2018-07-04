@@ -86,7 +86,12 @@ func TestPipelinesService_Get(t *testing.T) {
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{"id":"123",
-						"slug":"my-great-pipeline-slug"}`)
+						"slug":"my-great-pipeline-slug",
+						"timeout_in_minutes": "1",
+						"agent_query_rules": [
+							"queue=default",
+							"llamas=true"
+						]}`)
 	})
 
 	pipeline, _, err := client.Pipelines.Get("my-great-org", "my-great-pipeline-slug")
