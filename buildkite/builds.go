@@ -84,6 +84,7 @@ type Job struct {
 	ArtifactPaths   *string    `json:"artifact_paths,omitempty"`
 	CreatedAt       *Timestamp `json:"created_at,omitempty"`
 	ScheduledAt     *Timestamp `json:"scheduled_at,omitempty"`
+	RunnableAt      *Timestamp `json:"runnable_at,omitempty"`
 	StartedAt       *Timestamp `json:"started_at,omitempty"`
 	FinishedAt      *Timestamp `json:"finished_at,omitempty"`
 	Agent           Agent      `json:"agent,omitempty"`
