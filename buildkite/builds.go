@@ -46,6 +46,13 @@ type Creator struct {
 	Name      string     `json:"name"`
 }
 
+// PullRequest represents a Github PR
+type PullRequest struct {
+	ID          *string    `json:"id,omitempty"`
+	Base        *string    `json:"base,omitempty"`
+	Repository  *string    `json:"repository,omitempty"`
+}
+
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          *string                `json:"id,omitempty"`
@@ -69,6 +76,9 @@ type Build struct {
 
 	// the pipeline this build is associated with
 	Pipeline *Pipeline `json:"pipeline,omitempty"`
+
+	// the pull request this build is associated with
+	PullRequest *PullRequest `json:"pull_request,omitempty"`
 }
 
 // Job represents a job run during a build in buildkite
