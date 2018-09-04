@@ -249,8 +249,8 @@ func (bs *BuildsService) ListByPipeline(org string, pipeline string, opt *Builds
 // Rebuild triggers a rebuild for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#rebuild-a-build
-func (bs *BuildsService) Rebuild(build Build) (*Build, error) {
-	u := fmt.Sprintf("%s/rebuild", *(build.URL))
+func (bs *BuildsService) Rebuild(org, pipeline, build string) (*Build, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/rebuild", org, pipeline, build)
 	req, err := bs.client.NewRequest("PUT", u, nil)
 	if err != nil {
 		return nil, err
