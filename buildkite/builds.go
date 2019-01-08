@@ -53,6 +53,7 @@ type Build struct {
 	WebURL      *string                `json:"web_url,omitempty"`
 	Number      *int                   `json:"number,omitempty"`
 	State       *string                `json:"state,omitempty"`
+	Blocked     *bool                  `json:"blocked,omitempty"`
 	Message     *string                `json:"message,omitempty"`
 	Commit      *string                `json:"commit,omitempty"`
 	Branch      *string                `json:"branch,omitempty"`
