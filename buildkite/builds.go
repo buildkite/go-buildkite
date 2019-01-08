@@ -53,6 +53,7 @@ type Build struct {
 	WebURL      *string                `json:"web_url,omitempty"`
 	Number      *int                   `json:"number,omitempty"`
 	State       *string                `json:"state,omitempty"`
+	Blocked     *bool                  `json:"blocked,omitempty"`
 	Message     *string                `json:"message,omitempty"`
 	Commit      *string                `json:"commit,omitempty"`
 	Branch      *string                `json:"branch,omitempty"`
@@ -69,27 +70,6 @@ type Build struct {
 
 	// the pipeline this build is associated with
 	Pipeline *Pipeline `json:"pipeline,omitempty"`
-}
-
-// Job represents a job run during a build in buildkite
-type Job struct {
-	ID              *string    `json:"id,omitempty"`
-	Type            *string    `json:"type,omitempty"`
-	Name            *string    `json:"name,omitempty"`
-	State           *string    `json:"state,omitempty"`
-	LogsURL         *string    `json:"logs_url,omitempty"`
-	RawLogsURL      *string    `json:"raw_log_url,omitempty"`
-	Command         *string    `json:"command,omitempty"`
-	ExitStatus      *int       `json:"exit_status,omitempty"`
-	ArtifactPaths   *string    `json:"artifact_paths,omitempty"`
-	CreatedAt       *Timestamp `json:"created_at,omitempty"`
-	ScheduledAt     *Timestamp `json:"scheduled_at,omitempty"`
-	RunnableAt      *Timestamp `json:"runnable_at,omitempty"`
-	StartedAt       *Timestamp `json:"started_at,omitempty"`
-	FinishedAt      *Timestamp `json:"finished_at,omitempty"`
-	Agent           Agent      `json:"agent,omitempty"`
-	AgentQueryRules []string   `json:"agent_query_rules,omitempty"`
-	WebURL          string     `json:"web_url"`
 }
 
 // BuildsListOptions specifies the optional parameters to the
