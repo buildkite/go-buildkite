@@ -46,6 +46,13 @@ type Creator struct {
 	Name      string     `json:"name"`
 }
 
+// PullRequest represents a Github PR
+type PullRequest struct {
+	ID          *string    `json:"id,omitempty"`
+	Base        *string    `json:"base,omitempty"`
+	Repository  *string    `json:"repository,omitempty"`
+}
+
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          *string                `json:"id,omitempty"`
@@ -70,6 +77,9 @@ type Build struct {
 
 	// the pipeline this build is associated with
 	Pipeline *Pipeline `json:"pipeline,omitempty"`
+
+	// the pull request this build is associated with
+	PullRequest *PullRequest `json:"pull_request,omitempty"`
 }
 
 // BuildsListOptions specifies the optional parameters to the
@@ -214,4 +224,21 @@ func (bs *BuildsService) ListByPipeline(org string, pipeline string, opt *Builds
 	}
 
 	return *orgs, resp, err
+}
+
+// Rebuild triggers a rebuild for the target build
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#rebuild-a-build
+func (bs *BuildsService) Rebuild(org, pipeline, build string) (*Build, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/rebuild", org, pipeline, build)
+	req, err := bs.client.NewRequest("PUT", u, nil)
+	if err != nil {
+		return nil, err
+	}
+	result := Build{}
+	_, err = bs.client.Do(req, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
