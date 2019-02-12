@@ -27,7 +27,7 @@ type CreatePipeline struct {
 	// Optional fields
 	Description                     string            `json:"description,omitempty"`
 	Env                             map[string]string `json:"env,omitempty"`
-	ProviderSettings                map[string]bool   `json:"provider_settings,omitempty"`
+	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty"`
 	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
 	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty"`
 	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty"`
@@ -59,12 +59,6 @@ type Pipeline struct {
 
 	// build steps
 	Steps []*Step `json:"steps,omitempty"`
-}
-
-// Provider represents a source code provider.
-type Provider struct {
-	ID         *string `json:"id,omitempty"`
-	WebhookURL *string `json:"webhook_url,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
