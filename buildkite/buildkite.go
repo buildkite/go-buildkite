@@ -33,7 +33,7 @@ var (
 	httpDebug = false
 )
 
-// A Client manages communication with the buildkite API.
+// Client - A Client manages communication with the buildkite API.
 type Client struct {
 	// HTTP client used to communicate with the API.
 	client *http.Client

@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-
 // JobsService handles communication with the job related
 // methods of the buildkite API.
 //
@@ -36,14 +35,16 @@ type Job struct {
 
 // JobUnblockOptions specifies the optional parameters to UnblockJob
 type JobUnblockOptions struct {
-        Fields map[string]string `json:"fields,omitempty"`
+	Fields map[string]string `json:"fields,omitempty"`
 }
 
+// UnblockJob - unblock a job
+//
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#unblock-a-job
-func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber string, jobId string, opt *JobUnblockOptions) (*Job, *Response, error) {
-        var u string
+func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber string, jobID string, opt *JobUnblockOptions) (*Job, *Response, error) {
+	var u string
 
-	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/unblock", org, pipeline, buildNumber, jobId)
+	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/unblock", org, pipeline, buildNumber, jobID)
 
 	u, err := addOptions(u, opt)
 	if err != nil {
