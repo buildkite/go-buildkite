@@ -18,7 +18,7 @@ type PipelinesService struct {
 	client *Client
 }
 
-// Create a Pipeline.
+// CreatePipeline - Create a Pipeline.
 type CreatePipeline struct {
 	Name       string `json:"name"`
 	Repository string `json:"repository"`
@@ -79,7 +79,7 @@ type PipelineListOptions struct {
 	ListOptions
 }
 
-// Creates a pipeline for a given organisation.
+// Create - Creates a pipeline for a given organisation.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#create-a-pipeline
 func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *Response, error) {
@@ -162,12 +162,12 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 	return ps.client.Do(req, nil)
 }
 
-// Updates a pipeline.
+// Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
 func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 	if p == nil {
-		return nil, errors.New("pipeline must not be nil.")
+		return nil, errors.New("pipeline must not be nil")
 	}
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)

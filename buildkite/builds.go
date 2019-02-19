@@ -24,7 +24,7 @@ type Author struct {
 	Email string `json:"email,omitempty"`
 }
 
-// Create a build.
+// CreateBuild - Create a build.
 type CreateBuild struct {
 	Commit  string `json:"commit"`
 	Branch  string `json:"branch"`
@@ -48,9 +48,9 @@ type Creator struct {
 
 // PullRequest represents a Github PR
 type PullRequest struct {
-	ID          *string    `json:"id,omitempty"`
-	Base        *string    `json:"base,omitempty"`
-	Repository  *string    `json:"repository,omitempty"`
+	ID         *string `json:"id,omitempty"`
+	Base       *string `json:"base,omitempty"`
+	Repository *string `json:"repository,omitempty"`
 }
 
 // Build represents a build which has run in buildkite
@@ -108,16 +108,19 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
-func (as *BuildsService) Create(org string, pipeline string, b *CreateBuild) (*Build, *Response, error) {
+// Create - Create a pipeline
+//
+// buildkite API docs: https://buildkite.com/docs/api/builds#create-a-build
+func (bs *BuildsService) Create(org string, pipeline string, b *CreateBuild) (*Build, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds", org, pipeline)
 
-	req, err := as.client.NewRequest("POST", u, b)
+	req, err := bs.client.NewRequest("POST", u, b)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	build := new(Build)
-	resp, err := as.client.Do(req, build)
+	resp, err := bs.client.Do(req, build)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -128,16 +131,16 @@ func (as *BuildsService) Create(org string, pipeline string, b *CreateBuild) (*B
 // Get fetches a build.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
-func (as *BuildsService) Get(org string, pipeline string, id string) (*Build, *Response, error) {
+func (bs *BuildsService) Get(org string, pipeline string, id string) (*Build, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
 
-	req, err := as.client.NewRequest("GET", u, nil)
+	req, err := bs.client.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	build := new(Build)
-	resp, err := as.client.Do(req, build)
+	resp, err := bs.client.Do(req, build)
 	if err != nil {
 		return nil, resp, err
 	}

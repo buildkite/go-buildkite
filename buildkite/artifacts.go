@@ -66,7 +66,7 @@ func (as *ArtifactsService) ListByBuild(org string, pipeline string, build strin
 	return *artifacts, resp, err
 }
 
-// ListByBuild gets artifacts for a specific build
+// DownloadArtifactByURL gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/api/artifacts#list-artifacts-for-a-build
 func (as *ArtifactsService) DownloadArtifactByURL(url string, w io.Writer) (*Response, error) {
