@@ -126,6 +126,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
+	req.Header.Set("Content-Type", "application/json")
+
 	if c.UserAgent != "" {
 		req.Header.Add("User-Agent", c.UserAgent)
 	}
