@@ -17,15 +17,15 @@ type OrganizationsService struct {
 
 // Organization represents a buildkite organization.
 type Organization struct {
-	ID           *string    `json:"id,omitempty"`
-	URL          *string    `json:"url,omitempty"`
-	WebURL       *string    `json:"web_url,omitempty"`
-	Name         *string    `json:"name,omitempty"`
-	Slug         *string    `json:"slug,omitempty"`
-	Repository   *string    `json:"repository,omitempty"`
-	PipelinesURL *string    `json:"pipelines_url,omitempty"`
-	AgentsURL    *string    `json:"agents_url,omitempty"`
-	CreatedAt    *Timestamp `json:"created_at,omitempty"`
+	ID           *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	URL          *string    `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL       *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+	Name         *string    `json:"name,omitempty" yaml:"name,omitempty"`
+	Slug         *string    `json:"slug,omitempty" yaml:"slug,omitempty"`
+	Repository   *string    `json:"repository,omitempty" yaml:"repository,omitempty"`
+	PipelinesURL *string    `json:"pipelines_url,omitempty" yaml:"pipelines_url,omitempty"`
+	AgentsURL    *string    `json:"agents_url,omitempty" yaml:"agents_url,omitempty"`
+	CreatedAt    *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 }
 
 // OrganizationListOptions specifies the optional parameters to the
