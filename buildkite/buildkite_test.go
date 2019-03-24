@@ -102,6 +102,11 @@ func TestNewRequest(t *testing.T) {
 		t.Errorf("NewRequest(%v) Body is %v, want %v", inBody, got, want)
 	}
 
+	// test that content-type said it was JSON too
+	if got, want := req.Header.Get("Content-Type"), "application/json"; got != want {
+		t.Errorf("NewRequest() Content-Type is %v, want %v", got, want)
+	}
+
 	// test that default user-agent is attached to the request
 	if got, want := req.Header.Get("User-Agent"), c.UserAgent; got != want {
 		t.Errorf("NewRequest() User-Agent is %v, want %v", got, want)
