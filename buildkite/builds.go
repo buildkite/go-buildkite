@@ -35,6 +35,9 @@ type CreateBuild struct {
 	Env                         map[string]string `json:"env,omitempty"`
 	MetaData                    map[string]string `json:"meta_data,omitempty"`
 	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters,omitempty"`
+	PullRequestBaseBranch       string            `json:"pull_request_base_branch,omitempty"`
+	PullRequestID               int64             `json:"pull_request_id,omitempty"`
+	PullRequestRepository       string            `json:"pull_request_repository,omitempty"`
 }
 
 // Creator represents who created a build
