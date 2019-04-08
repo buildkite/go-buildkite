@@ -9,6 +9,29 @@ import (
 	"time"
 )
 
+func TestBuildsService_Cancel(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/1/cancel", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		fmt.Fprint(w, `{
+  "id": "1",
+  "state": "cancelled"
+}`)
+	})
+
+	build, err := client.Builds.Cancel("my-great-org", "sup-keith", "1")
+	if err != nil {
+		t.Errorf("Cancel returned error: %v", err)
+	}
+
+	want := &Build{ID: String("1"), State: String("cancelled")}
+	if !reflect.DeepEqual(build, want) {
+		t.Errorf("Cancel returned %+v, want %+v", build, want)
+	}
+}
+
 func TestBuildsService_List(t *testing.T) {
 	setup()
 	defer teardown()

@@ -111,6 +111,23 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
+// Cancel triggers a canel for the tagrget build
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#cancel-a-build
+func (bs *BuildsService) Cancel(org, pipeline, build string) (*Build, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/cancel", org, pipeline, build)
+	req, err := bs.client.NewRequest("PUT", u, nil)
+	if err != nil {
+		return nil, err
+	}
+	result := Build{}
+	_, err = bs.client.Do(req, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // Create - Create a pipeline
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#create-a-build
