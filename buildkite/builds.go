@@ -108,6 +108,9 @@ type BuildsListOptions struct {
 	// Branch filter by the name of the branch. Default is "".
 	Branch string `url:"branch,omitempty"`
 
+	// Filters the results by builds for the specific commit SHA (full, not shortened). Default is "".
+	Commit string `url:"commit,omitempty"`
+
 	ListOptions
 }
 
