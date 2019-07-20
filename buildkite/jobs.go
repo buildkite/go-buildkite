@@ -38,6 +38,13 @@ type JobUnblockOptions struct {
 	Fields map[string]string `json:"fields,omitempty"`
 }
 
+// JobLog represents a job log output
+type JobLog struct {
+	URL     *string `json:"url"`
+	Content *string `json:"content"`
+	Size    *int    `json:"size"`
+}
+
 // UnblockJob - unblock a job
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#unblock-a-job
@@ -63,4 +70,27 @@ func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber strin
 	}
 
 	return job, resp, err
+}
+
+// GetJobLog - get a job’s log output
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
+func (js *JobsService) GetJobLog(org string, pipeline string, buildNumber string, jobID string) (*JobLog, *Response, error) {
+	var u string
+
+	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/log", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	jobLog := new(JobLog)
+	resp, err := js.client.Do(req, jobLog)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return jobLog, resp, err
 }
