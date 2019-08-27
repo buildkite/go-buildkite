@@ -74,6 +74,7 @@ type Build struct {
 	FinishedAt  *Timestamp             `json:"finished_at,omitempty"`
 	MetaData    interface{}            `json:"meta_data,omitempty"`
 	Creator     *Creator               `json:"creator,omitempty"`
+	Source      *string                `json:"source,omitempty"`
 
 	// jobs run during the build
 	Jobs []*Job `json:"jobs,omitempty"`
