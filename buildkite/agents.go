@@ -41,6 +41,15 @@ type Agent struct {
 // AgentListOptions specifies the optional parameters to the
 // AgentService.List method.
 type AgentListOptions struct {
+	// Filters the results by the given agent name
+	Name string `url:"name,omitempty"`
+
+	// Filters the results by the given hostname
+	Hostname string `url:"hostname,omitempty"`
+
+	// Filters the results by the given exact version number
+	Version string `url:"version,omitempty"`
+
 	ListOptions
 }
 

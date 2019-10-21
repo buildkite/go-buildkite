@@ -74,6 +74,7 @@ type Build struct {
 	FinishedAt  *Timestamp             `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
 	MetaData    interface{}            `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
 	Creator     *Creator               `json:"creator,omitempty" yaml:"creator,omitempty"`
+	Source      *string                `json:"source,omitempty" yaml:"source,omitempty"`
 
 	// jobs run during the build
 	Jobs []*Job `json:"jobs,omitempty" yaml:"jobs,omitempty"`
@@ -108,7 +109,27 @@ type BuildsListOptions struct {
 	// Branch filter by the name of the branch. Default is "".
 	Branch string `url:"branch,omitempty"`
 
+	// Filters the results by builds for the specific commit SHA (full, not shortened). Default is "".
+	Commit string `url:"commit,omitempty"`
+
 	ListOptions
+}
+
+// Cancel triggers a canel for the tagrget build
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#cancel-a-build
+func (bs *BuildsService) Cancel(org, pipeline, build string) (*Build, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/cancel", org, pipeline, build)
+	req, err := bs.client.NewRequest("PUT", u, nil)
+	if err != nil {
+		return nil, err
+	}
+	result := Build{}
+	_, err = bs.client.Do(req, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 // Create - Create a pipeline
