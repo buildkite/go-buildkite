@@ -112,6 +112,9 @@ type BuildsListOptions struct {
 	// Filters the results by builds for the specific commit SHA (full, not shortened). Default is "".
 	Commit string `url:"commit,omitempty"`
 
+	// Include all retried jobs in each build’s jobs list
+	IncludeRetriedJobs bool `url:"include_retried_jobs,omitempty"`
+
 	ListOptions
 }
 
@@ -155,8 +158,14 @@ func (bs *BuildsService) Create(org string, pipeline string, b *CreateBuild) (*B
 // Get fetches a build.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
-func (bs *BuildsService) Get(org string, pipeline string, id string) (*Build, *Response, error) {
+func (bs *BuildsService) Get(org string, pipeline string, id string, opt *BuildsListOptions) (*Build, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
+
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+	fmt.Println(u)
 
 	req, err := bs.client.NewRequest("GET", u, nil)
 	if err != nil {
