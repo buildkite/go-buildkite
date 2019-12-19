@@ -23,6 +23,7 @@ type Job struct {
 	Command         *string    `json:"command,omitempty" yaml:"command,omitempty"`
 	ExitStatus      *int       `json:"exit_status,omitempty" yaml:"exit_status,omitempty"`
 	ArtifactPaths   *string    `json:"artifact_paths,omitempty" yaml:"artifact_paths,omitempty"`
+	ArtifactsURL    *string    `json:"artifacts_url,omitempty" yaml:"artifacts_url,omitempty"`
 	CreatedAt       *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	ScheduledAt     *Timestamp `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
 	RunnableAt      *Timestamp `json:"runnable_at,omitempty" yaml:"runnable_at,omitempty"`
