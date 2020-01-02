@@ -66,6 +66,31 @@ func (as *ArtifactsService) ListByBuild(org string, pipeline string, build strin
 	return *artifacts, resp, err
 }
 
+// ListByJob gets artifacts for a specific build
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/artifacts#list-artifacts-for-a-job
+func (as *ArtifactsService) ListByJob(org string, pipeline string, build string, job string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
+	var u string
+
+	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts", org, pipeline, build, job)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := as.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	artifacts := new([]Artifact)
+	resp, err := as.client.Do(req, artifacts)
+	if err != nil {
+		return nil, resp, err
+	}
+	return *artifacts, resp, err
+}
+
 // DownloadArtifactByURL gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/api/artifacts#list-artifacts-for-a-build
