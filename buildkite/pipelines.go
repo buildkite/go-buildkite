@@ -18,65 +18,59 @@ type PipelinesService struct {
 	client *Client
 }
 
-// Create a Pipeline.
+// CreatePipeline - Create a Pipeline.
 type CreatePipeline struct {
-	Name       string `json:"name"`
-	Repository string `json:"repository"`
-	Steps      []Step `json:"steps"`
+	Name       string `json:"name" yaml:"name"`
+	Repository string `json:"repository" yaml:"repository"`
+	Steps      []Step `json:"steps" yaml:"steps"`
 
 	// Optional fields
-	Description                     string            `json:"description,omitempty"`
-	Env                             map[string]string `json:"env,omitempty"`
-	ProviderSettings                map[string]bool   `json:"provider_settings,omitempty"`
-	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty"`
-	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty"`
-	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
-	TeamUuids                       []string          `json:"team_uuids,omitempty"`
+	Description                     string            `json:"description,omitempty" yaml:"description,omitempty"`
+	Env                             map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
+	BranchConfiguration             string            `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
+	TeamUuids                       []string          `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
 type Pipeline struct {
-	ID         *string    `json:"id,omitempty"`
-	URL        *string    `json:"url,omitempty"`
-	WebURL     *string    `json:"web_url,omitempty"`
-	Name       *string    `json:"name,omitempty"`
-	Slug       *string    `json:"slug,omitempty"`
-	Repository *string    `json:"repository,omitempty"`
-	BuildsURL  *string    `json:"builds_url,omitempty"`
-	BadgeURL   *string    `json:"badge_url,omitempty"`
-	CreatedAt  *Timestamp `json:"created_at,omitempty"`
+	ID         *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	URL        *string    `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL     *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+	Name       *string    `json:"name,omitempty" yaml:"name,omitempty"`
+	Slug       *string    `json:"slug,omitempty" yaml:"slug,omitempty"`
+	Repository *string    `json:"repository,omitempty" yaml:"repository,omitempty"`
+	BuildsURL  *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
+	BadgeURL   *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
+	CreatedAt  *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 
-	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty"`
-	RunningBuildsCount   *int `json:"running_builds_count,omitempty"`
-	ScheduledJobsCount   *int `json:"scheduled_jobs_count,omitempty"`
-	RunningJobsCount     *int `json:"running_jobs_count,omitempty"`
-	WaitingJobsCount     *int `json:"waiting_jobs_count,omitempty"`
+	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
+	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
+	ScheduledJobsCount   *int `json:"scheduled_jobs_count,omitempty" yaml:"scheduled_jobs_count,omitempty"`
+	RunningJobsCount     *int `json:"running_jobs_count,omitempty" yaml:"running_jobs_count,omitempty"`
+	WaitingJobsCount     *int `json:"waiting_jobs_count,omitempty" yaml:"waiting_jobs_count,omitempty"`
 
 	// the provider of sources
-	Provider *Provider `json:"provider,omitempty"`
+	Provider *Provider `json:"provider,omitempty" yaml:"provider,omitempty"`
 
 	// build steps
-	Steps []*Step `json:"steps,omitempty"`
-}
-
-// Provider represents a source code provider.
-type Provider struct {
-	ID         *string `json:"id,omitempty"`
-	WebhookURL *string `json:"webhook_url,omitempty"`
+	Steps []*Step `json:"steps,omitempty" yaml:"steps,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
 type Step struct {
-	Type                *string           `json:"type,omitempty"`
-	Name                *string           `json:"name,omitempty"`
-	Command             *string           `json:"command,omitempty"`
-	ArtifactPaths       *string           `json:"artifact_paths,omitempty"`
-	BranchConfiguration *string           `json:"branch_configuration,omitempty"`
-	Env                 map[string]string `json:"env,omitempty"`
-	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty"`
-	AgentQueryRules     []string          `json:"agent_query_rules,omitempty"`
+	Type                *string           `json:"type,omitempty" yaml:"type,omitempty"`
+	Name                *string           `json:"name,omitempty" yaml:"name,omitempty"`
+	Command             *string           `json:"command,omitempty" yaml:"command,omitempty"`
+	ArtifactPaths       *string           `json:"artifact_paths,omitempty" yaml:"artifact_paths,omitempty"`
+	BranchConfiguration *string           `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
+	Env                 map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty" yaml:"timeout_in_minutes,omitempty"`
+	AgentQueryRules     []string          `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
 }
 
 // PipelineListOptions specifies the optional parameters to the
@@ -85,7 +79,7 @@ type PipelineListOptions struct {
 	ListOptions
 }
 
-// Creates a pipeline for a given organisation.
+// Create - Creates a pipeline for a given organisation.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#create-a-pipeline
 func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *Response, error) {
@@ -168,12 +162,12 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 	return ps.client.Do(req, nil)
 }
 
-// Updates a pipeline.
+// Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
 func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 	if p == nil {
-		return nil, errors.New("pipeline must not be nil.")
+		return nil, errors.New("pipeline must not be nil")
 	}
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
@@ -181,9 +175,10 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 	// There is quite a lot of properties that are not represented by the Client-side
 	// Pipeline abstraction hence only a subset can be updated.
 	cp := &CreatePipeline{
-		Name:       *p.Name,
-		Repository: *p.Repository,
-		Steps:      make([]Step, len(p.Steps)),
+		Name:             *p.Name,
+		Repository:       *p.Repository,
+		Steps:            make([]Step, len(p.Steps)),
+		ProviderSettings: p.Provider.Settings,
 	}
 
 	for i := range p.Steps {

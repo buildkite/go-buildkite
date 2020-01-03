@@ -1,4 +1,4 @@
-# buildkite-go [![GoDoc](https://img.shields.io/badge/godoc-Reference-brightgreen.svg?style=flat)](http://godoc.org/github.com/buildkite/go-buildkite) [![Build status](https://badge.buildkite.com/56c797ece642ce625a93af462fe648aa0488b68c2d8846cfd2.svg)](https://buildkite.com/buildkite/buildkite-golang-client)
+# buildkite-go [![GoDoc](https://img.shields.io/badge/godoc-Reference-brightgreen.svg?style=flat)](http://godoc.org/github.com/buildkite/go-buildkite)
 
 A [Go](http://golang.org) library and client for the [Buildkite API](https://buildkite.com/docs/api). This project draws a lot of it's structure and testing methods from [go-github](https://github.com/google/go-github).
 
@@ -18,7 +18,7 @@ import (
 )
 ...
 
-config, err := buildkite.NewTokenConfig(*apiToken)
+config, err := buildkite.NewTokenConfig(*apiToken, false)
 
 if err != nil {
 	log.Fatalf("client config failed: %s", err)

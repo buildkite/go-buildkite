@@ -33,7 +33,7 @@ var (
 	httpDebug = false
 )
 
-// A Client manages communication with the buildkite API.
+// Client - A Client manages communication with the buildkite API.
 type Client struct {
 	// HTTP client used to communicate with the API.
 	client *http.Client
@@ -127,6 +127,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Set("Content-Type", "application/json")
 
 	if c.UserAgent != "" {
 		req.Header.Add("User-Agent", c.UserAgent)
@@ -281,8 +283,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 // ErrorResponse provides a message.
 type ErrorResponse struct {
 	Response *http.Response // HTTP response that caused this error
-	Message  string         `json:"message"` // error message
-	RawBody  []byte         `json:"-"`       // Raw Response Body
+	Message  string         `json:"message" yaml:"message"` // error message
+	RawBody  []byte         `json:"-" yaml:"-"`       // Raw Response Body
 }
 
 func (r *ErrorResponse) Error() string {

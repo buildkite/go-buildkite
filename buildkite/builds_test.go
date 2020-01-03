@@ -9,6 +9,29 @@ import (
 	"time"
 )
 
+func TestBuildsService_Cancel(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/1/cancel", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		fmt.Fprint(w, `{
+  "id": "1",
+  "state": "cancelled"
+}`)
+	})
+
+	build, err := client.Builds.Cancel("my-great-org", "sup-keith", "1")
+	if err != nil {
+		t.Errorf("Cancel returned error: %v", err)
+	}
+
+	want := &Build{ID: String("1"), State: String("cancelled")}
+	if !reflect.DeepEqual(build, want) {
+		t.Errorf("Cancel returned %+v, want %+v", build, want)
+	}
+}
+
 func TestBuildsService_List(t *testing.T) {
 	setup()
 	defer teardown()
@@ -149,6 +172,35 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 	})
 
 	builds, _, err := client.Builds.ListByOrg("my-great-org", nil)
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	if !reflect.DeepEqual(builds, want) {
+		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	}
+}
+
+func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"branch": "my-great-branch",
+			"commit": "my-commit-sha1",
+		})
+		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+	})
+
+	opt := &BuildsListOptions{
+		Branch: "my-great-branch",
+		Commit: "my-commit-sha1",
+	}
+
+	builds, _, err := client.Builds.ListByOrg("my-great-org", opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}

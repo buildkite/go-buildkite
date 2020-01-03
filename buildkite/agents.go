@@ -17,30 +17,39 @@ type AgentsService struct {
 
 // Agent represents a buildkite build agent.
 type Agent struct {
-	ID                *string    `json:"id,omitempty"`
-	URL               *string    `json:"url,omitempty"`
-	WebURL            *string    `json:"web_url,omitempty"`
-	Name              *string    `json:"name,omitempty"`
-	ConnectedState    *string    `json:"connection_state,omitempty"`
-	AgentToken        *string    `json:"access_token,omitempty"`
-	Hostname          *string    `json:"hostname,omitempty"`
-	IPAddress         *string    `json:"ip_address,omitempty"`
-	UserAgent         *string    `json:"user_agent,omitempty"`
-	Version           *string    `json:"version,omitempty"`
-	CreatedAt         *Timestamp `json:"created_at,omitempty"`
-	LastJobFinishedAt *Timestamp `json:"last_job_finished_at,omitempty"`
-	Priority          *int       `json:"priority,omitempty"`
-	Metadata          []string   `json:"meta_data,omitempty"`
+	ID                *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	URL               *string    `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL            *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+	Name              *string    `json:"name,omitempty" yaml:"name,omitempty"`
+	ConnectedState    *string    `json:"connection_state,omitempty" yaml:"connection_state,omitempty"`
+	AgentToken        *string    `json:"access_token,omitempty" yaml:"access_token,omitempty"`
+	Hostname          *string    `json:"hostname,omitempty" yaml:"hostname,omitempty"`
+	IPAddress         *string    `json:"ip_address,omitempty" yaml:"ip_address,omitempty"`
+	UserAgent         *string    `json:"user_agent,omitempty" yaml:"user_agent,omitempty"`
+	Version           *string    `json:"version,omitempty" yaml:"version,omitempty"`
+	CreatedAt         *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	LastJobFinishedAt *Timestamp `json:"last_job_finished_at,omitempty" yaml:"last_job_finished_at,omitempty"`
+	Priority          *int       `json:"priority,omitempty" yaml:"priority,omitempty"`
+	Metadata          []string   `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
 
 	// the user that created the agent
-	Creator *User `json:"creator,omitempty"`
+	Creator *User `json:"creator,omitempty" yaml:"creator,omitempty"`
 
-	Job *Job `json:"job,omitempty"`
+	Job *Job `json:"job,omitempty" yaml:"job,omitempty"`
 }
 
 // AgentListOptions specifies the optional parameters to the
 // AgentService.List method.
 type AgentListOptions struct {
+	// Filters the results by the given agent name
+	Name string `url:"name,omitempty"`
+
+	// Filters the results by the given hostname
+	Hostname string `url:"hostname,omitempty"`
+
+	// Filters the results by the given exact version number
+	Version string `url:"version,omitempty"`
+
 	ListOptions
 }
 

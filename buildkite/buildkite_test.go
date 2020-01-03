@@ -99,7 +99,12 @@ func TestNewRequest(t *testing.T) {
 	// test that body was JSON encoded
 	body, _ := ioutil.ReadAll(req.Body)
 	if got, want := string(body), outBody; got != want {
-		t.Errorf("NewRequest(%q) Body is %v, want %v", inBody, got, want)
+		t.Errorf("NewRequest(%v) Body is %v, want %v", inBody, got, want)
+	}
+
+	// test that content-type said it was JSON too
+	if got, want := req.Header.Get("Content-Type"), "application/json"; got != want {
+		t.Errorf("NewRequest() Content-Type is %v, want %v", got, want)
 	}
 
 	// test that default user-agent is attached to the request
