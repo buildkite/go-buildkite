@@ -53,6 +53,7 @@ type Client struct {
 	Organizations *OrganizationsService
 	Pipelines     *PipelinesService
 	User          *UserService
+	Teams         *TeamsService
 }
 
 // ListOptions specifies the optional parameters to various List methods that
@@ -82,6 +83,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Organizations = &OrganizationsService{c}
 	c.Pipelines = &PipelinesService{c}
 	c.User = &UserService{c}
+	c.Teams = &TeamsService{c}
 
 	if c.client != nil {
 		if tokenAuth, ok := c.client.Transport.(*TokenAuthTransport); ok {
