@@ -61,7 +61,7 @@ func TestBuildsService_Get(t *testing.T) {
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
 
-	build, _, err := client.Builds.Get("my-great-org", "sup-keith", "123")
+	build, _, err := client.Builds.Get("my-great-org", "sup-keith", "123", nil)
 	if err != nil {
 		t.Errorf("Builds.Get returned error: %v", err)
 	}
