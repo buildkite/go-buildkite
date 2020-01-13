@@ -113,7 +113,7 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
-// Cancel - Trigger a cancel for the target build 
+// Cancel - Trigger a cancel for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#cancel-a-build
 func (bs *BuildsService) Cancel(org, pipeline, build string) (*Build, error) {
@@ -160,7 +160,6 @@ func (bs *BuildsService) Get(org string, pipeline string, id string, opt *Builds
 	if err != nil {
 		return nil, nil, err
 	}
-	fmt.Println(u)
 
 	req, err := bs.client.NewRequest("GET", u, nil)
 	if err != nil {
