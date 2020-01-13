@@ -170,10 +170,12 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 	// There is quite a lot of properties that are not represented by the Client-side
 	// Pipeline abstraction hence only a subset can be updated.
 	cp := &CreatePipeline{
-		Name:             *p.Name,
-		Repository:       *p.Repository,
-		Steps:            make([]Step, len(p.Steps)),
-		ProviderSettings: p.Provider.Settings,
+		Name:       *p.Name,
+		Repository: *p.Repository,
+		Steps:      make([]Step, len(p.Steps)),
+	}
+	if p.Provider != nil {
+		cp.ProviderSettings = p.Provider.Settings
 	}
 
 	for i := range p.Steps {
