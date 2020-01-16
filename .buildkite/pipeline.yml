@@ -1,6 +1,8 @@
 steps:
   - name: ":golang:"
     command: make
+    agents:
+      queue: default
     plugins:
       - docker-compose#ab65b07:
           run: app
