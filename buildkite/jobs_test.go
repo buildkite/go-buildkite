@@ -39,7 +39,8 @@ func TestJobsService_GetJobLog(t *testing.T) {
 		fmt.Fprint(w, `{
   "url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log",
   "content": "This is the job's log output",
-	"size": 28
+	"size": 28,
+	"header_times": [1563337899810051000,1563337899811015000,1563337905336878000,1563337906589603000,156333791038291900]
 }`)
 	})
 
@@ -48,7 +49,12 @@ func TestJobsService_GetJobLog(t *testing.T) {
 		t.Errorf("GetJobLog returned error: %v", err)
 	}
 
-	want := &JobLog{URL: String("https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log"), Content: String("This is the job's log output"), Size: Int(28)}
+	want := &JobLog{
+		URL:         String("https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log"),
+		Content:     String("This is the job's log output"),
+		Size:        Int(28),
+		HeaderTimes: []int64{1563337899810051000, 1563337899811015000, 1563337905336878000, 1563337906589603000, 156333791038291900},
+	}
 	if !reflect.DeepEqual(job, want) {
 		t.Errorf("GetJobLog returned %+v, want %+v", job, want)
 	}
