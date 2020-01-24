@@ -279,7 +279,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 type ErrorResponse struct {
 	Response *http.Response // HTTP response that caused this error
 	Message  string         `json:"message" yaml:"message"` // error message
-	RawBody  []byte         `json:"-" yaml:"-"`       // Raw Response Body
+	RawBody  []byte         `json:"-" yaml:"-"`             // Raw Response Body
 }
 
 func (r *ErrorResponse) Error() string {

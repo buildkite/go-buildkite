@@ -41,9 +41,10 @@ type JobUnblockOptions struct {
 
 // JobLog represents a job log output
 type JobLog struct {
-	URL     *string `json:"url"`
-	Content *string `json:"content"`
-	Size    *int    `json:"size"`
+	URL         *string `json:"url"`
+	Content     *string `json:"content"`
+	Size        *int    `json:"size"`
+	HeaderTimes []int64 `json:"header_times"`
 }
 
 // UnblockJob - unblock a job
