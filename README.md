@@ -32,7 +32,16 @@ pipelines, _, err := client.Pipelines.List(*org, nil)
 
 Note: not everything in the API is present here just yet—if you need something please make an issue or submit a pull request.
 
+# Releasing
+
+Create a new [GitHub release](https://github.com/buildkite/go-buildkite/releases), using a changelog generated using the [ghch](https://github.com/Songmu/ghch) command line tool:
+
+```
+ghch --format=markdown --next-version=v<next-version-number>
+```
+
+
+
 # License
 
 This library is distributed under the BSD-style license found in the LICENSE file.
-
