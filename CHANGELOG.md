@@ -1,3 +1,9 @@
+## [v2.3.1](https://github.com/buildkite/go-buildkite/tree/v2.3.1) (2020-02-19)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.3.0...v2.3.1)
+
+### Changed
+- Go Modules: /v2 suffix on module path [#63](https://github.com/buildkite/go-buildkite/pull/63) (@pda)
+
 ## [v2.3.0](https://github.com/buildkite/go-buildkite/tree/v2.3.0) (2020-02-18)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.2.0...v2.3.0)
 
