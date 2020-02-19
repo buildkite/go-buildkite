@@ -1,4 +1,4 @@
-module github.com/buildkite/go-buildkite
+module github.com/buildkite/go-buildkite/v2
 
 go 1.13
 
