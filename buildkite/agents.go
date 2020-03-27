@@ -1,6 +1,8 @@
 package buildkite
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // AgentsService handles communication with the agent related
 // methods of the buildkite API.
@@ -127,6 +129,23 @@ func (as *AgentsService) Delete(org string, id string) (*Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/agents/%s", org, id)
 
 	req, err := as.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return as.client.Do(req, nil)
+}
+
+// Stop an agent.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/agents#stop-an-agent
+func (as *AgentsService) Stop(org string, id string, force bool) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/agents/%s/stop", org, id)
+
+	var body = struct{ Force bool `json:"force"` }{force}
+
+	req, err := as.client.NewRequest("PUT", u, body)
 	if err != nil {
 		return nil, err
 	}
