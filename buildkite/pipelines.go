@@ -53,7 +53,8 @@ type Pipeline struct {
 	Provider *Provider `json:"provider,omitempty" yaml:"provider,omitempty"`
 
 	// build steps
-	Steps []*Step `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Steps []*Step                `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Env   map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
