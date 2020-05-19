@@ -33,6 +33,9 @@ type Job struct {
 	Agent           Agent      `json:"agent,omitempty" yaml:"agent,omitempty"`
 	AgentQueryRules []string   `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
 	WebURL          string     `json:"web_url" yaml:"web_url"`
+	Retried         bool       `json:"retried,omitempty" yaml:"retried,omitempty"`
+	RetriedInJobID  string     `json:"retried_in_job_id,omitempty" yaml:"retried_in_job_id,omitempty"`
+	RetriesCount    int        `json:"retries_count,omitempty" yaml:"retries_count,omitempty"`
 }
 
 // JobUnblockOptions specifies the optional parameters to UnblockJob
@@ -62,6 +65,28 @@ func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber strin
 	}
 
 	req, err := js.client.NewRequest("PUT", u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	job := new(Job)
+	resp, err := js.client.Do(req, job)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return job, resp, err
+}
+
+// RetryJob - retry a job
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#retry-a-job
+func (js *JobsService) RetryJob(org string, pipeline string, buildNumber string, jobID string) (*Job, *Response, error) {
+	var u string
+
+	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/retry", org, pipeline, buildNumber, jobID)
+
+	req, err := js.client.NewRequest("PUT", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}

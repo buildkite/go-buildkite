@@ -30,6 +30,31 @@ func TestJobsService_UnblockJob(t *testing.T) {
 	}
 }
 
+func TestJobsService_RetryJob(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/retry", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		fmt.Fprint(w, `{
+  "id": "awesome-job-id",
+  "state": "scheduled",
+  "retries_count": 1,
+  "retried": true
+}`)
+	})
+
+	job, _, err := client.Jobs.RetryJob("my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
+	if err != nil {
+		t.Errorf("RetryJob returned error: %v", err)
+	}
+
+	want := &Job{ID: String("awesome-job-id"), State: String("scheduled"), Retried: bool(true), RetriesCount: int(1)}
+	if !reflect.DeepEqual(job, want) {
+		t.Errorf("RetryJob returned %+v, want %+v", job, want)
+	}
+}
+
 func TestJobsService_GetJobLog(t *testing.T) {
 	setup()
 	defer teardown()
