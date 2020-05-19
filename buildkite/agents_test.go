@@ -3,8 +3,10 @@ package buildkite
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -90,5 +92,28 @@ func TestAgentsService_Delete(t *testing.T) {
 	_, err := client.Agents.Delete("my-great-org", "123")
 	if err != nil {
 		t.Errorf("Agents.Delete returned error: %v", err)
+	}
+}
+
+func TestAgentsService_Stop(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/agents/123/stop", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("could not read request body: %v", err)
+		}
+		s := strings.TrimSpace(string(body))
+		expected := `{"force":true}`
+		if s != expected {
+			t.Errorf("Request body: %s, want %s", s, expected)
+		}
+	})
+
+	_, err := client.Agents.Stop("my-great-org", "123", true)
+	if err != nil {
+		t.Errorf("Agents.Stop returned error: %v", err)
 	}
 }
