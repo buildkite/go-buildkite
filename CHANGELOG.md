@@ -1,3 +1,15 @@
+## [v2.4.0](https://github.com/buildkite/go-buildkite/tree/v2.4.0) (2019-02-15)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.1.0...v2.4.0)
+
+### Changed
+- Added support for rebuilding builds [#27](https://github.com/buildkite/go-buildkite/pull/27) (@kevsmith)
+- Add typed provider settings [#23](https://github.com/buildkite/go-buildkite/pull/23) (@haines)
+- Add blocked to build struct [#30](https://github.com/buildkite/go-buildkite/pull/30) (@jsm)
+- Add JobsService with unblockJob method [#31](https://github.com/buildkite/go-buildkite/pull/31) (@dschofie)
+- Support Job.runnable_at [#26](https://github.com/buildkite/go-buildkite/pull/26) (@lox)
+- Parse AgentQueryRules and TimeoutInMinutes for Steps [#25](https://github.com/buildkite/go-buildkite/pull/25) (@lox)
+- Parse the timestamp format webhooks use [#19](https://github.com/buildkite/go-buildkite/pull/19) (@euank)
+
 ## [v2.3.1](https://github.com/buildkite/go-buildkite/tree/v2.3.1) (2020-02-19)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.3.0...v2.3.1)
 
