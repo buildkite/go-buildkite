@@ -27,7 +27,10 @@ func (p *Provider) UnmarshalJSON(data []byte) error {
 	switch v.ID {
 	case "bitbucket":
 		settings = &BitbucketSettings{}
-	case "github":
+	case "github", "github_enterprise":
+		// TODO(stevvooe): Not sure if we have the same settings between GitHub
+		// and GitHub Enterprise but this should unblock simple use cases for
+		// now.
 		settings = &GitHubSettings{}
 	case "gitlab":
 		settings = &GitLabSettings{}
