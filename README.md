@@ -14,7 +14,7 @@ Simple shortened example for listing all pipelines is provided below, see exampl
 
 ```go
 import (
-    "github.com/buildkite/go-buildkite/buildkite/v2"
+    "github.com/buildkite/go-buildkite/v2/buildkite"
 )
 ...
 
