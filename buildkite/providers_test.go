@@ -40,6 +40,23 @@ func TestUnmarshalGitHubProvider(t *testing.T) {
 	}
 }
 
+func TestUnmarshalGitHubEnterpriseProvider(t *testing.T) {
+	var provider Provider
+	err := json.Unmarshal([]byte(`{"id": "github_enterprise", "settings": {"repository": "my-github-enterprise-repo"}}`), &provider)
+	if err != nil {
+		t.Errorf("Error unmarshalling GitHub Enterprise provider: %v", err)
+	}
+
+	want := Provider{
+		ID:       "github_enterprise",
+		Settings: &GitHubEnterpriseSettings{Repository: String("my-github-enterprise-repo")},
+	}
+
+	if !reflect.DeepEqual(provider, want) {
+		t.Errorf("Failed to unmarshal GitHub Enterprise provider: got %+v, want %+v", provider, want)
+	}
+}
+
 func TestUnmarshalGitLabProvider(t *testing.T) {
 	var provider Provider
 	err := json.Unmarshal([]byte(`{"id": "gitlab", "settings": {"repository": "my-gitlab-repo"}}`), &provider)

@@ -29,6 +29,8 @@ func (p *Provider) UnmarshalJSON(data []byte) error {
 		settings = &BitbucketSettings{}
 	case "github":
 		settings = &GitHubSettings{}
+	case "github_enterprise":
+		settings = &GitHubEnterpriseSettings{}
 	case "gitlab":
 		settings = &GitLabSettings{}
 	default:
@@ -83,6 +85,23 @@ type GitHubSettings struct {
 }
 
 func (s *GitHubSettings) isProviderSettings() {}
+
+
+// GitHubEnterpriseSettings are settings for pipelines building from GitHub Enterprise repositories.
+type GitHubEnterpriseSettings struct {
+	BuildPullRequests                       *bool   `json:"build_pull_requests,omitempty" yaml:"build_pull_requests,omitempty"`
+	PullRequestBranchFilterEnabled          *bool   `json:"pull_request_branch_filter_enabled,omitempty" yaml:"pull_request_branch_filter_enabled,omitempty"`
+	PullRequestBranchFilterConfiguration    *string `json:"pull_request_branch_filter_configuration,omitempty" yaml:"pull_request_branch_filter_configuration,omitempty"`
+	SkipPullRequestBuildsForExistingCommits *bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty" yaml:"skip_pull_request_builds_for_existing_commits,omitempty"`
+	BuildTags                               *bool   `json:"build_tags,omitempty" yaml:"build_tags,omitempty"`
+	PublishCommitStatus                     *bool   `json:"publish_commit_status,omitempty" yaml:"publish_commit_status,omitempty"`
+	PublishCommitStatusPerStep              *bool   `json:"publish_commit_status_per_step,omitempty" yaml:"publish_commit_status_per_step,omitempty"`
+
+	// Read-only
+	Repository *string `json:"repository,omitempty" yaml:"repository,omitempty"`
+}
+
+func (s *GitHubEnterpriseSettings) isProviderSettings() {}
 
 // GitLabSettings are settings for pipelines building from GitLab repositories.
 type GitLabSettings struct {
