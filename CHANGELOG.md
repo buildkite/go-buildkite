@@ -1,3 +1,9 @@
+## [v2.5.0](https://github.com/buildkite/go-buildkite/compare/v2.4.0...v2.5.0) (2020-08-20)
+
+### Changed
+* Support GitHub Enterprise pipeline settings [#71](https://github.com/buildkite/go-buildkite/pull/71) ([niceking](https://github.com/niceking))
+* Bump Go to version 1.15 [#72](https://github.com/buildkite/go-buildkite/pull/72) ([niceking](https://github.com/niceking))
+
 ## [v2.4.0](https://github.com/buildkite/go-buildkite/tree/v2.4.0) (2019-02-15)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.1.0...v2.4.0)
 
