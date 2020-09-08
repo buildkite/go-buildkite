@@ -3,6 +3,7 @@ package buildkite
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // PipelinesService handles communication with the pipeline related
@@ -99,6 +100,8 @@ func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *R
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#get-a-pipeline
 func (ps *PipelinesService) Get(org string, slug string) (*Pipeline, *Response, error) {
+	// slug may not contain /
+	slug = strings.ReplaceAll(slug, "/", "-")
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
 
@@ -147,6 +150,8 @@ func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeli
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#delete-a-pipeline
 func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
+	// slug may not contain /
+	slug = strings.ReplaceAll(slug, "/", "-")
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
 
