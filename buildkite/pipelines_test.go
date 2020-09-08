@@ -99,6 +99,11 @@ func TestPipelinesService_Get(t *testing.T) {
 		t.Errorf("Pipelines.Get returned error: %v", err)
 	}
 
+	pipeline, _, err = client.Pipelines.Get("my-great-org", "my-great/pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.Get returned error: %v", err)
+	}
+
 	want := &Pipeline{ID: String("123"), Slug: String("my-great-pipeline-slug")}
 	if !reflect.DeepEqual(pipeline, want) {
 		t.Errorf("Pipelines.Get returned %+v, want %+v", pipeline, want)
@@ -114,6 +119,11 @@ func TestPipelinesService_Delete(t *testing.T) {
 	})
 
 	_, err := client.Pipelines.Delete("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.Delete returned error: %v", err)
+	}
+
+	_, err = client.Pipelines.Delete("my-great-org", "my-great/pipeline-slug")
 	if err != nil {
 		t.Errorf("Pipelines.Delete returned error: %v", err)
 	}
