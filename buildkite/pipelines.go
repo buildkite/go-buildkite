@@ -17,9 +17,13 @@ type PipelinesService struct {
 type CreatePipeline struct {
 	Name       string `json:"name" yaml:"name"`
 	Repository string `json:"repository" yaml:"repository"`
-	Steps      []Step `json:"steps" yaml:"steps"`
+
+	// Either configuration needs to be specified as a yaml string or steps.
+	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Steps         []Step `json:"steps" yaml:"steps"`
 
 	// Optional fields
+	DefaultBranch                   string            `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 	Description                     string            `json:"description,omitempty" yaml:"description,omitempty"`
 	Env                             map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
@@ -33,15 +37,22 @@ type CreatePipeline struct {
 
 // Pipeline represents a buildkite pipeline.
 type Pipeline struct {
-	ID         *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	URL        *string    `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL     *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Name       *string    `json:"name,omitempty" yaml:"name,omitempty"`
-	Slug       *string    `json:"slug,omitempty" yaml:"slug,omitempty"`
-	Repository *string    `json:"repository,omitempty" yaml:"repository,omitempty"`
-	BuildsURL  *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
-	BadgeURL   *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
-	CreatedAt  *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ID                              *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	URL                             *string    `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL                          *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+	Name                            *string    `json:"name,omitempty" yaml:"name,omitempty"`
+	Slug                            *string    `json:"slug,omitempty" yaml:"slug,omitempty"`
+	Repository                      *string    `json:"repository,omitempty" yaml:"repository,omitempty"`
+	BuildsURL                       *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
+	BadgeURL                        *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
+	CreatedAt                       *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	DefaultBranch                   *string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
+	Description                     *string    `json:"description,omitempty" yaml:"description,omitempty"`
+	BranchConfiguration             *string    `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          *bool      `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    *string    `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
@@ -53,8 +64,9 @@ type Pipeline struct {
 	Provider *Provider `json:"provider,omitempty" yaml:"provider,omitempty"`
 
 	// build steps
-	Steps []*Step                `json:"steps,omitempty" yaml:"steps,omitempty"`
-	Env   map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	Steps         []*Step                `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Configuration string                 `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Env           map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
