@@ -79,13 +79,16 @@ type GitHubSettings struct {
 	BuildTags                               *bool   `json:"build_tags,omitempty" yaml:"build_tags,omitempty"`
 	PublishCommitStatus                     *bool   `json:"publish_commit_status,omitempty" yaml:"publish_commit_status,omitempty"`
 	PublishCommitStatusPerStep              *bool   `json:"publish_commit_status_per_step,omitempty" yaml:"publish_commit_status_per_step,omitempty"`
+	FilterEnabled                           *bool   `json:"filter_enabled,omitempty" yaml:"filter_enabled,omitempty"`
+	FilterCondition                         *string `json:"filter_condition,omitempty" yaml:"filter_condition,omitempty"`
+	SeparatePullRequestStatuses             *bool   `json:"separate_pull_requests_statuses,omitempty" yaml:"separate_pull_requests_statuses,omitempty"`
+	PublishBlockedAsPending                 *bool   `json:"publish_blocked_as_pending,omitempty" yaml:"publish_blocked_as_pending,omitempty"`
 
 	// Read-only
 	Repository *string `json:"repository,omitempty" yaml:"repository,omitempty"`
 }
 
 func (s *GitHubSettings) isProviderSettings() {}
-
 
 // GitHubEnterpriseSettings are settings for pipelines building from GitHub Enterprise repositories.
 type GitHubEnterpriseSettings struct {
