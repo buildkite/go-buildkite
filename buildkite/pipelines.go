@@ -180,22 +180,7 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
 
-	// There is quite a lot of properties that are not represented by the Client-side
-	// Pipeline abstraction hence only a subset can be updated.
-	cp := &CreatePipeline{
-		Name:       *p.Name,
-		Repository: *p.Repository,
-		Steps:      make([]Step, len(p.Steps)),
-	}
-	if p.Provider != nil {
-		cp.ProviderSettings = p.Provider.Settings
-	}
-
-	for i := range p.Steps {
-		cp.Steps[i] = *p.Steps[i]
-	}
-
-	req, err := ps.client.NewRequest("PATCH", u, cp)
+	req, err := ps.client.NewRequest("PATCH", u, p)
 	if err != nil {
 		return nil, err
 	}
