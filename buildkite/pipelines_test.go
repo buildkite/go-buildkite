@@ -79,6 +79,57 @@ func TestPipelinesService_Create(t *testing.T) {
 
 }
 
+func TestPipelinesService_CreateByConfiguration(t *testing.T) {
+	setup()
+	defer teardown()
+
+	input := &CreatePipeline{Name: *String("my-great-pipeline"),
+		Repository: *String("my-great-repo"),
+		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
+	}
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		v := new(CreatePipeline)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "POST")
+
+		if !reflect.DeepEqual(v, input) {
+			t.Errorf("Request body = %+v, want %+v", v, input)
+		}
+
+		fmt.Fprint(w, `{
+						"name":"my-great-pipeline",
+						"repository":"my-great-repo",
+						"configuration":"steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
+						"steps": [
+							{
+								"type": "script",
+								"name": "Build :package:",
+								"command": "script/release.sh"
+							}
+						]
+					}`)
+	})
+
+	pipeline, _, err := client.Pipelines.Create("my-great-org", input)
+	if err != nil {
+		t.Errorf("Pipelines.Create returned error: %v", err)
+	}
+
+	want := &Pipeline{Name: String("my-great-pipeline"),
+		Repository: String("my-great-repo"),
+		Steps: []*Step{&Step{Type: String("script"),
+			Name:    String("Build :package:"),
+			Command: String("script/release.sh")}},
+		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
+	}
+	if !reflect.DeepEqual(pipeline, want) {
+		t.Errorf("Pipelines.Create returned %+v, want %+v", pipeline.Configuration, want.Configuration)
+	}
+
+}
+
 func TestPipelinesService_Get(t *testing.T) {
 	setup()
 	defer teardown()
