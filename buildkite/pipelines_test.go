@@ -37,6 +37,7 @@ func TestPipelinesService_Create(t *testing.T) {
 		Steps: []Step{Step{Type: String("script"),
 			Name:    String("Build :package"),
 			Command: String("script/release.sh")}},
+			DefaultBranch: *String("main"),
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +59,8 @@ func TestPipelinesService_Create(t *testing.T) {
 								"name": "Build :package:",
 								"command": "script/release.sh"
 							}
-						]
+						],
+						"default_branch":"main"
 					}`)
 	})
 
@@ -72,6 +74,7 @@ func TestPipelinesService_Create(t *testing.T) {
 		Steps: []*Step{&Step{Type: String("script"),
 			Name:    String("Build :package:"),
 			Command: String("script/release.sh")}},
+		DefaultBranch: String("main"),
 	}
 	if !reflect.DeepEqual(pipeline, want) {
 		t.Errorf("Pipelines.Create returned %+v, want %+v", pipeline, want)
