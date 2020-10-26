@@ -20,7 +20,7 @@ type CreatePipeline struct {
 
 	// Either configuration needs to be specified as a yaml string or steps.
 	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Steps         []Step `json:"steps" yaml:"steps"`
+	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
 
 	// Optional fields
 	DefaultBranch                   string            `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
