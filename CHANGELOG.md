@@ -1,3 +1,9 @@
+## [v2.5.1](https://github.com/buildkite/go-buildkite/compare/v2.5.0...v2.5.1) (2020-10-28)
+
+### Changed
+
+* Add missing fields to CreatePipeline, Pipeline, and GitHubSettings structs [#74](https://github.com/buildkite/go-buildkite/pull/74) ([kushmansingh](https://github.com/kushmansingh))
+
 ## [v2.5.0](https://github.com/buildkite/go-buildkite/compare/v2.4.0...v2.5.0) (2020-08-20)
 
 ### Changed
