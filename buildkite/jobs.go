@@ -36,6 +36,7 @@ type Job struct {
 	Retried         bool       `json:"retried,omitempty" yaml:"retried,omitempty"`
 	RetriedInJobID  string     `json:"retried_in_job_id,omitempty" yaml:"retried_in_job_id,omitempty"`
 	RetriesCount    int        `json:"retries_count,omitempty" yaml:"retries_count,omitempty"`
+	SoftFailed      bool       `json:"soft_failed,omitempty" yaml:"soft_failed,omitempty"`
 }
 
 // JobUnblockOptions specifies the optional parameters to UnblockJob
