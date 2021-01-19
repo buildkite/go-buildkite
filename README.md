@@ -34,13 +34,10 @@ Note: not everything in the API is present here just yet—if you need something
 
 # Releasing
 
-Create a new [GitHub release](https://github.com/buildkite/go-buildkite/releases), using a changelog generated using the [ghch](https://github.com/Songmu/ghch) command line tool:
-
-```
-ghch --format=markdown --next-version=v<next-version-number>
-```
-
-
+1. Update the version number in `version.go`
+2. Generate a changelog using [ghch](https://github.com/Songmu/ghch): `ghch --format=markdown --next-version=v<next-version-number>`, and update it in `CHANGELOG.md`
+3. Commit and tag the new version
+4. Create a matching [GitHub release](https://github.com/buildkite/go-buildkite/releases)
 
 # License
 
