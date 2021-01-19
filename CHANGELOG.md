@@ -1,3 +1,8 @@
+## [v2.6.0](https://github.com/buildkite/go-buildkite/compare/v2.5.1...v2.6.0) (2021-01-05)
+
+* Add soft_failed attribute for job [#77](https://github.com/buildkite/go-buildkite/pull/77) ([qinjin](https://github.com/qinjin))
+* add Job unblocker/unblocking fields [#76](https://github.com/buildkite/go-buildkite/pull/76) ([jsleeio](https://github.com/jsleeio))
+
 ## [v2.5.1](https://github.com/buildkite/go-buildkite/compare/v2.5.0...v2.5.1) (2020-10-28)
 
 ### Changed
