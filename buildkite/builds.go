@@ -62,6 +62,7 @@ type Build struct {
 	Message     *string                `json:"message,omitempty" yaml:"message,omitempty"`
 	Commit      *string                `json:"commit,omitempty" yaml:"commit,omitempty"`
 	Branch      *string                `json:"branch,omitempty" yaml:"branch,omitempty"`
+	Author      *Author                `json:"author,omitempty" yaml:"author,omitempty"`
 	Env         map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 	CreatedAt   *Timestamp             `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
