@@ -1,3 +1,7 @@
+## [v2.6.1](https://github.com/buildkite/go-buildkite/compare/v2.6.0...v2.6.1) (2021-03-25)
+
+- Add Author filed to Builds [#80](https://github.com/buildkite/go-buildkite/pull/80) ([dan-embark](https://github.com/dan-embark))
+
 ## [v2.6.0](https://github.com/buildkite/go-buildkite/compare/v2.5.1...v2.6.0) (2021-01-05)
 
 * Add soft_failed attribute for job [#77](https://github.com/buildkite/go-buildkite/pull/77) ([qinjin](https://github.com/qinjin))
