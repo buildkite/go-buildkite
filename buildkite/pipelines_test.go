@@ -34,10 +34,20 @@ func TestPipelinesService_Create(t *testing.T) {
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
 		Repository: *String("my-great-repo"),
-		Steps: []Step{Step{Type: String("script"),
-			Name:    String("Build :package"),
-			Command: String("script/release.sh")}},
-			DefaultBranch: *String("main"),
+		Steps: []Step{
+			{
+				Type:    String("script"),
+				Name:    String("Build :package"),
+				Command: String("script/release.sh"),
+				Plugins: Plugins{
+					"my-org/docker#v3.3.0": {
+						"image":   "node",
+						"workdir": "/app",
+					},
+				},
+			},
+		},
+		DefaultBranch: *String("main"),
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +67,13 @@ func TestPipelinesService_Create(t *testing.T) {
 							{
 								"type": "script",
 								"name": "Build :package:",
-								"command": "script/release.sh"
+								"command": "script/release.sh",
+								"plugins": {
+									"my-org/docker#v3.3.0": {
+										"image":   "node",
+										"workdir": "/app"
+									}
+								}
 							}
 						],
 						"default_branch":"main"
@@ -71,9 +87,19 @@ func TestPipelinesService_Create(t *testing.T) {
 
 	want := &Pipeline{Name: String("my-great-pipeline"),
 		Repository: String("my-great-repo"),
-		Steps: []*Step{&Step{Type: String("script"),
-			Name:    String("Build :package:"),
-			Command: String("script/release.sh")}},
+		Steps: []*Step{
+			{
+				Type:    String("script"),
+				Name:    String("Build :package:"),
+				Command: String("script/release.sh"),
+				Plugins: Plugins{
+					"my-org/docker#v3.3.0": {
+						"image":   "node",
+						"workdir": "/app",
+					},
+				},
+			},
+		},
 		DefaultBranch: String("main"),
 	}
 	if !reflect.DeepEqual(pipeline, want) {
@@ -87,7 +113,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	defer teardown()
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
-		Repository: *String("my-great-repo"),
+		Repository:    *String("my-great-repo"),
 		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
 	}
 
@@ -109,7 +135,13 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 							{
 								"type": "script",
 								"name": "Build :package:",
-								"command": "script/release.sh"
+								"command": "script/release.sh",
+								"plugins": {
+									"my-org/docker#v3.3.0": {
+										"image":   "node",
+										"workdir": "/app"
+									}
+								}
 							}
 						]
 					}`)
@@ -122,9 +154,19 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 
 	want := &Pipeline{Name: String("my-great-pipeline"),
 		Repository: String("my-great-repo"),
-		Steps: []*Step{&Step{Type: String("script"),
-			Name:    String("Build :package:"),
-			Command: String("script/release.sh")}},
+		Steps: []*Step{
+			&Step{
+				Type:    String("script"),
+				Name:    String("Build :package:"),
+				Command: String("script/release.sh"),
+				Plugins: Plugins{
+					"my-org/docker#v3.3.0": {
+						"image":   "node",
+						"workdir": "/app",
+					},
+				},
+			},
+		},
 		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
 	}
 	if !reflect.DeepEqual(pipeline, want) {
@@ -179,9 +221,19 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
 		Repository: *String("my-great-repo"),
-		Steps: []Step{Step{Type: String("script"),
-			Name:    String("Build :package"),
-			Command: String("script/release.sh")}},
+		Steps: []Step{
+			{
+				Type:    String("script"),
+				Name:    String("Build :package"),
+				Command: String("script/release.sh"),
+				Plugins: Plugins{
+					"my-org/docker#v3.3.0": {
+						"image":   "node",
+						"workdir": "/app",
+					},
+				},
+			},
+		},
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -201,7 +253,13 @@ func TestPipelinesService_Update(t *testing.T) {
 							{
 								"type": "script",
 								"name": "Build :package:",
-								"command": "script/release.sh"
+								"command": "script/release.sh",
+								"plugins": {
+									"my-org/docker#v3.3.0": {
+										"image":   "node",
+										"workdir": "/app"
+									}
+								}
 							}
 						],
 						"slug": "my-great-repo"
@@ -228,7 +286,13 @@ func TestPipelinesService_Update(t *testing.T) {
 							{
 								"type": "script",
 								"name": "Build :package:",
-								"command": "script/release.sh"
+								"command": "script/release.sh",
+								"plugins": {
+									"my-org/docker#v3.3.0": {
+										"image":   "node",
+										"workdir": "/app"
+									}
+								}
 							}
 						],
 						"slug": "my-great-repo"
@@ -242,11 +306,22 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	want := &Pipeline{Name: String("derp"),
 		Repository: String("my-great-repo"),
-		Steps: []*Step{&Step{Type: String("script"),
-			Name:    String("Build :package:"),
-			Command: String("script/release.sh")}},
+		Steps: []*Step{
+			{
+				Type:    String("script"),
+				Name:    String("Build :package:"),
+				Command: String("script/release.sh"),
+				Plugins: Plugins{
+					"my-org/docker#v3.3.0": {
+						"image":   "node",
+						"workdir": "/app",
+					},
+				},
+			},
+		},
 		Slug: String("my-great-repo"),
 	}
+
 	if !reflect.DeepEqual(pipeline, want) {
 		t.Errorf("Pipelines.Update returned %+v, want %+v", pipeline, want)
 	}
