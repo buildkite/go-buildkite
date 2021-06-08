@@ -251,3 +251,17 @@ func TestPipelinesService_Update(t *testing.T) {
 		t.Errorf("Pipelines.Update returned %+v, want %+v", pipeline, want)
 	}
 }
+
+func TestPipelinesService_AddWebhook(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/webhook", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+	})
+
+	_, err := client.Pipelines.AddWebhook("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.Delete returned error: %v", err)
+	}
+}

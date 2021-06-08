@@ -192,3 +192,18 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 
 	return resp, err
 }
+
+// AddWebhook - Adds webhook in github for pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#add-a-webhook
+func (ps *PipelinesService) AddWebhook(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/webhook", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
+}
