@@ -33,6 +33,7 @@ type CreatePipeline struct {
 	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
+	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
@@ -53,6 +54,7 @@ type Pipeline struct {
 	SkipQueuedBranchBuildsFilter    *string    `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
 	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
 	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       *string    `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
