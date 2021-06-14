@@ -213,10 +213,25 @@ func (ps *PipelinesService) AddWebhook(org string, slug string) (*Response, erro
 
 // Archive - Archives a pipeline.
 //
-// buildkite API docs: PENDING
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#archive-a-pipeline
 func (ps *PipelinesService) Archive(org string, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/archive", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
+}
+
+// Unarchive - Unarchive a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#unarchive-a-pipeline
+func (ps *PipelinesService) Unarchive(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/unarchive", org, slug)
 
 	req, err := ps.client.NewRequest("POST", u, nil)
 	if err != nil {

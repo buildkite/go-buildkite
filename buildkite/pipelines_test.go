@@ -279,3 +279,17 @@ func TestPipelinesService_Archive(t *testing.T) {
 		t.Errorf("Pipelines.Archive returned error: %v", err)
 	}
 }
+
+func TestPipelinesService_Unarchive(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/unarchive", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+	})
+
+	_, err := client.Pipelines.Unarchive("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.UnArchive returned error: %v", err)
+	}
+}
