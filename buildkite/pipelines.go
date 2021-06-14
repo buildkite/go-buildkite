@@ -47,6 +47,7 @@ type Pipeline struct {
 	BuildsURL                       *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
 	BadgeURL                        *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
 	CreatedAt                       *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ArchivedAt                      *Timestamp `json:"archived_at,omitempty" yaml:"archived_at,omitempty"`
 	DefaultBranch                   *string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 	Description                     *string    `json:"description,omitempty" yaml:"description,omitempty"`
 	BranchConfiguration             *string    `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
