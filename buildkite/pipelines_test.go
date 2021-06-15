@@ -37,7 +37,7 @@ func TestPipelinesService_Create(t *testing.T) {
 		Steps: []Step{Step{Type: String("script"),
 			Name:    String("Build :package"),
 			Command: String("script/release.sh")}},
-		DefaultBranch: *String("main"),
+		        DefaultBranch: *String("main"),
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
