@@ -1,3 +1,7 @@
+## [v2.8.0](https://github.com/buildkite/go-buildkite/compare/v2.7.1...v2.8.0) (2021-06-16)
+
+- Support for Arching/Unarchiving pipelines [#85](https://github.com/buildkite/go-buildkite/pull/85) ([ksepehr](https://github.com/ksepehr))
+
 ## [v2.7.1](https://github.com/buildkite/go-buildkite/compare/v2.7.0...v2.7.1) (2021-06-09)
 
 - Adding cluster_id fields to Pipeline and CreatePipeline structs [#84](https://github.com/buildkite/go-buildkite/pull/84) ([ksepehr](https://github.com/ksepehr))
