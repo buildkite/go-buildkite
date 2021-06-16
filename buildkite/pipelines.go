@@ -47,6 +47,7 @@ type Pipeline struct {
 	BuildsURL                       *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
 	BadgeURL                        *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
 	CreatedAt                       *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ArchivedAt                      *Timestamp `json:"archived_at,omitempty" yaml:"archived_at,omitempty"`
 	DefaultBranch                   *string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 	Description                     *string    `json:"description,omitempty" yaml:"description,omitempty"`
 	BranchConfiguration             *string    `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
@@ -201,6 +202,36 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 func (ps *PipelinesService) AddWebhook(org string, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/webhook", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
+}
+
+// Archive - Archives a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#archive-a-pipeline
+func (ps *PipelinesService) Archive(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/archive", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
+}
+
+// Unarchive - Unarchive a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#unarchive-a-pipeline
+func (ps *PipelinesService) Unarchive(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/unarchive", org, slug)
 
 	req, err := ps.client.NewRequest("POST", u, nil)
 	if err != nil {
