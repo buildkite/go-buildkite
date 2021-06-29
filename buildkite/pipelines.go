@@ -33,6 +33,7 @@ type CreatePipeline struct {
 	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
+	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
@@ -46,6 +47,7 @@ type Pipeline struct {
 	BuildsURL                       *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
 	BadgeURL                        *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
 	CreatedAt                       *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ArchivedAt                      *Timestamp `json:"archived_at,omitempty" yaml:"archived_at,omitempty"`
 	DefaultBranch                   *string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 	Description                     *string    `json:"description,omitempty" yaml:"description,omitempty"`
 	BranchConfiguration             *string    `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
@@ -53,6 +55,7 @@ type Pipeline struct {
 	SkipQueuedBranchBuildsFilter    *string    `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
 	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
 	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       *string    `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
@@ -198,4 +201,49 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 	}
 
 	return resp, err
+}
+
+// AddWebhook - Adds webhook in github for pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#add-a-webhook
+func (ps *PipelinesService) AddWebhook(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/webhook", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
+}
+
+// Archive - Archives a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#archive-a-pipeline
+func (ps *PipelinesService) Archive(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/archive", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
+}
+
+// Unarchive - Unarchive a pipeline.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#unarchive-a-pipeline
+func (ps *PipelinesService) Unarchive(org string, slug string) (*Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/unarchive", org, slug)
+
+	req, err := ps.client.NewRequest("POST", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps.client.Do(req, nil)
 }

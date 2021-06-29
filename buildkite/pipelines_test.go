@@ -34,6 +34,7 @@ func TestPipelinesService_Create(t *testing.T) {
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
 		Repository: *String("my-great-repo"),
+feature/add-plugins-to-pipeline-steps
 		Steps: []Step{
 			{
 				Type:    String("script"),
@@ -324,5 +325,47 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	if !reflect.DeepEqual(pipeline, want) {
 		t.Errorf("Pipelines.Update returned %+v, want %+v", pipeline, want)
+	}
+}
+
+func TestPipelinesService_AddWebhook(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/webhook", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+	})
+
+	_, err := client.Pipelines.AddWebhook("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.AddWebhook returned error: %v", err)
+	}
+}
+
+func TestPipelinesService_Archive(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/archive", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+	})
+
+	_, err := client.Pipelines.Archive("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.Archive returned error: %v", err)
+	}
+}
+
+func TestPipelinesService_Unarchive(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/unarchive", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+	})
+
+	_, err := client.Pipelines.Unarchive("my-great-org", "my-great-pipeline-slug")
+	if err != nil {
+		t.Errorf("Pipelines.UnArchive returned error: %v", err)
 	}
 }

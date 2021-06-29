@@ -1,28 +1,43 @@
+## [v2.8.0](https://github.com/buildkite/go-buildkite/compare/v2.7.1...v2.8.0) (2021-06-16)
+
+- Support for Arching/Unarchiving pipelines [#85](https://github.com/buildkite/go-buildkite/pull/85) ([ksepehr](https://github.com/ksepehr))
+
+## [v2.7.1](https://github.com/buildkite/go-buildkite/compare/v2.7.0...v2.7.1) (2021-06-09)
+
+- Adding cluster_id fields to Pipeline and CreatePipeline structs [#84](https://github.com/buildkite/go-buildkite/pull/84) ([ksepehr](https://github.com/ksepehr))
+
+## [v2.7.0](https://github.com/buildkite/go-buildkite/compare/v2.6.0...v2.7.0) (2021-06-08)
+
+- Updated PipelinesService to include AddWebhook [#83](https://github.com/buildkite/go-buildkite/pull/83) ([ksepehr](https://github.com/ksepehr))
+
 ## [v2.6.1](https://github.com/buildkite/go-buildkite/compare/v2.6.0...v2.6.1) (2021-03-25)
 
 - Add Author filed to Builds [#80](https://github.com/buildkite/go-buildkite/pull/80) ([dan-embark](https://github.com/dan-embark))
 
 ## [v2.6.0](https://github.com/buildkite/go-buildkite/compare/v2.5.1...v2.6.0) (2021-01-05)
 
-* Add soft_failed attribute for job [#77](https://github.com/buildkite/go-buildkite/pull/77) ([qinjin](https://github.com/qinjin))
-* add Job unblocker/unblocking fields [#76](https://github.com/buildkite/go-buildkite/pull/76) ([jsleeio](https://github.com/jsleeio))
+- Add soft_failed attribute for job [#77](https://github.com/buildkite/go-buildkite/pull/77) ([qinjin](https://github.com/qinjin))
+- add Job unblocker/unblocking fields [#76](https://github.com/buildkite/go-buildkite/pull/76) ([jsleeio](https://github.com/jsleeio))
 
 ## [v2.5.1](https://github.com/buildkite/go-buildkite/compare/v2.5.0...v2.5.1) (2020-10-28)
 
 ### Changed
 
-* Add missing fields to CreatePipeline, Pipeline, and GitHubSettings structs [#74](https://github.com/buildkite/go-buildkite/pull/74) ([kushmansingh](https://github.com/kushmansingh))
+- Add missing fields to CreatePipeline, Pipeline, and GitHubSettings structs [#74](https://github.com/buildkite/go-buildkite/pull/74) ([kushmansingh](https://github.com/kushmansingh))
 
 ## [v2.5.0](https://github.com/buildkite/go-buildkite/compare/v2.4.0...v2.5.0) (2020-08-20)
 
 ### Changed
-* Support GitHub Enterprise pipeline settings [#71](https://github.com/buildkite/go-buildkite/pull/71) ([niceking](https://github.com/niceking))
-* Bump Go to version 1.15 [#72](https://github.com/buildkite/go-buildkite/pull/72) ([niceking](https://github.com/niceking))
+
+- Support GitHub Enterprise pipeline settings [#71](https://github.com/buildkite/go-buildkite/pull/71) ([niceking](https://github.com/niceking))
+- Bump Go to version 1.15 [#72](https://github.com/buildkite/go-buildkite/pull/72) ([niceking](https://github.com/niceking))
 
 ## [v2.4.0](https://github.com/buildkite/go-buildkite/tree/v2.4.0) (2019-02-15)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.1.0...v2.4.0)
 
 ### Changed
+
 - Added support for rebuilding builds [#27](https://github.com/buildkite/go-buildkite/pull/27) (@kevsmith)
 - Add typed provider settings [#23](https://github.com/buildkite/go-buildkite/pull/23) (@haines)
 - Add blocked to build struct [#30](https://github.com/buildkite/go-buildkite/pull/30) (@jsm)
@@ -32,15 +47,19 @@
 - Parse the timestamp format webhooks use [#19](https://github.com/buildkite/go-buildkite/pull/19) (@euank)
 
 ## [v2.3.1](https://github.com/buildkite/go-buildkite/tree/v2.3.1) (2020-02-19)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.3.0...v2.3.1)
 
 ### Changed
+
 - Go Modules: /v2 suffix on module path [#63](https://github.com/buildkite/go-buildkite/pull/63) (@pda)
 
 ## [v2.3.0](https://github.com/buildkite/go-buildkite/tree/v2.3.0) (2020-02-18)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.2.0...v2.3.0)
 
 ### Changed
+
 - Add Annotations API support [#62](https://github.com/buildkite/go-buildkite/pull/62) (@toolmantim)
 - Add the `step_key` field to Jobs [#61](https://github.com/buildkite/go-buildkite/pull/61) (@toolmantim)
 - Add header times to job log [#59](https://github.com/buildkite/go-buildkite/pull/59) (@kushmansingh)
@@ -57,16 +76,18 @@
 - Add YAML support to types [#44](https://github.com/buildkite/go-buildkite/pull/44) (@gdhagger)
 - Include `source` field for the builds API response [#49](https://github.com/buildkite/go-buildkite/pull/49) (@angulito)
 - Add missing AgentListOptions. [#50](https://github.com/buildkite/go-buildkite/pull/50) (@philwo)
--  Add filtering option for listing builds by commit [#47](https://github.com/buildkite/go-buildkite/pull/47) (@srmocher)
+- Add filtering option for listing builds by commit [#47](https://github.com/buildkite/go-buildkite/pull/47) (@srmocher)
 - Add cancel build function [#45](https://github.com/buildkite/go-buildkite/pull/45) (@dschofie)
 - Add pull request build information to CreateBuild [#43](https://github.com/buildkite/go-buildkite/pull/43) (@jradtilbrook)
 - Allow updating pipeline provider settings [#41](https://github.com/buildkite/go-buildkite/pull/41) (@gdhagger)
 - Explicitly set JSON content-type on API requests [#40](https://github.com/buildkite/go-buildkite/pull/40) (@matthewd)
 
 ## [v2.2.0](https://github.com/buildkite/go-buildkite/tree/v2.2.0) (2019-02-20)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.1.0...v2.2.0)
 
 ### Changed
+
 - Update comments to have func name, run gofmt and golint [#36](https://github.com/buildkite/go-buildkite/pull/36) (@charlottestjohn)
 - Added support for rebuilding builds [#27](https://github.com/buildkite/go-buildkite/pull/27) (@kevsmith)
 - Add typed provider settings [#23](https://github.com/buildkite/go-buildkite/pull/23) (@haines)
@@ -74,14 +95,16 @@
 - Add JobsService with unblockJob method [#31](https://github.com/buildkite/go-buildkite/pull/31) (@dschofie)
 - Support Job.runnable_at [#26](https://github.com/buildkite/go-buildkite/pull/26) (@lox)
 - Parse AgentQueryRules and TimeoutInMinutes for Steps [#25](https://github.com/buildkite/go-buildkite/pull/25) (@lox)
--  Parse the timestamp format webhooks use [#19](https://github.com/buildkite/go-buildkite/pull/19) (@euank)
+- Parse the timestamp format webhooks use [#19](https://github.com/buildkite/go-buildkite/pull/19) (@euank)
 - Pipeline CRUD [#22](https://github.com/buildkite/go-buildkite/pull/22) (@mubeta06)
 - Actually bump version to 2.1.1 [#17](https://github.com/buildkite/go-buildkite/pull/17) (@lox)
 
 ## [v2.1.0](https://github.com/buildkite/go-buildkite/tree/v2.1.0) (2017-11-23)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v2.0.0...v2.1.0)
 
 ### Changed
+
 - Add retry with exp backoff for GET/429 responses [#16](https://github.com/buildkite/go-buildkite/pull/16) (@lox)
 - Add Create() to BuildsService [#11](https://github.com/buildkite/go-buildkite/pull/11) (@bshi)
 - Update README.md [#15](https://github.com/buildkite/go-buildkite/pull/15) (@lox)
@@ -92,12 +115,15 @@
 - Changed the wolfeidau refs to buildkite [#9](https://github.com/buildkite/go-buildkite/pull/9) (@tobyjoe)
 
 ## [v2.0.0](https://github.com/buildkite/go-buildkite/tree/v2.0.0) (2016-03-31)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v1.0.0...v2.0.0)
 
 ### Changed
+
 - Changes for v2 [#5](https://github.com/buildkite/go-buildkite/pull/5) (@lox)
 
 ## [v1.0.0](https://github.com/buildkite/go-buildkite/tree/v1.0.0) (2016-01-10)
+
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/44957ec...v1.0.0)
 
 - Initial implementation
