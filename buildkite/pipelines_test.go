@@ -34,7 +34,7 @@ func TestPipelinesService_Create(t *testing.T) {
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
 		Repository: *String("my-great-repo"),
-feature/add-plugins-to-pipeline-steps
+		feature/add-plugins-to-pipeline-steps,
 		Steps: []Step{
 			{
 				Type:    String("script"),
