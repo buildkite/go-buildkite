@@ -1,3 +1,7 @@
+## [v2.8.1](https://github.com/buildkite/go-buildkite/compare/v2.8.0...v2.8.1) (2021-07-14)
+
+- add missing organization fields as per api docs [#86](https://github.com/buildkite/go-buildkite/pull/86) ([alam0rt](https://github.com/alam0rt))
+
 ## [v2.8.0](https://github.com/buildkite/go-buildkite/compare/v2.7.1...v2.8.0) (2021-06-16)
 
 - Support for Arching/Unarchiving pipelines [#85](https://github.com/buildkite/go-buildkite/pull/85) ([ksepehr](https://github.com/ksepehr))
