@@ -41,6 +41,7 @@ type Client struct {
 	UserAgent string
 
 	// Services used for talking to different parts of the buildkite API.
+	AccessTokens  *AccessTokensService
 	Agents        *AgentsService
 	Annotations   *AnnotationsService
 	Artifacts     *ArtifactsService
@@ -72,6 +73,7 @@ func NewClient(httpClient *http.Client) *Client {
 		BaseURL:   baseURL,
 		UserAgent: userAgent,
 	}
+	c.AccessTokens = &AccessTokensService{c}
 	c.Agents = &AgentsService{c}
 	c.Annotations = &AnnotationsService{c}
 	c.Artifacts = &ArtifactsService{c}

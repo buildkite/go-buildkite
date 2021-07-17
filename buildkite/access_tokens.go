@@ -2,6 +2,10 @@ package buildkite
 
 import "fmt"
 
+type AccessTokensService {
+  client *Client
+}
+
 type AccessToken struct {
 	UUID   *string  `json:"uuid,omitempty" yaml:"uuid,omitempty"`
 	Scopes *[]Scope `json:"scopes,omitempty" yaml:"scopes,omitempty"`
