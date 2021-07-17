@@ -11,10 +11,10 @@ type AccessToken struct {
 	Scopes *[]string `json:"scopes,omitempty" yaml:"scopes,omitempty"`
 }
 
-// GetToken gets the current token which was used to authenticate the request
+// Get gets the current token which was used to authenticate the request
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/access-token
-func (ats *AccessTokensService) GetToken() (*AccessToken, *Response, error) {
+func (ats *AccessTokensService) Get() (*AccessToken, *Response, error) {
 
 	var u string
 
@@ -25,10 +25,11 @@ func (ats *AccessTokensService) GetToken() (*AccessToken, *Response, error) {
 		return nil, nil, err
 	}
 
-	var accessToken *AccessToken
-	fmt.Print(req.Body)
+	accessToken := new(AccessToken)
+
 	resp, err := ats.client.Do(req, accessToken)
 	if err != nil {
+		fmt.Print(err)
 		return nil, resp, err
 	}
 

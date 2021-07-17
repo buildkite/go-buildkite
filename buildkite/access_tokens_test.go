@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetToken(t *testing.T) {
+func TestAccessTokensService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -16,16 +16,18 @@ func TestGetToken(t *testing.T) {
 		fmt.Fprint(w, `{"uuid": "b63254c0-3271-4a98-8270-7cfbd6c2f14e","scopes": ["read_build"]}`)
 	})
 
-	accessToken, _, err := client.AccessTokens.GetToken()
+	ats, _, err := client.AccessTokens.Get()
 	if err != nil {
-		t.Errorf("GetToken returned error: %v", err)
+		t.Errorf("AccessTokens.Get returned error: %v", err)
 	}
 
-	want := AccessToken{
+	fmt.Print(ats)
+
+	want := &AccessToken{
 		UUID:   String("b63254c0-3271-4a98-8270-7cfbd6c2f14e"),
-		Scopes: String{"read_build"},
+		Scopes: &[]string{"read_build"},
 	}
-	if !reflect.DeepEqual(want, accessToken) {
-		t.Errorf("GetToken returned %+v, want %+v", accessToken, want)
+	if !reflect.DeepEqual(ats, want) {
+		t.Errorf("AccessTokens.Get returned %+v, want %+v", ats, want)
 	}
 }
