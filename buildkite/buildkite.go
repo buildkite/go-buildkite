@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	httpDebug = false
+	httpDebug = true
 )
 
 // Client - A Client manages communication with the buildkite API.
