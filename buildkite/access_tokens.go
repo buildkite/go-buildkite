@@ -2,8 +2,8 @@ package buildkite
 
 import "fmt"
 
-type AccessTokensService {
-  client *Client
+type AccessTokensService struct {
+	client *Client
 }
 
 type AccessToken struct {
