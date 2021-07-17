@@ -7,11 +7,9 @@ type AccessTokensService struct {
 }
 
 type AccessToken struct {
-	UUID   *string  `json:"uuid,omitempty" yaml:"uuid,omitempty"`
-	Scopes *[]Scope `json:"scopes,omitempty" yaml:"scopes,omitempty"`
+	UUID   *string   `json:"uuid,omitempty" yaml:"uuid,omitempty"`
+	Scopes *[]string `json:"scopes,omitempty" yaml:"scopes,omitempty"`
 }
-
-type Scope string
 
 // GetToken gets the current token which was used to authenticate the request
 //

@@ -16,14 +16,14 @@ func TestGetToken(t *testing.T) {
 		fmt.Fprint(w, `{"uuid": "b63254c0-3271-4a98-8270-7cfbd6c2f14e","scopes": ["read_build"]}`)
 	})
 
-	accessToken, _, err := client.GetToken()
+	accessToken, _, err := client.AccessTokens.GetToken()
 	if err != nil {
 		t.Errorf("GetToken returned error: %v", err)
 	}
 
 	want := AccessToken{
 		UUID:   String("b63254c0-3271-4a98-8270-7cfbd6c2f14e"),
-		Scopes: &[]Scope{"read_build"},
+		Scopes: String{"read_build"},
 	}
 	if !reflect.DeepEqual(want, accessToken) {
 		t.Errorf("GetToken returned %+v, want %+v", accessToken, want)
