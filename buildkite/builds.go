@@ -53,24 +53,24 @@ type PullRequest struct {
 
 // Build represents a build which has run in buildkite
 type Build struct {
-	ID          *string           `json:"id,omitempty" yaml:"id,omitempty"`
-	URL         *string           `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL      *string           `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Number      *int              `json:"number,omitempty" yaml:"number,omitempty"`
-	State       *string           `json:"state,omitempty" yaml:"state,omitempty"`
-	Blocked     *bool             `json:"blocked,omitempty" yaml:"blocked,omitempty"`
-	Message     *string           `json:"message,omitempty" yaml:"message,omitempty"`
-	Commit      *string           `json:"commit,omitempty" yaml:"commit,omitempty"`
-	Branch      *string           `json:"branch,omitempty" yaml:"branch,omitempty"`
-	Author      *Author           `json:"author,omitempty" yaml:"author,omitempty"`
-	Env         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
-	CreatedAt   *Timestamp        `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	ScheduledAt *Timestamp        `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
-	StartedAt   *Timestamp        `json:"started_at,omitempty" yaml:"started_at,omitempty"`
-	FinishedAt  *Timestamp        `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
-	MetaData    interface{}       `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
-	Creator     *Creator          `json:"creator,omitempty" yaml:"creator,omitempty"`
-	Source      *string           `json:"source,omitempty" yaml:"source,omitempty"`
+	ID          *string                `json:"id,omitempty" yaml:"id,omitempty"`
+	URL         *string                `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL      *string                `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+	Number      *int                   `json:"number,omitempty" yaml:"number,omitempty"`
+	State       *string                `json:"state,omitempty" yaml:"state,omitempty"`
+	Blocked     *bool                  `json:"blocked,omitempty" yaml:"blocked,omitempty"`
+	Message     *string                `json:"message,omitempty" yaml:"message,omitempty"`
+	Commit      *string                `json:"commit,omitempty" yaml:"commit,omitempty"`
+	Branch      *string                `json:"branch,omitempty" yaml:"branch,omitempty"`
+	Author      *Author                `json:"author,omitempty" yaml:"author,omitempty"`
+	Env         map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	CreatedAt   *Timestamp             `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
+	StartedAt   *Timestamp             `json:"started_at,omitempty" yaml:"started_at,omitempty"`
+	FinishedAt  *Timestamp             `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
+	MetaData    interface{}            `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
+	Creator     *Creator               `json:"creator,omitempty" yaml:"creator,omitempty"`
+	Source      *string                `json:"source,omitempty" yaml:"source,omitempty"`
 
 	// jobs run during the build
 	Jobs []*Job `json:"jobs,omitempty" yaml:"jobs,omitempty"`
