@@ -31,3 +31,26 @@ func TestAccessTokensService_Get(t *testing.T) {
 		t.Errorf("AccessTokens.Get returned %+v, want %+v", ats, want)
 	}
 }
+
+func TestAccessTokensService_Revoke(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/access-token", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		fmt.Fprint(w, `{}`)
+	})
+
+	ats, _, err := client.AccessTokens.Revoke()
+	if err != nil {
+		t.Errorf("AccessTokens.Revoke returned error: %v", err)
+	}
+
+	fmt.Print(ats)
+
+	want := &AccessToken{}
+
+	if !reflect.DeepEqual(ats, want) {
+		t.Errorf("AccessTokens.Revoke returned %+v, want %+v", ats, want)
+	}
+}

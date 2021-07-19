@@ -35,3 +35,28 @@ func (ats *AccessTokensService) Get() (*AccessToken, *Response, error) {
 
 	return accessToken, resp, nil
 }
+
+// Revokes the current token which was used to authenticate the request
+//
+// buildkite API docs: https://buildkite.com/docs/rest-api/access-token
+func (ats *AccessTokensService) Revoke() (*AccessToken, *Response, error) {
+
+	var u string
+
+	u = fmt.Sprintf("v2/access-token")
+
+	req, err := ats.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	accessToken := new(AccessToken)
+
+	resp, err := ats.client.Do(req, accessToken)
+	if err != nil {
+		fmt.Print(err)
+		return nil, resp, err
+	}
+
+	return accessToken, resp, nil
+}
