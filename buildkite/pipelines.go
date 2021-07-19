@@ -56,7 +56,6 @@ type Pipeline struct {
 	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
 	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
 	ClusterID                       *string    `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
-	Visibility                      *string    `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
@@ -68,9 +67,9 @@ type Pipeline struct {
 	Provider *Provider `json:"provider,omitempty" yaml:"provider,omitempty"`
 
 	// build steps
-	Steps         []*Step           `json:"steps,omitempty" yaml:"steps,omitempty"`
-	Configuration string            `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Env           map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+	Steps         []*Step                `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Configuration string                 `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Env           map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
