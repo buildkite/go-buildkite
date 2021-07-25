@@ -231,7 +231,8 @@ func TestPipelinesService_Update(t *testing.T) {
 								"command": "script/release.sh"
 							}
 						],
-						"slug": "my-great-repo"
+						"slug": "my-great-repo",
+                                                "visibility": "public"
 					}`)
 	})
 
@@ -246,6 +247,7 @@ func TestPipelinesService_Update(t *testing.T) {
 			Name:    String("Build :package:"),
 			Command: String("script/release.sh")}},
 		Slug: String("my-great-repo"),
+                Visibility: String("public"),
 	}
 	if !reflect.DeepEqual(pipeline, want) {
 		t.Errorf("Pipelines.Update returned %+v, want %+v", pipeline, want)
