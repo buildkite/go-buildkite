@@ -29,7 +29,6 @@ func (ats *AccessTokensService) Get() (*AccessToken, *Response, error) {
 
 	resp, err := ats.client.Do(req, accessToken)
 	if err != nil {
-		fmt.Print(err)
 		return nil, resp, err
 	}
 
@@ -52,7 +51,6 @@ func (ats *AccessTokensService) Revoke() (*Response, error) {
 
 	resp, err := ats.client.Do(req, nil)
 	if err != nil {
-		fmt.Print(err)
 		return resp, err
 	}
 
