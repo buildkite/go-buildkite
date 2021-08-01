@@ -21,8 +21,6 @@ func TestAccessTokensService_Get(t *testing.T) {
 		t.Errorf("AccessTokens.Get returned error: %v", err)
 	}
 
-	fmt.Print(ats)
-
 	want := &AccessToken{
 		UUID:   String("b63254c0-3271-4a98-8270-7cfbd6c2f14e"),
 		Scopes: &[]string{"read_build"},
@@ -38,19 +36,18 @@ func TestAccessTokensService_Revoke(t *testing.T) {
 
 	mux.HandleFunc("/v2/access-token", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
-		fmt.Fprint(w, `{}`)
+		w.WriteHeader(http.StatusNoContent)
 	})
 
-	ats, _, err := client.AccessTokens.Revoke()
+	resp, err := client.AccessTokens.Revoke()
 	if err != nil {
 		t.Errorf("AccessTokens.Revoke returned error: %v", err)
 	}
 
-	fmt.Print(ats)
+	want := http.StatusNoContent
+	got := resp.Response.StatusCode
 
-	want := &AccessToken{}
-
-	if !reflect.DeepEqual(ats, want) {
-		t.Errorf("AccessTokens.Revoke returned %+v, want %+v", ats, want)
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("AccessTokens.Revoke returned %+v, want %+v", got, want)
 	}
 }
