@@ -50,9 +50,7 @@ func (ats *AccessTokensService) Revoke() (*Response, error) {
 		return nil, err
 	}
 
-	accessToken := new(AccessToken)
-
-	resp, err := ats.client.Do(req, accessToken)
+	resp, err := ats.client.Do(req, nil)
 	if err != nil {
 		fmt.Print(err)
 		return resp, err
