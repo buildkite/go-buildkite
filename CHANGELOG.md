@@ -1,3 +1,8 @@
+## [v2.9.0](https://github.com/buildkite/go-buildkite/compare/v2.8.1...v2.9.0) (2021-08-03)
+
+- Implement Access Tokens API [#87](https://github.com/buildkite/go-buildkite/pull/87) ([alam0rt](https://github.com/alam0rt))
+- implement visibility pipeline field [#88](https://github.com/buildkite/go-buildkite/pull/88) ([alam0rt](https://github.com/alam0rt))
+
 ## [v2.8.1](https://github.com/buildkite/go-buildkite/compare/v2.8.0...v2.8.1) (2021-07-14)
 
 - add missing organization fields as per api docs [#86](https://github.com/buildkite/go-buildkite/pull/86) ([alam0rt](https://github.com/alam0rt))

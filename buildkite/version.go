@@ -1,4 +1,4 @@
 package buildkite
 
 // Version the library version number
-const Version = "2.8.1"
+const Version = "2.9.0"
