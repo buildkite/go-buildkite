@@ -83,7 +83,14 @@ type Step struct {
 	Env                 map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty" yaml:"timeout_in_minutes,omitempty"`
 	AgentQueryRules     []string          `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
+	Plugins             Plugins           `json:"plugins,omitempty" yaml:"plugins,omitempty"`
 }
+
+type Plugins map[string]Plugin
+
+// This is kept vague (map of string to whatever) as there are a lot of custom
+// plugins out there.
+type Plugin map[string]interface{}
 
 // PipelineListOptions specifies the optional parameters to the
 // PipelinesService.List method.
