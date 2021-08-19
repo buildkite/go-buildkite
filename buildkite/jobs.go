@@ -17,6 +17,7 @@ type Job struct {
 	ID              *string      `json:"id,omitempty" yaml:"id,omitempty"`
 	Type            *string      `json:"type,omitempty" yaml:"type,omitempty"`
 	Name            *string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Label           *string      `json:"label,omitempty" yaml:"label,omitempty"`
 	StepKey         *string      `json:"step_key,omitempty" yaml:"step_key,omitempty"`
 	State           *string      `json:"state,omitempty" yaml:"state,omitempty"`
 	LogsURL         *string      `json:"logs_url,omitempty" yaml:"logs_url,omitempty"`
