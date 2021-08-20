@@ -25,13 +25,24 @@ type Team struct {
 	CreatedBy   *User      `json:"created_by,omitempty" yaml:"created_by,omitempty"`
 }
 
+// TeamsListOptions specifies the optional parameters to the
+// TeamsService.List method.
+type TeamsListOptions struct {
+	ListOptions
+}
+
 // Get the teams for an org.
 //
 // buildkite API docs: https://buildkite.com/docs/api
-func (ts *TeamsService) List(org string) ([]Team, *Response, error) {
+func (ts *TeamsService) List(org string, opt *TeamsListOptions) ([]Team, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/teams", org)
+
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	req, err := ts.client.NewRequest("GET", u, nil)
 	if err != nil {

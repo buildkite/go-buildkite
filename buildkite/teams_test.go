@@ -16,7 +16,7 @@ func TestTeamsService_List(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	teams, _, err := client.Teams.List("my-great-org")
+	teams, _, err := client.Teams.List("my-great-org", nil)
 	if err != nil {
 		t.Errorf("Teams.List returned error: %v", err)
 	}
