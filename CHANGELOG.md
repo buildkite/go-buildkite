@@ -1,3 +1,9 @@
+## [v3.0.0](https://github.com/buildkite/go-buildkite/compare/v2.9.0...v3.0.0) (2021-08-20)
+
+- Add block-job label [#90](https://github.com/buildkite/go-buildkite/pull/90) ([BEvgeniyS](https://github.com/BEvgeniyS))
+- Fix pagination for teams [#89](https://github.com/buildkite/go-buildkite/pull/89) ([atishpatel](https://github.com/atishpatel))
+- Add support for plugins to Pipeline steps [#82](https://github.com/buildkite/go-buildkite/pull/82) ([luma](https://github.com/luma))
+
 ## [v2.9.0](https://github.com/buildkite/go-buildkite/compare/v2.8.1...v2.9.0) (2021-08-03)
 
 - Implement Access Tokens API [#87](https://github.com/buildkite/go-buildkite/pull/87) ([alam0rt](https://github.com/alam0rt))
