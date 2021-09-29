@@ -7,14 +7,14 @@ A [Go](http://golang.org) library and client for the [Buildkite API](https://bui
 To get the package, execute:
 
 ```
-go get github.com/buildkite/go-buildkite/v2/buildkite
+go get github.com/buildkite/go-buildkite/v3/buildkite
 ```
 
 Simple shortened example for listing all pipelines is provided below, see examples for more.
 
 ```go
 import (
-    "github.com/buildkite/go-buildkite/v2/buildkite"
+    "github.com/buildkite/go-buildkite/v3/buildkite"
 )
 ...
 
