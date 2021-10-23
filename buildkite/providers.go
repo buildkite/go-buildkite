@@ -54,6 +54,7 @@ type ProviderSettings interface {
 // BitbucketSettings are settings for pipelines building from Bitbucket repositories.
 type BitbucketSettings struct {
 	BuildPullRequests                       *bool   `json:"build_pull_requests,omitempty" yaml:"build_pull_requests,omitempty"`
+	BuildBranches                           *bool   `json:"build_branches,omitempty" yaml:"build_branches,omitempty"`
 	PullRequestBranchFilterEnabled          *bool   `json:"pull_request_branch_filter_enabled,omitempty" yaml:"pull_request_branch_filter_enabled,omitempty"`
 	PullRequestBranchFilterConfiguration    *string `json:"pull_request_branch_filter_configuration,omitempty" yaml:"pull_request_branch_filter_configuration,omitempty"`
 	SkipPullRequestBuildsForExistingCommits *bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty" yaml:"skip_pull_request_builds_for_existing_commits,omitempty"`
@@ -71,6 +72,7 @@ func (s *BitbucketSettings) isProviderSettings() {}
 type GitHubSettings struct {
 	TriggerMode                             *string `json:"trigger_mode,omitempty" yaml:"trigger_mode,omitempty"`
 	BuildPullRequests                       *bool   `json:"build_pull_requests,omitempty" yaml:"build_pull_requests,omitempty"`
+	BuildBranches                           *bool   `json:"build_branches,omitempty" yaml:"build_branches,omitempty"`
 	PullRequestBranchFilterEnabled          *bool   `json:"pull_request_branch_filter_enabled,omitempty" yaml:"pull_request_branch_filter_enabled,omitempty"`
 	PullRequestBranchFilterConfiguration    *string `json:"pull_request_branch_filter_configuration,omitempty" yaml:"pull_request_branch_filter_configuration,omitempty"`
 	SkipPullRequestBuildsForExistingCommits *bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty" yaml:"skip_pull_request_builds_for_existing_commits,omitempty"`
@@ -93,6 +95,7 @@ func (s *GitHubSettings) isProviderSettings() {}
 // GitHubEnterpriseSettings are settings for pipelines building from GitHub Enterprise repositories.
 type GitHubEnterpriseSettings struct {
 	BuildPullRequests                       *bool   `json:"build_pull_requests,omitempty" yaml:"build_pull_requests,omitempty"`
+	BuildBranches                           *bool   `json:"build_branches,omitempty" yaml:"build_branches,omitempty"`
 	PullRequestBranchFilterEnabled          *bool   `json:"pull_request_branch_filter_enabled,omitempty" yaml:"pull_request_branch_filter_enabled,omitempty"`
 	PullRequestBranchFilterConfiguration    *string `json:"pull_request_branch_filter_configuration,omitempty" yaml:"pull_request_branch_filter_configuration,omitempty"`
 	SkipPullRequestBuildsForExistingCommits *bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty" yaml:"skip_pull_request_builds_for_existing_commits,omitempty"`
