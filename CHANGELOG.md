@@ -1,3 +1,7 @@
+## [v3.0.1](https://github.com/buildkite/go-buildkite/compare/v3.0.0...v3.0.1) (2021-10-26)
+
+- add build_branches param to all provider settings properties [#94](https://github.com/buildkite/go-buildkite/pull/94) ([carol-he](https://github.com/carol-he))
+
 ## [v3.0.0](https://github.com/buildkite/go-buildkite/compare/v2.9.0...v3.0.0) (2021-08-20)
 
 - Add block-job label [#90](https://github.com/buildkite/go-buildkite/pull/90) ([BEvgeniyS](https://github.com/BEvgeniyS))
