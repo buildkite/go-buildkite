@@ -27,6 +27,7 @@ type CreateBuild struct {
 
 	// Optional fields
 	Author                      Author            `json:"author,omitempty" yaml:"author,omitempty"`
+	CleanCheckout 				bool 			  `json:"clean_checkout,omitempty" yaml:"clean_checkout,omitempty"`
 	Env                         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	MetaData                    map[string]string `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
 	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters,omitempty" yaml:"ignore_pipeline_branch_filters,omitempty"`
