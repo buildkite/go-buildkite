@@ -155,7 +155,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	want := &Pipeline{Name: String("my-great-pipeline"),
 		Repository: String("my-great-repo"),
 		Steps: []*Step{
-			&Step{
+			{
 				Type:    String("script"),
 				Name:    String("Build :package:"),
 				Command: String("script/release.sh"),
@@ -320,8 +320,8 @@ func TestPipelinesService_Update(t *testing.T) {
 				},
 			},
 		},
-		Slug: String("my-great-repo"),
-                Visibility: String("public"),
+		Slug:       String("my-great-repo"),
+		Visibility: String("public"),
 	}
 
 	if !reflect.DeepEqual(pipeline, want) {
