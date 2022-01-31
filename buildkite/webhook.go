@@ -25,8 +25,14 @@ const (
 var (
 	// eventTypeMapping maps webhook types to their corresponding Buildkite structs
 	eventTypeMapping = map[string]string{
-		"job.scheduled": "JobScheduledEvent",
-		"ping":          "PingEvent",
+		"build.finished":  "BuildFinishedEvent",
+		"build.running":   "BuildRunningEvent",
+		"build.scheduled": "BuildScheduledEvent",
+		"job.activated":   "JobActivatedEvent",
+		"job.finished":    "JobFinishedEvent",
+		"job.scheduled":   "JobScheduledEvent",
+		"job.started":     "JobStartedEvent",
+		"ping":            "PingEvent",
 	}
 )
 
@@ -150,8 +156,20 @@ type Event struct {
 //
 func (e *Event) ParsePayload() (payload interface{}, err error) {
 	switch *e.Type {
+	case "BuildFinishedEvent":
+		payload = &BuildFinishedEvent{}
+	case "BuildRunningEvent":
+		payload = &BuildRunningEvent{}
+	case "BuildScheduledEvent":
+		payload = &BuildScheduledEvent{}
+	case "JobActivatedEvent":
+		payload = &JobActivatedEvent{}
+	case "JobFinishedEvent":
+		payload = &JobFinishedEvent{}
 	case "JobScheduledEvent":
 		payload = &JobScheduledEvent{}
+	case "JobStartedEvent":
+		payload = &JobStartedEvent{}
 	case "PingEvent":
 		payload = &PingEvent{}
 	}

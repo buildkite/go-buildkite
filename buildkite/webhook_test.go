@@ -15,8 +15,32 @@ func TestParseWebHook(t *testing.T) {
 		errorMessage string
 	}{
 		{
+			payload:     &BuildFinishedEvent{},
+			messageType: "build.finished",
+		},
+		{
+			payload:     &BuildRunningEvent{},
+			messageType: "build.running",
+		},
+		{
+			payload:     &BuildScheduledEvent{},
+			messageType: "build.scheduled",
+		},
+		{
+			payload:     &JobActivatedEvent{},
+			messageType: "job.activated",
+		},
+		{
+			payload:     &JobFinishedEvent{},
+			messageType: "job.finished",
+		},
+		{
 			payload:     &JobScheduledEvent{},
 			messageType: "job.scheduled",
+		},
+		{
+			payload:     &JobStartedEvent{},
+			messageType: "job.started",
 		},
 		{
 			payload:     &PingEvent{},
