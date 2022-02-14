@@ -109,7 +109,7 @@ func TestValidatePayload(t *testing.T) {
 		}
 
 		if test.signature != "" {
-			req.Header.Set(signatureHeader, test.signature)
+			req.Header.Set(SignatureHeader, test.signature)
 		}
 
 		req.Header.Set("Content-Type", "application/json")
@@ -137,7 +137,7 @@ func TestWebHookType(t *testing.T) {
 		t.Fatalf("Error building requet: %v", err)
 	}
 
-	req.Header.Set(eventTypeHeader, eventType)
+	req.Header.Set(EventTypeHeader, eventType)
 
 	got := WebHookType(req)
 	if got != eventType {

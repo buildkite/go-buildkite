@@ -14,12 +14,10 @@ import (
 )
 
 const (
-	// eventTypeHeader is the Buildkite header key used to pass the event type
-	eventTypeHeader = "X-Buildkite-Event"
-	// signatureHeader is the Buildkite header key used to pass the HMAC hexdigest.
-	signatureHeader = "X-Buildkite-Signature"
-	// tokenHeader is the Buildkite header key used to pass the Buildkite webhook token.
-	tokenHeader = "X-Buildkite-Signature"
+	// EventTypeHeader is the Buildkite header key used to pass the event type
+	EventTypeHeader = "X-Buildkite-Event"
+	// SignatureHeader is the Buildkite header key used to pass the HMAC hexdigest.
+	SignatureHeader = "X-Buildkite-Signature"
 )
 
 var (
@@ -40,7 +38,7 @@ var (
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks
 func WebHookType(r *http.Request) string {
-	return r.Header.Get(eventTypeHeader)
+	return r.Header.Get(EventTypeHeader)
 }
 
 // ParseWebHook parses the event payload. For recognized event types, a
@@ -128,7 +126,11 @@ func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err err
 		return nil, err
 	}
 
-	sig := r.Header.Get(signatureHeader)
+	sig := r.Header.Get(SignatureHeader)
+	if sig == "" {
+		return nil, fmt.Errorf("No %s header present on request", SignatureHeader)
+	}
+
 	if err = validateSignature(sig, payload, secretKey); err != nil {
 		return nil, err
 	}
