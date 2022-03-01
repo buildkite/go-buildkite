@@ -23,14 +23,19 @@ const (
 var (
 	// eventTypeMapping maps webhook types to their corresponding Buildkite structs
 	eventTypeMapping = map[string]string{
-		"build.finished":  "BuildFinishedEvent",
-		"build.running":   "BuildRunningEvent",
-		"build.scheduled": "BuildScheduledEvent",
-		"job.activated":   "JobActivatedEvent",
-		"job.finished":    "JobFinishedEvent",
-		"job.scheduled":   "JobScheduledEvent",
-		"job.started":     "JobStartedEvent",
-		"ping":            "PingEvent",
+		"agent.connected":    "AgentConnectedEvent",
+		"agent.disconnected": "AgentDisconnectedEvent",
+		"agent.lost":         "AgentLostEvent",
+		"agent.stopped":      "AgentStoppedEvent",
+		"agent.stopping":     "AgentStoppingEvent",
+		"build.finished":     "BuildFinishedEvent",
+		"build.running":      "BuildRunningEvent",
+		"build.scheduled":    "BuildScheduledEvent",
+		"job.activated":      "JobActivatedEvent",
+		"job.finished":       "JobFinishedEvent",
+		"job.scheduled":      "JobScheduledEvent",
+		"job.started":        "JobStartedEvent",
+		"ping":               "PingEvent",
 	}
 )
 
@@ -158,6 +163,16 @@ type Event struct {
 //
 func (e *Event) ParsePayload() (payload interface{}, err error) {
 	switch *e.Type {
+	case "AgentConnectedEvent":
+		payload = &AgentConnectedEvent{}
+	case "AgentDisconnectedEvent":
+		payload = &AgentDisconnectedEvent{}
+	case "AgentLostEvent":
+		payload = &AgentLostEvent{}
+	case "AgentStoppedEvent":
+		payload = &AgentStoppedEvent{}
+	case "AgentStoppingEvent":
+		payload = &AgentStoppingEvent{}
 	case "BuildFinishedEvent":
 		payload = &BuildFinishedEvent{}
 	case "BuildRunningEvent":

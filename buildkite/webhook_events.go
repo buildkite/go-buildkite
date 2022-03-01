@@ -1,5 +1,49 @@
 package buildkite
 
+// agentEvent is a wrapper for an agent event notification
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
+type agentEvent struct {
+	Event  *string `json:"event"`
+	Agent  *Agent  `json:"agent"`
+	Sender *User   `json:"sender"`
+}
+
+// AgentConnectedEvent is triggered when an agent has connected to the API
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
+type AgentConnectedEvent struct {
+	agentEvent
+}
+
+// AgentDisconnectedEvent is triggered when an agent has disconnected.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
+type AgentDisconnectedEvent struct {
+	agentEvent
+}
+
+// AgentLostEvent is triggered when an agent has been marked as lost.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
+type AgentLostEvent struct {
+	agentEvent
+}
+
+// AgentStoppedEvent is triggered when an agent has stopped.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
+type AgentStoppedEvent struct {
+	agentEvent
+}
+
+// AgentStoppingEvent is triggered when an agent is stopping.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
+type AgentStoppingEvent struct {
+	agentEvent
+}
+
 // buildEvent is a wrapper for a build event notification
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events

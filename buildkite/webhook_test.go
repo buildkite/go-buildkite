@@ -15,6 +15,26 @@ func TestParseWebHook(t *testing.T) {
 		errorMessage string
 	}{
 		{
+			payload:     &AgentConnectedEvent{},
+			messageType: "agent.connected",
+		},
+		{
+			payload:     &AgentDisconnectedEvent{},
+			messageType: "agent.disconnected",
+		},
+		{
+			payload:     &AgentLostEvent{},
+			messageType: "agent.lost",
+		},
+		{
+			payload:     &AgentStoppedEvent{},
+			messageType: "agent.stopped",
+		},
+		{
+			payload:     &AgentStoppingEvent{},
+			messageType: "agent.stopping",
+		},
+		{
 			payload:     &BuildFinishedEvent{},
 			messageType: "build.finished",
 		},
