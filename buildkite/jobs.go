@@ -15,6 +15,7 @@ type JobsService struct {
 // Job represents a job run during a build in buildkite
 type Job struct {
 	ID              *string      `json:"id,omitempty" yaml:"id,omitempty"`
+	GraphqlID       *string      `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	Type            *string      `json:"type,omitempty" yaml:"type,omitempty"`
 	Name            *string      `json:"name,omitempty" yaml:"name,omitempty"`
 	Label           *string      `json:"label,omitempty" yaml:"label,omitempty"`

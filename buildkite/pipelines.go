@@ -39,6 +39,7 @@ type CreatePipeline struct {
 // Pipeline represents a buildkite pipeline.
 type Pipeline struct {
 	ID                              *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	GraphqlID                       *string    `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	URL                             *string    `json:"url,omitempty" yaml:"url,omitempty"`
 	WebURL                          *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
 	Name                            *string    `json:"name,omitempty" yaml:"name,omitempty"`
@@ -56,7 +57,7 @@ type Pipeline struct {
 	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
 	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
 	ClusterID                       *string    `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
-        Visibility                      *string    `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	Visibility                      *string    `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
