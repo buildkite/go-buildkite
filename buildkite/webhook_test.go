@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -99,20 +100,36 @@ func TestParseWebHook(t *testing.T) {
 func TestValidatePayload(t *testing.T) {
 	const defaultBody = `{"event":"ping","service":{"id":"c9f8372d-c0cd-43dc-9274-768a875cf6ca","provider":"webhook","settings":{"url":"https://server.com/webhooks"}},"organization":{"id":"49801950-1df0-474f-bb56-ad6a930c5cb9","graphql_id":"T3JnYW5pemF0aW9uLS0tZTBmMzk3MgsTksGkxOWYtZTZjNzczZTJiYjEy","url":"https://api.buildkite.com/v2/organizations/acme-inc","web_url":"https://buildkite.com/acme-inc","name":"ACME Inc","slug":"acme-inc","agents_url":"https://api.buildkite.com/v2/organizations/acme-inc/agents","emojis_url":"https://api.buildkite.com/v2/organizations/acme-inc/emojis","created_at":"2021-02-03T20:34:10.486Z","pipelines_url":"https://api.buildkite.com/v2/organizations/acme-inc/pipelines"},"sender":{"id":"c9f8372d-c0cd-43dc-9269-bcbb7f308e3f","name":"ACME Man"}}`
 	const defaultSignature = "timestamp=1642080837,signature=582d496ac2d869dd97a3101c4cda346288c49a742592daf582ec64c86449f79c"
+	const errorDecodingSignature = "error decoding signature"
+	const invalidSignatureHeader = "X-Buildkite-Signature format is incorrect."
 	const payloadSignatureError = "payload signature check failed"
 	secretKey := []byte("29b1ff5779c76bd48ba6705eb99ff970")
 
 	tests := []struct {
 		signature   string
 		event       string
+		wantError   string
 		wantEvent   string
 		wantPayload string
 	}{
 		// The following tests generate expected errors:
-		{},                     // Missing signature
-		{signature: "invalid"}, // Invalid signature format
-		{signature: "timestamp=1642080837,signature=yo"}, // Signature not hex string
-		// The following tests expect err=nil:
+		{}, // Missing signature
+		// Invalid signature format
+		{
+			signature: "invalid",
+			wantError: invalidSignatureHeader,
+		},
+		// Signature not hex string
+		{
+			signature: "timestamp=1642080837,signature=yo",
+			wantError: errorDecodingSignature,
+		},
+		// Signature not valid
+		{
+			signature: strings.Replace(defaultSignature, "f", "a", 1),
+			wantError: payloadSignatureError,
+		},
+		// The following tests expect a valid result
 		{
 			signature:   defaultSignature,
 			event:       "ping",
@@ -138,6 +155,10 @@ func TestValidatePayload(t *testing.T) {
 		if err != nil {
 			if test.wantPayload != "" {
 				t.Errorf("ValidatePayload(%#v): err = %v, want nil", test, err)
+			}
+
+			if !strings.Contains(err.Error(), test.wantError) {
+				t.Errorf("ValidatePayload(%#v): err = %s, want err = %s", test, err.Error(), test.wantError)
 			}
 
 			continue

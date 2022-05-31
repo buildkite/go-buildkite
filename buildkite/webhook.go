@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"hash"
 	"io/ioutil"
@@ -92,7 +91,7 @@ func validateSignature(signature string, payload, secretKey []byte) error {
 	macPayload := fmt.Sprintf("%s.%s", timestamp, payload)
 
 	if !checkMAC([]byte(macPayload), sig, secretKey, sha256.New) {
-		return errors.New("payload signature check failed")
+		return fmt.Errorf("payload signature check failed")
 	}
 
 	return nil
