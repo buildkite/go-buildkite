@@ -102,6 +102,7 @@ func TestValidatePayload(t *testing.T) {
 	const defaultSignature = "timestamp=1642080837,signature=582d496ac2d869dd97a3101c4cda346288c49a742592daf582ec64c86449f79c"
 	const errorDecodingSignature = "error decoding signature"
 	const invalidSignatureHeader = "X-Buildkite-Signature format is incorrect."
+	const missingSignatureHeader = "No X-Buildkite-Signature header present on request"
 	const payloadSignatureError = "payload signature check failed"
 	secretKey := []byte("29b1ff5779c76bd48ba6705eb99ff970")
 
@@ -113,7 +114,11 @@ func TestValidatePayload(t *testing.T) {
 		wantPayload string
 	}{
 		// The following tests generate expected errors:
-		{}, // Missing signature
+		// Missing signature
+		{
+			signature: "",
+			wantError: missingSignatureHeader,
+		},
 		// Invalid signature format
 		{
 			signature: "invalid",
