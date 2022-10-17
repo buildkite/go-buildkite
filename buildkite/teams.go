@@ -13,7 +13,7 @@ type TeamsService struct {
 	client *Client
 }
 
-// User represents a buildkite user.
+// Team represents a buildkite team.
 type Team struct {
 	ID          *string    `json:"id,omitempty" yaml:"id,omitempty"`
 	Name        *string    `json:"name,omitempty" yaml:"name,omitempty"`
