@@ -53,23 +53,56 @@ func TestBuildsService_List(t *testing.T) {
 }
 
 func TestBuildsService_Get(t *testing.T) {
-	setup()
-	defer teardown()
+	buildNumber := "123"
+	orgName := "my-great-org"
+	pipelineName := "sup-keith"
+	requestSlug := fmt.Sprintf("/v2/organizations/%s/pipelines/%s/builds/%s",
+		orgName, pipelineName, buildNumber)
+	t.Run("returns a build struct with expected id", func(t *testing.T) {
+		setup()
+		defer teardown()
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"id":"123"}`)
+		mux.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				_, _ = fmt.Fprintf(w, `{"id":"%s"}`, buildNumber)
+			})
+
+		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
+		if err != nil {
+			t.Errorf("Builds.Get returned error: %v", err)
+		}
+
+		want := &Build{ID: String(buildNumber)}
+		if !reflect.DeepEqual(build, want) {
+			t.Errorf("Builds.Get returned %+v, want %+v", build, want)
+		}
 	})
 
-	build, _, err := client.Builds.Get("my-great-org", "sup-keith", "123", nil)
-	if err != nil {
-		t.Errorf("Builds.Get returned error: %v", err)
-	}
+	t.Run("returns a build struct with expected job containing a group key", func(t *testing.T) {
+		setup()
+		defer teardown()
 
-	want := &Build{ID: String("123")}
-	if !reflect.DeepEqual(build, want) {
-		t.Errorf("Builds.Get returned %+v, want %+v", build, want)
-	}
+		expectedGroup := "job_group"
+		mux.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				_, _ = fmt.Fprintf(w, `{"id":"%s", "jobs": [ {"group_key": "%s" }]}`,
+					buildNumber,
+					expectedGroup,
+				)
+			})
+
+		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
+		if err != nil {
+			t.Errorf("Builds.Get returned error: %v", err)
+		}
+
+		want := &Build{ID: String(buildNumber), Jobs: []*Job{{GroupKey: &expectedGroup}}}
+		if !reflect.DeepEqual(build, want) {
+			t.Errorf("Builds.Get returned %+v, want %+v", build, want)
+		}
+	})
 }
 
 func TestBuildsService_List_by_status(t *testing.T) {
