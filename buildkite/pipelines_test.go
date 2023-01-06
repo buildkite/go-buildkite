@@ -370,3 +370,40 @@ func TestPipelinesService_Unarchive(t *testing.T) {
 		t.Errorf("Pipelines.UnArchive returned error: %v", err)
 	}
 }
+
+func TestPluginsUnmarshal(t *testing.T) {
+	setup()
+	defer teardown()
+
+	for _, tc := range []struct {
+		name string
+		json string
+	}{
+		{
+			name: "as an array of plugins",
+			json: `[{"my-org/docker#v3.3.0": {"image":   "node", "workdir": "/app"}}]`,
+		},
+		{
+			name: "as a map[string]Plugin",
+			json: `{"my-org/docker#v3.3.0": {"image":   "node", "workdir": "/app"}}`,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var plugins Plugins
+			err := json.Unmarshal([]byte(tc.json), &plugins)
+			if err != nil {
+				t.Fatalf("unmarshal: %v", err)
+			}
+
+			want := Plugins{
+				"my-org/docker#v3.3.0": {
+					"image":   "node",
+					"workdir": "/app",
+				},
+			}
+			if !reflect.DeepEqual(plugins, want) {
+				t.Errorf("Plugins.Unmarshal returned %+v, want %+v", plugins, want)
+			}
+		})
+	}
+}
