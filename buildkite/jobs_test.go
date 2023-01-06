@@ -84,3 +84,50 @@ func TestJobsService_GetJobLog(t *testing.T) {
 		t.Errorf("GetJobLog returned %+v, want %+v", job, want)
 	}
 }
+
+func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
+	setup()
+	defer teardown()
+
+	envVars := map[string]string{
+		"CI": "true",
+		"BUILDKITE": "true",
+		"BUILDKITE_TAG": "",
+		"BUILDKITE_REPO": "git@github.com:my-great-org/my-repo.git",
+		"BUILDKITE_BRANCH": "master",
+		"BUILDKITE_COMMIT": "a65572555600c07c7ee79a2bd909220e1ca5485b",
+		"BUILDKITE_JOB_ID": "bde076a8-bc2c-4fda-9652-10220a56d638",
+		"BUILDKITE_COMMAND": "buildkite-agent pipeline upload",
+		"BUILDKITE_MESSAGE": ":llama:",
+		"BUILDKITE_BUILD_ID": "c4e312cb-e734-4f0a-a5bd-1cac2535c57e",
+		"BUILDKITE_BUILD_URL": "https://buildkite.com/my-great-org/my-pipeline/builds/15",
+		"BUILDKITE_AGENT_NAME": "ci-1",
+		"BUILDKITE_COMMAND": "buildkite-agent pipeline upload",
+		"BUILDKITE_BUILD_NUMBER": "15",
+		"BUILDKITE_ORGANIZATION_SLUG": "my-great-org",
+		"BUILDKITE_PIPELINE_SLUG": "sup-keith",
+		"BUILDKITE_PULL_REQUEST": "false",
+		"BUILDKITE_BUILD_CREATOR": "Keith Pitt",
+		"BUILDKITE_REPO_SSH_HOST": "github.com",
+		"BUILDKITE_ARTIFACT_PATHS": "",
+		"BUILDKITE_PIPELINE_PROVIDER": "github",
+		"BUILDKITE_BUILD_CREATOR_EMAIL": "keith@buildkite.com",
+		"BUILDKITE_AGENT_META_DATA_LOCAL": "true"
+	}
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/env", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `"env": %s`, fmt.Sprint(envVars))
+	})
+
+	jobEnvVars, _, err := client.Jobs.GetJobEnvironmentVariables("my-great-org", "sup-keith", "15", "awesome-job-id")
+	if err != nil {
+		t.Errorf("GetJobEnvironmentVariables returned error: %v", err)
+	}
+
+	want := &JobEnvs{
+		EnvironmentVariables: envVars,
+	}
+	if !reflect.DeepEqual(jobEnvVars, want) {
+		t.Errorf("GetJobLog returned %+v, want %+v", job, want)
+	}
+}

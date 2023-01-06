@@ -65,6 +65,11 @@ type JobLog struct {
 	HeaderTimes []int64 `json:"header_times"`
 }
 
+// JobEnvs represent job environments output
+type JobEnvs struct {
+	EnvironmentVariables *map[string]string `json:"env,string" yaml:"env,string"`
+}
+
 // UnblockJob - unblock a job
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#unblock-a-job
@@ -136,3 +141,27 @@ func (js *JobsService) GetJobLog(org string, pipeline string, buildNumber string
 
 	return jobLog, resp, err
 }
+
+// GetJobEnvironmentVariables - get a job’s environment variables
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-environment-variables
+func (js *JobsService) GetJobEnvironmentVariables(org string, pipeline string, buildNumber string, jobID string) (*JobEnvs, *Response, error) {
+	var u string
+
+	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/env", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	jobEnvs := new(JobEnvs)
+	resp, err := js.client.Do(req, jobEnvs)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return jobEnvs, resp, err
+}
+
