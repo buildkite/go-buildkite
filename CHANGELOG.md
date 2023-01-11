@@ -1,3 +1,8 @@
+## [v3.1.0](https://github.com/buildkite/go-buildkite/compare/v3.0.1...v3.1.0) (2023-01-11)
+
+- Add support for plugins as an array [#106](https://github.com/buildkite/go-buildkite/pull/106) ([benmoss](https://github.com/benmoss))
+- Add job get environment variables api [#107](https://github.com/buildkite/go-buildkite/pull/107) ([gu-kevin](https://github.com/gu-kevin))
+
 ## [v3.0.1](https://github.com/buildkite/go-buildkite/compare/v3.0.0...v3.0.1) (2021-10-26)
 
 - add build_branches param to all provider settings properties [#94](https://github.com/buildkite/go-buildkite/pull/94) ([carol-he](https://github.com/carol-he))
