@@ -10,7 +10,7 @@ To get the package, execute:
 go get github.com/buildkite/go-buildkite/v3/buildkite
 ```
 
-Simple shortened example for listing all pipelines is provided below, see examples for more.
+Simple shortened example for listing all pipelines:
 
 ```go
 import (
@@ -30,7 +30,9 @@ pipelines, _, err := client.Pipelines.List(*org, nil)
 
 ```
 
-Note: not everything in the API is present here just yet—if you need something please make an issue or submit a pull request.
+See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
+
+Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.
 
 # Releasing
 
