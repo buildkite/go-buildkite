@@ -143,7 +143,9 @@ func (as *AgentsService) Stop(org string, id string, force bool) (*Response, err
 
 	u := fmt.Sprintf("v2/organizations/%s/agents/%s/stop", org, id)
 
-	var body = struct{ Force bool `json:"force"` }{force}
+	var body = struct {
+		Force bool `json:"force"`
+	}{force}
 
 	req, err := as.client.NewRequest("PUT", u, body)
 	if err != nil {

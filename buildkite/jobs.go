@@ -164,4 +164,3 @@ func (js *JobsService) GetJobEnvironmentVariables(org string, pipeline string, b
 
 	return jobEnvs, resp, err
 }
-
