@@ -40,6 +40,7 @@ type CreatePipeline struct {
 // Pipeline represents a buildkite pipeline.
 type Pipeline struct {
 	ID                              *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	GraphQLID                       *string    `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	URL                             *string    `json:"url,omitempty" yaml:"url,omitempty"`
 	WebURL                          *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
 	Name                            *string    `json:"name,omitempty" yaml:"name,omitempty"`
