@@ -78,6 +78,7 @@ type Pipeline struct {
 type Step struct {
 	Type                *string           `json:"type,omitempty" yaml:"type,omitempty"`
 	Name                *string           `json:"name,omitempty" yaml:"name,omitempty"`
+	Label               *string           `json:"label,omitempty" yaml:"label,omitempty"`
 	Command             *string           `json:"command,omitempty" yaml:"command,omitempty"`
 	ArtifactPaths       *string           `json:"artifact_paths,omitempty" yaml:"artifact_paths,omitempty"`
 	BranchConfiguration *string           `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
