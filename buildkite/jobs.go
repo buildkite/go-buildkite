@@ -14,33 +14,35 @@ type JobsService struct {
 
 // Job represents a job run during a build in buildkite
 type Job struct {
-	ID              *string      `json:"id,omitempty" yaml:"id,omitempty"`
-	Type            *string      `json:"type,omitempty" yaml:"type,omitempty"`
-	Name            *string      `json:"name,omitempty" yaml:"name,omitempty"`
-	Label           *string      `json:"label,omitempty" yaml:"label,omitempty"`
-	StepKey         *string      `json:"step_key,omitempty" yaml:"step_key,omitempty"`
-	State           *string      `json:"state,omitempty" yaml:"state,omitempty"`
-	LogsURL         *string      `json:"logs_url,omitempty" yaml:"logs_url,omitempty"`
-	RawLogsURL      *string      `json:"raw_log_url,omitempty" yaml:"raw_log_url,omitempty"`
-	Command         *string      `json:"command,omitempty" yaml:"command,omitempty"`
-	ExitStatus      *int         `json:"exit_status,omitempty" yaml:"exit_status,omitempty"`
-	ArtifactPaths   *string      `json:"artifact_paths,omitempty" yaml:"artifact_paths,omitempty"`
-	ArtifactsURL    *string      `json:"artifacts_url,omitempty" yaml:"artifacts_url,omitempty"`
-	CreatedAt       *Timestamp   `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	ScheduledAt     *Timestamp   `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
-	RunnableAt      *Timestamp   `json:"runnable_at,omitempty" yaml:"runnable_at,omitempty"`
-	StartedAt       *Timestamp   `json:"started_at,omitempty" yaml:"started_at,omitempty"`
-	FinishedAt      *Timestamp   `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
-	Agent           Agent        `json:"agent,omitempty" yaml:"agent,omitempty"`
-	AgentQueryRules []string     `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
-	WebURL          string       `json:"web_url" yaml:"web_url"`
-	Retried         bool         `json:"retried,omitempty" yaml:"retried,omitempty"`
-	RetriedInJobID  string       `json:"retried_in_job_id,omitempty" yaml:"retried_in_job_id,omitempty"`
-	RetriesCount    int          `json:"retries_count,omitempty" yaml:"retries_count,omitempty"`
-	SoftFailed      bool         `json:"soft_failed,omitempty" yaml:"soft_failed,omitempty"`
-	UnblockedBy     *UnblockedBy `json:"unblocked_by,omitempty" yaml:"unblocked_by,omitempty"`
-	Unblockable     *bool        `json:"unblockable,omitempty" yaml:"unblockable,omitempty"`
-	UnblockURL      *string      `json:"unblock_url,omitempty" yaml:"unblock_url,omitempty"`
+	ID                 *string      `json:"id,omitempty" yaml:"id,omitempty"`
+	Type               *string      `json:"type,omitempty" yaml:"type,omitempty"`
+	Name               *string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Label              *string      `json:"label,omitempty" yaml:"label,omitempty"`
+	StepKey            *string      `json:"step_key,omitempty" yaml:"step_key,omitempty"`
+	State              *string      `json:"state,omitempty" yaml:"state,omitempty"`
+	LogsURL            *string      `json:"logs_url,omitempty" yaml:"logs_url,omitempty"`
+	RawLogsURL         *string      `json:"raw_log_url,omitempty" yaml:"raw_log_url,omitempty"`
+	Command            *string      `json:"command,omitempty" yaml:"command,omitempty"`
+	ExitStatus         *int         `json:"exit_status,omitempty" yaml:"exit_status,omitempty"`
+	ArtifactPaths      *string      `json:"artifact_paths,omitempty" yaml:"artifact_paths,omitempty"`
+	ArtifactsURL       *string      `json:"artifacts_url,omitempty" yaml:"artifacts_url,omitempty"`
+	CreatedAt          *Timestamp   `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ScheduledAt        *Timestamp   `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
+	RunnableAt         *Timestamp   `json:"runnable_at,omitempty" yaml:"runnable_at,omitempty"`
+	StartedAt          *Timestamp   `json:"started_at,omitempty" yaml:"started_at,omitempty"`
+	FinishedAt         *Timestamp   `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
+	Agent              Agent        `json:"agent,omitempty" yaml:"agent,omitempty"`
+	AgentQueryRules    []string     `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
+	WebURL             string       `json:"web_url" yaml:"web_url"`
+	Retried            bool         `json:"retried,omitempty" yaml:"retried,omitempty"`
+	RetriedInJobID     string       `json:"retried_in_job_id,omitempty" yaml:"retried_in_job_id,omitempty"`
+	RetriesCount       int          `json:"retries_count,omitempty" yaml:"retries_count,omitempty"`
+	SoftFailed         bool         `json:"soft_failed,omitempty" yaml:"soft_failed,omitempty"`
+	UnblockedBy        *UnblockedBy `json:"unblocked_by,omitempty" yaml:"unblocked_by,omitempty"`
+	Unblockable        *bool        `json:"unblockable,omitempty" yaml:"unblockable,omitempty"`
+	UnblockURL         *string      `json:"unblock_url,omitempty" yaml:"unblock_url,omitempty"`
+	ParallelGroupIndex *string      `json:"parallel_group_index,omitempty" yaml:"parallel_group_index,omitempty"`
+	ParallelGroupTotal *string      `json:"parallel_group_total,omitempty" yaml:"parallel_group_total,omitempty"`
 }
 
 // UnblockedBy represents the unblocked status of a job, when present
@@ -164,4 +166,3 @@ func (js *JobsService) GetJobEnvironmentVariables(org string, pipeline string, b
 
 	return jobEnvs, resp, err
 }
-
