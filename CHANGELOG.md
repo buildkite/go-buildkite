@@ -1,3 +1,11 @@
+## [v3.2.0](https://github.com/buildkite/go-buildkite/compare/v3.1.0...v3.2.0) (2023-03-14)
+
+* Add GraphQLID to more api objects [#116](https://github.com/buildkite/go-buildkite/pull/116) ([benmoss](https://github.com/benmoss))
+* fix "more than one error-wrapping directive %w" [#112](https://github.com/buildkite/go-buildkite/pull/112) ([mdb](https://github.com/mdb))
+* Add Label to steps [#117](https://github.com/buildkite/go-buildkite/pull/117) ([benmoss](https://github.com/benmoss))
+* Add missing parallel job fields to struct [#119](https://github.com/buildkite/go-buildkite/pull/119) ([yqiu24](https://github.com/yqiu24))
+* Update docs to reference pkg.go.dev [#92](https://github.com/buildkite/go-buildkite/pull/92) ([y-yagi](https://github.com/y-yagi))
+
 ## [v3.1.0](https://github.com/buildkite/go-buildkite/compare/v3.0.1...v3.1.0) (2023-01-11)
 
 - Add support for plugins as an array [#106](https://github.com/buildkite/go-buildkite/pull/106) ([benmoss](https://github.com/benmoss))
