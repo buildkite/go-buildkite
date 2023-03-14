@@ -100,7 +100,7 @@ func (p *Plugins) UnmarshalJSON(bs []byte) error {
 
 	asArray := []map[string]Plugin{}
 	if err2 := json.Unmarshal(bs, &asArray); err2 != nil {
-		return fmt.Errorf("plugins are neither a map or an array: %w, %w", err, err2)
+		return fmt.Errorf("plugins are neither a map or an array: %s, %s", err.Error(), err2.Error())
 	}
 	for _, plugin := range asArray {
 		if len(plugin) != 1 {
