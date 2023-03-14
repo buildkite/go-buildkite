@@ -54,6 +54,7 @@ type PullRequest struct {
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          *string                `json:"id,omitempty" yaml:"id,omitempty"`
+	GraphQLID   *string                `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	URL         *string                `json:"url,omitempty" yaml:"url,omitempty"`
 	WebURL      *string                `json:"web_url,omitempty" yaml:"web_url,omitempty"`
 	Number      *int                   `json:"number,omitempty" yaml:"number,omitempty"`
