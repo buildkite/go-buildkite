@@ -1,3 +1,7 @@
+## [v3.2.1](https://github.com/buildkite/go-buildkite/compare/v3.2.0...v3.2.1) (2023-03-16)
+
+* Change parallel indices type in job struct to int (bug fix) [#121](https://github.com/buildkite/go-buildkite/pull/121) ([yqiu24](https://github.com/yqiu24))
+
 ## [v3.2.0](https://github.com/buildkite/go-buildkite/compare/v3.1.0...v3.2.0) (2023-03-14)
 
 * Add GraphQLID to more api objects [#116](https://github.com/buildkite/go-buildkite/pull/116) ([benmoss](https://github.com/benmoss))
