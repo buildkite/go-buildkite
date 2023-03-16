@@ -13,9 +13,9 @@ type JobsService struct {
 }
 
 // Job represents a job run during a build in buildkite
-type Job struct { 
-	ID              *string      `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID       *string      `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
+type Job struct {
+	ID                 *string      `json:"id,omitempty" yaml:"id,omitempty"`
+	GraphQLID          *string      `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	Type               *string      `json:"type,omitempty" yaml:"type,omitempty"`
 	Name               *string      `json:"name,omitempty" yaml:"name,omitempty"`
 	Label              *string      `json:"label,omitempty" yaml:"label,omitempty"`
@@ -42,8 +42,8 @@ type Job struct {
 	UnblockedBy        *UnblockedBy `json:"unblocked_by,omitempty" yaml:"unblocked_by,omitempty"`
 	Unblockable        *bool        `json:"unblockable,omitempty" yaml:"unblockable,omitempty"`
 	UnblockURL         *string      `json:"unblock_url,omitempty" yaml:"unblock_url,omitempty"`
-	ParallelGroupIndex *string      `json:"parallel_group_index,omitempty" yaml:"parallel_group_index,omitempty"`
-	ParallelGroupTotal *string      `json:"parallel_group_total,omitempty" yaml:"parallel_group_total,omitempty"`
+	ParallelGroupIndex *int         `json:"parallel_group_index,omitempty" yaml:"parallel_group_index,omitempty"`
+	ParallelGroupTotal *int         `json:"parallel_group_total,omitempty" yaml:"parallel_group_total,omitempty"`
 }
 
 // UnblockedBy represents the unblocked status of a job, when present
