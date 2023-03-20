@@ -104,8 +104,8 @@ type BuildsListOptions struct {
 	// failed, canceled, skipped and not_run. Default is "".
 	State []string `url:"state,brackets,omitempty"`
 
-	// Branch filter by the name of the branch. Default is "".
-	Branch string `url:"branch,omitempty"`
+	// Filters the results by branch name(s)
+	Branch []string `url:"branch,brackets,omitempty"`
 
 	// Filters the results by builds for the specific commit SHA (full, not shortened). Default is "".
 	Commit string `url:"commit,omitempty"`
