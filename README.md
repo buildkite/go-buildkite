@@ -1,6 +1,6 @@
 # buildkite-go [![Go Reference](https://pkg.go.dev/badge/github.com/buildkite/go-buildkite.svg)](https://pkg.go.dev/github.com/buildkite/go-buildkite/v2) [![Build status](https://badge.buildkite.com/b16a0d730b8732a1cfba06068f8450aa7cc4b2cf40eb6e6717.svg?branch=master)](https://buildkite.com/buildkite/go-buildkite)
 
-A [Go](http://golang.org) library and client for the [Buildkite API](https://buildkite.com/docs/api). This project draws a lot of it's structure and testing methods from [go-github](https://github.com/google/go-github).
+A [Go](http://golang.org) library and client for the [Buildkite API](https://buildkite.com/docs/api). This project draws a lot of its structure and testing methods from [go-github](https://github.com/google/go-github).
 
 # Usage
 
@@ -10,7 +10,7 @@ To get the package, execute:
 go get github.com/buildkite/go-buildkite/v3/buildkite
 ```
 
-Simple shortened example for listing all pipelines is provided below, see examples for more.
+Simple shortened example for listing all pipelines:
 
 ```go
 import (
@@ -30,7 +30,9 @@ pipelines, _, err := client.Pipelines.List(*org, nil)
 
 ```
 
-Note: not everything in the API is present here just yet—if you need something please make an issue or submit a pull request.
+See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
+
+Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.
 
 # Releasing
 
