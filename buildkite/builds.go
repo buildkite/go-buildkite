@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 )
 
@@ -27,7 +28,7 @@ type CreateBuild struct {
 
 	// Optional fields
 	Author                      Author            `json:"author,omitempty" yaml:"author,omitempty"`
-	CleanCheckout 				bool 			  `json:"clean_checkout,omitempty" yaml:"clean_checkout,omitempty"`
+	CleanCheckout               bool              `json:"clean_checkout,omitempty" yaml:"clean_checkout,omitempty"`
 	Env                         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	MetaData                    map[string]string `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
 	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters,omitempty" yaml:"ignore_pipeline_branch_filters,omitempty"`
@@ -84,6 +85,20 @@ type Build struct {
 	PullRequest *PullRequest `json:"pull_request,omitempty" yaml:"pull_request,omitempty"`
 }
 
+type MetaDataFilters struct {
+	MetaData map[string]string
+}
+
+// Encodes MetaData in the format expected by the buildkite API
+// Example: ?meta_data[some-key]=some-value
+func (mo MetaDataFilters) EncodeValues(parent_key string, v *url.Values) error {
+	for key, val := range mo.MetaData {
+		keyString := fmt.Sprintf("%s[%s]", parent_key, key)
+		v.Add(keyString, val)
+	}
+	return nil
+}
+
 // BuildsListOptions specifies the optional parameters to the
 // BuildsService.List method.
 type BuildsListOptions struct {
@@ -112,6 +127,9 @@ type BuildsListOptions struct {
 
 	// Include all retried jobs in each build’s jobs list
 	IncludeRetriedJobs bool `url:"include_retried_jobs,omitempty"`
+
+	// Filters results by metadata.
+	MetaData MetaDataFilters
 
 	ListOptions
 }
