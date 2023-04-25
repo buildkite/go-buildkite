@@ -49,7 +49,7 @@ type Client struct {
 	Jobs          *JobsService
 	Organizations *OrganizationsService
 	Pipelines     *PipelinesService
-	User          *UserService
+	Users          *UsersService
 	Teams         *TeamsService
 }
 
@@ -81,7 +81,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.Pipelines = &PipelinesService{c}
-	c.User = &UserService{c}
+	c.Users = &UsersService{c}
 	c.Teams = &TeamsService{c}
 
 	if c.client != nil {

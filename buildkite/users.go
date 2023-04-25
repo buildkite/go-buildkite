@@ -2,11 +2,11 @@ package buildkite
 
 import "fmt"
 
-// UserService handles communication with the user related
+// UsersService handles communication with the user related
 // methods of the buildkite API.
 //
 // buildkite API docs: https://buildkite.com/docs/api
-type UserService struct {
+type UsersService struct {
 	client *Client
 }
 
@@ -21,18 +21,18 @@ type User struct {
 // Get the current user.
 //
 // buildkite API docs: https://buildkite.com/docs/api
-func (os *UserService) Get() (*User, *Response, error) {
+func (us *UsersService) Get() (*User, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/user")
 
-	req, err := os.client.NewRequest("GET", u, nil)
+	req, err := us.client.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	user := new(User)
-	resp, err := os.client.Do(req, user)
+	resp, err := us.client.Do(req, user)
 	if err != nil {
 		return nil, resp, err
 	}

@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/buildkite/go-buildkite/v3/buildkite"
-
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -28,16 +27,16 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	pipelines, _, err := client.Pipelines.List(*org, nil)
+	builds, _, err := client.Builds.ListByOrg(org, nil)
 
 	if err != nil {
-		log.Fatalf("list pipelines failed: %s", err)
+		log.Fatalf("Get build failed: %s", err)
 	}
 
-	data, err := json.MarshalIndent(pipelines, "", "\t")
+	data, err := json.MarshalIndent(builds, "", "\t")
 
 	if err != nil {
-		log.Fatalf("json encode failed: %s", err)
+		log.Fatalf("JSON encode failed: %s", err)
 	}
 
 	fmt.Fprintf(os.Stdout, "%s", string(data))
