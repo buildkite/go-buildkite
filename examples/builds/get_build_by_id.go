@@ -29,7 +29,7 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	build, _, err := client.Builds.Get(org, pipeline, build, nil)
+	build, _, err := client.Builds.Get(*org, *pipeline, *build, nil)
 
 	if err != nil {
 		log.Fatalf("Get build failed: %s", err)

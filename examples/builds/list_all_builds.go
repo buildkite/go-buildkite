@@ -19,7 +19,7 @@ func main() {
 	kingpin.Parse()
 
 	config, err := buildkite.NewTokenConfig(*apiToken, *debug)
-
+	fmt.Println("Testing")
 	if err != nil {
 		log.Fatalf("client config failed: %s", err)
 	}
