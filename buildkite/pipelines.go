@@ -35,6 +35,7 @@ type CreatePipeline struct {
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
 	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
+	Visibility                      *string           `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
