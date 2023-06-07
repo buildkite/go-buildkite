@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 )
 
@@ -94,6 +95,20 @@ type Build struct {
 	PullRequest *PullRequest `json:"pull_request,omitempty" yaml:"pull_request,omitempty"`
 }
 
+type MetaDataFilters struct {
+	MetaData map[string]string
+}
+
+// Encodes MetaData in the format expected by the buildkite API
+// Example: ?meta_data[some-key]=some-value
+func (mo MetaDataFilters) EncodeValues(parent_key string, v *url.Values) error {
+	for key, val := range mo.MetaData {
+		keyString := fmt.Sprintf("%s[%s]", parent_key, key)
+		v.Add(keyString, val)
+	}
+	return nil
+}
+
 // BuildsListOptions specifies the optional parameters to the
 // BuildsService.List method.
 type BuildsListOptions struct {
@@ -122,6 +137,9 @@ type BuildsListOptions struct {
 
 	// Include all retried jobs in each build’s jobs list
 	IncludeRetriedJobs bool `url:"include_retried_jobs,omitempty"`
+
+	// Filters results by metadata.
+	MetaData MetaDataFilters `url:"meta_data,omitempty"`
 
 	ListOptions
 }
