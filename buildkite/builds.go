@@ -129,7 +129,7 @@ type BuildsListOptions struct {
 	IncludeRetriedJobs bool `url:"include_retried_jobs,omitempty"`
 
 	// Filters results by metadata.
-	MetaData MetaDataFilters
+	MetaData MetaDataFilters `url:"meta_data,omitempty"`
 
 	ListOptions
 }
