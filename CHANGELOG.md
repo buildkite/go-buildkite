@@ -1,3 +1,16 @@
+## [v3.3.0](https://github.com/buildkite/go-buildkite/compare/v3.2.1...v3.3.0) (2023-06-08)
+
+* update teams docs [#102](https://github.com/buildkite/go-buildkite/pull/102) ([sfunkhouser](https://github.com/sfunkhouser))
+* Add clean_checkout to CreateBuild struct [#95](https://github.com/buildkite/go-buildkite/pull/95) ([justingallardo-okta](https://github.com/justingallardo-okta))
+* Support filtering list builds call by multiple branches [#96](https://github.com/buildkite/go-buildkite/pull/96) ([gsavit](ttps://github.com/gsavit))
+* Improve README grammar [#110](https://github.com/buildkite/go-buildkite/pull/110) ([mdb](ttps://github.com/mdb))
+* Upgrade to latest go (merge to main) [#125](https://github.com/buildkite/go-buildkite/pull/125) ([lizrabuya](ttps://github.com/lizrabuya))
+* Bump golang.org/x/net from 0.0.0-20190404232315-eb5bcb51f2a3 to 0.7.0 [#124](https://github.com/buildkite/go-buildkite/pull/124) ([dependabot](ttps://github.com/dependabot))
+* Add `rebuilt_from` field to Build struct [#129](https://github.com/buildkite/go-buildkite/pull/129) ([matthiasr](ttps://github.com/matthiasr))
+* add group_key to job struct if available [#132](https://github.com/buildkite/go-buildkite/pull/132) ([alexnguyennn](ttps://github.com/alexnguyennn))
+* add visibility field to pipeline create [#133](https://github.com/buildkite/go-buildkite/pull/133) ([sfunkhouser](https://github.com/sfunkhouser))
+* Allow filtering builds by meta_data [#127](https://github.com/buildkite/go-buildkite/pull/127) ([andrewhamon](https://github.com/andrewhamon))
+
 ## [v3.2.1](https://github.com/buildkite/go-buildkite/compare/v3.2.0...v3.2.1) (2023-03-16)
 
 * Change parallel indices type in job struct to int (bug fix) [#121](https://github.com/buildkite/go-buildkite/pull/121) ([yqiu24](https://github.com/yqiu24))
