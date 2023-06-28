@@ -87,6 +87,10 @@ func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber strin
 		return nil, nil, err
 	}
 
+	if opt == nil {
+		opt = &JobUnblockOptions{}
+	}
+
 	req, err := js.client.NewRequest("PUT", u, opt)
 	if err != nil {
 		return nil, nil, err
