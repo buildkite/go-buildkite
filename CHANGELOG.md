@@ -1,3 +1,5 @@
+## [v3.3.1](https://github.com/buildkite/go-buildkite/compare/v3.3.0...v3.3.1) (2023-06-08)
+
 ## [v3.3.0](https://github.com/buildkite/go-buildkite/compare/v3.2.1...v3.3.0) (2023-06-08)
 
 * update teams docs [#102](https://github.com/buildkite/go-buildkite/pull/102) ([sfunkhouser](https://github.com/sfunkhouser))
