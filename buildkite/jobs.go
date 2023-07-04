@@ -82,6 +82,11 @@ func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber strin
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/unblock", org, pipeline, buildNumber, jobID)
 
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	if opt == nil {
 		opt = &JobUnblockOptions{}
 	}
