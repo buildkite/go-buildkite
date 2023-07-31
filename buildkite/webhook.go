@@ -27,6 +27,7 @@ var (
 		"agent.lost":         "AgentLostEvent",
 		"agent.stopped":      "AgentStoppedEvent",
 		"agent.stopping":     "AgentStoppingEvent",
+		"build.failing": "BuildFailingEvent",
 		"build.finished":     "BuildFinishedEvent",
 		"build.running":      "BuildRunningEvent",
 		"build.scheduled":    "BuildScheduledEvent",
@@ -172,6 +173,8 @@ func (e *Event) ParsePayload() (payload interface{}, err error) {
 		payload = &AgentStoppedEvent{}
 	case "AgentStoppingEvent":
 		payload = &AgentStoppingEvent{}
+	case "BuildFailingEvent":
+		payload = &BuildFailingEvent{}
 	case "BuildFinishedEvent":
 		payload = &BuildFinishedEvent{}
 	case "BuildRunningEvent":

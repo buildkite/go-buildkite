@@ -36,6 +36,10 @@ func TestParseWebHook(t *testing.T) {
 			messageType: "agent.stopping",
 		},
 		{
+			payload:     &BuildFailingEvent{},
+			messageType: "build.failing",
+		},
+		{
 			payload:     &BuildFinishedEvent{},
 			messageType: "build.finished",
 		},
