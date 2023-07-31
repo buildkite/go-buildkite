@@ -223,7 +223,7 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
 			"branch[]": "my-great-branch",
-			"commit": "my-commit-sha1",
+			"commit":   "my-commit-sha1",
 		})
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -258,7 +258,7 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 	})
 
 	opt := &BuildsListOptions{
-		Branch:       []string{"my-great-branch", "my-other-great-branch"},
+		Branch: []string{"my-great-branch", "my-other-great-branch"},
 	}
 	builds, _, err := client.Builds.List(opt)
 	if err != nil {
