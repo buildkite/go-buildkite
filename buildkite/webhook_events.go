@@ -54,6 +54,13 @@ type buildEvent struct {
 	Sender   *User     `json:"sender"`
 }
 
+// BuildFailingEvent is triggered when a build enters a failing state
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
+type BuildFailingEvent struct {
+	buildEvent
+}
+
 // BuildFinishedEvent is triggered when a build finishes
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events

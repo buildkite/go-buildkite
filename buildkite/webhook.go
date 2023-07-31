@@ -27,6 +27,7 @@ var (
 		"agent.lost":         "AgentLostEvent",
 		"agent.stopped":      "AgentStoppedEvent",
 		"agent.stopping":     "AgentStoppingEvent",
+		"build.failing":      "BuildFailingEvent",
 		"build.finished":     "BuildFinishedEvent",
 		"build.running":      "BuildRunningEvent",
 		"build.scheduled":    "BuildScheduledEvent",
@@ -123,8 +124,6 @@ func getTimestampAndSignature(sig string) (timestamp string, signature []byte, e
 // secretKey is the Buildkite Webhook token.
 //
 // Example usage:
-//
-//
 func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err error) {
 	if payload, err = ioutil.ReadAll(r.Body); err != nil {
 		return nil, err
@@ -157,9 +156,6 @@ type Event struct {
 // An error will be returned for unrecognized event types.
 //
 // Example usage:
-//
-//
-//
 func (e *Event) ParsePayload() (payload interface{}, err error) {
 	switch *e.Type {
 	case "AgentConnectedEvent":
@@ -172,6 +168,8 @@ func (e *Event) ParsePayload() (payload interface{}, err error) {
 		payload = &AgentStoppedEvent{}
 	case "AgentStoppingEvent":
 		payload = &AgentStoppingEvent{}
+	case "BuildFailingEvent":
+		payload = &BuildFailingEvent{}
 	case "BuildFinishedEvent":
 		payload = &BuildFinishedEvent{}
 	case "BuildRunningEvent":
