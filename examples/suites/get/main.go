@@ -14,6 +14,7 @@ import (
 var (
 	apiToken = kingpin.Flag("token", "API token").Required().String()
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
+	slug 	 = kingpin.Flag("slug", "Test suite slug").Required().String()
 	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
@@ -28,13 +29,13 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	suites, _, err := client.TestSuites.List(*org, nil)
+	suite, _, err := client.TestSuites.Get(*org, *slug)
 
 	if err != nil {
-		log.Fatalf("list test suites failed: %s", err)
+		log.Fatalf("Getting test suite failed: %s", err)
 	}
 
-	data, err := json.MarshalIndent(suites, "", "\t")
+	data, err := json.MarshalIndent(suite, "", "\t")
 
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
