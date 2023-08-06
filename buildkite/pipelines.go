@@ -37,6 +37,7 @@ type CreatePipeline struct {
 	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	Visibility                      *string           `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	Tags                            []string          `json:"tags,omitempty" yaml:"tags,omitempty"`
+	PipelineTemplateUuid            string            `json:"pipeline_template_uuid,omitempty" yaml:"pipeline_template_uuid,omitempty"`
 }
 
 type UpdatePipeline struct {
@@ -57,6 +58,7 @@ type UpdatePipeline struct {
 	ClusterID                       *string          `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	Visibility                      *string          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	Tags                            []string         `json:"tags,omitempty" yaml:"tags,omitempty"`
+	PipelineTemplateUuid            string           `json:"pipeline_template_uuid,omitempty" yaml:"pipeline_template_uuid,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
@@ -162,6 +164,8 @@ func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *R
 	}
 
 	pipeline := new(Pipeline)
+	fmt.Println(pipeline)
+	fmt.Println(req.Body)
 	resp, err := ps.client.Do(req, pipeline)
 	if err != nil {
 		return nil, resp, err
