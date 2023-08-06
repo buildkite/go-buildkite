@@ -15,8 +15,8 @@ type TestSuitesService struct {
 type TestSuiteCreate struct {
 	Name       						string 	  `json:"name" yaml:"name"`
 	DefaultBranch                   string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
-	ShowApiToken					bool      `json:"show_api_token,omitempty" yaml:"default_branch,omitempty"`
-	TeamUuids                       []string  `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
+	ShowApiToken					bool      `json:"show_api_token,omitempty" yaml:"show_api_token,omitempty"`
+	TeamUuids                       []string  `json:"team_ids,omitempty" yaml:"team_ids,omitempty"`
 }
 
 type TestSuiteUpdate struct {
@@ -90,14 +90,13 @@ func (tss *TestSuitesService) Create(org string, ts *TestSuiteCreate) (*TestSuit
 	
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites", org)
 
-	req, err := tss.client.NewRequest("POST", u, nil)
+	req, err := tss.client.NewRequest("POST", u, ts)
 
 	if err != nil {
 		return nil, nil, err
 	}
 
 	testSuite := new(TestSuite)
-
 	resp, err := tss.client.Do(req, testSuite)
 
 	if err != nil {
@@ -111,7 +110,7 @@ func (tss *TestSuitesService) Update(org, slug string, ts *TestSuiteUpdate) (*Te
 	
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
 
-	req, err := tss.client.NewRequest("PATCH", u, nil)
+	req, err := tss.client.NewRequest("PATCH", u, ts)
 
 	if err != nil {
 		return nil, nil, err
