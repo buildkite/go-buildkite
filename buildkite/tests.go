@@ -8,8 +8,7 @@ import "fmt"
 // TestsService handles communication with test related
 // methods of the Buildkite Test Analytics API.
 //
-//
-// buildkite API docs: https://buildkite.com/docs/api
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/analytics/tests
 type TestsService struct {
 	client *Client
 }

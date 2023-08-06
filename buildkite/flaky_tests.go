@@ -8,8 +8,7 @@ import "fmt"
 // FlakyTestsService handles communication with flaky test related
 // methods of the Buildkite Test Analytics API.
 //
-//
-// buildkite API docs: https://buildkite.com/docs/api
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/analytics/flaky-tests
 type FlakyTestsService struct {
 	client *Client
 }

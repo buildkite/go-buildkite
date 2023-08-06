@@ -7,7 +7,7 @@ import (
 // TestSuitesService handles communication with the test suite related
 // methods of the Buildkite Test Analytics API.
 //
-// Buildkite API docs: https://buildkite.com/docs/api/pipelines
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/analytics/suites
 type TestSuitesService struct {
 	client *Client
 }
