@@ -29,7 +29,7 @@ type TestRunsListOptions struct {
 
 func (trs *TestRunsService) List(org, slug string, opt *TestRunsListOptions) ([]TestRun, *Response, error) {
 	
-	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/runs", org)
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/runs", org, slug)
 
 	u, err := addOptions(u, opt)
 
