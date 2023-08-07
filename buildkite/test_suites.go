@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"fmt"
+	"errors"
 )
 
 // TestSuitesService handles communication with the test suite related
@@ -17,11 +18,6 @@ type TestSuiteCreate struct {
 	DefaultBranch                   string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 	ShowApiToken					bool      `json:"show_api_token,omitempty" yaml:"show_api_token,omitempty"`
 	TeamUuids                       []string  `json:"team_ids,omitempty" yaml:"team_ids,omitempty"`
-}
-
-type TestSuiteUpdate struct {
-	Name       						string 	  `json:"name" yaml:"name"`
-	DefaultBranch                   string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 }
 
 type TestSuite struct {
@@ -106,25 +102,27 @@ func (tss *TestSuitesService) Create(org string, ts *TestSuiteCreate) (*TestSuit
 	return testSuite, resp, err
 }
 
-func (tss *TestSuitesService) Update(org, slug string, ts *TestSuiteUpdate) (*TestSuite, *Response, error) {
+func (tss *TestSuitesService) Update(org string, ts *TestSuite) (*Response, error) {
 	
-	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
+	if ts == nil {
+		return nil, errors.New("Test suite must not be nil")
+	}
+
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, *ts.Slug)
 
 	req, err := tss.client.NewRequest("PATCH", u, ts)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil
 	}
 
-	testSuite := new(TestSuite)
-
-	resp, err := tss.client.Do(req, testSuite)
+	resp, err := tss.client.Do(req, ts)
 
 	if err != nil {
-		return nil, resp, err
+		return resp, err
 	}
 
-	return testSuite, resp, err
+	return resp, err
 }
 
 func (tss *TestSuitesService) Delete(org, slug string) (*Response, error) {
