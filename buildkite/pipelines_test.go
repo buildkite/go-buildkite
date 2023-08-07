@@ -187,6 +187,55 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 
 }
 
+func TestPipelinesService_CreateTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	input := &CreatePipeline{
+		Name:                 *String("my-great-pipeline"),
+		Repository:           *String("my-great-repo"),
+		DefaultBranch:        *String("main"),
+		PipelineTemplateUuid: *String("fc18d3c1-ea62-4091-b84a-0cbf1c0252b5"),
+	}
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		v := new(CreatePipeline)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "POST")
+
+		if !reflect.DeepEqual(v, input) {
+			t.Errorf("Request body = %+v, want %+v", v, input)
+		}
+
+		fmt.Fprint(w,
+			`
+			{
+				"name": "my-great-pipeline",
+				"repository": "my-great-repo",
+				"default_branch": "main",
+				"pipeline_template_uuid": "fc18d3c1-ea62-4091-b84a-0cbf1c0252b5"
+			}`)
+	})
+
+	pipeline, _, err := client.Pipelines.Create("my-great-org", input)
+
+	if err != nil {
+		t.Errorf("Pipelines.Create returned error: %v", err)
+	}
+
+	want := &Pipeline{
+		Name:                 String("my-great-pipeline"),
+		Repository:           String("my-great-repo"),
+		DefaultBranch:        String("main"),
+		PipelineTemplateUuid: String("fc18d3c1-ea62-4091-b84a-0cbf1c0252b5"),
+	}
+
+	if !reflect.DeepEqual(pipeline, want) {
+		t.Errorf("Pipelines.Create returned %+v, want %+v", pipeline, want)
+	}
+}
+
 func TestPipelinesService_Get(t *testing.T) {
 	setup()
 	defer teardown()

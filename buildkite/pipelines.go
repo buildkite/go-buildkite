@@ -84,6 +84,7 @@ type Pipeline struct {
 	ClusterID                       *string    `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	Visibility                      *string    `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	Tags                            []string   `json:"tags,omitempty" yaml:"tags,omitempty"`
+	PipelineTemplateUuid            *string    `json:"pipeline_template_uuid,omitempty" yaml:"pipeline_template_uuid,omitempty"`
 
 	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
