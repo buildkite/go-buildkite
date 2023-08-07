@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestTestSuiteService_List(t *testing.T) {
+func TestTestSuitesService_List(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -69,7 +69,7 @@ func TestTestSuiteService_List(t *testing.T) {
 	}
 }
 
-func TestTestSuiteService_Get(t *testing.T) {
+func TestTestSuitesService_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -107,10 +107,9 @@ func TestTestSuiteService_Get(t *testing.T) {
 	if !reflect.DeepEqual(suite, want) {
 		t.Errorf("TestSuites.Get returned %+v, want %+v", suite, want)
 	}
-
 }
 
-func TestTestSuiteService_Create(t *testing.T) {
+func TestTestSuitesService_Create(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -155,7 +154,7 @@ func TestTestSuiteService_Create(t *testing.T) {
 	}
 }
 
-func TestTestSuiteService_Update(t *testing.T) {
+func TestTestSuitesService_Update(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -227,7 +226,7 @@ func TestTestSuiteService_Update(t *testing.T) {
 	} 	
 }
 
-func TestTestSuiteService_Delete(t *testing.T) {
+func TestTestSuitesService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
 
