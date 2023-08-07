@@ -1,7 +1,6 @@
 package buildkite
 
 import (
-	//"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
