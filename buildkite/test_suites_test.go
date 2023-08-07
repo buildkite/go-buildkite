@@ -135,7 +135,7 @@ func TestTestSuiteService_Create(t *testing.T) {
 			{
 				"name" : "Suite 3",
 				"default_branch": "main",
-				"team_ids": ["8369b300-fff0-4ef1-91de-010f72f4458d"],
+				"team_ids": ["8369b300-fff0-4ef1-91de-010f72f4458d"]
 			}`)
 	})
 
