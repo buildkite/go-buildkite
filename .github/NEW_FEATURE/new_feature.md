@@ -2,7 +2,7 @@
 
 ## PR checklist:
 - [ ] tests added
-- [ ] examples of each function added to the relevant `examples/` folder (create if new)
+- [ ] examples of each service action (List, Get etc) added to the relevant `examples/` folder (create if new)
 - [ ] `CHANGELOG.md` updated with pending release information
 
 ### Example
@@ -10,7 +10,7 @@ feat(pipeline service): Add extra parameter to CreatePipeline struct
 
 ## PR checklist:
 - [ ] tests added
-- [x] examples of each function added to the relevant `examples/` folder (create if new)
+- [x] examples of each service action (List, Get etc) added to the relevant `examples/` folder (create if new)
 - [x] `CHANGELOG.md` updated with pending release information
 
 #### To ! or not to !
