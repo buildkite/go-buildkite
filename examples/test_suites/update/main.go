@@ -26,9 +26,9 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	suiteUpdate := buildkite.TestSuite{				
-		DefaultBranch:	buildkite.String("test"),  
-		Slug: buildkite.String("example-slug"),       
+	suiteUpdate := buildkite.TestSuite{
+		DefaultBranch: buildkite.String("test"),
+		Slug:          buildkite.String("example-slug"),
 	}
 
 	resp, err := client.TestSuites.Update(*org, &suiteUpdate)

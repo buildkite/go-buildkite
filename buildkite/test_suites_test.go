@@ -14,7 +14,7 @@ func TestTestSuitesService_List(t *testing.T) {
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			[
 				{
@@ -46,21 +46,21 @@ func TestTestSuitesService_List(t *testing.T) {
 
 	want := []TestSuite{
 		{
-			ID: String("7c202aaa-3165-4811-9813-173c4c285463"),
-			GraphQLID: String("N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz="),
-			Slug: String("suite-1"),
-			Name: String("suite-1"),
-			URL: String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1"),
-			WebURL: String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1"),
+			ID:            String("7c202aaa-3165-4811-9813-173c4c285463"),
+			GraphQLID:     String("N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz="),
+			Slug:          String("suite-1"),
+			Name:          String("suite-1"),
+			URL:           String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1"),
+			WebURL:        String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1"),
 			DefaultBranch: String("main"),
-		}, 
+		},
 		{
-			ID: String("38ed1d73-cea9-4aba-b223-def25e66ef51"),
-			GraphQLID: String("MzhlZDFkNzMtY2VhOS00YWJhLWIyMjMtZGVmMjVlNjZlZjUx="),
-			Slug: String("suite-2"),
-			Name: String("suite-2"),
-			URL: String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-2"),
-			WebURL: String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-2"),
+			ID:            String("38ed1d73-cea9-4aba-b223-def25e66ef51"),
+			GraphQLID:     String("MzhlZDFkNzMtY2VhOS00YWJhLWIyMjMtZGVmMjVlNjZlZjUx="),
+			Slug:          String("suite-2"),
+			Name:          String("suite-2"),
+			URL:           String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-2"),
+			WebURL:        String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-2"),
 			DefaultBranch: String("main"),
 		},
 	}
@@ -75,7 +75,7 @@ func TestTestSuitesService_Get(t *testing.T) {
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"id": "7c202aaa-3165-4811-9813-173c4c285463",
@@ -94,16 +94,16 @@ func TestTestSuitesService_Get(t *testing.T) {
 		t.Errorf("TestSuites.Get returned error: %v", err)
 	}
 
-	want := &TestSuite{		
-		ID: String("7c202aaa-3165-4811-9813-173c4c285463"),
-		GraphQLID: String("N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz="),
-		Slug: String("suite-1"),
-		Name: String("suite-1"),
-		URL: String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1"),
-		WebURL: String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1"),
+	want := &TestSuite{
+		ID:            String("7c202aaa-3165-4811-9813-173c4c285463"),
+		GraphQLID:     String("N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz="),
+		Slug:          String("suite-1"),
+		Name:          String("suite-1"),
+		URL:           String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1"),
+		WebURL:        String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1"),
 		DefaultBranch: String("main"),
-	} 
-	
+	}
+
 	if !reflect.DeepEqual(suite, want) {
 		t.Errorf("TestSuites.Get returned %+v, want %+v", suite, want)
 	}
@@ -114,9 +114,9 @@ func TestTestSuitesService_Create(t *testing.T) {
 	defer teardown()
 
 	input := &TestSuiteCreate{
-		Name:			"Suite 3",   						
-		DefaultBranch:	"main",        
-		TeamUuids: 		[]string{"8369b300-fff0-4ef1-91de-010f72f4458d"},             
+		Name:          "Suite 3",
+		DefaultBranch: "main",
+		TeamUUIDs:     []string{"8369b300-fff0-4ef1-91de-010f72f4458d"},
 	}
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +129,7 @@ func TestTestSuitesService_Create(t *testing.T) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
 
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"name" : "Suite 3",
@@ -144,10 +144,10 @@ func TestTestSuitesService_Create(t *testing.T) {
 		t.Errorf("TestSuites.Create returned error: %v", err)
 	}
 
-	want := &TestSuite{		
-		Name: String("Suite 3"),
+	want := &TestSuite{
+		Name:          String("Suite 3"),
 		DefaultBranch: String("main"),
-	} 
+	}
 
 	if !reflect.DeepEqual(suite, want) {
 		t.Errorf("TestSuites.Create returned %+v, want %+v", suite, want)
@@ -159,9 +159,9 @@ func TestTestSuitesService_Update(t *testing.T) {
 	defer teardown()
 
 	input := &TestSuiteCreate{
-		Name:			"Suite 4",   						
-		DefaultBranch:	"main",        
-		TeamUuids: 		[]string{"818b0849-9718-4898-8de3-42d591a7fe26"},             
+		Name:          "Suite 4",
+		DefaultBranch: "main",
+		TeamUUIDs:     []string{"818b0849-9718-4898-8de3-42d591a7fe26"},
 	}
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
@@ -174,7 +174,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
 
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"name" : "Suite 4",
@@ -185,7 +185,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 	})
 
 	suite, _, err := client.TestSuites.Create("my-great-org", input)
-	
+
 	if err != nil {
 		t.Errorf("TestSuites.Create returned error: %v", err)
 	}
@@ -199,7 +199,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"name" : "Suite 4",
@@ -215,15 +215,15 @@ func TestTestSuitesService_Update(t *testing.T) {
 		t.Errorf("Pipelines.Update returned error: %v", err)
 	}
 
-	want := &TestSuite{		
-		Name: String("Suite 4"),
-		Slug: String("suite-4"),
+	want := &TestSuite{
+		Name:          String("Suite 4"),
+		Slug:          String("suite-4"),
 		DefaultBranch: String("develop"),
 	}
 
 	if !reflect.DeepEqual(suite, want) {
 		t.Errorf("TestSuites.Update returned %+v, want %+v", suite, want)
-	} 	
+	}
 }
 
 func TestTestSuitesService_Delete(t *testing.T) {

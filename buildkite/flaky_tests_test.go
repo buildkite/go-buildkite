@@ -14,7 +14,7 @@ func TestFlakyTestsService_List(t *testing.T) {
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/flaky-tests", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			[
 				{
@@ -39,7 +39,7 @@ func TestFlakyTestsService_List(t *testing.T) {
 				}
 			]`)
 	})
-  
+
 	flakyTests, _, err := client.FlakyTests.List("my-great-org", "suite-example", nil)
 
 	if err != nil {
@@ -56,23 +56,23 @@ func TestFlakyTestsService_List(t *testing.T) {
 
 	want := []FlakyTest{
 		{
-			ID: String("a915535c-a8f1-4e1a-bd6a-a5589e09f349"),
-			WebURL: String("https://buildkite.com/organizations/my_great_org/analytics/suites/suite-example/tests/a915535c-a8f1-4e1a-bd6a-a5589e09f349"),
-			Scope: String("User#email"),
-			Name: String("TestExample1_Create"),
-			Location: String("./spec/models/text_example.rb:55"),
-			FileName: String("./spec/models/text_example.rb"),
-			Instances: Int(1),
+			ID:                   String("a915535c-a8f1-4e1a-bd6a-a5589e09f349"),
+			WebURL:               String("https://buildkite.com/organizations/my_great_org/analytics/suites/suite-example/tests/a915535c-a8f1-4e1a-bd6a-a5589e09f349"),
+			Scope:                String("User#email"),
+			Name:                 String("TestExample1_Create"),
+			Location:             String("./spec/models/text_example.rb:55"),
+			FileName:             String("./spec/models/text_example.rb"),
+			Instances:            Int(1),
 			MostRecentInstanceAt: NewTimestamp(parsedTime1),
-		}, 
+		},
 		{
-			ID: String("01867216-8478-7fde-a55a-0300f88bb49b"),
-			WebURL: String("https://buildkite.com/organizations/my_great_org/analytics/suites/suite-example/tests/01867216-8478-7fde-a55a-0300f88bb49b"),
-			Scope: String("User#email"),
-			Name: String("TestExample1_Delete"),
-			Location: String("./spec/models/text_example.rb:102"),
-			FileName: String("./spec/models/text_example.rb"),
-			Instances: Int(2),
+			ID:                   String("01867216-8478-7fde-a55a-0300f88bb49b"),
+			WebURL:               String("https://buildkite.com/organizations/my_great_org/analytics/suites/suite-example/tests/01867216-8478-7fde-a55a-0300f88bb49b"),
+			Scope:                String("User#email"),
+			Name:                 String("TestExample1_Delete"),
+			Location:             String("./spec/models/text_example.rb:102"),
+			FileName:             String("./spec/models/text_example.rb"),
+			Instances:            Int(2),
 			MostRecentInstanceAt: NewTimestamp(parsedTime2),
 		},
 	}

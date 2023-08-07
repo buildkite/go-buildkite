@@ -14,8 +14,8 @@ import (
 var (
 	apiToken = kingpin.Flag("token", "API token").Required().String()
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
-	slug 	 = kingpin.Flag("slug", "Test suite slug").Required().String()
-	testID	 = kingpin.Flag("testID", "Test ID").Required().String()
+	slug     = kingpin.Flag("slug", "Test suite slug").Required().String()
+	testID   = kingpin.Flag("testID", "Test ID").Required().String()
 	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 

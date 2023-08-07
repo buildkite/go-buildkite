@@ -29,9 +29,9 @@ func main() {
 	client := buildkite.NewClient(config.Client())
 
 	suiteCreate := buildkite.TestSuiteCreate{
-		Name:			"RSpec tests",   						
-		DefaultBranch:	"main",        
-		TeamUuids: 		[]string{"474de468-84d6-46dc-ba23-bac1add44a60"},             
+		Name:          "RSpec tests",
+		DefaultBranch: "main",
+		TeamUUIDs:     []string{"474de468-84d6-46dc-ba23-bac1add44a60"},
 	}
 
 	suite, _, err := client.TestSuites.Create(*org, &suiteCreate)

@@ -11,12 +11,12 @@ type TestRunsService struct {
 }
 
 type TestRun struct {
-	ID                              *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	URL                             *string    `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL                          *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Branch							*string	   `json:"branch,omitempty" yaml:"branch,omitempty"`
-	CommitSha						*string	   `json:"commit_sha,omitempty" yaml:"commit_sha,omitempty"`
-	CreatedAt						*Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty`
+	ID        *string    `json:"id,omitempty" yaml:"id,omitempty"`
+	URL       *string    `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL    *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+	Branch    *string    `json:"branch,omitempty" yaml:"branch,omitempty"`
+	CommitSHA *string    `json:"commit_sha,omitempty" yaml:"commit_sha,omitempty"`
+	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty`
 }
 
 type TestRunsListOptions struct {
@@ -24,7 +24,7 @@ type TestRunsListOptions struct {
 }
 
 func (trs *TestRunsService) List(org, slug string, opt *TestRunsListOptions) ([]TestRun, *Response, error) {
-	
+
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/runs", org, slug)
 
 	u, err := addOptions(u, opt)
@@ -51,7 +51,7 @@ func (trs *TestRunsService) List(org, slug string, opt *TestRunsListOptions) ([]
 }
 
 func (trs *TestRunsService) Get(org, slug, runID string) (*TestRun, *Response, error) {
-	
+
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/runs/%s", org, slug, runID)
 
 	req, err := trs.client.NewRequest("GET", u, nil)
