@@ -42,18 +42,18 @@ type UpdatePipeline struct {
 	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
 	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
 
-	Name                            string            `json:"name,omitempty" yaml:"name,omitempty"`
-	Repository                      string            `json:"repository,omitempty" yaml:"repository,omitempty"`
-	DefaultBranch                   string            `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
-	Description                     string            `json:"description,omitempty" yaml:"description,omitempty"`
-	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
-	BranchConfiguration             string            `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
-	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
-	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
-	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
-	Visibility                      *string           `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	Name                            string           `json:"name,omitempty" yaml:"name,omitempty"`
+	Repository                      string           `json:"repository,omitempty" yaml:"repository,omitempty"`
+	DefaultBranch                   string           `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
+	Description                     string           `json:"description,omitempty" yaml:"description,omitempty"`
+	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
+	BranchConfiguration             string           `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    string           `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       bool             `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter string           `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       string           `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
+	Visibility                      *string          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.

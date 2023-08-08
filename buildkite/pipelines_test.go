@@ -284,7 +284,7 @@ func TestPipelinesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"default_branch": "develop"
