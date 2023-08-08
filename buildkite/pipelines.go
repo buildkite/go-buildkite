@@ -236,19 +236,19 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 // Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
-func (ps *PipelinesService) Update(org string, pu *UpdatePipeline) (*Response, error) {
-	if pu == nil {
+func (ps *PipelinesService) Update(org string, p *UpdatePipeline) (*Response, error) {
+	if p == nil {
 		return nil, errors.New("Pipeline must not be nil")
 	}
 
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, pu.Slug)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, p.Slug)
 
-	req, err := ps.client.NewRequest("PATCH", u, pu)
+	req, err := ps.client.NewRequest("PATCH", u, p)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := ps.client.Do(req, pu)
+	resp, err := ps.client.Do(req, p)
 	if err != nil {
 		return resp, err
 	}
