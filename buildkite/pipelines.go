@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 )
 
@@ -233,24 +232,25 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 // Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
-func (ps *PipelinesService) Update(org, slug string, p *UpdatePipeline) (*Response, error) {
-	if p == nil {
-		return nil, errors.New("Pipeline must not be nil")
-	}
+func (ps *PipelinesService) Update(org, slug string, p *UpdatePipeline) (*Pipeline, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
 
 	req, err := ps.client.NewRequest("PATCH", u, p)
+
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	resp, err := ps.client.Do(req, p)
+	pipeline := new(Pipeline)
+
+	resp, err := ps.client.Do(req, pipeline)
+
 	if err != nil {
-		return resp, err
+		return nil, resp, err
 	}
 
-	return resp, err
+	return pipeline, resp, err
 }
 
 // AddWebhook - Adds webhook in github for pipeline.
