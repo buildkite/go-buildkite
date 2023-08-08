@@ -287,10 +287,6 @@ func TestPipelinesService_Update(t *testing.T) {
 		fmt.Fprint(w,
 			`
 			{
-				"default_branch": "develop"
-			}`)
-	})
-
 	updatedPipeline, _, err := client.Pipelines.Update("my-great-org", "my-great-repo", update)
 
 	// Update pipeline with the patched default branch
