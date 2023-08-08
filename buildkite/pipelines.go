@@ -39,16 +39,17 @@ type CreatePipeline struct {
 }
 
 type UpdatePipeline struct {
-	Name       string `json:"name" yaml:"name"`
-	Repository string `json:"repository" yaml:"repository"`
+	// Slug required for determining the pipeline to update
+	Slug string `json:"slug" yaml:"slug"`
 
-	// Either configuration needs to be specified as a yaml string or steps.
+	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
 	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
 	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
 
+	Name                            string            `json:"name,omitempty" yaml:"name,omitempty"`
+	Repository                      string            `json:"repository,omitempty" yaml:"repository,omitempty"`
 	DefaultBranch                   string            `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
 	Description                     string            `json:"description,omitempty" yaml:"description,omitempty"`
-	Env                             map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
 	BranchConfiguration             string            `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
 	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
@@ -235,19 +236,19 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 // Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
-func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
-	if p == nil {
-		return nil, errors.New("pipeline must not be nil")
+func (ps *PipelinesService) Update(org string, pu *UpdatePipeline) (*Response, error) {
+	if pu == nil {
+		return nil, errors.New("Pipeline must not be nil")
 	}
 
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, pu.Slug)
 
-	req, err := ps.client.NewRequest("PATCH", u, p)
+	req, err := ps.client.NewRequest("PATCH", u, pu)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := ps.client.Do(req, p)
+	resp, err := ps.client.Do(req, pu)
 	if err != nil {
 		return resp, err
 	}
