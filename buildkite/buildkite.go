@@ -46,11 +46,15 @@ type Client struct {
 	Annotations   *AnnotationsService
 	Artifacts     *ArtifactsService
 	Builds        *BuildsService
+	FlakyTests    *FlakyTestsService
 	Jobs          *JobsService
 	Organizations *OrganizationsService
 	Pipelines     *PipelinesService
 	User          *UserService
 	Teams         *TeamsService
+	Tests         *TestsService
+	TestRuns      *TestRunsService
+	TestSuites    *TestSuitesService
 }
 
 // ListOptions specifies the optional parameters to various List methods that
@@ -78,11 +82,15 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Annotations = &AnnotationsService{c}
 	c.Artifacts = &ArtifactsService{c}
 	c.Builds = &BuildsService{c}
+	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.Pipelines = &PipelinesService{c}
 	c.User = &UserService{c}
 	c.Teams = &TeamsService{c}
+	c.Tests = &TestsService{c}
+	c.TestRuns = &TestRunsService{c}
+	c.TestSuites = &TestSuitesService{c}
 
 	if c.client != nil {
 		if tokenAuth, ok := c.client.Transport.(*TokenAuthTransport); ok {

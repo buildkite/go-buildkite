@@ -1,17 +1,24 @@
+## Unreleased
+* Support build.failing events [#141](https://github.com/buildkite/go-buildkite/pull/141) ([mcncl](https://github.com/mcncl))
+* SUP-1314: Test Analytics Integration [#142](https://github.com/buildkite/go-buildkite/pull/142) ([james2791](https://github.com/james2791))
+
 ## [v3.3.1](https://github.com/buildkite/go-buildkite/compare/v3.3.0...v3.3.1) (2023-06-08)
+* Resolved issue on 500 error when request body is null [#137](https://github.com/buildkite/go-buildkite/pull/137) ([lizrabuya](ttps://github.com/lizrabuya))
+* Bump to v3.3.1 [#138](https://github.com/buildkite/go-buildkite/pull/138) ([lizrabuya](ttps://github.com/lizrabuya))
 
 ## [v3.3.0](https://github.com/buildkite/go-buildkite/compare/v3.2.1...v3.3.0) (2023-06-08)
 
 * update teams docs [#102](https://github.com/buildkite/go-buildkite/pull/102) ([sfunkhouser](https://github.com/sfunkhouser))
 * Add clean_checkout to CreateBuild struct [#95](https://github.com/buildkite/go-buildkite/pull/95) ([justingallardo-okta](https://github.com/justingallardo-okta))
-* Support filtering list builds call by multiple branches [#96](https://github.com/buildkite/go-buildkite/pull/96) ([gsavit](ttps://github.com/gsavit))
-* Improve README grammar [#110](https://github.com/buildkite/go-buildkite/pull/110) ([mdb](ttps://github.com/mdb))
-* Upgrade to latest go (merge to main) [#125](https://github.com/buildkite/go-buildkite/pull/125) ([lizrabuya](ttps://github.com/lizrabuya))
-* Bump golang.org/x/net from 0.0.0-20190404232315-eb5bcb51f2a3 to 0.7.0 [#124](https://github.com/buildkite/go-buildkite/pull/124) ([dependabot](ttps://github.com/dependabot))
-* Add `rebuilt_from` field to Build struct [#129](https://github.com/buildkite/go-buildkite/pull/129) ([matthiasr](ttps://github.com/matthiasr))
+* Support filtering list builds call by multiple branches [#96](https://github.com/buildkite/go-buildkite/pull/96) ([gsavit](https://github.com/gsavit))
+* Improve README grammar [#110](https://github.com/buildkite/go-buildkite/pull/110) ([mdb](https://github.com/mdb))
+* Upgrade to latest go (merge to main) [#125](https://github.com/buildkite/go-buildkite/pull/125) ([lizrabuya](https://github.com/lizrabuya))
+* Bump golang.org/x/net from 0.0.0-20190404232315-eb5bcb51f2a3 to 0.7.0 [#124](https://github.com/buildkite/go-buildkite/pull/124) ([dependabot](https://github.com/dependabot))
+* Add `rebuilt_from` field to Build struct [#129](https://github.com/buildkite/go-buildkite/pull/129) ([matthiasr](https://github.com/matthiasr))
 * add group_key to job struct if available [#132](https://github.com/buildkite/go-buildkite/pull/132) ([alexnguyennn](ttps://github.com/alexnguyennn))
 * add visibility field to pipeline create [#133](https://github.com/buildkite/go-buildkite/pull/133) ([sfunkhouser](https://github.com/sfunkhouser))
 * Allow filtering builds by meta_data [#127](https://github.com/buildkite/go-buildkite/pull/127) ([andrewhamon](https://github.com/andrewhamon))
+* Bump to 3.3.0 (release) [#134](https://github.com/buildkite/go-buildkite/pull/134) ([james2791](https://github.com/james2791))
 
 ## [v3.2.1](https://github.com/buildkite/go-buildkite/compare/v3.2.0...v3.2.1) (2023-03-16)
 
