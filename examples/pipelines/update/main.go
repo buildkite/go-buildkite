@@ -30,7 +30,7 @@ func main() {
 	client := buildkite.NewClient(config.Client())
 
 	updatePipeline := buildkite.UpdatePipeline{
-		Description:   *buildkite.String("This ia a deployment pipeline"),
+		Description: *buildkite.String("This ia a deployment pipeline"),
 	}
 
 	pipeline, _, err := client.Pipelines.Update(*org, *slug, &updatePipeline)
