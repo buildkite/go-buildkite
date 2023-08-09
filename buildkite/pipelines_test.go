@@ -234,6 +234,7 @@ func TestPipelinesService_Update(t *testing.T) {
 				},
 			},
 		},
+		DefaultBranch: *String("main"),
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -262,16 +263,20 @@ func TestPipelinesService_Update(t *testing.T) {
 								}
 							}
 						],
-						"slug": "my-great-repo"
+						"default_branch":"main"
 					}`)
 	})
 
 	pipeline, _, err := client.Pipelines.Create("my-great-org", input)
+
 	if err != nil {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
 
-	pipeline.Name = String("derp")
+	// Update pipeline
+	update := &UpdatePipeline{
+		DefaultBranch: *String("develop"),
+	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
 		v := new(CreatePipeline)
@@ -279,33 +284,23 @@ func TestPipelinesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w, `{
-						"name":"derp",
-						"repository":"my-great-repo",
-						"steps": [
-							{
-								"type": "script",
-								"name": "Build :package:",
-								"command": "script/release.sh",
-								"plugins": {
-									"my-org/docker#v3.3.0": {
-										"image":   "node",
-										"workdir": "/app"
-									}
-								}
-							}
-						],
-						"slug": "my-great-repo",
-                                                "visibility": "public"
-					}`)
+		fmt.Fprint(w,
+			`
+			{
+				"default_branch": "develop"
+			}`)
 	})
 
-	_, err = client.Pipelines.Update("my-great-org", pipeline)
+	updatedPipeline, _, err := client.Pipelines.Update("my-great-org", "my-great-repo", update)
+
+	// Update pipeline with the patched default branch
+	pipeline.DefaultBranch = updatedPipeline.DefaultBranch
+
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
 	}
 
-	want := &Pipeline{Name: String("derp"),
+	want := &Pipeline{Name: String("my-great-pipeline"),
 		Repository: String("my-great-repo"),
 		Steps: []*Step{
 			{
@@ -320,8 +315,7 @@ func TestPipelinesService_Update(t *testing.T) {
 				},
 			},
 		},
-		Slug:       String("my-great-repo"),
-		Visibility: String("public"),
+		DefaultBranch: String("develop"),
 	}
 
 	if !reflect.DeepEqual(pipeline, want) {

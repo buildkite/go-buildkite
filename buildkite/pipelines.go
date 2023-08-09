@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 )
 
@@ -36,6 +35,25 @@ type CreatePipeline struct {
 	TeamUuids                       []string          `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
 	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	Visibility                      *string           `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+}
+
+type UpdatePipeline struct {
+	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
+	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
+
+	Name                            string           `json:"name,omitempty" yaml:"name,omitempty"`
+	Repository                      string           `json:"repository,omitempty" yaml:"repository,omitempty"`
+	DefaultBranch                   string           `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
+	Description                     string           `json:"description,omitempty" yaml:"description,omitempty"`
+	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
+	BranchConfiguration             string           `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    string           `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       bool             `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter string           `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       string           `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
+	Visibility                      *string          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
@@ -214,24 +232,25 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 // Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
-func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
-	if p == nil {
-		return nil, errors.New("pipeline must not be nil")
-	}
+func (ps *PipelinesService) Update(org, slug string, p *UpdatePipeline) (*Pipeline, *Response, error) {
 
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
 
 	req, err := ps.client.NewRequest("PATCH", u, p)
+
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	resp, err := ps.client.Do(req, p)
+	pipeline := new(Pipeline)
+
+	resp, err := ps.client.Do(req, pipeline)
+
 	if err != nil {
-		return resp, err
+		return nil, resp, err
 	}
 
-	return resp, err
+	return pipeline, resp, err
 }
 
 // AddWebhook - Adds webhook in github for pipeline.
