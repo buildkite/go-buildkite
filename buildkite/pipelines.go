@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -38,6 +39,9 @@ type CreatePipeline struct {
 }
 
 type UpdatePipeline struct {
+	// Slug required for determining the pipeline to update
+	Slug string `json:"slug" yaml:"slug"`
+
 	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
 	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
 	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
@@ -241,15 +245,15 @@ func (ps *PipelinesService) Update(org string, p *UpdatePipeline) (*Response, er
 
 	req, err := ps.client.NewRequest("PATCH", u, p)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	resp, err := ps.client.Do(req, p)
 	if err != nil {
-		return nil, resp, err
+		return resp, err
 	}
 
-	return pipeline, resp, err
+	return resp, err
 }
 
 // AddWebhook - Adds webhook in github for pipeline.

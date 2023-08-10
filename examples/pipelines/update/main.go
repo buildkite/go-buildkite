@@ -12,7 +12,6 @@ import (
 var (
 	apiToken = kingpin.Flag("token", "API token").Required().String()
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
-	slug     = kingpin.Flag("slug", "Pipeline slug").Required().String()
 	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
@@ -28,20 +27,15 @@ func main() {
 	client := buildkite.NewClient(config.Client())
 
 	updatePipeline := buildkite.UpdatePipeline{
-		Description: *buildkite.String("This ia a deployment pipeline"),
+		Slug:        *buildkite.String("my-great-repo"),
+		Description: *buildkite.String("This ia a great pipeline!"),
 	}
 
-	pipeline, _, err := client.Pipelines.Update(*org, *slug, &updatePipeline)
+	resp, err := client.Pipelines.Update(*org, &updatePipeline)
 
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)
 	}
 
-	data, err := json.MarshalIndent(pipeline, "", "\t")
-
-	if err != nil {
-		log.Fatalf("json encode failed: %s", err)
-	}
-
-	fmt.Fprintf(os.Stdout, "%s", string(data))
+	fmt.Println(resp.StatusCode)
 }

@@ -1,10 +1,7 @@
 ## Unreleased
 * Support build.failing events [#141](https://github.com/buildkite/go-buildkite/pull/141) ([mcncl](https://github.com/mcncl))
 * SUP-1314: Test Analytics Integration [#142](https://github.com/buildkite/go-buildkite/pull/142) ([james2791](https://github.com/james2791))
-* SUP-1321: Pipeline updates with PATCH friendly struct input [#143](https://github.com/buildkite/go-buildkite/pull/143) ([james2791](https://github.com/james2791))
-
-### Notice
-As part of this release, the properties that can be set when updating a pipeline using the [PipelinesService](https://github.com/buildkite/go-buildkite/blob/main/buildkite/pipelines.go) have changed to reflect the permitted request body properties in the pipeline update [REST API endpoint](https://buildkite.com/docs/apis/rest-api/pipelines#update-a-pipeline).
+* SUP-1321: Pipeline updates utilising dedicated PipelineUpdate struct [#144](https://github.com/buildkite/go-buildkite/pull/144) ([james2791](https://github.com/james2791))
 
 ## [v3.3.1](https://github.com/buildkite/go-buildkite/compare/v3.3.0...v3.3.1) (2023-06-08)
 * Resolved issue on 500 error when request body is null [#137](https://github.com/buildkite/go-buildkite/pull/137) ([lizrabuya](ttps://github.com/lizrabuya))

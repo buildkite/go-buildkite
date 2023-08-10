@@ -275,6 +275,7 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	// Update pipeline
 	update := &UpdatePipeline{
+		Slug:          *String("my-great-repo"),
 		DefaultBranch: *String("develop"),
 	}
 
@@ -287,10 +288,15 @@ func TestPipelinesService_Update(t *testing.T) {
 		fmt.Fprint(w,
 			`
 			{
-	updatedPipeline, _, err := client.Pipelines.Update("my-great-org", "my-great-repo", update)
+				"slug": "my-great-repo",
+				"default_branch": "develop"
+			}`)
+	})
+
+	_, err = client.Pipelines.Update("my-great-org", update)
 
 	// Update pipeline with the patched default branch
-	pipeline.DefaultBranch = updatedPipeline.DefaultBranch
+	pipeline.DefaultBranch = &update.DefaultBranch
 
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
