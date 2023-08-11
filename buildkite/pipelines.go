@@ -240,7 +240,7 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
 
-	pu := generatePipelineUpdate(*p)
+	pu := generateUpdatePipelineStruct(*p)
 
 	req, err := ps.client.NewRequest("PATCH", u, pu)
 
@@ -301,7 +301,7 @@ func (ps *PipelinesService) Unarchive(org string, slug string) (*Response, error
 	return ps.client.Do(req, nil)
 }
 
-func generatePipelineUpdate(p Pipeline) UpdatePipeline {
+func generateUpdatePipelineStruct(p Pipeline) UpdatePipeline {
 
 	// Create a UpdatePipeline struct to use for updating
 	updatePipeline := UpdatePipeline{
