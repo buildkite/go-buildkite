@@ -350,3 +350,9 @@ func String(v string) *string {
 	*p = v
 	return p
 }
+
+func Bool(v bool) *bool {
+	p := new(bool)
+	*p = v
+	return p
+}
