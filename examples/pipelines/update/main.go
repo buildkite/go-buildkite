@@ -31,7 +31,7 @@ func main() {
 		Description: buildkite.String("This ia a great pipeline!"),
 		Provider: &buildkite.Provider{
 			Settings: &buildkite.GitHubSettings{
-				TriggerMode:       buildkite.String("Code"),
+				TriggerMode:       buildkite.String("fork"),
 				BuildPullRequests: buildkite.Bool(false),
 			},
 		},
