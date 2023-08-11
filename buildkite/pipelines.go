@@ -39,24 +39,21 @@ type CreatePipeline struct {
 }
 
 type UpdatePipeline struct {
-	// Slug required for determining the pipeline to update
-	Slug string `json:"slug" yaml:"slug"`
-
 	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
-	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Configuration string  `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Steps         []*Step `json:"steps,omitempty" yaml:"steps,omitempty"`
 
-	Name                            string           `json:"name,omitempty" yaml:"name,omitempty"`
-	Repository                      string           `json:"repository,omitempty" yaml:"repository,omitempty"`
-	DefaultBranch                   string           `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
-	Description                     string           `json:"description,omitempty" yaml:"description,omitempty"`
+	Name                            *string          `json:"name,omitempty" yaml:"name,omitempty"`
+	Repository                      *string          `json:"repository,omitempty" yaml:"repository,omitempty"`
+	DefaultBranch                   *string          `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
+	Description                     *string          `json:"description,omitempty" yaml:"description,omitempty"`
 	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
-	BranchConfiguration             string           `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
-	SkipQueuedBranchBuildsFilter    string           `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool             `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
-	CancelRunningBranchBuildsFilter string           `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
-	ClusterID                       string           `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
+	BranchConfiguration             *string          `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          *bool            `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    *string          `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       *bool            `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter *string          `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       *string          `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	Visibility                      *string          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 }
 
@@ -236,14 +233,17 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 // Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
-func (ps *PipelinesService) Update(org string, p *UpdatePipeline) (*Response, error) {
+func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 	if p == nil {
 		return nil, errors.New("Pipeline must not be nil")
 	}
 
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, p.Slug)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, *p.Slug)
 
-	req, err := ps.client.NewRequest("PATCH", u, p)
+	pu := generatePipelineUpdate(*p)
+
+	req, err := ps.client.NewRequest("PATCH", u, pu)
+
 	if err != nil {
 		return nil, err
 	}
@@ -299,4 +299,31 @@ func (ps *PipelinesService) Unarchive(org string, slug string) (*Response, error
 	}
 
 	return ps.client.Do(req, nil)
+}
+
+func generatePipelineUpdate(p Pipeline) UpdatePipeline {
+
+	// Create a UpdatePipeline struct to use for updating
+	updatePipeline := UpdatePipeline{
+		Name:                            p.Name,
+		Repository:                      p.Repository,
+		DefaultBranch:                   p.DefaultBranch,
+		Description:                     p.Description,
+		BranchConfiguration:             p.BranchConfiguration,
+		SkipQueuedBranchBuilds:          p.SkipQueuedBranchBuilds,
+		SkipQueuedBranchBuildsFilter:    p.SkipQueuedBranchBuildsFilter,
+		CancelRunningBranchBuilds:       p.CancelRunningBranchBuilds,
+		CancelRunningBranchBuildsFilter: p.CancelRunningBranchBuildsFilter,
+		ClusterID:                       p.ClusterID,
+		Visibility:                      p.Visibility,
+		Configuration:                   p.Configuration,
+		Steps:                           p.Steps,
+	}
+
+	// If Pipeline Provider has been defined, set ProviderSettings
+	if p.Provider != nil {
+		updatePipeline.ProviderSettings = p.Provider.Settings
+	}
+
+	return updatePipeline
 }

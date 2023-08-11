@@ -26,12 +26,18 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	updatePipeline := buildkite.UpdatePipeline{
-		Slug:        *buildkite.String("my-great-repo"),
-		Description: *buildkite.String("This ia a great pipeline!"),
+	pipeline := buildkite.Pipeline{
+		Slug:        buildkite.String("my-great-repo"),
+		Description: buildkite.String("This ia a great pipeline!"),
+		Provider: &buildkite.Provider{
+			Settings: &buildkite.GitHubSettings{
+				TriggerMode:       buildkite.String("Code"),
+				BuildPullRequests: buildkite.Bool(false),
+			},
+		},
 	}
 
-	resp, err := client.Pipelines.Update(*org, &updatePipeline)
+	resp, err := client.Pipelines.Update(*org, &pipeline)
 
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)
