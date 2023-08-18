@@ -48,6 +48,10 @@ func TestPipelinesService_Create(t *testing.T) {
 			},
 		},
 		DefaultBranch: *String("main"),
+		Tags: []string{
+			"well-tested",
+			"great-config",
+		},
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +80,11 @@ func TestPipelinesService_Create(t *testing.T) {
 								}
 							}
 						],
-						"default_branch":"main"
+						"default_branch":"main",
+            "tags": [
+              "well-tested",
+              "great-config"
+            ]
 					}`)
 	})
 
@@ -101,6 +109,10 @@ func TestPipelinesService_Create(t *testing.T) {
 			},
 		},
 		DefaultBranch: String("main"),
+		Tags: []string{
+			"well-tested",
+			"great-config",
+		},
 	}
 	if !reflect.DeepEqual(pipeline, want) {
 		t.Errorf("Pipelines.Create returned %+v, want %+v", pipeline, want)
@@ -296,7 +308,10 @@ func TestPipelinesService_Update(t *testing.T) {
 							}
 						],
 						"slug": "my-great-repo",
-                                                "visibility": "public"
+            "visibility": "public",
+            "tags": [
+              "fresh-tag"
+            ]
 					}`)
 	})
 
@@ -322,6 +337,7 @@ func TestPipelinesService_Update(t *testing.T) {
 		},
 		Slug:       String("my-great-repo"),
 		Visibility: String("public"),
+		Tags:       []string{"fresh-tag"},
 	}
 
 	if !reflect.DeepEqual(pipeline, want) {
