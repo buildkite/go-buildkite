@@ -1,4 +1,5 @@
 ## Unreleased
+* Addition of issue/new feature/release templates, Codeowners [#148](https://github.com/buildkite/go-buildkite/pull/148) ([james2791](https://github.com/james2791))
 
 ## [v3.4.0](https://github.com/buildkite/go-buildkite/compare/v3.3.1...v3.4.0) (2023-08-10)
 * Support build.failing events [#141](https://github.com/buildkite/go-buildkite/pull/141) ([mcncl](https://github.com/mcncl))
