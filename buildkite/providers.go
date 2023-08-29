@@ -94,6 +94,7 @@ func (s *GitHubSettings) isProviderSettings() {}
 
 // GitHubEnterpriseSettings are settings for pipelines building from GitHub Enterprise repositories.
 type GitHubEnterpriseSettings struct {
+	TriggerMode                             *string `json:"trigger_mode,omitempty" yaml:"trigger_mode,omitempty"`
 	BuildPullRequests                       *bool   `json:"build_pull_requests,omitempty" yaml:"build_pull_requests,omitempty"`
 	BuildBranches                           *bool   `json:"build_branches,omitempty" yaml:"build_branches,omitempty"`
 	PullRequestBranchFilterEnabled          *bool   `json:"pull_request_branch_filter_enabled,omitempty" yaml:"pull_request_branch_filter_enabled,omitempty"`
