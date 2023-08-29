@@ -29,13 +29,13 @@ func main() {
 	client := buildkite.NewClient(config.Client())
 
 	createPipeline := buildkite.CreatePipeline{
-		Name: *buildkite.String("my-great-pipeline"),
-		Repository: *buildkite.String("git@github.com:my_great_org/my_great_repo2.git"),	
+		Name:          *buildkite.String("my-great-pipeline"),
+		Repository:    *buildkite.String("git@github.com:my_great_org/my_great_repo2.git"),
 		Configuration: *buildkite.String("env:\n \"FOO\": \"bar\"\nsteps:\n - command: \"script/release.sh\"\n   \"name\": \"Build 📦\""),
-		Tags: []string{"great", "pipeline"},
-		Description: *buildkite.String("This ia a great pipeline!"),
+		Tags:          []string{"great", "pipeline"},
+		Description:   *buildkite.String("This ia a great pipeline!"),
 		ProviderSettings: &buildkite.GitHubSettings{
-			TriggerMode:       buildkite.String("code"),
+			TriggerMode: buildkite.String("code"),
 		},
 	}
 
