@@ -33,6 +33,7 @@ type Job struct {
 	RunnableAt         *Timestamp   `json:"runnable_at,omitempty" yaml:"runnable_at,omitempty"`
 	StartedAt          *Timestamp   `json:"started_at,omitempty" yaml:"started_at,omitempty"`
 	FinishedAt         *Timestamp   `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
+	UnblockedAt        *Timestamp   `json:"unblocked_at,omitempty" yaml:"unblocked_at,omitempty"`
 	Agent              Agent        `json:"agent,omitempty" yaml:"agent,omitempty"`
 	AgentQueryRules    []string     `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
 	WebURL             string       `json:"web_url" yaml:"web_url"`
