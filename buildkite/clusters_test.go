@@ -238,10 +238,10 @@ func TestClustersService_Update(t *testing.T) {
 	defer teardown()
 
 	input := &ClusterCreate{
-		Name:          "Testing Cluster",
-		Description:   String("A cluster for testing"),
-		Emoji: 	       String(":construction:"),
-		Color:         String("E5F185"),
+		Name:        "Testing Cluster",
+		Description: String("A cluster for testing"),
+		Emoji:       String(":construction:"),
+		Color:       String("E5F185"),
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
@@ -300,20 +300,19 @@ func TestClustersService_Update(t *testing.T) {
 	if err != nil {
 		t.Errorf("TestClusters.Update returned error: %v", err)
 	}
-	
+
 	want := &Cluster{
-		ID:			   String("a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"),
-		Name:          String("Testing Cluster"),
-		Description:   String("A test cluster"),
-		Emoji: 	       String(":construction:"),
-		Color:         String("E5F185"),
+		ID:          String("a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"),
+		Name:        String("Testing Cluster"),
+		Description: String("A test cluster"),
+		Emoji:       String(":construction:"),
+		Color:       String("E5F185"),
 	}
-	
+
 	if !reflect.DeepEqual(cluster, want) {
 		t.Errorf("TestClusters.Update returned %+v, want %+v", cluster, want)
 	}
-	
-	
+
 }
 
 func TestClustersService_Delete(t *testing.T) {
