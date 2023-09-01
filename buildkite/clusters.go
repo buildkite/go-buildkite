@@ -1,8 +1,8 @@
 package buildkite
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 // ClustersService handles communication with cluster related
@@ -14,18 +14,18 @@ type ClustersService struct {
 }
 
 type ClusterCreate struct {
-	Name            *string         `json:"name,omitempty" yaml:"name,omitempty"`
-	Description     *string         `json:"description,omitempty" yaml:"description,omitempty"`
-	Emoji           *string         `json:"emoji,omitempty" yaml:"emoji,omitempty"`
-	Color           *string         `json:"color,omitempty" yaml:"color,omitempty"`
+	Name        string  `json:"name,omitempty" yaml:"name,omitempty"`
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
+	Emoji       *string `json:"emoji,omitempty" yaml:"emoji,omitempty"`
+	Color       *string `json:"color,omitempty" yaml:"color,omitempty"`
 }
 
 type ClusterUpdate struct {
-	Name            *string         `json:"name,omitempty" yaml:"name,omitempty"`
-	Description     *string         `json:"description,omitempty" yaml:"description,omitempty"`
-	Emoji           *string         `json:"emoji,omitempty" yaml:"emoji,omitempty"`
-	Color           *string         `json:"color,omitempty" yaml:"color,omitempty"`
-	DefaultQueueID  *string         `json:"default_queue_id,omitempty" yaml:"default_queue_id,omitempty"`
+	Name           *string `json:"name,omitempty" yaml:"name,omitempty"`
+	Description    *string `json:"description,omitempty" yaml:"description,omitempty"`
+	Emoji          *string `json:"emoji,omitempty" yaml:"emoji,omitempty"`
+	Color          *string `json:"color,omitempty" yaml:"color,omitempty"`
+	DefaultQueueID *string `json:"default_queue_id,omitempty" yaml:"default_queue_id,omitempty"`
 }
 
 type Cluster struct {
