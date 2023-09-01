@@ -1,4 +1,6 @@
 ## Unreleased
+
+## [v3.5.0](https://github.com/buildkite/go-buildkite/compare/v3.4.0...v3.5.0) (2023-09-01)
 * Addition of issue/new feature/release templates, Codeowners [#148](https://github.com/buildkite/go-buildkite/pull/148) ([james2791](https://github.com/james2791))
 * Add tag fields to pipeline object [#147](https://github.com/buildkite/go-buildkite/pull/147) ([DeanBruntThirdfort](https://github.com/DeanBruntThirdfort))
 * SUP-1053: Ability to set `trigger_mode` for Pipelines with GitHub Enterprise ProviderSettings [#149](https://github.com/buildkite/go-buildkite/pull/149) ([james2791](https://github.com/james2791))
