@@ -233,6 +233,89 @@ func TestClustersService_Create(t *testing.T) {
 	}
 }
 
+func TestClustersService_Update(t *testing.T) {
+	setup()
+	defer teardown()
+
+	input := &ClusterCreate{
+		Name:          "Testing Cluster",
+		Description:   String("A cluster for testing"),
+		Emoji: 	       String(":construction:"),
+		Color:         String("E5F185"),
+	}
+
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ClusterCreate)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "POST")
+
+		if !reflect.DeepEqual(v, input) {
+			t.Errorf("Request body = %+v, want %+v", v, input)
+		}
+
+		fmt.Fprint(w,
+			`
+			{
+				"id": "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1",
+				"name" : "Testing Cluster",
+				"description": "A cluster for testing",
+				"emoji": ":construction:",
+				"color": "E5F185"
+			}`)
+	})
+
+	cluster, _, err := client.Clusters.Create("my-great-org", input)
+
+	if err != nil {
+		t.Errorf("TestClusters.Create returned error: %v", err)
+	}
+
+	// Lets update the description of the cluster
+	cluster.Description = String("A test cluster")
+
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters/a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ClusterUpdate)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "PATCH")
+
+		fmt.Fprint(w,
+			`
+			{
+				"id": "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1",
+				"name" : "Testing Cluster",
+				"description": "A test cluster",
+				"emoji": ":construction:",
+				"color": "E5F185"
+			}`)
+	})
+
+	clusterUpdate := ClusterUpdate{
+		Description: String("A test cluster"),
+	}
+
+	_, err = client.Clusters.Update("my-great-org", *cluster.ID, &clusterUpdate)
+
+	if err != nil {
+		t.Errorf("TestClusters.Update returned error: %v", err)
+	}
+	
+	want := &Cluster{
+		ID:			   String("a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"),
+		Name:          String("Testing Cluster"),
+		Description:   String("A test cluster"),
+		Emoji: 	       String(":construction:"),
+		Color:         String("E5F185"),
+	}
+	
+	if !reflect.DeepEqual(cluster, want) {
+		t.Errorf("TestClusters.Update returned %+v, want %+v", cluster, want)
+	}
+	
+	
+}
+
 func TestClustersService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
