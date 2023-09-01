@@ -2,6 +2,7 @@
 * Addition of issue/new feature/release templates, Codeowners [#148](https://github.com/buildkite/go-buildkite/pull/148) ([james2791](https://github.com/james2791))
 * Add tag fields to pipeline object [#147](https://github.com/buildkite/go-buildkite/pull/147) ([DeanBruntThirdfort](https://github.com/DeanBruntThirdfort))
 * SUP-1053: Ability to set `trigger_mode` for Pipelines with GitHub Enterprise ProviderSettings [#149](https://github.com/buildkite/go-buildkite/pull/149) ([james2791](https://github.com/james2791))
+* SUP-1410: Addition of unblocked_at to Jobs struct [#152](https://github.com/buildkite/go-buildkite/pull/152) ([james2791](https://github.com/james2791))
 
 ## [v3.4.0](https://github.com/buildkite/go-buildkite/compare/v3.3.1...v3.4.0) (2023-08-10)
 * Support build.failing events [#141](https://github.com/buildkite/go-buildkite/pull/141) ([mcncl](https://github.com/mcncl))
