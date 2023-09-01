@@ -70,12 +70,12 @@ func TestBuildsService_Get(t *testing.T) {
 
 		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
 		if err != nil {
-			t.Errorf("Builds.Get returned error: %v", err)
+			t.Errorf("Builds.Get (expected id) returned error: %v", err)
 		}
 
 		want := &Build{ID: String(buildNumber)}
 		if !reflect.DeepEqual(build, want) {
-			t.Errorf("Builds.Get returned %+v, want %+v", build, want)
+			t.Errorf("Builds.Get (expected id) returned %+v, want %+v", build, want)
 		}
 	})
 
@@ -95,12 +95,41 @@ func TestBuildsService_Get(t *testing.T) {
 
 		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
 		if err != nil {
-			t.Errorf("Builds.Get returned error: %v", err)
+			t.Errorf("Builds.Get (group key) returned error: %v", err)
 		}
 
 		want := &Build{ID: String(buildNumber), Jobs: []*Job{{GroupKey: &expectedGroup}}}
 		if !reflect.DeepEqual(build, want) {
-			t.Errorf("Builds.Get returned %+v, want %+v", build, want)
+			t.Errorf("Builds.Get (group key) returned %+v, want %+v", build, want)
+		}
+	})
+
+	t.Run("returns a build struct with expected manual job values", func(t *testing.T) {
+		setup()
+		defer teardown()
+
+		jobType := "manual"
+		unblockedAt := "2023-01-01T15:00:00.00Z"
+		parsedTime, err := time.Parse(BuildKiteDateFormat, unblockedAt)
+
+		mux.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				_, _ = fmt.Fprintf(w, `{"id":"%s", "jobs": [ {"type": "%s", "unblocked_at": "%s" }]}`,
+					buildNumber,
+					jobType,
+					unblockedAt,
+				)
+			})
+
+		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
+		if err != nil {
+			t.Errorf("Builds.Get (manual job) returned error: %v", err)
+		}
+
+		want := &Build{ID: String(buildNumber), Jobs: []*Job{{Type: &jobType, UnblockedAt: NewTimestamp(parsedTime)}}}
+		if !reflect.DeepEqual(build, want) {
+			t.Errorf("Builds.Get (manual job) returned %+v, want %+v", build, want)
 		}
 	})
 }
