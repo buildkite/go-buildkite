@@ -87,6 +87,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Builds = &BuildsService{c}
 	c.Clusters = &ClustersService{c}
 	c.ClusterQueues = &ClusterQueuesService{c}
+	c.ClusterTokens = &ClusterTokensService{c}
 	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}
