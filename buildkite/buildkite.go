@@ -48,6 +48,7 @@ type Client struct {
 	Builds        *BuildsService
 	Clusters      *ClustersService
 	ClusterQueues *ClusterQueuesService
+	ClusterTokens *ClusterTokensService
 	FlakyTests    *FlakyTestsService
 	Jobs          *JobsService
 	Organizations *OrganizationsService
