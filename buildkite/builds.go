@@ -78,7 +78,7 @@ type Build struct {
 	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
 	StartedAt   *Timestamp             `json:"started_at,omitempty" yaml:"started_at,omitempty"`
 	FinishedAt  *Timestamp             `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
-	MetaData    interface{}            `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
+	MetaData    map[string]string      `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
 	Creator     *Creator               `json:"creator,omitempty" yaml:"creator,omitempty"`
 	Source      *string                `json:"source,omitempty" yaml:"source,omitempty"`
 
