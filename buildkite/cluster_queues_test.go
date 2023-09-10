@@ -123,3 +123,71 @@ func TestClusterQueuesService_List(t *testing.T) {
 		t.Errorf("TestClusterQueues.List returned %+v, want %+v", queues, want)
 	}
 }
+
+func TestClusterQueuesService_Get(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w,
+			`
+			{
+				"id": "528000d8-4ee1-4479-8af1-032b143185f0",
+				"graphql_id": "Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA==",
+				"name": "Development Cluster",
+				"description": "A cluster for development pipelines",
+				"emoji": ":toolbox:",
+				"color": "#A9CCE3",
+				"url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+				"web_url": "https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+				"queues_url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues",
+				"created_at": "2023-09-01T04:27:11.392Z",
+				"created_by": {
+					"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+					"graphql_id": "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
+					"name": "Joe Smith",
+					"email": "jsmith@example.com",
+					"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
+					"created_at": "2023-02-20T03:00:05.824Z"
+				}
+			}`)
+	})
+
+	cluster, _, err := client.Clusters.Get("my-great-org", "528000d8-4ee1-4479-8af1-032b143185f0")
+
+	if err != nil {
+		t.Errorf("TestClusterQueues.Get returned error: %v", err)
+	}
+
+	devClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z")
+	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+
+	clusterUser := &ClusterUser{
+		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
+		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
+		Name:      String("Joe Smith"),
+		Email:     String("jsmith@example.com"),
+		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+		CreatedAt: NewTimestamp(userCreatedAt),
+	}
+
+	want := &Cluster{
+		ID:          String("528000d8-4ee1-4479-8af1-032b143185f0"),
+		GraphQLID:   String("Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA=="),
+		Name:        String("Development Cluster"),
+		Description: String("A cluster for development pipelines"),
+		Emoji:       String(":toolbox:"),
+		Color:       String("#A9CCE3"),
+		URL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
+		WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
+		QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues"),
+		CreatedAt:   NewTimestamp(devClusterCreatedAt),
+		CreatedBy:   clusterUser,
+	}
+
+	if !reflect.DeepEqual(cluster, want) {
+		t.Errorf("TestClusterQueues.Get returned %+v, want %+v", cluster, want)
+	}
+
+}

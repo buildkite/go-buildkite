@@ -50,7 +50,6 @@ func (cqs *ClusterQueuesService) List(org, clusterID string, opt *ClusterQueuesL
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues", org, clusterID)
 
-	fmt.Println(u)
 	u, err := addOptions(u, opt)
 
 	if err != nil {

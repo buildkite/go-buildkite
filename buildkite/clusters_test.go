@@ -92,7 +92,7 @@ func TestClustersService_List(t *testing.T) {
 			WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
 			QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues"),
 			CreatedAt:   NewTimestamp(devClusterCreatedAt),
-			CreatedBy: clusterUser,
+			CreatedBy:   clusterUser,
 		},
 		{
 			ID:          String("3edcecdb-5191-44f1-a5ae-370083c8f92e"),
@@ -105,7 +105,7 @@ func TestClustersService_List(t *testing.T) {
 			WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e"),
 			QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues"),
 			CreatedAt:   NewTimestamp(prodClusterCreatedAt),
-			CreatedBy: clusterUser,
+			CreatedBy:   clusterUser,
 		},
 	}
 
