@@ -1,7 +1,7 @@
 package buildkite
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -99,3 +99,105 @@ func TestClusterTokensService_List(t *testing.T) {
 		t.Errorf("TestClusterTokens.List returned %+v, want %+v", tokens, want)
 	}
 }
+
+func TestClusterTokensService_Get(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w,
+			`	
+			{
+				"id": "38e8fdb0-52bf-4e73-ad82-ce93cfbaa724",
+				"graphql_id": "Q2x1c3RlclRva2VuLS0tMzhlOGZkYjAtNTJiZi00ZTczLWFkODItY2U5M2NmYmFhNzI0",
+				"description": "Development cluster token",
+				"url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724",
+				"cluster_url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
+				"created_at": "2023-06-07T08:01:02.951Z",
+				"created_by": {
+					"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+					"graphql_id": "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
+					"name": "Joe Smith",
+					"email": "jsmith@example.com",
+					"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
+					"created_at": "2023-02-20T03:00:05.824Z"
+				},
+				"allowed_ip_addresses": "99.26.83.126/24 220.189.137.145/32"
+			}`)
+	})
+
+	token, _, err := client.ClusterTokens.Get("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "38e8fdb0-52bf-4e73-ad82-ce93cfbaa724")
+
+	if err != nil {
+		t.Errorf("TestClusterTokens.Get returned error: %v", err)
+	}
+	
+	developmentTokenCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z")
+	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+
+	clusterCreator := &ClusterCreator{
+		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
+		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
+		Name:      String("Joe Smith"),
+		Email:     String("jsmith@example.com"),
+		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+		CreatedAt: NewTimestamp(userCreatedAt),
+	}
+
+	want := &ClusterToken{
+		ID:             String("38e8fdb0-52bf-4e73-ad82-ce93cfbaa724"),
+		GraphQLID:      String("Q2x1c3RlclRva2VuLS0tMzhlOGZkYjAtNTJiZi00ZTczLWFkODItY2U5M2NmYmFhNzI0"),
+		Description:    String("Development cluster token"),
+		URL:            String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724"),
+		ClusterURL:     String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
+		CreatedAt:      NewTimestamp(developmentTokenCreatedAt),
+		CreatedBy:      clusterCreator,
+		AllowedIPAddresses: String("99.26.83.126/24 220.189.137.145/32"),	
+	}
+
+	if !reflect.DeepEqual(token, want) {
+		t.Errorf("TestClusterTokens.Get returned %+v, want %+v", token, want)
+	}
+}
+
+func TestClusterTokensService_Create(t *testing.T) {
+	setup()
+	defer teardown()
+
+	input := &ClusterTokenCreateUpdate{
+		Description: String("Development 2 cluster token"),
+	}
+
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ClusterTokenCreateUpdate)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "POST")
+
+		if !reflect.DeepEqual(v, input) {
+			t.Errorf("Request body = %+v, want %+v", v, input)
+		}
+
+		fmt.Fprint(w,
+			`
+			{
+				"description": "Development 2 cluster token"
+			}`)
+	})
+
+	token, _, err := client.ClusterTokens.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+
+	if err != nil {
+		t.Errorf("TestClusterTokens.Create returned error: %v", err)
+	}
+
+	want := &ClusterToken{
+		Description: String("Development 2 cluster token"),
+	}
+
+	if !reflect.DeepEqual(token, want) {
+		t.Errorf("TestClusterTokens.Create returned %+v, want %+v", token, want)
+	}
+}
+
