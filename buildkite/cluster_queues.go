@@ -119,29 +119,27 @@ func (cqs *ClusterQueuesService) Create(org, clusterID string, qc *ClusterQueueC
 	return queue, resp, err
 }
 
-func (cqs *ClusterQueuesService) Update(org, clusterID, queueID string, qu *ClusterQueueUpdate) (*ClusterQueue, *Response, error) {
+func (cqs *ClusterQueuesService) Update(org, clusterID, queueID string, qu *ClusterQueueUpdate) (*Response, error) {
 
 	if qu == nil {
-		return nil, nil, errors.New("ClusterQueueUpdate struct instance must not be nil")
+		return nil, errors.New("ClusterQueueUpdate struct instance must not be nil")
 	}
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s", org, clusterID, queueID)
 
-	req, err := cqs.client.NewRequest("POST", u, qu)
+	req, err := cqs.client.NewRequest("PATCH", u, qu)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	queue := new(ClusterQueue)
-
-	resp, err := cqs.client.Do(req, queue)
+	resp, err := cqs.client.Do(req, qu)
 
 	if err != nil {
-		return nil, resp, err
+		return resp, err
 	}
 
-	return queue, resp, err
+	return resp, err
 }
 
 func (cqs *ClusterQueuesService) Delete(org, clusterID, queueID string) (*Response, error) {

@@ -248,4 +248,75 @@ func TestClusterQueuesService_Create(t *testing.T) {
 	}
 }
 
+func TestClusterQueuesService_Update(t *testing.T) {
+	setup()
+	defer teardown()
 
+	input := &ClusterQueueCreate{
+		Key:         String("development1"),
+		Description: String("Development 1 queue"),
+	}
+
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ClusterQueueCreate)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "POST")
+
+		if !reflect.DeepEqual(v, input) {
+			t.Errorf("Request body = %+v, want %+v", v, input)
+		}
+
+		fmt.Fprint(w,
+			`
+			{
+				"id" : "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
+				"key" : "development1",
+				"description": "Development 1 queue"
+			}`)
+	})
+
+	queue, _, err := client.ClusterQueues.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+
+	if err != nil {
+		t.Errorf("TestClusterQueues.Update returned error: %v", err)
+	}
+
+	// Lets update the description of the cluster queue 
+	queue.Description = String("Development 1 Team queue")
+	
+	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ClusterQueueUpdate)
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "PATCH")
+
+		fmt.Fprint(w,
+			`
+			{
+				"id" : "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
+				"key" : "development1",
+				"description": "Development 1 Team queue"
+			}`)
+	})
+
+	queueUpdate := ClusterQueueUpdate{
+		Description: String("Development 1 Team queue"),
+	}
+
+	_, err = client.ClusterQueues.Update("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", &queueUpdate)
+
+	if err != nil {
+		t.Errorf("TestClusterQueues.Update returned error: %v", err)
+	}
+
+	want := &ClusterQueue{
+		ID:          String("1374ffd0-c5ed-49a5-aebe-67ce906e68ca"),
+		Key:         String("development1"),
+		Description: String("Development 1 Team queue"),
+	}
+
+	if !reflect.DeepEqual(queue, want) {
+		t.Errorf("TestClusters.Update returned %+v, want %+v", queue, want)
+	}
+}
