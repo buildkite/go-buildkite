@@ -13,7 +13,7 @@ var (
 	apiToken  = kingpin.Flag("token", "API token").Required().String()
 	org       = kingpin.Flag("org", "Orginization slug").Required().String()
 	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
-	queueID   = kingpin.Flag("queueID", "Cluster queue UUID").Required().String()
+	tokenID   = kingpin.Flag("tokenID", "Cluster token UUID").Required().String()
 	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
@@ -28,10 +28,14 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	resp, err := client.ClusterQueues.Delete(*org, *clusterID, *queueID)
+	clusterTokenUpdate := buildkite.ClusterTokenCreateUpdate{
+		Description: buildkite.String("Dev squad agent token"),
+	}
+
+	resp, err := client.ClusterTokens.Update(*org, *clusterID, *tokenID, &clusterTokenUpdate)
 
 	if err != nil {
-		log.Fatalf("Deleting cluster queue %s failed: %s", *queueID, err)
+		log.Fatalf("Updating cluster token failed: %s", err)
 	}
 
 	fmt.Println(resp.StatusCode)
