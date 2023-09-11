@@ -39,7 +39,7 @@ type ClusterQueueUpdate struct {
 }
 
 type ClusterQueuePause struct {
-	Note *string `json:"note,omitempty" yaml:"note,omitempty"`
+	Note *string `json:"dispatch_paused_note,omitempty" yaml:"dispatch_paused_note,omitempty"`
 }
 
 type ClusterQueuesListOptions struct {
