@@ -80,7 +80,7 @@ func TestClusterQueuesService_List(t *testing.T) {
 	devQueuePausedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z")
 	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
 
-	clusterUser := &ClusterUser{
+	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
 		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
 		Name:      String("Joe Smith"),
@@ -100,7 +100,7 @@ func TestClusterQueuesService_List(t *testing.T) {
 			ClusterURL:     String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
 			DispatchPaused: Bool(false),
 			CreatedAt:      NewTimestamp(defaultQueueCreatedAt),
-			CreatedBy:      clusterUser,
+			CreatedBy:      clusterCreator,
 		},
 		{
 			ID:                 String("46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
@@ -111,11 +111,11 @@ func TestClusterQueuesService_List(t *testing.T) {
 			WebURL:             String("https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
 			ClusterURL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
 			DispatchPaused:     Bool(true),
-			DispatchPausedBy:   clusterUser,
+			DispatchPausedBy:   clusterCreator,
 			DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
 			DispatchPausedNote: String("Weekend queue pause"),
 			CreatedAt:          NewTimestamp(devQueueClusterCreatedAt),
-			CreatedBy:          clusterUser,
+			CreatedBy:          clusterCreator,
 		},
 	}
 
@@ -173,7 +173,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 	devQueuePausedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z")
 	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
 
-	clusterUser := &ClusterUser{
+	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
 		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
 		Name:      String("Joe Smith"),
@@ -191,11 +191,11 @@ func TestClusterQueuesService_Get(t *testing.T) {
 		WebURL:             String("https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
 		ClusterURL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
 		DispatchPaused:     Bool(true),
-		DispatchPausedBy:   clusterUser,
+		DispatchPausedBy:   clusterCreator,
 		DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
 		DispatchPausedNote: String("Weekend queue pause"),
 		CreatedAt:          NewTimestamp(devQueueClusterCreatedAt),
-		CreatedBy:          clusterUser,
+		CreatedBy:          clusterCreator,
 	}
 
 	if !reflect.DeepEqual(queue, want) {
