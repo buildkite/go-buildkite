@@ -106,29 +106,27 @@ func (cts *ClusterTokensService) Create(org, clusterID string, ctc *ClusterToken
 	return token, resp, err
 }
 
-func (cts *ClusterTokensService) Update(org, clusterID, tokenID string, ctc *ClusterTokenCreateUpdate) (*ClusterToken, *Response, error) {
+func (cts *ClusterTokensService) Update(org, clusterID, tokenID string, ctc *ClusterTokenCreateUpdate) (*Response, error) {
 
 	if ctc == nil {
-		return nil, nil, errors.New("ClusterTokenCreateUpdate struct instance must not be nil")
+		return nil, errors.New("ClusterTokenCreateUpdate struct instance must not be nil")
 	}
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens/%s", org, clusterID, tokenID)
 
-	req, err := cts.client.NewRequest("PUT", u, ctc)
+	req, err := cts.client.NewRequest("PATCH", u, ctc)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	token := new(ClusterToken)
-
-	resp, err := cts.client.Do(req, token)
+	resp, err := cts.client.Do(req, ctc)
 
 	if err != nil {
-		return nil, resp, err
+		return resp, err
 	}
 
-	return token, resp, err
+	return resp, err
 }
 
 func (cts *ClusterTokensService) Delete(org, clusterID, tokenID string) (*Response, error) {
