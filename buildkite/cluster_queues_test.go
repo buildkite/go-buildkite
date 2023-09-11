@@ -203,7 +203,6 @@ func TestClusterQueuesService_Get(t *testing.T) {
 	}
 }
 
-
 func TestClusterQueuesService_Create(t *testing.T) {
 	setup()
 	defer teardown()
@@ -240,7 +239,6 @@ func TestClusterQueuesService_Create(t *testing.T) {
 	want := &ClusterQueue{
 		Key:         String("development1"),
 		Description: String("Development 1 queue"),
-
 	}
 
 	if !reflect.DeepEqual(queue, want) {
@@ -282,9 +280,9 @@ func TestClusterQueuesService_Update(t *testing.T) {
 		t.Errorf("TestClusterQueues.Update returned error: %v", err)
 	}
 
-	// Lets update the description of the cluster queue 
+	// Lets update the description of the cluster queue
 	queue.Description = String("Development 1 Team queue")
-	
+
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
 		v := new(ClusterQueueUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
@@ -392,17 +390,17 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 	queuePause := ClusterQueuePause{
 		Note: String("Pausing dispatch for the weekend"),
 	}
-	
+
 	_, err = client.ClusterQueues.Pause("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f", &queuePause)
-	
+
 	if err != nil {
 		t.Errorf("TestClusterQueues.Pause returned error: %v", err)
 	}
 
 	want := &ClusterQueue{
-		ID:          String("5cadac07-51dd-4e12-bea3-d91be4655c2f"),
-		Key:         String("development1"),
-		Description: String("Development 1 Team queue"),
+		ID:                 String("5cadac07-51dd-4e12-bea3-d91be4655c2f"),
+		Key:                String("development1"),
+		Description:        String("Development 1 Team queue"),
 		DispatchPausedNote: String("Pausing dispatch for the weekend"),
 	}
 

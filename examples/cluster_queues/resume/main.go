@@ -28,7 +28,6 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-
 	resp, err := client.ClusterQueues.Resume(*org, *clusterID, *queueID)
 
 	if err != nil {

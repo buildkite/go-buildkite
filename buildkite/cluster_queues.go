@@ -30,7 +30,7 @@ type ClusterQueue struct {
 }
 
 type ClusterQueueCreate struct {
-	Key         *string  `json:"key,omitempty" yaml:"key,omitempty"`
+	Key         *string `json:"key,omitempty" yaml:"key,omitempty"`
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 }
 
