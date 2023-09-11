@@ -1,6 +1,6 @@
 ## Unreleased
 * SUP-1353: Clusters integration [#154](https://github.com/buildkite/go-buildkite/pull/154) ([james2791](https://github.com/james2791))
-* SUP-1354: Cluster Queues integration [#156](https://github.com/buildkite/go-buildkite/pull/156) ([james2791](https://github.com/james2791))
+* SUP-1355: Cluster Tokens integration [#157](https://github.com/buildkite/go-buildkite/pull/157) ([james2791](https://github.com/james2791))
 
 ## [v3.5.0](https://github.com/buildkite/go-buildkite/compare/v3.4.0...v3.5.0) (2023-09-01)
 * Addition of issue/new feature/release templates, Codeowners [#148](https://github.com/buildkite/go-buildkite/pull/148) ([james2791](https://github.com/james2791))
