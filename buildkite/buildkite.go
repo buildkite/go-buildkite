@@ -47,6 +47,7 @@ type Client struct {
 	Artifacts     *ArtifactsService
 	Builds        *BuildsService
 	Clusters      *ClustersService
+	ClusterQueues *ClusterQueuesService
 	FlakyTests    *FlakyTestsService
 	Jobs          *JobsService
 	Organizations *OrganizationsService
@@ -84,6 +85,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Artifacts = &ArtifactsService{c}
 	c.Builds = &BuildsService{c}
 	c.Clusters = &ClustersService{c}
+	c.ClusterQueues = &ClusterQueuesService{c}
 	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}

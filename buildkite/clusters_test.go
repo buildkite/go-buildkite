@@ -71,6 +71,15 @@ func TestClustersService_List(t *testing.T) {
 	prodClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-04T04:25:55.751Z")
 	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
 
+	clusterCreator := &ClusterCreator{
+		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
+		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
+		Name:      String("Joe Smith"),
+		Email:     String("jsmith@example.com"),
+		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+		CreatedAt: NewTimestamp(userCreatedAt),
+	}
+
 	want := []Cluster{
 		{
 			ID:          String("528000d8-4ee1-4479-8af1-032b143185f0"),
@@ -83,14 +92,7 @@ func TestClustersService_List(t *testing.T) {
 			WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
 			QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues"),
 			CreatedAt:   NewTimestamp(devClusterCreatedAt),
-			CreatedBy: &ClusterCreator{
-				ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-				GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-				Name:      String("Joe Smith"),
-				Email:     String("jsmith@example.com"),
-				AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
-				CreatedAt: NewTimestamp(userCreatedAt),
-			},
+			CreatedBy:   clusterCreator,
 		},
 		{
 			ID:          String("3edcecdb-5191-44f1-a5ae-370083c8f92e"),
@@ -103,14 +105,7 @@ func TestClustersService_List(t *testing.T) {
 			WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e"),
 			QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues"),
 			CreatedAt:   NewTimestamp(prodClusterCreatedAt),
-			CreatedBy: &ClusterCreator{
-				ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-				GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-				Name:      String("Joe Smith"),
-				Email:     String("jsmith@example.com"),
-				AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
-				CreatedAt: NewTimestamp(userCreatedAt),
-			},
+			CreatedBy:   clusterCreator,
 		},
 	}
 
@@ -158,6 +153,15 @@ func TestClustersService_Get(t *testing.T) {
 	devClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z")
 	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
 
+	clusterCreator := &ClusterCreator{
+		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
+		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
+		Name:      String("Joe Smith"),
+		Email:     String("jsmith@example.com"),
+		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+		CreatedAt: NewTimestamp(userCreatedAt),
+	}
+
 	want := &Cluster{
 		ID:          String("528000d8-4ee1-4479-8af1-032b143185f0"),
 		GraphQLID:   String("Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA=="),
@@ -169,14 +173,7 @@ func TestClustersService_Get(t *testing.T) {
 		WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
 		QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues"),
 		CreatedAt:   NewTimestamp(devClusterCreatedAt),
-		CreatedBy: &ClusterCreator{
-			ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-			GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-			Name:      String("Joe Smith"),
-			Email:     String("jsmith@example.com"),
-			AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
-			CreatedAt: NewTimestamp(userCreatedAt),
-		},
+		CreatedBy:   clusterCreator,
 	}
 
 	if !reflect.DeepEqual(cluster, want) {
