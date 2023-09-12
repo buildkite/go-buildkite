@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/buildkite/go-buildkite/v3/buildkite"
 
@@ -13,7 +15,6 @@ var (
 	apiToken  = kingpin.Flag("token", "API token").Required().String()
 	org       = kingpin.Flag("org", "Orginization slug").Required().String()
 	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
-	queueID   = kingpin.Flag("queueID", "Cluster queue UUID").Required().String()
 	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
@@ -28,11 +29,17 @@ func main() {
 
 	client := buildkite.NewClient(config.Client())
 
-	resp, err := client.ClusterQueues.Delete(*org, *clusterID, *queueID)
+	tokens, _, err := client.ClusterTokens.List(*org, *clusterID, nil)
 
 	if err != nil {
-		log.Fatalf("Deleting cluster queue %s failed: %s", *queueID, err)
+		log.Fatalf("Listing cluster tokens failed: %s", err)
 	}
 
-	fmt.Println(resp.StatusCode)
+	data, err := json.MarshalIndent(tokens, "", "\t")
+
+	if err != nil {
+		log.Fatalf("json encode failed: %s", err)
+	}
+
+	fmt.Fprintf(os.Stdout, "%s", string(data))
 }
