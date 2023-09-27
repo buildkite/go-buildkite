@@ -29,6 +29,7 @@ type Team struct {
 // TeamsService.List method.
 type TeamsListOptions struct {
 	ListOptions
+	UserID string `url:"user_id,omitempty"`
 }
 
 // Get the teams for an org.
