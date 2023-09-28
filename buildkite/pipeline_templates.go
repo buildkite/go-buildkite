@@ -18,7 +18,7 @@ type PipelineTemplate struct {
 	GraphQLID     *string                  `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	Name          *string                  `json:"name,omitempty" yaml:"name,omitempty"`
 	Description   *string                  `json:"description,omitempty" yaml:"description,omitempty"`
-	Configuration string                   `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Configuration *string                   `json:"configuration,omitempty" yaml:"configuration,omitempty"`
 	Available     *bool                    `json:"available,omitempty" yaml:"available,omitempty"`
 	URL           *string                  `json:"url,omitempty" yaml:"url,omitempty"`
 	WebURL        *string                  `json:"web_url,omitempty" yaml:"web_url,omitempty"`
