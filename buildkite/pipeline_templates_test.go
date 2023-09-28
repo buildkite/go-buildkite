@@ -33,7 +33,7 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 						"email": "jsmith@example.com",
 						"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 						"created_at": "2023-02-20T03:00:05.824Z"
-					}
+					},
 					"updated_at": "2023-08-11T01:22:05.650Z",
 					"updated_by": {
 						"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
@@ -61,7 +61,7 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 						"email": "jsmith@example.com",
 						"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 						"created_at": "2023-02-20T03:00:05.824Z"
-					}
+					},
 					"updated_at": "2023-08-11T02:24:33.602Z",
 					"updated_by": {
 						"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
@@ -73,7 +73,7 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 					},
 					"url": "https://api.buildkite.com/v2/organizations/my-great-org/pipeline-templates/6a25cc85-9fa2-4a00-b66c-bfe377bc5f78",
 					"web_url": "https://buildkite.com/organizations/my-great-org/pipeline-templates/6a25cc85-9fa2-4a00-b66c-bfe377bc5f78"
-				},
+				}
 			]`)
 	})
 
