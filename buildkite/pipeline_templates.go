@@ -75,7 +75,7 @@ func (pts *PipelineTemplatesService) List(org string, opt *PipelineTemplateListO
 	return *templates, resp, err
 }
 
-func (pts *PipelineTemplatesService) Get(org, templateUUID string, opt *PipelineTemplateListOptions) (*PipelineTemplate, *Response, error) {
+func (pts *PipelineTemplatesService) Get(org, templateUUID string) (*PipelineTemplate, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 
