@@ -344,3 +344,18 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 		t.Errorf("TestPipelineTemplates.Update returned %+v, want %+v", pipelineTemplate, want)
 	}
 }
+
+func TestPipelineTemplatesService_Delete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/19dbd05a-96d7-430f-bac0-14b791558562", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.PipelineTemplates.Delete("my-great-org", "19dbd05a-96d7-430f-bac0-14b791558562")
+
+	if err != nil {
+		t.Errorf("TestPipelineTemplates.Delete returned error: %v", err)
+	}
+}
