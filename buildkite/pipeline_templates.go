@@ -1,14 +1,14 @@
 package buildkite
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 // PipelineTemplatesService handles communication with pipeline template related
 // methods of the Buildkite API.
 //
-// Buildkite API docs: <to-fill> 
+// Buildkite API docs: <to-fill>
 type PipelineTemplatesService struct {
 	client *Client
 }
@@ -18,7 +18,7 @@ type PipelineTemplate struct {
 	GraphQLID     *string                  `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
 	Name          *string                  `json:"name,omitempty" yaml:"name,omitempty"`
 	Description   *string                  `json:"description,omitempty" yaml:"description,omitempty"`
-	Configuration *string                   `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Configuration *string                  `json:"configuration,omitempty" yaml:"configuration,omitempty"`
 	Available     *bool                    `json:"available,omitempty" yaml:"available,omitempty"`
 	URL           *string                  `json:"url,omitempty" yaml:"url,omitempty"`
 	WebURL        *string                  `json:"web_url,omitempty" yaml:"web_url,omitempty"`
@@ -29,8 +29,8 @@ type PipelineTemplate struct {
 }
 
 type PipelineTemplateCreateUpdate struct {
-	Name          *string  `json:"name,omitempty" yaml:"name,omitempty"`
-	Configuration *string  `json:"configuration,omitempty" yaml:"configuration,omitempty"`
+	Name          *string `json:"name,omitempty" yaml:"name,omitempty"`
+	Configuration *string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
 	Description   *string `json:"description,omitempty" yaml:"description,omitempty"`
 	Available     *bool   `json:"available,omitempty" yaml:"available,omitempty"`
 }
@@ -121,13 +121,13 @@ func (pts *PipelineTemplatesService) Create(org string, ptc *PipelineTemplateCre
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Update(org string, ptu *PipelineTemplateCreateUpdate) (*Response, error) {
+func (pts *PipelineTemplatesService) Update(org, templateUUID string, ptu *PipelineTemplateCreateUpdate) (*Response, error) {
 
 	if ptu == nil {
 		return nil, errors.New("PipelineTemplateCreateUpdate struct instance must not be nil")
 	}
 
-	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates", org)
+	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 
 	req, err := pts.client.NewRequest("PATCH", u, ptu)
 
