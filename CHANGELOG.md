@@ -1,5 +1,8 @@
 ## Unreleased
-* Add support for `user_id` query string parameter when loading teams
+
+## [v3.7.0](https://github.com/buildkite/go-buildkite/compare/v3.6.0...v3.7.0) (2023-10-31)
+* Add support for `user_id` query string parameter when loading teams [#159](https://github.com/buildkite/go-buildkite/pull/159) ([mwgamble](https://github.com/mwgamble))
+* jobs: add cluster_id and cluster_queue_id to job [#160](https://github.com/buildkite/go-buildkite/pull/160) ([gmichelo](https://github.com/gmichelo))
 
 ## [v3.6.0](https://github.com/buildkite/go-buildkite/compare/v3.5.0...v3.6.0) (2023-09-18)
 * SUP-1353: Clusters integration [#154](https://github.com/buildkite/go-buildkite/pull/154) ([james2791](https://github.com/james2791))
