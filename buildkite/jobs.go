@@ -46,6 +46,8 @@ type Job struct {
 	UnblockURL         *string      `json:"unblock_url,omitempty" yaml:"unblock_url,omitempty"`
 	ParallelGroupIndex *int         `json:"parallel_group_index,omitempty" yaml:"parallel_group_index,omitempty"`
 	ParallelGroupTotal *int         `json:"parallel_group_total,omitempty" yaml:"parallel_group_total,omitempty"`
+	ClusterID          *string      `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
+	ClusterQueueID     *string      `json:"cluster_queue_id,omitempty" yaml:"cluster_queue_id,omitempty"`
 }
 
 // UnblockedBy represents the unblocked status of a job, when present
