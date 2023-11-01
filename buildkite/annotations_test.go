@@ -86,15 +86,15 @@ func TestAnnotationsService_Create(t *testing.T) {
 			`
 			{
 				"id": "68aef727-f754-48e1-aad8-5f5da8a9960c",
-				"context": "coverage",
+				"context": "default",
 				"style": "info",
-				"body_html": "Read the <a href=\"artifact://coverage/index.html\">uploaded coverage report</a>",
+				"body_html": "<h1>My Markdown Heading</h1>\n<p>An example annotation!</p>",
 				"created_at": "2023-08-21T08:50:05.824Z",
-				"created_at": "2023-08-21T08:50:05.824Z",
+				"updated_at": "2023-08-21T08:50:05.824Z"
 			}`)
 	})
 
-	annotation, _, err := client.Annotations.Create("my-great-org", "1", input)
+	annotation, _, err := client.Annotations.Create("my-great-org", "4d8189ea-10eb-478d-8353-64d36a73f8fb", input)
 
 	if err != nil {
 		t.Errorf("TestAnnotations.Create returned error: %v", err)
