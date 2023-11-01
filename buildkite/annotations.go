@@ -22,6 +22,13 @@ type Annotation struct {
 	UpdatedAt *Timestamp `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
 }
 
+type AnnotationCreate struct {
+	Body	  *string	 `json:"body,omitempty" yaml:"body,omitempty"`
+	Context   *string    `json:"context,omitempty" yaml:"context,omitempty"`
+	Style     *string    `json:"style,omitempty" yaml:"style,omitempty"`
+	Append	  *bool		 `json:"append,omitempty" yaml:"append,omitempty"`
+}
+
 // AnnotationListOptions specifies the optional parameters to the
 // AnnoationsService.List method.
 type AnnotationListOptions struct {
@@ -51,4 +58,25 @@ func (as *AnnotationsService) ListByBuild(org string, pipeline string, build str
 		return nil, resp, err
 	}
 	return *annotations, resp, err
+}
+
+func (as *AnnotationsService) Create(org, build string, ac *AnnotationCreate) (*Annotation, *Response, error) {
+
+	u := fmt.Sprintf("v2/organizations/%s/builds/%s/annotations", org, build)
+
+	req, err := as.client.NewRequest("POST", u, ac)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	annotation := new(Annotation)
+
+	resp, err := as.client.Do(req, annotation)
+
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return annotation, resp, err
 }
