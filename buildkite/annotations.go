@@ -60,9 +60,9 @@ func (as *AnnotationsService) ListByBuild(org string, pipeline string, build str
 	return *annotations, resp, err
 }
 
-func (as *AnnotationsService) Create(org, buildID string, ac *AnnotationCreate) (*Annotation, *Response, error) {
+func (as *AnnotationsService) Create(org, pipeline, build string, ac *AnnotationCreate) (*Annotation, *Response, error) {
 
-	u := fmt.Sprintf("v2/organizations/%s/builds/%s/annotations", org, buildID)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/annotations", org, pipeline, build)
 
 	req, err := as.client.NewRequest("POST", u, ac)
 

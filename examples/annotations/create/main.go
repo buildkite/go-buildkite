@@ -14,7 +14,8 @@ import (
 var (
 	apiToken  = kingpin.Flag("token", "API token").Required().String()
 	org       = kingpin.Flag("org", "Orginization slug").Required().String()
-	buildID   = kingpin.Flag("buildID", "Build UUID").Required().String()
+	slug      = kingpin.Flag("slug", "Pipeline slug").Required().String()
+	number    = kingpin.Flag("number", "Build number").Required().String()
 	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
@@ -36,10 +37,10 @@ func main() {
 		Append: 	 buildkite.Bool(false),
 	}
 
-	annotation, _, err := client.Annotations.Create(*org, *buildID, &annotationCreate)
+	annotation, _, err := client.Annotations.Create(*org, *slug, *number, &annotationCreate)
 
 	if err != nil {
-		log.Fatalf("Creating annotation failed: %s", err)
+		log.Fatalf("Listing annotations for build %s in pipeline %s failed: %s", *number, *slug, err)
 	}
 
 	data, err := json.MarshalIndent(annotation, "", "\t")

@@ -72,7 +72,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 		Append: 	 Bool(false),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/builds/4d8189ea-10eb-478d-8353-64d36a73f8fb/annotations", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline/builds/10/annotations", func(w http.ResponseWriter, r *http.Request) {
 		v := new(AnnotationCreate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -94,7 +94,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 			}`)
 	})
 
-	annotation, _, err := client.Annotations.Create("my-great-org", "4d8189ea-10eb-478d-8353-64d36a73f8fb", input)
+	annotation, _, err := client.Annotations.Create("my-great-org", "my-great-pipeline", "10", input)
 
 	if err != nil {
 		t.Errorf("TestAnnotations.Create returned error: %v", err)
