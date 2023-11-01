@@ -72,7 +72,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 		Append: 	 Bool(false),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/builds/1/annotations", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/organizations/my-great-org/builds/4d8189ea-10eb-478d-8353-64d36a73f8fb/annotations", func(w http.ResponseWriter, r *http.Request) {
 		v := new(AnnotationCreate)
 		json.NewDecoder(r.Body).Decode(&v)
 
