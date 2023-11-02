@@ -1,4 +1,5 @@
 ## Unreleased
+* SUP-1537: Annotations create endpoint interaction [#163](https://github.com/buildkite/go-buildkite/pull/163) ([james2791](https://github.com/james2791))
 
 ## [v3.7.0](https://github.com/buildkite/go-buildkite/compare/v3.6.0...v3.7.0) (2023-10-31)
 * Add support for `user_id` query string parameter when loading teams [#159](https://github.com/buildkite/go-buildkite/pull/159) ([mwgamble](https://github.com/mwgamble))
