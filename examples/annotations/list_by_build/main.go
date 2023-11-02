@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	apiToken  = kingpin.Flag("token", "API token").Required().String()
-	org       = kingpin.Flag("org", "Orginization slug").Required().String()
-	slug      = kingpin.Flag("slug", "Pipeline slug").Required().String()
-	number    = kingpin.Flag("number", "Build number").Required().String()
-	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
+	apiToken = kingpin.Flag("token", "API token").Required().String()
+	org      = kingpin.Flag("org", "Orginization slug").Required().String()
+	slug     = kingpin.Flag("slug", "Pipeline slug").Required().String()
+	number   = kingpin.Flag("number", "Build number").Required().String()
+	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {

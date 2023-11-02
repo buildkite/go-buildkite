@@ -23,10 +23,10 @@ type Annotation struct {
 }
 
 type AnnotationCreate struct {
-	Body	  *string	 `json:"body,omitempty" yaml:"body,omitempty"`
-	Context   *string    `json:"context,omitempty" yaml:"context,omitempty"`
-	Style     *string    `json:"style,omitempty" yaml:"style,omitempty"`
-	Append	  *bool		 `json:"append,omitempty" yaml:"append,omitempty"`
+	Body    *string `json:"body,omitempty" yaml:"body,omitempty"`
+	Context *string `json:"context,omitempty" yaml:"context,omitempty"`
+	Style   *string `json:"style,omitempty" yaml:"style,omitempty"`
+	Append  *bool   `json:"append,omitempty" yaml:"append,omitempty"`
 }
 
 // AnnotationListOptions specifies the optional parameters to the

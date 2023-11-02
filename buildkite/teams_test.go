@@ -46,7 +46,7 @@ func TestTeamsService_ListForUser(t *testing.T) {
 	}
 
 	want := []Team{{ID: String("123")}}
-	if ! reflect.DeepEqual(teams, want) {
+	if !reflect.DeepEqual(teams, want) {
 		t.Errorf("Teams.List returned %+v, want %+v", teams, want)
 	}
 }

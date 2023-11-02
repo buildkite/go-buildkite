@@ -66,10 +66,10 @@ func TestAnnotationsService_Create(t *testing.T) {
 	defer teardown()
 
 	input := &AnnotationCreate{
-		Style:       String("info"),
-		Context:   	 String("default"),
-		Body:        String("<h1>My Markdown Heading</h1>\n<p>An example annotation!</p>"),
-		Append: 	 Bool(false),
+		Style:   String("info"),
+		Context: String("default"),
+		Body:    String("<h1>My Markdown Heading</h1>\n<p>An example annotation!</p>"),
+		Append:  Bool(false),
 	}
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline/builds/10/annotations", func(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +116,3 @@ func TestAnnotationsService_Create(t *testing.T) {
 		t.Errorf("TestAnnotations.Create returned %+v, want %+v", annotation, want)
 	}
 }
-
-
-
