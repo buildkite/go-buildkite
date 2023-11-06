@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	apiToken  = kingpin.Flag("token", "API token").Required().String()
-	org       = kingpin.Flag("org", "Orginization slug").Required().String()
+	apiToken     = kingpin.Flag("token", "API token").Required().String()
+	org          = kingpin.Flag("org", "Orginization slug").Required().String()
 	templateUUID = kingpin.Flag("templateUUID", "Cluster UUID").Required().String()
-	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
+	debug        = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
