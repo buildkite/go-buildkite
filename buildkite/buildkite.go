@@ -41,23 +41,24 @@ type Client struct {
 	UserAgent string
 
 	// Services used for talking to different parts of the buildkite API.
-	AccessTokens  *AccessTokensService
-	Agents        *AgentsService
-	Annotations   *AnnotationsService
-	Artifacts     *ArtifactsService
-	Builds        *BuildsService
-	Clusters      *ClustersService
-	ClusterQueues *ClusterQueuesService
-	ClusterTokens *ClusterTokensService
-	FlakyTests    *FlakyTestsService
-	Jobs          *JobsService
-	Organizations *OrganizationsService
-	Pipelines     *PipelinesService
-	User          *UserService
-	Teams         *TeamsService
-	Tests         *TestsService
-	TestRuns      *TestRunsService
-	TestSuites    *TestSuitesService
+	AccessTokens      *AccessTokensService
+	Agents            *AgentsService
+	Annotations       *AnnotationsService
+	Artifacts         *ArtifactsService
+	Builds            *BuildsService
+	Clusters          *ClustersService
+	ClusterQueues     *ClusterQueuesService
+	ClusterTokens     *ClusterTokensService
+	FlakyTests        *FlakyTestsService
+	Jobs              *JobsService
+	Organizations     *OrganizationsService
+	Pipelines         *PipelinesService
+	PipelineTemplates *PipelineTemplatesService
+	User              *UserService
+	Teams             *TeamsService
+	Tests             *TestsService
+	TestRuns          *TestRunsService
+	TestSuites        *TestSuitesService
 }
 
 // ListOptions specifies the optional parameters to various List methods that
@@ -92,6 +93,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.Pipelines = &PipelinesService{c}
+	c.PipelineTemplates = &PipelineTemplatesService{c}
 	c.User = &UserService{c}
 	c.Teams = &TeamsService{c}
 	c.Tests = &TestsService{c}
