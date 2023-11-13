@@ -1,4 +1,7 @@
 ## Unreleased
+- N/A
+
+## [v3.9.0](https://github.com/buildkite/go-buildkite/compare/v3.8.0...v3.9.0) (2023-11-14)
 * SUP-1448: Pipeline Templates integration [#165](https://github.com/buildkite/go-buildkite/pull/165) ([james2791](https://github.com/james2791))
 
 ## [v3.8.0](https://github.com/buildkite/go-buildkite/compare/v3.7.0...v3.8.0) (2023-11-02)
