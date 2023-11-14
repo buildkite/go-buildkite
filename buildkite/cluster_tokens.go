@@ -22,6 +22,7 @@ type ClusterToken struct {
 	ClusterURL         *string         `json:"cluster_url,omitempty" yaml:"cluster_url,omitempty"`
 	CreatedAt          *Timestamp      `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	CreatedBy          *ClusterCreator `json:"created_by,omitempty" yaml:"created_by,omitempty"`
+	Token              *string         `json:"token,omitempty" yaml:"token,omitempty"`
 }
 
 type ClusterTokenCreateUpdate struct {
