@@ -1,6 +1,9 @@
 ## Unreleased
 - N/A
 
+## [v3.10.0](https://github.com/buildkite/go-buildkite/compare/v3.9.0...v3.10.0) (2023-11-15)
+* cluster_tokens: expose token string [#168](https://github.com/buildkite/go-buildkite/pull/168) ([gmichelo](https://github.com/gmichelo))
+
 ## [v3.9.0](https://github.com/buildkite/go-buildkite/compare/v3.8.0...v3.9.0) (2023-11-14)
 * SUP-1448: Pipeline Templates integration [#165](https://github.com/buildkite/go-buildkite/pull/165) ([james2791](https://github.com/james2791))
 
