@@ -16,8 +16,9 @@ type BuildsService struct {
 
 // Author of a commit (used in CreateBuild)
 type Author struct {
-	Name  string `json:"name,omitempty" yaml:"name,omitempty"`
-	Email string `json:"email,omitempty" yaml:"email,omitempty"`
+	Username string `json:"username,omitempty" yaml:"username,omitempty"`
+	Name     string `json:"name,omitempty" yaml:"name,omitempty"`
+	Email    string `json:"email,omitempty" yaml:"email,omitempty"`
 }
 
 // CreateBuild - Create a build.
