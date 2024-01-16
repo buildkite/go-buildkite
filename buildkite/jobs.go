@@ -50,6 +50,7 @@ type Job struct {
 	ParallelGroupTotal *int            `json:"parallel_group_total,omitempty" yaml:"parallel_group_total,omitempty"`
 	ClusterID          *string         `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	ClusterQueueID     *string         `json:"cluster_queue_id,omitempty" yaml:"cluster_queue_id,omitempty"`
+	TriggeredBuild     *TriggeredBuild `json:"triggered_build,omitempty" yaml:"triggered_build,omitempty"`
 }
 
 // JobRetrySource represents what triggered this retry.
@@ -83,6 +84,13 @@ type JobLog struct {
 // JobEnvs represent job environments output
 type JobEnvs struct {
 	EnvironmentVariables *map[string]string `json:"env,string" yaml:"env,string"`
+}
+
+type TriggeredBuild struct {
+	ID     *string `json:"id,omitempty" yaml:"id,omitempty"`
+	Number *int    `json:"number,omitempty" yaml:"number,omitempty"`
+	URL    *string `json:"url,omitempty" yaml:"url,omitempty"`
+	WebURL *string `json:"web_url,omitempty" yaml:"web_url,omitempty"`
 }
 
 // UnblockJob - unblock a job
