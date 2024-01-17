@@ -336,6 +336,11 @@ func TestBuildsUnmarshalWebhook(t *testing.T) {
     "branch": "master",
     "tag": null,
     "source": "ui",
+    "author": {
+		"username": "foojim",
+		"name": "Uhh, Jim",
+		"email": "slam@space.jam"
+	  },	
     "creator": {
       "id": "foo",
       "name": "Uhh, Jim",
