@@ -1,5 +1,5 @@
 ## Unreleased
-- N/A
+* Expose retry_source and retry_type on jobs [#171](https://github.com/buildkite/go-buildkite/pull/171) ([drcapulet](https://github.com/drcapulet))
 
 ## [v3.10.0](https://github.com/buildkite/go-buildkite/compare/v3.9.0...v3.10.0) (2023-11-15)
 * cluster_tokens: expose token string [#168](https://github.com/buildkite/go-buildkite/pull/168) ([gmichelo](https://github.com/gmichelo))

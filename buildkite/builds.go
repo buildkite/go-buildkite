@@ -16,8 +16,9 @@ type BuildsService struct {
 
 // Author of a commit (used in CreateBuild)
 type Author struct {
-	Name  string `json:"name,omitempty" yaml:"name,omitempty"`
-	Email string `json:"email,omitempty" yaml:"email,omitempty"`
+	Username string `json:"username,omitempty" yaml:"username,omitempty"`
+	Name     string `json:"name,omitempty" yaml:"name,omitempty"`
+	Email    string `json:"email,omitempty" yaml:"email,omitempty"`
 }
 
 // CreateBuild - Create a build.
@@ -60,6 +61,12 @@ type PullRequest struct {
 	Repository *string `json:"repository,omitempty" yaml:"repository,omitempty"`
 }
 
+type TriggeredFrom struct {
+	BuildID           *string `json:"build_id,omitempty" yaml:"build_id,omitempty"`
+	BuildNumber       *int    `json:"build_number,omitempty" yaml:"build_number,omitempty"`
+	BuildPipelineSlug *string `json:"build_pipeline_slug,omitempty" yaml:"build_pipeline_slug,omitempty"`
+}
+
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          *string                `json:"id,omitempty" yaml:"id,omitempty"`
@@ -93,6 +100,10 @@ type Build struct {
 
 	// the pull request this build is associated with
 	PullRequest *PullRequest `json:"pull_request,omitempty" yaml:"pull_request,omitempty"`
+
+	// the build that this build is triggered from
+	// https://buildkite.com/docs/pipelines/trigger-step
+	TriggeredFrom *TriggeredFrom `json:"triggered_from,omitempty" yaml:"triggered_from,omitempty"`
 }
 
 type MetaDataFilters struct {
