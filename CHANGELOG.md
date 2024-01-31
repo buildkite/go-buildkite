@@ -1,5 +1,8 @@
 ## Unreleased
 * Expose retry_source and retry_type on jobs [#171](https://github.com/buildkite/go-buildkite/pull/171) ([drcapulet](https://github.com/drcapulet))
+* Expose additional webhook fields on builds and jobs [#173](https://github.com/buildkite/go-buildkite/pull/173) ([mstifflin](https://github.com/mstifflin))
+* SUP-1697 Add username to Author struct [#174](https://github.com/buildkite/go-buildkite/pull/174) ([lizrabuya](https://github.com/lizrabuya))
+* SUP-1681: Webhook event type definition for struct literal creation [#175](https://github.com/buildkite/go-buildkite/pull/175) ([james2791](https://github.com/james2791))
 
 ## [v3.10.0](https://github.com/buildkite/go-buildkite/compare/v3.9.0...v3.10.0) (2023-11-15)
 * cluster_tokens: expose token string [#168](https://github.com/buildkite/go-buildkite/pull/168) ([gmichelo](https://github.com/gmichelo))
