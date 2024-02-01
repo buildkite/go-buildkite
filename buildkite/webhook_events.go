@@ -3,7 +3,7 @@ package buildkite
 // agentEvent is a wrapper for an agent event notification
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
-type agentEvent struct {
+type AgentEvent struct {
 	Event  *string `json:"event"`
 	Agent  *Agent  `json:"agent"`
 	Sender *User   `json:"sender"`
@@ -13,41 +13,41 @@ type agentEvent struct {
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
 type AgentConnectedEvent struct {
-	agentEvent
+	AgentEvent
 }
 
 // AgentDisconnectedEvent is triggered when an agent has disconnected.
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
 type AgentDisconnectedEvent struct {
-	agentEvent
+	AgentEvent
 }
 
 // AgentLostEvent is triggered when an agent has been marked as lost.
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
 type AgentLostEvent struct {
-	agentEvent
+	AgentEvent
 }
 
 // AgentStoppedEvent is triggered when an agent has stopped.
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
 type AgentStoppedEvent struct {
-	agentEvent
+	AgentEvent
 }
 
 // AgentStoppingEvent is triggered when an agent is stopping.
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
 type AgentStoppingEvent struct {
-	agentEvent
+	AgentEvent
 }
 
 // buildEvent is a wrapper for a build event notification
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
-type buildEvent struct {
+type BuildEvent struct {
 	Event    *string   `json:"event"`
 	Build    *Build    `json:"build"`
 	Pipeline *Pipeline `json:"pipeline"`
@@ -58,34 +58,34 @@ type buildEvent struct {
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
 type BuildFailingEvent struct {
-	buildEvent
+	BuildEvent
 }
 
 // BuildFinishedEvent is triggered when a build finishes
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
 type BuildFinishedEvent struct {
-	buildEvent
+	BuildEvent
 }
 
 // BuildRunningEvent is triggered when a build starts running
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
 type BuildRunningEvent struct {
-	buildEvent
+	BuildEvent
 }
 
 // BuildScheduledEvent is triggered when a build is scheduled
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
 type BuildScheduledEvent struct {
-	buildEvent
+	BuildEvent
 }
 
 // jobEvent is a wrapper for a job event notification
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/job-events
-type jobEvent struct {
+type JobEvent struct {
 	Event    *string   `json:"event"`
 	Build    *Build    `json:"build"`
 	Job      *Job      `json:"job"`
@@ -97,28 +97,28 @@ type jobEvent struct {
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/job-events
 type JobActivatedEvent struct {
-	jobEvent
+	JobEvent
 }
 
 // JobFinishedEvent is triggered when a job is finished
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/job-events
 type JobFinishedEvent struct {
-	jobEvent
+	JobEvent
 }
 
 // JobScheduledEvent is triggered when a job is scheduled
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/job-events
 type JobScheduledEvent struct {
-	jobEvent
+	JobEvent
 }
 
 // JobStartedEvent is triggered when a job is started
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/job-events
 type JobStartedEvent struct {
-	jobEvent
+	JobEvent
 }
 
 // PingEvent is triggered when a webhook notification setting is changed
