@@ -51,6 +51,7 @@ type Job struct {
 	ClusterID          *string         `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	ClusterQueueID     *string         `json:"cluster_queue_id,omitempty" yaml:"cluster_queue_id,omitempty"`
 	TriggeredBuild     *TriggeredBuild `json:"triggered_build,omitempty" yaml:"triggered_build,omitempty"`
+	Priority           *JobPriority    `json:"priority" yaml:"priority,omitempty"`
 }
 
 // JobRetrySource represents what triggered this retry.
@@ -91,6 +92,11 @@ type TriggeredBuild struct {
 	Number *int    `json:"number,omitempty" yaml:"number,omitempty"`
 	URL    *string `json:"url,omitempty" yaml:"url,omitempty"`
 	WebURL *string `json:"web_url,omitempty" yaml:"web_url,omitempty"`
+}
+
+// JobPriority represents the priority of the job
+type JobPriority struct {
+	Number *int `json:"number,omitempty" yaml:"number,omitempty"`
 }
 
 // UnblockJob - unblock a job
