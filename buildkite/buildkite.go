@@ -57,6 +57,7 @@ type Client struct {
 	User              *UserService
 	Teams             *TeamsService
 	Tests             *TestsService
+	TestPlans					*TestPlansService
 	TestRuns          *TestRunsService
 	TestSuites        *TestSuitesService
 }
@@ -97,6 +98,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.User = &UserService{c}
 	c.Teams = &TeamsService{c}
 	c.Tests = &TestsService{c}
+	c.TestPlans = &TestPlansService{c}
 	c.TestRuns = &TestRunsService{c}
 	c.TestSuites = &TestSuitesService{c}
 
