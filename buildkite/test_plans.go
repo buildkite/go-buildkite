@@ -29,7 +29,6 @@ type TestPlan struct {
 
 func (tps *TestPlansService) Get(org, slug string, identifier string) (*TestPlan, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/test_plan?identifier=%s", org, slug, identifier)
-	fmt.Printf(u)
 
 	req, err := tps.client.NewRequest("GET", u, nil)
 
