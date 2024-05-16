@@ -19,7 +19,6 @@ type Tests struct {
 type Task struct {
 	NodeNumber *int   `json:"node_number,omitempty" yaml:"node_number,omitempty"`
 	Tests      *Tests `json:"tests,omitempty" yaml:"tests,omitempty"`
-
 }
 
 type TestPlan struct {
