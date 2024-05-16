@@ -57,7 +57,7 @@ type Client struct {
 	User              *UserService
 	Teams             *TeamsService
 	Tests             *TestsService
-	TestPlans					*TestPlansService
+	TestPlans         *TestPlansService
 	TestRuns          *TestRunsService
 	TestSuites        *TestSuitesService
 }
