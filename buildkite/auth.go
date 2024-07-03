@@ -10,6 +10,7 @@ import (
 type TokenAuthTransport struct {
 	APIToken  string
 	APIHost   string
+	UserAgent string
 	Transport http.RoundTripper
 }
 
@@ -17,6 +18,9 @@ type TokenAuthTransport struct {
 func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.URL.Host == t.APIHost || t.APIHost == "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.APIToken))
+		if t.UserAgent != "" {
+			req.Header.Set("User-Agent", t.UserAgent)
+		}
 	}
 	return t.transport().RoundTrip(req)
 }
@@ -42,6 +46,14 @@ func NewTokenConfig(apiToken string, debug bool) (*TokenAuthTransport, error) {
 		return nil, fmt.Errorf("Invalid token, empty string supplied")
 	}
 	return &TokenAuthTransport{APIToken: apiToken}, nil
+}
+
+// NewTokenConfigWithUA configure authentication using an API token and user agent
+func NewTokenConfigWithUA(apiToken, userAgent string) (*TokenAuthTransport, error) {
+	if apiToken == "" {
+		return nil, fmt.Errorf("Invalid token, empty string supplied")
+	}
+	return &TokenAuthTransport{APIToken: apiToken, UserAgent: userAgent}, nil
 }
 
 // BasicAuthTransport manages injection of the authorization header
