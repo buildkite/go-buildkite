@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -58,16 +59,75 @@ type Client struct {
 	Tests             *TestsService
 	TestRuns          *TestRunsService
 	TestSuites        *TestSuitesService
+
+	authHeader string
 }
 
-// ListOptions specifies the optional parameters to various List methods that
-// support pagination.
-type ListOptions struct {
-	// For paginated result sets, page of results to retrieve.
-	Page int `url:"page,omitempty"`
+type clientOpt func(*Client) error
 
-	// For paginated result sets, the number of results to include per page.
-	PerPage int `url:"per_page,omitempty"`
+func WithHTTPClient(client *http.Client) clientOpt {
+	return func(c *Client) error {
+		c.client = client
+		return nil
+	}
+}
+
+func WithBaseURL(baseURL string) clientOpt {
+	return func(c *Client) error {
+		var err error
+		c.BaseURL, err = url.Parse(baseURL)
+		if err != nil {
+			return fmt.Errorf("failed to parse baseURL: %w", err)
+		}
+
+		return nil
+	}
+}
+
+func WithUserAgent(userAgent string) clientOpt {
+	return func(c *Client) error {
+		c.UserAgent = userAgent
+		return nil
+	}
+}
+
+func WithTokenAuth(token string) clientOpt {
+	return func(c *Client) error {
+		c.authHeader = fmt.Sprintf("Bearer %s", token)
+		return nil
+	}
+}
+
+func WithBasicAuth(username, password string) clientOpt {
+	return func(c *Client) error {
+		auth := fmt.Sprintf("%s:%s", username, password)
+		c.authHeader = "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
+		return nil
+	}
+}
+
+// NewOpts returns a new buildkite API client with the provided options.
+// Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided.
+// Otherwise, sensible defaults are used.
+func NewOpts(opts ...clientOpt) (*Client, error) {
+	baseURL, _ := url.Parse(defaultBaseURL)
+
+	c := &Client{
+		client:    http.DefaultClient,
+		BaseURL:   baseURL,
+		UserAgent: userAgent,
+	}
+
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, fmt.Errorf("failed to apply client option: %w", err)
+		}
+	}
+
+	c.populateDefaultServices()
+
+	return c, nil
 }
 
 // NewClient returns a new buildkite API client. As API calls require authentication
@@ -80,6 +140,22 @@ func NewClient(httpClient *http.Client) *Client {
 		BaseURL:   baseURL,
 		UserAgent: userAgent,
 	}
+
+	c.populateDefaultServices()
+
+	if c.client != nil {
+		if tokenAuth, ok := c.client.Transport.(*TokenAuthTransport); ok {
+			tokenAuth.APIHost = baseURL.Host
+		}
+
+		if basicAuth, ok := c.client.Transport.(*BasicAuthTransport); ok {
+			basicAuth.APIHost = baseURL.Host
+		}
+	}
+	return c
+}
+
+func (c *Client) populateDefaultServices() {
 	c.AccessTokens = &AccessTokensService{c}
 	c.Agents = &AgentsService{c}
 	c.Annotations = &AnnotationsService{c}
@@ -98,17 +174,6 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Tests = &TestsService{c}
 	c.TestRuns = &TestRunsService{c}
 	c.TestSuites = &TestSuitesService{c}
-
-	if c.client != nil {
-		if tokenAuth, ok := c.client.Transport.(*TokenAuthTransport); ok {
-			tokenAuth.APIHost = baseURL.Host
-		}
-
-		if basicAuth, ok := c.client.Transport.(*BasicAuthTransport); ok {
-			basicAuth.APIHost = baseURL.Host
-		}
-	}
-	return c
 }
 
 // SetHttpDebug this enables global http request/response dumping for this API
@@ -143,6 +208,10 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+
+	if c.authHeader != "" {
+		req.Header.Set("Authorization", c.authHeader)
+	}
 
 	if c.UserAgent != "" {
 		req.Header.Add("User-Agent", c.UserAgent)
@@ -362,4 +431,14 @@ func Bool(v bool) *bool {
 	p := new(bool)
 	*p = v
 	return p
+}
+
+// ListOptions specifies the optional parameters to various List methods that
+// support pagination.
+type ListOptions struct {
+	// For paginated result sets, page of results to retrieve.
+	Page int `url:"page,omitempty"`
+
+	// For paginated result sets, the number of results to include per page.
+	PerPage int `url:"per_page,omitempty"`
 }

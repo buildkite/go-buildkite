@@ -1,7 +1,8 @@
 package buildkite
 
 import (
-	"io/ioutil"
+	"encoding/base64"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -97,7 +98,7 @@ func TestNewRequest(t *testing.T) {
 	}
 
 	// test that body was JSON encoded
-	body, _ := ioutil.ReadAll(req.Body)
+	body, _ := io.ReadAll(req.Body)
 	if got, want := string(body), outBody; got != want {
 		t.Errorf("NewRequest(%v) Body is %v, want %v", inBody, got, want)
 	}
@@ -110,6 +111,33 @@ func TestNewRequest(t *testing.T) {
 	// test that default user-agent is attached to the request
 	if got, want := req.Header.Get("User-Agent"), c.UserAgent; got != want {
 		t.Errorf("NewRequest() User-Agent is %v, want %v", got, want)
+	}
+}
+
+func TestNewRequest_WhenBasicAuthIsConfigured_AddsBasicAuthToHeaders(t *testing.T) {
+	c, err := NewOpts(WithBasicAuth("shirley_dander", "hunter2"))
+	if err != nil {
+		t.Fatalf("unexpected NewOpts() error: %v", err)
+	}
+	encodedAuth := base64.StdEncoding.EncodeToString([]byte("shirley_dander:hunter2"))
+
+	req, _ := c.NewRequest("GET", "/foo", nil)
+
+	expectedAuthString := "Basic " + encodedAuth
+	if got, want := req.Header.Get("Authorization"), expectedAuthString; got != want {
+		t.Errorf("NewRequest() Authorization is %v, want %v", got, want)
+	}
+}
+
+func TestNewRequest_WhenTokenAuthIsConfigured_AddsBearerTokenToHeaders(t *testing.T) {
+	c, err := NewOpts(WithTokenAuth("hunter2"))
+	if err != nil {
+		t.Fatalf("unexpected NewOpts() error: %v", err)
+	}
+	req, _ := c.NewRequest("GET", "/foo", nil)
+
+	if got, want := req.Header.Get("Authorization"), "Bearer hunter2"; got != want {
+		t.Errorf("NewRequest() Authorization is %v, want %v", got, want)
 	}
 }
 
