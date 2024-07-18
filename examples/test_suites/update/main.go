@@ -18,13 +18,10 @@ var (
 func main() {
 	kingpin.Parse()
 
-	config, err := buildkite.NewTokenConfig(*apiToken, *debug)
-
+	client, err := buildkite.NewOpts(buildkite.WithTokenAuth(*apiToken))
 	if err != nil {
-		log.Fatalf("client config failed: %s", err)
+		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
-
-	client := buildkite.NewClient(config.Client())
 
 	suiteUpdate := buildkite.TestSuite{
 		DefaultBranch: buildkite.String("test"),
