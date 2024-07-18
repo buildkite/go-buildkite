@@ -3,7 +3,7 @@ package buildkite
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 	"strings"
@@ -101,7 +101,7 @@ func TestAgentsService_Stop(t *testing.T) {
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123/stop", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("could not read request body: %v", err)
 		}

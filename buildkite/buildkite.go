@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -272,7 +271,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	resp := <-respCh
 
 	defer resp.Body.Close()
-	defer io.Copy(ioutil.Discard, resp.Body)
+	defer io.Copy(io.Discard, resp.Body)
 
 	response := newResponse(resp)
 
@@ -312,7 +311,7 @@ func checkResponse(r *http.Response) error {
 	if c := r.StatusCode; 200 <= c && c <= 299 {
 		return nil
 	}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	errorResponse := &ErrorResponse{Response: r, RawBody: data}
 	if err == nil && data != nil {
 		json.Unmarshal(data, errorResponse)
