@@ -132,6 +132,8 @@ func NewOpts(opts ...clientOpt) (*Client, error) {
 
 // NewClient returns a new buildkite API client. As API calls require authentication
 // you MUST supply a client which provides the required API key.
+//
+// Deprecated: Use NewOpts instead.
 func NewClient(httpClient *http.Client) *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)
 
