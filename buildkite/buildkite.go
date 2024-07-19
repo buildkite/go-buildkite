@@ -41,24 +41,26 @@ type Client struct {
 	UserAgent string
 
 	// Services used for talking to different parts of the buildkite API.
-	AccessTokens      *AccessTokensService
-	Agents            *AgentsService
-	Annotations       *AnnotationsService
-	Artifacts         *ArtifactsService
-	Builds            *BuildsService
-	Clusters          *ClustersService
-	ClusterQueues     *ClusterQueuesService
-	ClusterTokens     *ClusterTokensService
-	FlakyTests        *FlakyTestsService
-	Jobs              *JobsService
-	Organizations     *OrganizationsService
-	Pipelines         *PipelinesService
-	PipelineTemplates *PipelineTemplatesService
-	User              *UserService
-	Teams             *TeamsService
-	Tests             *TestsService
-	TestRuns          *TestRunsService
-	TestSuites        *TestSuitesService
+	AccessTokens             *AccessTokensService
+	Agents                   *AgentsService
+	Annotations              *AnnotationsService
+	Artifacts                *ArtifactsService
+	Builds                   *BuildsService
+	Clusters                 *ClustersService
+	ClusterQueues            *ClusterQueuesService
+	ClusterTokens            *ClusterTokensService
+	FlakyTests               *FlakyTestsService
+	Jobs                     *JobsService
+	Organizations            *OrganizationsService
+	PackagesService          *PackagesService
+	PackageRegistriesService *PackageRegistriesService
+	Pipelines                *PipelinesService
+	PipelineTemplates        *PipelineTemplatesService
+	User                     *UserService
+	Teams                    *TeamsService
+	Tests                    *TestsService
+	TestRuns                 *TestRunsService
+	TestSuites               *TestSuitesService
 
 	authHeader string
 }
@@ -169,6 +171,8 @@ func (c *Client) populateDefaultServices() {
 	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}
+	c.PackagesService = &PackagesService{c}
+	c.PackageRegistriesService = &PackageRegistriesService{c}
 	c.Pipelines = &PipelinesService{c}
 	c.PipelineTemplates = &PipelineTemplatesService{c}
 	c.User = &UserService{c}
@@ -198,9 +202,18 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 
 	buf := new(bytes.Buffer)
 	if body != nil {
-		err := json.NewEncoder(buf).Encode(body)
-		if err != nil {
-			return nil, err
+		switch v := body.(type) {
+		// If body is an io.Reader, copy it to the buffer, the caller probably knows what they want
+		case io.Reader:
+			_, err := io.Copy(buf, v)
+			if err != nil {
+				return nil, fmt.Errorf("failed to copy body: %w", err)
+			}
+		default:
+			err := json.NewEncoder(buf).Encode(body)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
