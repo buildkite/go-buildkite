@@ -10,7 +10,7 @@ import (
 )
 
 func TestClusterTokensService_List(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
@@ -101,13 +101,13 @@ func TestClusterTokensService_List(t *testing.T) {
 }
 
 func TestClusterTokensService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w,
-			`	
+			`
 			{
 				"id": "38e8fdb0-52bf-4e73-ad82-ce93cfbaa724",
 				"graphql_id": "Q2x1c3RlclRva2VuLS0tMzhlOGZkYjAtNTJiZi00ZTczLWFkODItY2U5M2NmYmFhNzI0",
@@ -162,7 +162,7 @@ func TestClusterTokensService_Get(t *testing.T) {
 }
 
 func TestClusterTokensService_Create(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &ClusterTokenCreateUpdate{
@@ -202,7 +202,7 @@ func TestClusterTokensService_Create(t *testing.T) {
 }
 
 func TestClusterTokensService_Update(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &ClusterTokenCreateUpdate{
@@ -271,7 +271,7 @@ func TestClusterTokensService_Update(t *testing.T) {
 }
 
 func TestClusterTokensService_Delete(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {

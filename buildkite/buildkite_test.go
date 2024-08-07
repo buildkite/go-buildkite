@@ -24,15 +24,16 @@ var (
 // setup sets up a test HTTP server along with a buildkite.Client that is
 // configured to talk to that test server.  Tests should register handlers on
 // mux which provide mock responses for the API method being tested.
-func setup() {
+func setup(t *testing.T) {
 	// test server
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 
-	// github client configured to use test server
-	client = NewClient(http.DefaultClient)
-	url, _ := url.Parse(server.URL)
-	client.BaseURL = url
+	var err error
+	client, err = NewOpts(WithBaseURL(server.URL))
+	if err != nil {
+		t.Fatalf("unexpected NewOpts() error: %v", err)
+	}
 }
 
 // teardown closes the test HTTP server.
