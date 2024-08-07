@@ -11,7 +11,7 @@ import (
 
 func TestPipelineTemplatesService_List(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -134,7 +134,7 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 
 func TestPipelineTemplatesService_Get(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/90333dc7-b86a-4485-98c3-9419a5dbc52e", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -210,7 +210,7 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 
 func TestPipelineTemplatesService_Create(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	input := &PipelineTemplateCreateUpdate{
 		Name:          String("Production Pipeline uploader"),
@@ -263,7 +263,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 
 func TestPipelineTemplatesService_Update(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	input := &PipelineTemplateCreateUpdate{
 		Name:          String("Production Pipeline uploader"),
@@ -347,7 +347,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 
 func TestPipelineTemplatesService_Delete(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/19dbd05a-96d7-430f-bac0-14b791558562", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")

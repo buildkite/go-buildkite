@@ -10,7 +10,7 @@ import (
 
 func TestJobsService_UnblockJob(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/unblock", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
@@ -33,7 +33,7 @@ func TestJobsService_UnblockJob(t *testing.T) {
 
 func TestJobsService_RetryJob(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/retry", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
@@ -58,7 +58,7 @@ func TestJobsService_RetryJob(t *testing.T) {
 
 func TestJobsService_GetJobLog(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -88,7 +88,7 @@ func TestJobsService_GetJobLog(t *testing.T) {
 
 func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	envVars := map[string]string{
 		"CI":                              "true",

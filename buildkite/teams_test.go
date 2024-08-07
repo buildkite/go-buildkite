@@ -9,7 +9,7 @@ import (
 
 func TestTeamsService_List(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/teams", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -29,7 +29,7 @@ func TestTeamsService_List(t *testing.T) {
 
 func TestTeamsService_ListForUser(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/teams", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")

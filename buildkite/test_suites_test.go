@@ -10,7 +10,7 @@ import (
 
 func TestTestSuitesService_List(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -71,7 +71,7 @@ func TestTestSuitesService_List(t *testing.T) {
 
 func TestTestSuitesService_Get(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -111,7 +111,7 @@ func TestTestSuitesService_Get(t *testing.T) {
 
 func TestTestSuitesService_Create(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	input := &TestSuiteCreate{
 		Name:          "Suite 3",
@@ -156,7 +156,7 @@ func TestTestSuitesService_Create(t *testing.T) {
 
 func TestTestSuitesService_Update(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	input := &TestSuiteCreate{
 		Name:          "Suite 4",
@@ -228,7 +228,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 func TestTestSuitesService_Delete(t *testing.T) {
 	setup(t)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-5", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
