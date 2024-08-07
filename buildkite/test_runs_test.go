@@ -9,7 +9,9 @@ import (
 )
 
 func TestTestRunsService_List(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs", func(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +77,9 @@ func TestTestRunsService_List(t *testing.T) {
 }
 
 func TestTestRunsService_Get(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4", func(w http.ResponseWriter, r *http.Request) {

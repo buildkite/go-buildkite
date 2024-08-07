@@ -8,7 +8,9 @@ import (
 )
 
 func TestTeamsService_List(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/teams", func(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +30,9 @@ func TestTeamsService_List(t *testing.T) {
 }
 
 func TestTeamsService_ListForUser(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/teams", func(w http.ResponseWriter, r *http.Request) {

@@ -10,7 +10,9 @@ import (
 )
 
 func TestClustersService_List(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +117,9 @@ func TestClustersService_List(t *testing.T) {
 }
 
 func TestClustersService_Get(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0", func(w http.ResponseWriter, r *http.Request) {
@@ -182,7 +186,9 @@ func TestClustersService_Get(t *testing.T) {
 }
 
 func TestClustersService_Create(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &ClusterCreate{
@@ -231,7 +237,9 @@ func TestClustersService_Create(t *testing.T) {
 }
 
 func TestClustersService_Update(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &ClusterCreate{
@@ -313,7 +321,9 @@ func TestClustersService_Update(t *testing.T) {
 }
 
 func TestClustersService_Delete(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/7d2aa9b5-bf2a-4ce0-b9d7-90d3d9b8942c", func(w http.ResponseWriter, r *http.Request) {

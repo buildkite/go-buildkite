@@ -9,7 +9,9 @@ import (
 )
 
 func TestPipelinesService_List(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +31,9 @@ func TestPipelinesService_List(t *testing.T) {
 }
 
 func TestPipelinesService_Create(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -121,7 +125,9 @@ func TestPipelinesService_Create(t *testing.T) {
 }
 
 func TestPipelinesService_CreateByConfiguration(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -188,7 +194,9 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 }
 
 func TestPipelinesService_Get(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
@@ -214,7 +222,9 @@ func TestPipelinesService_Get(t *testing.T) {
 }
 
 func TestPipelinesService_Delete(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
@@ -228,7 +238,9 @@ func TestPipelinesService_Delete(t *testing.T) {
 }
 
 func TestPipelinesService_Update(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -346,7 +358,9 @@ func TestPipelinesService_Update(t *testing.T) {
 }
 
 func TestPipelinesService_AddWebhook(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/webhook", func(w http.ResponseWriter, r *http.Request) {
@@ -360,7 +374,9 @@ func TestPipelinesService_AddWebhook(t *testing.T) {
 }
 
 func TestPipelinesService_Archive(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/archive", func(w http.ResponseWriter, r *http.Request) {
@@ -374,7 +390,9 @@ func TestPipelinesService_Archive(t *testing.T) {
 }
 
 func TestPipelinesService_Unarchive(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/unarchive", func(w http.ResponseWriter, r *http.Request) {
@@ -388,8 +406,7 @@ func TestPipelinesService_Unarchive(t *testing.T) {
 }
 
 func TestPluginsUnmarshal(t *testing.T) {
-	setup(t)
-	t.Cleanup(teardown)
+	t.Parallel()
 
 	for _, tc := range []struct {
 		name string
@@ -405,6 +422,8 @@ func TestPluginsUnmarshal(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			var plugins Plugins
 			err := json.Unmarshal([]byte(tc.json), &plugins)
 			if err != nil {

@@ -8,7 +8,9 @@ import (
 )
 
 func TestListEmojis(t *testing.T) {
-	setup(t)
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/emojis", func(w http.ResponseWriter, r *http.Request) {
