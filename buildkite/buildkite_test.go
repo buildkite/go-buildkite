@@ -27,6 +27,11 @@ var (
 func setup(t *testing.T) {
 	// test server
 	mux = http.NewServeMux()
+	// Fail test if unexpected request is received, "/" matches any request not matched by a more specific handler
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		t.Fatalf("unexpected %s request for %s", r.Method, r.URL.Path)
+	})
+
 	server = httptest.NewServer(mux)
 
 	var err error
