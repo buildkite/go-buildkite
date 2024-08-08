@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -24,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	resp, err := client.TestSuites.Delete(*org, *slug)
+	resp, err := client.TestSuites.Delete(context.Background(), *org, *slug)
 
 	if err != nil {
 		log.Fatalf("Deleting test suite failed: %s", err)

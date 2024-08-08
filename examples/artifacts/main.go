@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -27,7 +28,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	artifacts, _, err := client.Artifacts.ListByBuild(*org, *pipeline, *build, nil)
+	artifacts, _, err := client.Artifacts.ListByBuild(context.Background(), *org, *pipeline, *build, nil)
 
 	if err != nil {
 		log.Fatalf("list artifacts failed: %s", err)
@@ -44,7 +45,7 @@ func main() {
 			fmt.Fprintf(os.Stdout, "%s\n", string(data))
 		} else {
 			if *artifactName == *artifact.Filename || *artifactName == *artifact.ID {
-				_, err := client.Artifacts.DownloadArtifactByURL(*artifact.DownloadURL, os.Stdout)
+				_, err := client.Artifacts.DownloadArtifactByURL(context.Background(), *artifact.DownloadURL, os.Stdout)
 				if err != nil {
 					log.Fatalf("DownloadArtifactByURL failed: %s", err)
 				}

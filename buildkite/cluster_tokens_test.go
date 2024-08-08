@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -56,7 +57,7 @@ func TestClusterTokensService_List(t *testing.T) {
 			]`)
 	})
 
-	tokens, _, err := client.ClusterTokens.List("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", nil)
+	tokens, _, err := client.ClusterTokens.List(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", nil)
 
 	if err != nil {
 		t.Errorf("TestClusterTokens.List returned error: %v", err)
@@ -131,7 +132,7 @@ func TestClusterTokensService_Get(t *testing.T) {
 			}`)
 	})
 
-	token, _, err := client.ClusterTokens.Get("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "38e8fdb0-52bf-4e73-ad82-ce93cfbaa724")
+	token, _, err := client.ClusterTokens.Get(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "38e8fdb0-52bf-4e73-ad82-ce93cfbaa724")
 
 	if err != nil {
 		t.Errorf("TestClusterTokens.Get returned error: %v", err)
@@ -192,7 +193,7 @@ func TestClusterTokensService_Create(t *testing.T) {
 			}`)
 	})
 
-	token, _, err := client.ClusterTokens.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+	token, _, err := client.ClusterTokens.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
 
 	if err != nil {
 		t.Errorf("TestClusterTokens.Create returned error: %v", err)
@@ -235,7 +236,7 @@ func TestClusterTokensService_Update(t *testing.T) {
 			}`)
 	})
 
-	token, _, err := client.ClusterTokens.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+	token, _, err := client.ClusterTokens.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
 
 	if err != nil {
 		t.Errorf("TestClusterTokens.Update returned error: %v", err)
@@ -262,7 +263,7 @@ func TestClusterTokensService_Update(t *testing.T) {
 		Description: String("Development 1 agent token"),
 	}
 
-	_, err = client.ClusterTokens.Update("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "9cb33339-1c4a-4020-9aeb-3319b2e1f054", &tokenUpdate)
+	_, err = client.ClusterTokens.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "9cb33339-1c4a-4020-9aeb-3319b2e1f054", &tokenUpdate)
 
 	if err != nil {
 		t.Errorf("TestClusterTokens.Update returned error: %v", err)
@@ -288,7 +289,7 @@ func TestClusterTokensService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.ClusterTokens.Delete("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "9cb33339-1c4a-4020-9aeb-3319b2e1f054")
+	_, err := client.ClusterTokens.Delete(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "9cb33339-1c4a-4020-9aeb-3319b2e1f054")
 
 	if err != nil {
 		t.Errorf("TestClusterTokens.Delete returned error: %v", err)

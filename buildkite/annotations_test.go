@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -35,7 +36,7 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 		}]`)
 	})
 
-	annotations, _, err := client.Annotations.ListByBuild("my-great-org", "sup-keith", "awesome-build", nil)
+	annotations, _, err := client.Annotations.ListByBuild(context.Background(), "my-great-org", "sup-keith", "awesome-build", nil)
 	if err != nil {
 		t.Errorf("ListByBuild returned error: %v", err)
 	}
@@ -98,7 +99,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 			}`)
 	})
 
-	annotation, _, err := client.Annotations.Create("my-great-org", "my-great-pipeline", "10", input)
+	annotation, _, err := client.Annotations.Create(context.Background(), "my-great-org", "my-great-pipeline", "10", input)
 
 	if err != nil {
 		t.Errorf("TestAnnotations.Create returned error: %v", err)

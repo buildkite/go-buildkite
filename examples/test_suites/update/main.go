@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -28,7 +29,7 @@ func main() {
 		Slug:          buildkite.String("example-slug"),
 	}
 
-	resp, err := client.TestSuites.Update(*org, &suiteUpdate)
+	resp, err := client.TestSuites.Update(context.Background(), *org, &suiteUpdate)
 
 	if err != nil {
 		log.Fatalf("Updating test suite failed: %s", err)

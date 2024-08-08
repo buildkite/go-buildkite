@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -21,7 +22,7 @@ func TestAgentsService_List(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	agents, _, err := client.Agents.List("my-great-org", nil)
+	agents, _, err := client.Agents.List(context.Background(), "my-great-org", nil)
 	if err != nil {
 		t.Errorf("Agents.List returned error: %v", err)
 	}
@@ -43,7 +44,7 @@ func TestAgentsService_Get(t *testing.T) {
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
 
-	agent, _, err := client.Agents.Get("my-great-org", "123")
+	agent, _, err := client.Agents.Get(context.Background(), "my-great-org", "123")
 	if err != nil {
 		t.Errorf("Agents.Get returned error: %v", err)
 	}
@@ -75,7 +76,7 @@ func TestAgentsService_Create(t *testing.T) {
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
 
-	agent, _, err := client.Agents.Create("my-great-org", input)
+	agent, _, err := client.Agents.Create(context.Background(), "my-great-org", input)
 	if err != nil {
 		t.Errorf("Agents.Create returned error: %v", err)
 	}
@@ -97,7 +98,7 @@ func TestAgentsService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.Agents.Delete("my-great-org", "123")
+	_, err := client.Agents.Delete(context.Background(), "my-great-org", "123")
 	if err != nil {
 		t.Errorf("Agents.Delete returned error: %v", err)
 	}
@@ -122,7 +123,7 @@ func TestAgentsService_Stop(t *testing.T) {
 		}
 	})
 
-	_, err := client.Agents.Stop("my-great-org", "123", true)
+	_, err := client.Agents.Stop(context.Background(), "my-great-org", "123", true)
 	if err != nil {
 		t.Errorf("Agents.Stop returned error: %v", err)
 	}

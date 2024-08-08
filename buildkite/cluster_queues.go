@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -46,7 +47,7 @@ type ClusterQueuesListOptions struct {
 	ListOptions
 }
 
-func (cqs *ClusterQueuesService) List(org, clusterID string, opt *ClusterQueuesListOptions) ([]ClusterQueue, *Response, error) {
+func (cqs *ClusterQueuesService) List(ctx context.Context, org, clusterID string, opt *ClusterQueuesListOptions) ([]ClusterQueue, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues", org, clusterID)
 
@@ -56,7 +57,7 @@ func (cqs *ClusterQueuesService) List(org, clusterID string, opt *ClusterQueuesL
 		return nil, nil, err
 	}
 
-	req, err := cqs.client.NewRequest("GET", u, nil)
+	req, err := cqs.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -73,11 +74,11 @@ func (cqs *ClusterQueuesService) List(org, clusterID string, opt *ClusterQueuesL
 	return *queues, resp, err
 }
 
-func (cqs *ClusterQueuesService) Get(org, clusterID, queueID string) (*ClusterQueue, *Response, error) {
+func (cqs *ClusterQueuesService) Get(ctx context.Context, org, clusterID, queueID string) (*ClusterQueue, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s", org, clusterID, queueID)
 
-	req, err := cqs.client.NewRequest("GET", u, nil)
+	req, err := cqs.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -94,7 +95,7 @@ func (cqs *ClusterQueuesService) Get(org, clusterID, queueID string) (*ClusterQu
 	return queue, resp, err
 }
 
-func (cqs *ClusterQueuesService) Create(org, clusterID string, qc *ClusterQueueCreate) (*ClusterQueue, *Response, error) {
+func (cqs *ClusterQueuesService) Create(ctx context.Context, org, clusterID string, qc *ClusterQueueCreate) (*ClusterQueue, *Response, error) {
 
 	if qc == nil {
 		return nil, nil, errors.New("ClusterQueueCreate struct instance must not be nil")
@@ -102,7 +103,7 @@ func (cqs *ClusterQueuesService) Create(org, clusterID string, qc *ClusterQueueC
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues", org, clusterID)
 
-	req, err := cqs.client.NewRequest("POST", u, qc)
+	req, err := cqs.client.NewRequest(ctx, "POST", u, qc)
 
 	if err != nil {
 		return nil, nil, err
@@ -119,7 +120,7 @@ func (cqs *ClusterQueuesService) Create(org, clusterID string, qc *ClusterQueueC
 	return queue, resp, err
 }
 
-func (cqs *ClusterQueuesService) Update(org, clusterID, queueID string, qu *ClusterQueueUpdate) (*Response, error) {
+func (cqs *ClusterQueuesService) Update(ctx context.Context, org, clusterID, queueID string, qu *ClusterQueueUpdate) (*Response, error) {
 
 	if qu == nil {
 		return nil, errors.New("ClusterQueueUpdate struct instance must not be nil")
@@ -127,7 +128,7 @@ func (cqs *ClusterQueuesService) Update(org, clusterID, queueID string, qu *Clus
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s", org, clusterID, queueID)
 
-	req, err := cqs.client.NewRequest("PATCH", u, qu)
+	req, err := cqs.client.NewRequest(ctx, "PATCH", u, qu)
 
 	if err != nil {
 		return nil, err
@@ -142,11 +143,11 @@ func (cqs *ClusterQueuesService) Update(org, clusterID, queueID string, qu *Clus
 	return resp, err
 }
 
-func (cqs *ClusterQueuesService) Delete(org, clusterID, queueID string) (*Response, error) {
+func (cqs *ClusterQueuesService) Delete(ctx context.Context, org, clusterID, queueID string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s", org, clusterID, queueID)
 
-	req, err := cqs.client.NewRequest("DELETE", u, nil)
+	req, err := cqs.client.NewRequest(ctx, "DELETE", u, nil)
 
 	if err != nil {
 		return nil, err
@@ -155,7 +156,7 @@ func (cqs *ClusterQueuesService) Delete(org, clusterID, queueID string) (*Respon
 	return cqs.client.Do(req, nil)
 }
 
-func (cqs *ClusterQueuesService) Pause(org, clusterID, queueID string, qp *ClusterQueuePause) (*Response, error) {
+func (cqs *ClusterQueuesService) Pause(ctx context.Context, org, clusterID, queueID string, qp *ClusterQueuePause) (*Response, error) {
 
 	if qp == nil {
 		return nil, errors.New("ClusterQueuePause struct instance must not be nil")
@@ -163,7 +164,7 @@ func (cqs *ClusterQueuesService) Pause(org, clusterID, queueID string, qp *Clust
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s/pause_dispatch", org, clusterID, queueID)
 
-	req, err := cqs.client.NewRequest("POST", u, qp)
+	req, err := cqs.client.NewRequest(ctx, "POST", u, qp)
 
 	if err != nil {
 		return nil, err
@@ -172,11 +173,11 @@ func (cqs *ClusterQueuesService) Pause(org, clusterID, queueID string, qp *Clust
 	return cqs.client.Do(req, nil)
 }
 
-func (cqs *ClusterQueuesService) Resume(org, clusterID, queueID string) (*Response, error) {
+func (cqs *ClusterQueuesService) Resume(ctx context.Context, org, clusterID, queueID string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s/resume_dispatch", org, clusterID, queueID)
 
-	req, err := cqs.client.NewRequest("POST", u, nil)
+	req, err := cqs.client.NewRequest(ctx, "POST", u, nil)
 
 	if err != nil {
 		return nil, err

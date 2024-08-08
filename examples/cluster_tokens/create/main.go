@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -30,7 +31,7 @@ func main() {
 		Description: buildkite.String("Dev squad agent fleet token"),
 	}
 
-	token, _, err := client.ClusterTokens.Create(*org, *clusterID, &clusterTokenCreate)
+	token, _, err := client.ClusterTokens.Create(context.Background(), *org, *clusterID, &clusterTokenCreate)
 
 	if err != nil {
 		log.Fatalf("Creating cluster token failed: %s", err)

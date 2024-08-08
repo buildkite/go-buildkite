@@ -1,6 +1,9 @@
 package buildkite
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // TestsService handles communication with test related
 // methods of the Buildkite Test Analytics API.
@@ -20,11 +23,11 @@ type Test struct {
 	FileName *string `json:"file_name,omitempty" yaml:"file_name,omitempty"`
 }
 
-func (ts *TestsService) Get(org, slug, testID string) (*Test, *Response, error) {
+func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (*Test, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s", org, slug, testID)
 
-	req, err := ts.client.NewRequest("GET", u, nil)
+	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err

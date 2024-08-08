@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -153,10 +154,10 @@ type PipelineListOptions struct {
 // Create - Creates a pipeline for a given organisation.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#create-a-pipeline
-func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *Response, error) {
+func (ps *PipelinesService) Create(ctx context.Context, org string, p *CreatePipeline) (*Pipeline, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines", org)
 
-	req, err := ps.client.NewRequest("POST", u, p)
+	req, err := ps.client.NewRequest(ctx, "POST", u, p)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -173,11 +174,11 @@ func (ps *PipelinesService) Create(org string, p *CreatePipeline) (*Pipeline, *R
 // Get fetches a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#get-a-pipeline
-func (ps *PipelinesService) Get(org string, slug string) (*Pipeline, *Response, error) {
+func (ps *PipelinesService) Get(ctx context.Context, org string, slug string) (*Pipeline, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
 
-	req, err := ps.client.NewRequest("GET", u, nil)
+	req, err := ps.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -194,7 +195,7 @@ func (ps *PipelinesService) Get(org string, slug string) (*Pipeline, *Response, 
 // List the pipelines for a given organisation.
 //
 // buildkite API docs: https://buildkite.com/docs/api/pipelines#list-pipelines
-func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeline, *Response, error) {
+func (ps *PipelinesService) List(ctx context.Context, org string, opt *PipelineListOptions) ([]Pipeline, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines", org)
@@ -204,7 +205,7 @@ func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeli
 		return nil, nil, err
 	}
 
-	req, err := ps.client.NewRequest("GET", u, nil)
+	req, err := ps.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -221,11 +222,11 @@ func (ps *PipelinesService) List(org string, opt *PipelineListOptions) ([]Pipeli
 // Delete a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#delete-a-pipeline
-func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
+func (ps *PipelinesService) Delete(ctx context.Context, org string, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s", org, slug)
 
-	req, err := ps.client.NewRequest("DELETE", u, nil)
+	req, err := ps.client.NewRequest(ctx, "DELETE", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +237,7 @@ func (ps *PipelinesService) Delete(org string, slug string) (*Response, error) {
 // Update - Updates a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/pipelines#update-a-pipeline
-func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
+func (ps *PipelinesService) Update(ctx context.Context, org string, p *Pipeline) (*Response, error) {
 	if p == nil {
 		return nil, errors.New("Pipeline must not be nil")
 	}
@@ -245,7 +246,7 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 
 	pu := generateUpdatePipelineInstance(*p)
 
-	req, err := ps.client.NewRequest("PATCH", u, pu)
+	req, err := ps.client.NewRequest(ctx, "PATCH", u, pu)
 
 	if err != nil {
 		return nil, err
@@ -262,11 +263,11 @@ func (ps *PipelinesService) Update(org string, p *Pipeline) (*Response, error) {
 // AddWebhook - Adds webhook in github for pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#add-a-webhook
-func (ps *PipelinesService) AddWebhook(org string, slug string) (*Response, error) {
+func (ps *PipelinesService) AddWebhook(ctx context.Context, org string, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/webhook", org, slug)
 
-	req, err := ps.client.NewRequest("POST", u, nil)
+	req, err := ps.client.NewRequest(ctx, "POST", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -277,11 +278,11 @@ func (ps *PipelinesService) AddWebhook(org string, slug string) (*Response, erro
 // Archive - Archives a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#archive-a-pipeline
-func (ps *PipelinesService) Archive(org string, slug string) (*Response, error) {
+func (ps *PipelinesService) Archive(ctx context.Context, org string, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/archive", org, slug)
 
-	req, err := ps.client.NewRequest("POST", u, nil)
+	req, err := ps.client.NewRequest(ctx, "POST", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -292,11 +293,11 @@ func (ps *PipelinesService) Archive(org string, slug string) (*Response, error) 
 // Unarchive - Unarchive a pipeline.
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#unarchive-a-pipeline
-func (ps *PipelinesService) Unarchive(org string, slug string) (*Response, error) {
+func (ps *PipelinesService) Unarchive(ctx context.Context, org string, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/unarchive", org, slug)
 
-	req, err := ps.client.NewRequest("POST", u, nil)
+	req, err := ps.client.NewRequest(ctx, "POST", u, nil)
 	if err != nil {
 		return nil, err
 	}

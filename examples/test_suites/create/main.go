@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -31,7 +32,7 @@ func main() {
 		TeamUUIDs:     []string{"474de468-84d6-46dc-ba23-bac1add44a60"},
 	}
 
-	suite, _, err := client.TestSuites.Create(*org, &suiteCreate)
+	suite, _, err := client.TestSuites.Create(context.Background(), *org, &suiteCreate)
 
 	if err != nil {
 		log.Fatalf("Creating test suite failed: %s", err)

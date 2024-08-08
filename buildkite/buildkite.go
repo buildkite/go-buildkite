@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -201,7 +202,7 @@ func SetHttpDebug(flag bool) {
 // Relative URLs should always be specified without a preceding slash.  If
 // specified, the value pointed to by body is JSON encoded and included as the
 // request body.
-func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -237,7 +238,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		}
 	}
 
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), buf)
 	if err != nil {
 		return nil, err
 	}

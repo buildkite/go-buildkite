@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -29,7 +30,7 @@ func main() {
 		Note: buildkite.String("Pausing dispatch over the weekend"),
 	}
 
-	resp, err := client.ClusterQueues.Pause(*org, *clusterID, *queueID, &clusterQueuePause)
+	resp, err := client.ClusterQueues.Pause(context.Background(), *org, *clusterID, *queueID, &clusterQueuePause)
 
 	if err != nil {
 		log.Fatalf("Pausing dispatch on cluster queue %s failed: %s", *queueID, err)

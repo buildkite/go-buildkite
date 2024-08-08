@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -18,7 +19,7 @@ func TestOrganizationsService_List(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	orgs, _, err := client.Organizations.List(nil)
+	orgs, _, err := client.Organizations.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Organizations.List returned error: %v", err)
 	}
@@ -40,7 +41,7 @@ func TestOrganizationsService_Get(t *testing.T) {
 		fmt.Fprint(w, `{"id":"123"}`)
 	})
 
-	org, _, err := client.Organizations.Get("babelstoemp")
+	org, _, err := client.Organizations.Get(context.Background(), "babelstoemp")
 	if err != nil {
 		t.Errorf("Organizations.Get returned error: %v", err)
 	}

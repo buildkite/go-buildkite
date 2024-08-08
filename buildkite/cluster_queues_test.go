@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -71,7 +72,7 @@ func TestClusterQueuesService_List(t *testing.T) {
 			]`)
 	})
 
-	queues, _, err := client.ClusterQueues.List("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", nil)
+	queues, _, err := client.ClusterQueues.List(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", nil)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.List returned error: %v", err)
@@ -167,7 +168,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 			}`)
 	})
 
-	queue, _, err := client.ClusterQueues.Get("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "46718bb6-3b2a-48da-9dcb-922c6b7ba140")
+	queue, _, err := client.ClusterQueues.Get(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "46718bb6-3b2a-48da-9dcb-922c6b7ba140")
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Get returned error: %v", err)
@@ -236,7 +237,7 @@ func TestClusterQueuesService_Create(t *testing.T) {
 			}`)
 	})
 
-	queue, _, err := client.ClusterQueues.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+	queue, _, err := client.ClusterQueues.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Create returned error: %v", err)
@@ -282,7 +283,7 @@ func TestClusterQueuesService_Update(t *testing.T) {
 			}`)
 	})
 
-	queue, _, err := client.ClusterQueues.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+	queue, _, err := client.ClusterQueues.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Update returned error: %v", err)
@@ -310,7 +311,7 @@ func TestClusterQueuesService_Update(t *testing.T) {
 		Description: String("Development 1 Team queue"),
 	}
 
-	_, err = client.ClusterQueues.Update("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", &queueUpdate)
+	_, err = client.ClusterQueues.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", &queueUpdate)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Update returned error: %v", err)
@@ -337,7 +338,7 @@ func TestClusterQueuesService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.ClusterQueues.Delete("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca")
+	_, err := client.ClusterQueues.Delete(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca")
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Delete returned error: %v", err)
@@ -374,7 +375,7 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 			}`)
 	})
 
-	queue, _, err := client.ClusterQueues.Create("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
+	queue, _, err := client.ClusterQueues.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Pause returned error: %v", err)
@@ -403,7 +404,7 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 		Note: String("Pausing dispatch for the weekend"),
 	}
 
-	_, err = client.ClusterQueues.Pause("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f", &queuePause)
+	_, err = client.ClusterQueues.Pause(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f", &queuePause)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Pause returned error: %v", err)
@@ -431,7 +432,7 @@ func TestClusterQueuesService_Resume(t *testing.T) {
 		testMethod(t, r, "POST")
 	})
 
-	_, err := client.ClusterQueues.Resume("my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f")
+	_, err := client.ClusterQueues.Resume(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f")
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Resume returned error: %v", err)

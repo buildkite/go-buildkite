@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -46,13 +47,13 @@ func TestGetPackage(t *testing.T) {
 		}
 	})
 
-	p, _, err := client.PackagesService.Get("my-org", "my-registry", pkg.ID)
+	p, _, err := client.PackagesService.Get(context.Background(), "my-org", "my-registry", pkg.ID)
 	if err != nil {
 		t.Fatalf("Packages.Get returned error: %v", err)
 	}
 
 	if diff := cmp.Diff(p, want); diff != "" {
-		t.Fatalf("client.PackagesService.Get(%q, %q, %q) diff: (-got +want)\n%s", "test-org", "my-cool-registry", pkg.ID, diff)
+		t.Fatalf("client.PackagesService.Get(context.Background(),%q, %q, %q) diff: (-got +want)\n%s", "test-org", "my-cool-registry", pkg.ID, diff)
 	}
 }
 
@@ -141,13 +142,13 @@ func TestCreatePackage(t *testing.T) {
 				}
 			})
 
-			p, _, err := client.PackagesService.Create("my-org", "my-registry", tc.in)
+			p, _, err := client.PackagesService.Create(context.Background(), "my-org", "my-registry", tc.in)
 			if err != nil {
 				t.Fatalf("Packages.Create returned error: %v", err)
 			}
 
 			if diff := cmp.Diff(p, pkg); diff != "" {
-				t.Fatalf("client.PackagesService.Create(%q, %q, %v) diff: (-got +want)\n%s", "test-org", "my-cool-registry", tc.in, diff)
+				t.Fatalf("client.PackagesService.Create(context.Background(),%q, %q, %v) diff: (-got +want)\n%s", "test-org", "my-cool-registry", tc.in, diff)
 			}
 		})
 	}

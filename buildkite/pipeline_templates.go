@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -48,7 +49,7 @@ type PipelineTemplateListOptions struct {
 	ListOptions
 }
 
-func (pts *PipelineTemplatesService) List(org string, opt *PipelineTemplateListOptions) ([]PipelineTemplate, *Response, error) {
+func (pts *PipelineTemplatesService) List(ctx context.Context, org string, opt *PipelineTemplateListOptions) ([]PipelineTemplate, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates", org)
 
@@ -58,7 +59,7 @@ func (pts *PipelineTemplatesService) List(org string, opt *PipelineTemplateListO
 		return nil, nil, err
 	}
 
-	req, err := pts.client.NewRequest("GET", u, nil)
+	req, err := pts.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -75,11 +76,11 @@ func (pts *PipelineTemplatesService) List(org string, opt *PipelineTemplateListO
 	return *templates, resp, err
 }
 
-func (pts *PipelineTemplatesService) Get(org, templateUUID string) (*PipelineTemplate, *Response, error) {
+func (pts *PipelineTemplatesService) Get(ctx context.Context, org, templateUUID string) (*PipelineTemplate, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 
-	req, err := pts.client.NewRequest("GET", u, nil)
+	req, err := pts.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -96,7 +97,7 @@ func (pts *PipelineTemplatesService) Get(org, templateUUID string) (*PipelineTem
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Create(org string, ptc *PipelineTemplateCreateUpdate) (*PipelineTemplate, *Response, error) {
+func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc *PipelineTemplateCreateUpdate) (*PipelineTemplate, *Response, error) {
 
 	if ptc == nil {
 		return nil, nil, errors.New("PipelineTemplateCreateUpdate struct instance must not be nil")
@@ -104,7 +105,7 @@ func (pts *PipelineTemplatesService) Create(org string, ptc *PipelineTemplateCre
 
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates", org)
 
-	req, err := pts.client.NewRequest("POST", u, ptc)
+	req, err := pts.client.NewRequest(ctx, "POST", u, ptc)
 
 	if err != nil {
 		return nil, nil, err
@@ -121,7 +122,7 @@ func (pts *PipelineTemplatesService) Create(org string, ptc *PipelineTemplateCre
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Update(org, templateUUID string, ptu *PipelineTemplateCreateUpdate) (*Response, error) {
+func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu *PipelineTemplateCreateUpdate) (*Response, error) {
 
 	if ptu == nil {
 		return nil, errors.New("PipelineTemplateCreateUpdate struct instance must not be nil")
@@ -129,7 +130,7 @@ func (pts *PipelineTemplatesService) Update(org, templateUUID string, ptu *Pipel
 
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 
-	req, err := pts.client.NewRequest("PATCH", u, ptu)
+	req, err := pts.client.NewRequest(ctx, "PATCH", u, ptu)
 
 	if err != nil {
 		return nil, nil
@@ -144,11 +145,11 @@ func (pts *PipelineTemplatesService) Update(org, templateUUID string, ptu *Pipel
 	return resp, err
 }
 
-func (pts *PipelineTemplatesService) Delete(org, templateUUID string) (*Response, error) {
+func (pts *PipelineTemplatesService) Delete(ctx context.Context, org, templateUUID string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 
-	req, err := pts.client.NewRequest("DELETE", u, nil)
+	req, err := pts.client.NewRequest(ctx, "DELETE", u, nil)
 
 	if err != nil {
 		return nil, err

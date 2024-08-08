@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/buildkite/go-buildkite/v3/buildkite"
@@ -22,7 +23,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	_, err = client.PackageRegistriesService.Delete(*org, *registrySlug)
+	_, err = client.PackageRegistriesService.Delete(context.Background(), *org, *registrySlug)
 	if err != nil {
 		log.Fatalf("Getting registry %s failed: %s", *registrySlug, err)
 	}

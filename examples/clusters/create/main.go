@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -32,7 +33,7 @@ func main() {
 		Color:       buildkite.String("#A9CCE3"),
 	}
 
-	cluster, _, err := client.Clusters.Create(*org, &clusterCreate)
+	cluster, _, err := client.Clusters.Create(context.Background(), *org, &clusterCreate)
 
 	if err != nil {
 		log.Fatalf("Creating cluster failed: %s", err)

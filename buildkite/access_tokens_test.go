@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -18,7 +19,7 @@ func TestAccessTokensService_Get(t *testing.T) {
 		fmt.Fprint(w, `{"uuid": "b63254c0-3271-4a98-8270-7cfbd6c2f14e","scopes": ["read_build"]}`)
 	})
 
-	ats, _, err := client.AccessTokens.Get()
+	ats, _, err := client.AccessTokens.Get(context.Background())
 	if err != nil {
 		t.Errorf("AccessTokens.Get returned error: %v", err)
 	}
@@ -43,7 +44,7 @@ func TestAccessTokensService_Revoke(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.AccessTokens.Revoke()
+	resp, err := client.AccessTokens.Revoke(context.Background())
 	if err != nil {
 		t.Errorf("AccessTokens.Revoke returned error: %v", err)
 	}

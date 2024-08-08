@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -28,7 +29,7 @@ func TestTestsService_Get(t *testing.T) {
 			}`)
 	})
 
-	test, _, err := client.Tests.Get("my-great-org", "suite-example", "b3abe2e9-35c5-4905-85e1-8c9f2da3240f")
+	test, _, err := client.Tests.Get(context.Background(), "my-great-org", "suite-example", "b3abe2e9-35c5-4905-85e1-8c9f2da3240f")
 
 	if err != nil {
 		t.Errorf("TestSuites.Get returned error: %v", err)

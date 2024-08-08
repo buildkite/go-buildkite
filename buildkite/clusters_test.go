@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -63,7 +64,7 @@ func TestClustersService_List(t *testing.T) {
 			]`)
 	})
 
-	clusters, _, err := client.Clusters.List("my-great-org", nil)
+	clusters, _, err := client.Clusters.List(context.Background(), "my-great-org", nil)
 
 	if err != nil {
 		t.Errorf("TestClusters.List returned error: %v", err)
@@ -148,7 +149,7 @@ func TestClustersService_Get(t *testing.T) {
 			}`)
 	})
 
-	cluster, _, err := client.Clusters.Get("my-great-org", "528000d8-4ee1-4479-8af1-032b143185f0")
+	cluster, _, err := client.Clusters.Get(context.Background(), "my-great-org", "528000d8-4ee1-4479-8af1-032b143185f0")
 
 	if err != nil {
 		t.Errorf("TestClusters.Get returned error: %v", err)
@@ -218,7 +219,7 @@ func TestClustersService_Create(t *testing.T) {
 			}`)
 	})
 
-	cluster, _, err := client.Clusters.Create("my-great-org", input)
+	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", input)
 
 	if err != nil {
 		t.Errorf("TestClusters.Create returned error: %v", err)
@@ -270,7 +271,7 @@ func TestClustersService_Update(t *testing.T) {
 			}`)
 	})
 
-	cluster, _, err := client.Clusters.Create("my-great-org", input)
+	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", input)
 
 	if err != nil {
 		t.Errorf("TestClusters.Create returned error: %v", err)
@@ -300,7 +301,7 @@ func TestClustersService_Update(t *testing.T) {
 		Description: String("A test cluster"),
 	}
 
-	_, err = client.Clusters.Update("my-great-org", *cluster.ID, &clusterUpdate)
+	_, err = client.Clusters.Update(context.Background(), "my-great-org", *cluster.ID, &clusterUpdate)
 
 	if err != nil {
 		t.Errorf("TestClusters.Update returned error: %v", err)
@@ -330,7 +331,7 @@ func TestClustersService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.Clusters.Delete("my-great-org", "7d2aa9b5-bf2a-4ce0-b9d7-90d3d9b8942c")
+	_, err := client.Clusters.Delete(context.Background(), "my-great-org", "7d2aa9b5-bf2a-4ce0-b9d7-90d3d9b8942c")
 
 	if err != nil {
 		t.Errorf("TestClusters.Delete returned error: %v", err)

@@ -1,6 +1,9 @@
 package buildkite
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // OrganizationsService handles communication with the organization related
 // methods of the buildkite API.
@@ -34,7 +37,7 @@ type OrganizationListOptions struct {
 // List the organizations for the current user.
 //
 // buildkite API docs: https://buildkite.com/docs/api/organizations#list-organizations
-func (os *OrganizationsService) List(opt *OrganizationListOptions) ([]Organization, *Response, error) {
+func (os *OrganizationsService) List(ctx context.Context, opt *OrganizationListOptions) ([]Organization, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations")
@@ -44,7 +47,7 @@ func (os *OrganizationsService) List(opt *OrganizationListOptions) ([]Organizati
 		return nil, nil, err
 	}
 
-	req, err := os.client.NewRequest("GET", u, nil)
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,11 +64,11 @@ func (os *OrganizationsService) List(opt *OrganizationListOptions) ([]Organizati
 // Get fetches an organization
 //
 // buildkite API docs: https://buildkite.com/docs/api/organizations#get-an-organization
-func (os *OrganizationsService) Get(slug string) (*Organization, *Response, error) {
+func (os *OrganizationsService) Get(ctx context.Context, slug string) (*Organization, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s", slug)
 
-	req, err := os.client.NewRequest("GET", u, nil)
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}

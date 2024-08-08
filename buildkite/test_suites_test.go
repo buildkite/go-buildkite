@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -40,7 +41,7 @@ func TestTestSuitesService_List(t *testing.T) {
 			]`)
 	})
 
-	suites, _, err := client.TestSuites.List("my-great-org", nil)
+	suites, _, err := client.TestSuites.List(context.Background(), "my-great-org", nil)
 
 	if err != nil {
 		t.Errorf("TestSuites.List returned error: %v", err)
@@ -92,7 +93,7 @@ func TestTestSuitesService_Get(t *testing.T) {
 			}`)
 	})
 
-	suite, _, err := client.TestSuites.Get("my-great-org", "suite-1")
+	suite, _, err := client.TestSuites.Get(context.Background(), "my-great-org", "suite-1")
 
 	if err != nil {
 		t.Errorf("TestSuites.Get returned error: %v", err)
@@ -144,7 +145,7 @@ func TestTestSuitesService_Create(t *testing.T) {
 			}`)
 	})
 
-	suite, _, err := client.TestSuites.Create("my-great-org", input)
+	suite, _, err := client.TestSuites.Create(context.Background(), "my-great-org", input)
 
 	if err != nil {
 		t.Errorf("TestSuites.Create returned error: %v", err)
@@ -192,7 +193,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 			}`)
 	})
 
-	suite, _, err := client.TestSuites.Create("my-great-org", input)
+	suite, _, err := client.TestSuites.Create(context.Background(), "my-great-org", input)
 
 	if err != nil {
 		t.Errorf("TestSuites.Create returned error: %v", err)
@@ -217,7 +218,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 			}`)
 	})
 
-	_, err = client.TestSuites.Update("my-great-org", suite)
+	_, err = client.TestSuites.Update(context.Background(), "my-great-org", suite)
 
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
@@ -244,7 +245,7 @@ func TestTestSuitesService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.TestSuites.Delete("my-great-org", "suite-5")
+	_, err := client.TestSuites.Delete(context.Background(), "my-great-org", "suite-5")
 
 	if err != nil {
 		t.Errorf("TestSuites.Delete returned error: %v", err)

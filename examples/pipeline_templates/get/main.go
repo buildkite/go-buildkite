@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -26,7 +27,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pipelineTemplate, _, err := client.PipelineTemplates.Get(*org, *templateUUID)
+	pipelineTemplate, _, err := client.PipelineTemplates.Get(context.Background(), *org, *templateUUID)
 
 	if err != nil {
 		log.Fatalf("Getting pipeline template %s failed: %s", *templateUUID, err)

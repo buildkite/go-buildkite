@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -34,7 +35,7 @@ func main() {
 		},
 	}
 
-	resp, err := client.Pipelines.Update(*org, &pipeline)
+	resp, err := client.Pipelines.Update(context.Background(), *org, &pipeline)
 
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)

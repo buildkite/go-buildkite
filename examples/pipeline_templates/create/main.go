@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -32,7 +33,7 @@ func main() {
 		Available:     buildkite.Bool(true),
 	}
 
-	pipelineTemplate, _, err := client.PipelineTemplates.Create(*org, &pipelineTemplateCreate)
+	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), *org, &pipelineTemplateCreate)
 
 	if err != nil {
 		log.Fatalf("Creating pipeline template failed: %s", err)

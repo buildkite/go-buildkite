@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -42,7 +43,7 @@ func TestFlakyTestsService_List(t *testing.T) {
 			]`)
 	})
 
-	flakyTests, _, err := client.FlakyTests.List("my-great-org", "suite-example", nil)
+	flakyTests, _, err := client.FlakyTests.List(context.Background(), "my-great-org", "suite-example", nil)
 
 	if err != nil {
 		t.Errorf("TestSuites.List returned error: %v", err)

@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,7 +24,7 @@ func TestBuildsService_Cancel(t *testing.T) {
 }`)
 	})
 
-	build, err := client.Builds.Cancel("my-great-org", "sup-keith", "1")
+	build, err := client.Builds.Cancel(context.Background(), "my-great-org", "sup-keith", "1")
 	if err != nil {
 		t.Errorf("Cancel returned error: %v", err)
 	}
@@ -45,7 +46,7 @@ func TestBuildsService_List(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	builds, _, err := client.Builds.List(nil)
+	builds, _, err := client.Builds.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -76,7 +77,7 @@ func TestBuildsService_Get(t *testing.T) {
 				_, _ = fmt.Fprintf(w, `{"id":"%s"}`, buildNumber)
 			})
 
-		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, nil)
 		if err != nil {
 			t.Errorf("Builds.Get (expected id) returned error: %v", err)
 		}
@@ -103,7 +104,7 @@ func TestBuildsService_Get(t *testing.T) {
 				)
 			})
 
-		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, nil)
 		if err != nil {
 			t.Errorf("Builds.Get (group key) returned error: %v", err)
 		}
@@ -134,7 +135,7 @@ func TestBuildsService_Get(t *testing.T) {
 				)
 			})
 
-		build, _, err := client.Builds.Get(orgName, pipelineName, buildNumber, nil)
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, nil)
 		if err != nil {
 			t.Errorf("Builds.Get (manual job) returned error: %v", err)
 		}
@@ -165,7 +166,7 @@ func TestBuildsService_List_by_status(t *testing.T) {
 		State:       []string{"running"},
 		ListOptions: ListOptions{Page: 2},
 	}
-	builds, _, err := client.Builds.List(opt)
+	builds, _, err := client.Builds.List(context.Background(), opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -196,7 +197,7 @@ func TestBuildsService_List_by_multiple_status(t *testing.T) {
 		State:       []string{"running", "scheduled"},
 		ListOptions: ListOptions{Page: 2},
 	}
-	builds, _, err := client.Builds.List(opt)
+	builds, _, err := client.Builds.List(context.Background(), opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -231,7 +232,7 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 		CreatedFrom: ts,
 		CreatedTo:   ts.Add(time.Hour),
 	}
-	builds, _, err := client.Builds.List(opt)
+	builds, _, err := client.Builds.List(context.Background(), opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -253,7 +254,7 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	builds, _, err := client.Builds.ListByOrg("my-great-org", nil)
+	builds, _, err := client.Builds.ListByOrg(context.Background(), "my-great-org", nil)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -284,7 +285,7 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 		Commit: "my-commit-sha1",
 	}
 
-	builds, _, err := client.Builds.ListByOrg("my-great-org", opt)
+	builds, _, err := client.Builds.ListByOrg(context.Background(), "my-great-org", opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -313,7 +314,7 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 	opt := &BuildsListOptions{
 		Branch: []string{"my-great-branch", "my-other-great-branch"},
 	}
-	builds, _, err := client.Builds.List(opt)
+	builds, _, err := client.Builds.List(context.Background(), opt)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
@@ -335,7 +336,7 @@ func TestBuildsService_ListByPipeline(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	builds, _, err := client.Builds.ListByPipeline("my-great-org", "sup-keith", nil)
+	builds, _, err := client.Builds.ListByPipeline(context.Background(), "my-great-org", "sup-keith", nil)
 	if err != nil {
 		t.Errorf("Builds.List returned error: %v", err)
 	}

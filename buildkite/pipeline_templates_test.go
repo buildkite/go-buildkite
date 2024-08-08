@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -79,7 +80,7 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 			]`)
 	})
 
-	pipelineTemplates, _, err := client.PipelineTemplates.List("my-great-org", nil)
+	pipelineTemplates, _, err := client.PipelineTemplates.List(context.Background(), "my-great-org", nil)
 
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.List returned error: %v", err)
@@ -174,7 +175,7 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 			}`)
 	})
 
-	pipelineTemplate, _, err := client.PipelineTemplates.Get("my-great-org", "90333dc7-b86a-4485-98c3-9419a5dbc52e")
+	pipelineTemplate, _, err := client.PipelineTemplates.Get(context.Background(), "my-great-org", "90333dc7-b86a-4485-98c3-9419a5dbc52e")
 
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Get returned error: %v", err)
@@ -247,7 +248,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 			}`)
 	})
 
-	pipelineTemplate, _, err := client.PipelineTemplates.Create("my-great-org", input)
+	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), "my-great-org", input)
 
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Create returned error: %v", err)
@@ -302,7 +303,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 			}`)
 	})
 
-	pipelineTemplate, _, err := client.PipelineTemplates.Create("my-great-org", input)
+	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), "my-great-org", input)
 
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Update returned error: %v", err)
@@ -333,7 +334,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 		Description: String("A pipeline template for uploading a production pipeline YAML (pipeline-production.yml)"),
 	}
 
-	_, err = client.PipelineTemplates.Update("my-great-org", "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", &pipelineTemplateUpdate)
+	_, err = client.PipelineTemplates.Update(context.Background(), "my-great-org", "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", &pipelineTemplateUpdate)
 
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Update returned error: %v", err)
@@ -363,7 +364,7 @@ func TestPipelineTemplatesService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.PipelineTemplates.Delete("my-great-org", "19dbd05a-96d7-430f-bac0-14b791558562")
+	_, err := client.PipelineTemplates.Delete(context.Background(), "my-great-org", "19dbd05a-96d7-430f-bac0-14b791558562")
 
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Delete returned error: %v", err)
