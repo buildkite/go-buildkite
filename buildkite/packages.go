@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+const fileFormKey = "file"
+
 // PackagesService handles communication with packages Buildkite API endpoints
 type PackagesService struct {
 	client *Client
@@ -54,7 +56,7 @@ func (ps *PackagesService) Create(organizationSlug, registrySlug string, cpi Cre
 
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
-	fw, err := w.CreateFormFile("file", filename)
+	fw, err := w.CreateFormFile(fileFormKey, filename)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating multipart form file: %v", err)
 	}

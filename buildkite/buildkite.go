@@ -209,6 +209,16 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 
 	u := c.BaseURL.ResolveReference(rel)
 
+	headers := map[string]string{}
+
+	if c.authHeader != "" {
+		headers["Authorization"] = c.authHeader
+	}
+
+	if c.UserAgent != "" {
+		headers["User-Agent"] = c.UserAgent
+	}
+
 	buf := new(bytes.Buffer)
 	if body != nil {
 		switch v := body.(type) {
@@ -219,6 +229,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 				return nil, fmt.Errorf("failed to copy body: %w", err)
 			}
 		default:
+			headers["Content-Type"] = "application/json"
 			err := json.NewEncoder(buf).Encode(body)
 			if err != nil {
 				return nil, err
@@ -231,14 +242,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-
-	if c.authHeader != "" {
-		req.Header.Set("Authorization", c.authHeader)
-	}
-
-	if c.UserAgent != "" {
-		req.Header.Add("User-Agent", c.UserAgent)
+	for k, v := range headers {
+		req.Header.Set(k, v)
 	}
 
 	return req, nil
