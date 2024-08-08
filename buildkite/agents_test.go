@@ -3,7 +3,7 @@ package buildkite
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 	"strings"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestAgentsService_List(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func TestAgentsService_List(t *testing.T) {
 }
 
 func TestAgentsService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,7 @@ func TestAgentsService_Get(t *testing.T) {
 }
 
 func TestAgentsService_Create(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &Agent{Name: String("new_agent_bob")}
@@ -82,7 +82,7 @@ func TestAgentsService_Create(t *testing.T) {
 }
 
 func TestAgentsService_Delete(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
@@ -96,12 +96,12 @@ func TestAgentsService_Delete(t *testing.T) {
 }
 
 func TestAgentsService_Stop(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123/stop", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("could not read request body: %v", err)
 		}

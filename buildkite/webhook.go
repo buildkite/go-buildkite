@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -125,7 +125,7 @@ func getTimestampAndSignature(sig string) (timestamp string, signature []byte, e
 //
 // Example usage:
 func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err error) {
-	if payload, err = ioutil.ReadAll(r.Body); err != nil {
+	if payload, err = io.ReadAll(r.Body); err != nil {
 		return nil, err
 	}
 

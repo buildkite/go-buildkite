@@ -8,7 +8,7 @@ import (
 )
 
 func TestUserService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/user", func(w http.ResponseWriter, r *http.Request) {

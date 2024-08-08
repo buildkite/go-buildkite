@@ -10,7 +10,7 @@ import (
 )
 
 func TestClusterQueuesService_List(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
@@ -125,7 +125,7 @@ func TestClusterQueuesService_List(t *testing.T) {
 }
 
 func TestClusterQueuesService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140", func(w http.ResponseWriter, r *http.Request) {
@@ -204,7 +204,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 }
 
 func TestClusterQueuesService_Create(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &ClusterQueueCreate{
@@ -247,7 +247,7 @@ func TestClusterQueuesService_Create(t *testing.T) {
 }
 
 func TestClusterQueuesService_Update(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &ClusterQueueCreate{
@@ -320,7 +320,7 @@ func TestClusterQueuesService_Update(t *testing.T) {
 }
 
 func TestClusterQueuesService_Delete(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
@@ -335,7 +335,7 @@ func TestClusterQueuesService_Delete(t *testing.T) {
 }
 
 func TestClusterQueuesService_Pause(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &ClusterQueueCreate{
@@ -410,7 +410,7 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 }
 
 func TestClusterQueuesService_Resume(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/5cadac07-51dd-4e12-bea3-d91be4655c2f/resume_dispatch", func(w http.ResponseWriter, r *http.Request) {

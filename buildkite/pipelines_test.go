@@ -9,7 +9,7 @@ import (
 )
 
 func TestPipelinesService_List(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func TestPipelinesService_List(t *testing.T) {
 }
 
 func TestPipelinesService_Create(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -121,7 +121,7 @@ func TestPipelinesService_Create(t *testing.T) {
 }
 
 func TestPipelinesService_CreateByConfiguration(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -188,7 +188,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 }
 
 func TestPipelinesService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
@@ -214,7 +214,7 @@ func TestPipelinesService_Get(t *testing.T) {
 }
 
 func TestPipelinesService_Delete(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
@@ -228,7 +228,7 @@ func TestPipelinesService_Delete(t *testing.T) {
 }
 
 func TestPipelinesService_Update(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -346,7 +346,7 @@ func TestPipelinesService_Update(t *testing.T) {
 }
 
 func TestPipelinesService_AddWebhook(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/webhook", func(w http.ResponseWriter, r *http.Request) {
@@ -360,7 +360,7 @@ func TestPipelinesService_AddWebhook(t *testing.T) {
 }
 
 func TestPipelinesService_Archive(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/archive", func(w http.ResponseWriter, r *http.Request) {
@@ -374,7 +374,7 @@ func TestPipelinesService_Archive(t *testing.T) {
 }
 
 func TestPipelinesService_Unarchive(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/unarchive", func(w http.ResponseWriter, r *http.Request) {
@@ -388,7 +388,7 @@ func TestPipelinesService_Unarchive(t *testing.T) {
 }
 
 func TestPluginsUnmarshal(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	for _, tc := range []struct {

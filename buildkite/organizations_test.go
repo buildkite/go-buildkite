@@ -8,7 +8,7 @@ import (
 )
 
 func TestOrganizationsService_List(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations", func(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func TestOrganizationsService_List(t *testing.T) {
 }
 
 func TestOrganizationsService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/babelstoemp", func(w http.ResponseWriter, r *http.Request) {

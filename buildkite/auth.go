@@ -7,6 +7,8 @@ import (
 )
 
 // TokenAuthTransport manages injection of the API token for each request
+//
+// Deprecated: Use NewOpts with the WithToken option instead.
 type TokenAuthTransport struct {
 	APIToken  string
 	APIHost   string
@@ -14,6 +16,8 @@ type TokenAuthTransport struct {
 }
 
 // RoundTrip invoked each time a request is made
+//
+// Deprecated: Use NewOpts with the WithToken option instead.
 func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.URL.Host == t.APIHost || t.APIHost == "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.APIToken))
@@ -22,6 +26,8 @@ func (t TokenAuthTransport) RoundTrip(req *http.Request) (*http.Response, error)
 }
 
 // Client builds a new http client.
+//
+// Deprecated: Use NewOpts with the WithToken option instead.
 func (t *TokenAuthTransport) Client() *http.Client {
 	return &http.Client{Transport: t}
 }
@@ -37,6 +43,8 @@ func (t *TokenAuthTransport) transport() http.RoundTripper {
 
 // NewTokenConfig configure authentication using an API token
 // NOTE: the debug flag is not used anymore.
+//
+// Deprecated: Use NewOpts with the WithToken option instead.
 func NewTokenConfig(apiToken string, debug bool) (*TokenAuthTransport, error) {
 	if apiToken == "" {
 		return nil, fmt.Errorf("Invalid token, empty string supplied")
@@ -45,6 +53,8 @@ func NewTokenConfig(apiToken string, debug bool) (*TokenAuthTransport, error) {
 }
 
 // BasicAuthTransport manages injection of the authorization header
+//
+// Deprecated: Use NewOpts with the WithBasicAuth option instead.
 type BasicAuthTransport struct {
 	APIHost  string
 	Username string
@@ -52,6 +62,8 @@ type BasicAuthTransport struct {
 }
 
 // RoundTrip invoked each time a request is made
+//
+// Deprecated: Use NewOpts with the WithBasicAuth option instead.
 func (bat BasicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.URL.Host == bat.APIHost || bat.APIHost == "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Basic %s",
@@ -62,11 +74,15 @@ func (bat BasicAuthTransport) RoundTrip(req *http.Request) (*http.Response, erro
 }
 
 // Client builds a new http client.
+//
+// Deprecated: Use NewOpts with the WithBasicAuth option instead.
 func (bat *BasicAuthTransport) Client() *http.Client {
 	return &http.Client{Transport: bat}
 }
 
 // NewBasicConfig configure authentication using the supplied credentials
+//
+// Deprecated: Use NewOpts with the WithBasicAuth option instead.
 func NewBasicConfig(username string, password string) (*BasicAuthTransport, error) {
 	if username == "" {
 		return nil, fmt.Errorf("Invalid username, empty string supplied")

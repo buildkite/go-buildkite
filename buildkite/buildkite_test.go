@@ -1,7 +1,8 @@
 package buildkite
 
 import (
-	"io/ioutil"
+	"encoding/base64"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -23,15 +24,16 @@ var (
 // setup sets up a test HTTP server along with a buildkite.Client that is
 // configured to talk to that test server.  Tests should register handlers on
 // mux which provide mock responses for the API method being tested.
-func setup() {
+func setup(t *testing.T) {
 	// test server
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 
-	// github client configured to use test server
-	client = NewClient(http.DefaultClient)
-	url, _ := url.Parse(server.URL)
-	client.BaseURL = url
+	var err error
+	client, err = NewOpts(WithBaseURL(server.URL))
+	if err != nil {
+		t.Fatalf("unexpected NewOpts() error: %v", err)
+	}
 }
 
 // teardown closes the test HTTP server.
@@ -97,7 +99,7 @@ func TestNewRequest(t *testing.T) {
 	}
 
 	// test that body was JSON encoded
-	body, _ := ioutil.ReadAll(req.Body)
+	body, _ := io.ReadAll(req.Body)
 	if got, want := string(body), outBody; got != want {
 		t.Errorf("NewRequest(%v) Body is %v, want %v", inBody, got, want)
 	}
@@ -110,6 +112,33 @@ func TestNewRequest(t *testing.T) {
 	// test that default user-agent is attached to the request
 	if got, want := req.Header.Get("User-Agent"), c.UserAgent; got != want {
 		t.Errorf("NewRequest() User-Agent is %v, want %v", got, want)
+	}
+}
+
+func TestNewRequest_WhenBasicAuthIsConfigured_AddsBasicAuthToHeaders(t *testing.T) {
+	c, err := NewOpts(WithBasicAuth("shirley_dander", "hunter2"))
+	if err != nil {
+		t.Fatalf("unexpected NewOpts() error: %v", err)
+	}
+	encodedAuth := base64.StdEncoding.EncodeToString([]byte("shirley_dander:hunter2"))
+
+	req, _ := c.NewRequest("GET", "/foo", nil)
+
+	expectedAuthString := "Basic " + encodedAuth
+	if got, want := req.Header.Get("Authorization"), expectedAuthString; got != want {
+		t.Errorf("NewRequest() Authorization is %v, want %v", got, want)
+	}
+}
+
+func TestNewRequest_WhenTokenAuthIsConfigured_AddsBearerTokenToHeaders(t *testing.T) {
+	c, err := NewOpts(WithTokenAuth("hunter2"))
+	if err != nil {
+		t.Fatalf("unexpected NewOpts() error: %v", err)
+	}
+	req, _ := c.NewRequest("GET", "/foo", nil)
+
+	if got, want := req.Header.Get("Authorization"), "Bearer hunter2"; got != want {
+		t.Errorf("NewRequest() Authorization is %v, want %v", got, want)
 	}
 }
 

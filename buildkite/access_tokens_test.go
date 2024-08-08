@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccessTokensService_Get(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/access-token", func(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func TestAccessTokensService_Get(t *testing.T) {
 }
 
 func TestAccessTokensService_Revoke(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/access-token", func(w http.ResponseWriter, r *http.Request) {

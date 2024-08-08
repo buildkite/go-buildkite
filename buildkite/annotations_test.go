@@ -10,7 +10,7 @@ import (
 )
 
 func TestAnnotationsService_ListByBuild(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 }
 
 func TestAnnotationsService_Create(t *testing.T) {
-	setup()
+	setup(t)
 	defer teardown()
 
 	input := &AnnotationCreate{
