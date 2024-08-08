@@ -63,6 +63,7 @@ type Client struct {
 	TestSuites               *TestSuitesService
 
 	authHeader string
+	httpDebug  bool
 }
 
 type clientOpt func(*Client) error
@@ -117,6 +118,14 @@ func WithBasicAuth(username, password string) clientOpt {
 	}
 }
 
+// WithHTTPDebug configures the buildkite.Client to dump all HTTP requests and responses to stdout.
+func WithHTTPDebug() clientOpt {
+	return func(c *Client) error {
+		c.httpDebug = true
+		return nil
+	}
+}
+
 // NewOpts returns a new buildkite API client with the provided options.
 // Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided.
 // Otherwise, sensible defaults are used.
@@ -143,8 +152,7 @@ func NewOpts(opts ...clientOpt) (*Client, error) {
 
 // NewClient returns a new buildkite API client. As API calls require authentication
 // you MUST supply a client which provides the required API key.
-//
-// Deprecated: Use NewOpts instead.
+// Deprecated: Use [NewOpts] instead.
 func NewClient(httpClient *http.Client) *Client {
 	baseURL, _ := url.Parse(DefaultBaseURL)
 
@@ -192,6 +200,7 @@ func (c *Client) populateDefaultServices() {
 }
 
 // SetHttpDebug this enables global http request/response dumping for this API
+// Deprecated: Use [NewOpts] with [WithHTTPDebug] instead.
 func SetHttpDebug(flag bool) {
 	httpDebug = flag
 }
@@ -326,7 +335,9 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	respCh := make(chan *http.Response, 1)
 
 	op := func() error {
-		if httpDebug {
+		// httpDebug and c.httpDebug have equivalent functionality, but httpDebug is deprecated. once it's removed, this
+		// can be simplified to just c.httpDebug
+		if httpDebug || c.httpDebug {
 			if dump, err := httputil.DumpRequest(req, true); err == nil {
 				fmt.Printf("DEBUG request uri=%s\n%s\n", req.URL, dump)
 			}
@@ -337,7 +348,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 			return backoff.Permanent(err)
 		}
 
-		if httpDebug {
+		if httpDebug || c.httpDebug {
 			if dump, err := httputil.DumpResponse(resp, true); err == nil {
 				fmt.Printf("DEBUG response uri=%s\n%s\n", req.URL, dump)
 			}
