@@ -75,10 +75,10 @@ func TestClusterQueuesService_List(t *testing.T) {
 		t.Errorf("TestClusterQueues.List returned error: %v", err)
 	}
 
-	defaultQueueCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-06T15:02:08.951Z")
-	devQueueClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z")
-	devQueuePausedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	defaultQueueCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-06T15:02:08.951Z"))
+	devQueueClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z"))
+	devQueuePausedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -169,9 +169,9 @@ func TestClusterQueuesService_Get(t *testing.T) {
 		t.Errorf("TestClusterQueues.Get returned error: %v", err)
 	}
 
-	devQueueClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z")
-	devQueuePausedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	devQueueClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z"))
+	devQueuePausedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),

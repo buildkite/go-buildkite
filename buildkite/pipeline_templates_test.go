@@ -83,9 +83,9 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 		t.Errorf("TestPipelineTemplates.List returned error: %v", err)
 	}
 
-	basicTemplateCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z")
-	devTemplateCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-11T02:24:33.602Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	basicTemplateCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z"))
+	devTemplateCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-11T02:24:33.602Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	pipelineTemplateCreator := &PipelineTemplateCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -176,8 +176,8 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 		t.Errorf("TestPipelineTemplates.Get returned error: %v", err)
 	}
 
-	basicTemplateCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	basicTemplateCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	pipelineTemplateCreator := &PipelineTemplateCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),

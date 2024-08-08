@@ -47,8 +47,8 @@ func TestFlakyTestsService_List(t *testing.T) {
 	}
 
 	// Create Time instances from strings in BuildKiteDateFormat friendly format
-	parsedTime1, err := time.Parse(BuildKiteDateFormat, "2023-05-19T20:00:02.223Z")
-	parsedTime2, err := time.Parse(BuildKiteDateFormat, "2023-07-10T13:14:03.214Z")
+	parsedTime1 := must(time.Parse(BuildKiteDateFormat, "2023-05-19T20:00:02.223Z"))
+	parsedTime2 := must(time.Parse(BuildKiteDateFormat, "2023-07-10T13:14:03.214Z"))
 
 	if err != nil {
 		t.Errorf("TestSuites.List time.Parse error: %v", err)

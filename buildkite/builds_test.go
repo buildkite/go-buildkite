@@ -110,7 +110,7 @@ func TestBuildsService_Get(t *testing.T) {
 
 		jobType := "manual"
 		unblockedAt := "2023-01-01T15:00:00.00Z"
-		parsedTime, err := time.Parse(BuildKiteDateFormat, unblockedAt)
+		parsedTime := must(time.Parse(BuildKiteDateFormat, unblockedAt))
 
 		mux.HandleFunc(requestSlug,
 			func(w http.ResponseWriter, r *http.Request) {

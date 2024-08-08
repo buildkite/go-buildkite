@@ -100,8 +100,8 @@ func TestAnnotationsService_Create(t *testing.T) {
 		t.Errorf("TestAnnotations.Create returned error: %v", err)
 	}
 
-	annotationCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z")
-	annotationUpatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z")
+	annotationCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z"))
+	annotationUpatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z"))
 
 	want := &Annotation{
 		ID:        String("68aef727-f754-48e1-aad8-5f5da8a9960c"),

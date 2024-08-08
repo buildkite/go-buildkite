@@ -67,9 +67,9 @@ func TestClustersService_List(t *testing.T) {
 		t.Errorf("TestClusters.List returned error: %v", err)
 	}
 
-	devClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z")
-	prodClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-04T04:25:55.751Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	devClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z"))
+	prodClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-04T04:25:55.751Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -150,8 +150,8 @@ func TestClustersService_Get(t *testing.T) {
 		t.Errorf("TestClusters.Get returned error: %v", err)
 	}
 
-	devClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	devClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
