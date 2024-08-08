@@ -16,7 +16,7 @@ type TestRun struct {
 	WebURL    *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
 	Branch    *string    `json:"branch,omitempty" yaml:"branch,omitempty"`
 	CommitSHA *string    `json:"commit_sha,omitempty" yaml:"commit_sha,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty`
+	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 }
 
 type TestRunsListOptions struct {
