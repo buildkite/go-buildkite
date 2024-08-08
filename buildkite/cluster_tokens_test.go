@@ -10,8 +10,10 @@ import (
 )
 
 func TestClusterTokensService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -60,9 +62,9 @@ func TestClusterTokensService_List(t *testing.T) {
 		t.Errorf("TestClusterTokens.List returned error: %v", err)
 	}
 
-	developmentTokenCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z")
-	testTokenCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T08:05:00.755Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	developmentTokenCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z"))
+	testTokenCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T08:05:00.755Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -101,8 +103,10 @@ func TestClusterTokensService_List(t *testing.T) {
 }
 
 func TestClusterTokensService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -133,8 +137,8 @@ func TestClusterTokensService_Get(t *testing.T) {
 		t.Errorf("TestClusterTokens.Get returned error: %v", err)
 	}
 
-	developmentTokenCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	developmentTokenCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -162,8 +166,10 @@ func TestClusterTokensService_Get(t *testing.T) {
 }
 
 func TestClusterTokensService_Create(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterTokenCreateUpdate{
 		Description: String("Development 2 cluster token"),
@@ -202,8 +208,10 @@ func TestClusterTokensService_Create(t *testing.T) {
 }
 
 func TestClusterTokensService_Update(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterTokenCreateUpdate{
 		Description: String("Development 1 Fleet Token"),
@@ -271,8 +279,10 @@ func TestClusterTokensService_Update(t *testing.T) {
 }
 
 func TestClusterTokensService_Delete(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")

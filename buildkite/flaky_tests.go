@@ -18,7 +18,7 @@ type FlakyTest struct {
 	Location             *string    `json:"location,omitempty" yaml:"location,omitempty"`
 	FileName             *string    `json:"file_name,omitempty" yaml:"file_name,omitempty"`
 	Instances            *int       `json:"instances,omitempty" yaml:"instances,omitempty"`
-	MostRecentInstanceAt *Timestamp `json:"most_recent_instance_at,omitempty" yaml:"most_recent_instance_at,omitempty`
+	MostRecentInstanceAt *Timestamp `json:"most_recent_instance_at,omitempty" yaml:"most_recent_instance_at,omitempty"`
 }
 
 type FlakyTestsListOptions struct {

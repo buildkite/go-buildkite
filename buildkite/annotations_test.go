@@ -10,8 +10,10 @@ import (
 )
 
 func TestAnnotationsService_ListByBuild(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -62,8 +64,10 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 }
 
 func TestAnnotationsService_Create(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &AnnotationCreate{
 		Style:   String("info"),
@@ -100,8 +104,8 @@ func TestAnnotationsService_Create(t *testing.T) {
 		t.Errorf("TestAnnotations.Create returned error: %v", err)
 	}
 
-	annotationCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z")
-	annotationUpatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z")
+	annotationCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z"))
+	annotationUpatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-21T08:50:05.824Z"))
 
 	want := &Annotation{
 		ID:        String("68aef727-f754-48e1-aad8-5f5da8a9960c"),

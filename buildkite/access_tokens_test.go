@@ -8,8 +8,10 @@ import (
 )
 
 func TestAccessTokensService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/access-token", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -31,8 +33,10 @@ func TestAccessTokensService_Get(t *testing.T) {
 }
 
 func TestAccessTokensService_Revoke(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/access-token", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")

@@ -10,8 +10,10 @@ import (
 )
 
 func TestClusterQueuesService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -75,10 +77,10 @@ func TestClusterQueuesService_List(t *testing.T) {
 		t.Errorf("TestClusterQueues.List returned error: %v", err)
 	}
 
-	defaultQueueCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-06T15:02:08.951Z")
-	devQueueClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z")
-	devQueuePausedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	defaultQueueCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-06T15:02:08.951Z"))
+	devQueueClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z"))
+	devQueuePausedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -125,8 +127,10 @@ func TestClusterQueuesService_List(t *testing.T) {
 }
 
 func TestClusterQueuesService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -169,9 +173,9 @@ func TestClusterQueuesService_Get(t *testing.T) {
 		t.Errorf("TestClusterQueues.Get returned error: %v", err)
 	}
 
-	devQueueClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z")
-	devQueuePausedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	devQueueClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T11:30:17.941Z"))
+	devQueuePausedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -204,8 +208,10 @@ func TestClusterQueuesService_Get(t *testing.T) {
 }
 
 func TestClusterQueuesService_Create(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterQueueCreate{
 		Key:         String("development1"),
@@ -247,8 +253,10 @@ func TestClusterQueuesService_Create(t *testing.T) {
 }
 
 func TestClusterQueuesService_Update(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterQueueCreate{
 		Key:         String("development1"),
@@ -320,8 +328,10 @@ func TestClusterQueuesService_Update(t *testing.T) {
 }
 
 func TestClusterQueuesService_Delete(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
@@ -335,8 +345,10 @@ func TestClusterQueuesService_Delete(t *testing.T) {
 }
 
 func TestClusterQueuesService_Pause(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterQueueCreate{
 		Key:         String("development1"),
@@ -410,8 +422,10 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 }
 
 func TestClusterQueuesService_Resume(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/5cadac07-51dd-4e12-bea3-d91be4655c2f/resume_dispatch", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")

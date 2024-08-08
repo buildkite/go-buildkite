@@ -9,8 +9,10 @@ import (
 )
 
 func TestTestRunsService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -43,8 +45,8 @@ func TestTestRunsService_List(t *testing.T) {
 	}
 
 	// Create Time instances from strings in BuildKiteDateFormat friendly format
-	parsedTime1, err := time.Parse(BuildKiteDateFormat, "2023-05-20T10:25:50.264Z")
-	parsedTime2, err := time.Parse(BuildKiteDateFormat, "2023-05-20T10:52:22.254Z")
+	parsedTime1 := must(time.Parse(BuildKiteDateFormat, "2023-05-20T10:25:50.264Z"))
+	parsedTime2 := must(time.Parse(BuildKiteDateFormat, "2023-05-20T10:52:22.254Z"))
 
 	if err != nil {
 		t.Errorf("TestSuites.List time.Parse error: %v", err)
@@ -75,8 +77,10 @@ func TestTestRunsService_List(t *testing.T) {
 }
 
 func TestTestRunsService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")

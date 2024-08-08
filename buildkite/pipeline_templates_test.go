@@ -10,8 +10,10 @@ import (
 )
 
 func TestPipelineTemplatesService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -83,9 +85,9 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 		t.Errorf("TestPipelineTemplates.List returned error: %v", err)
 	}
 
-	basicTemplateCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z")
-	devTemplateCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-11T02:24:33.602Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	basicTemplateCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z"))
+	devTemplateCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-11T02:24:33.602Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	pipelineTemplateCreator := &PipelineTemplateCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -133,8 +135,10 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 }
 
 func TestPipelineTemplatesService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/90333dc7-b86a-4485-98c3-9419a5dbc52e", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -176,8 +180,8 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 		t.Errorf("TestPipelineTemplates.Get returned error: %v", err)
 	}
 
-	basicTemplateCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	basicTemplateCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-11T01:22:05.650Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	pipelineTemplateCreator := &PipelineTemplateCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -209,8 +213,10 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 }
 
 func TestPipelineTemplatesService_Create(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &PipelineTemplateCreateUpdate{
 		Name:          String("Production Pipeline uploader"),
@@ -262,8 +268,10 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 }
 
 func TestPipelineTemplatesService_Update(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &PipelineTemplateCreateUpdate{
 		Name:          String("Production Pipeline uploader"),
@@ -346,8 +354,10 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 }
 
 func TestPipelineTemplatesService_Delete(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/19dbd05a-96d7-430f-bac0-14b791558562", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")

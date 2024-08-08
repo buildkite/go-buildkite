@@ -11,8 +11,10 @@ import (
 )
 
 func TestAgentsService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -31,8 +33,10 @@ func TestAgentsService_List(t *testing.T) {
 }
 
 func TestAgentsService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -51,8 +55,10 @@ func TestAgentsService_Get(t *testing.T) {
 }
 
 func TestAgentsService_Create(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &Agent{Name: String("new_agent_bob")}
 
@@ -82,8 +88,10 @@ func TestAgentsService_Create(t *testing.T) {
 }
 
 func TestAgentsService_Delete(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
@@ -96,8 +104,10 @@ func TestAgentsService_Delete(t *testing.T) {
 }
 
 func TestAgentsService_Stop(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/agents/123/stop", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")

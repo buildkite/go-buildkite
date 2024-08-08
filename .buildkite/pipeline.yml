@@ -1,6 +1,26 @@
 steps:
-  - name: ":golang:"
-    command: make
+  - name: ":go::robot_face: Lint"
+    key: lint
+    command: .buildkite/steps/lint.sh
     plugins:
-      - docker-compose#ab65b07:
-          run: app
+      - docker#v5.9.0:
+          image: "golang:1.22"
+
+  - name: ":go::test_tube: Test"
+    key: test
+    command: ".buildkite/steps/test.sh"
+    artifact_paths: junit-*.xml
+    plugins:
+      - docker#v5.9.0:
+          image: "golang:1.22"
+          propagate-environment: true
+      - artifacts#v1.9.0:
+          upload: "cover.{html,out}"
+
+  - label: ":writing_hand: Annotate with Test Failures"
+    key: annotate
+    depends_on: test
+    allow_dependency_failure: true
+    plugins:
+      - junit-annotate#v1.6.0:
+          artifacts: junit-*.xml

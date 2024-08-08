@@ -10,8 +10,10 @@ import (
 )
 
 func TestBuildsService_Cancel(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/1/cancel", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
@@ -33,8 +35,10 @@ func TestBuildsService_Cancel(t *testing.T) {
 }
 
 func TestBuildsService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -53,14 +57,18 @@ func TestBuildsService_List(t *testing.T) {
 }
 
 func TestBuildsService_Get(t *testing.T) {
+	t.Parallel()
+
 	buildNumber := "123"
 	orgName := "my-great-org"
 	pipelineName := "sup-keith"
 	requestSlug := fmt.Sprintf("/v2/organizations/%s/pipelines/%s/builds/%s",
 		orgName, pipelineName, buildNumber)
 	t.Run("returns a build struct with expected id", func(t *testing.T) {
-		setup(t)
-		defer teardown()
+		t.Parallel()
+
+		mux, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
 
 		mux.HandleFunc(requestSlug,
 			func(w http.ResponseWriter, r *http.Request) {
@@ -80,8 +88,10 @@ func TestBuildsService_Get(t *testing.T) {
 	})
 
 	t.Run("returns a build struct with expected job containing a group key", func(t *testing.T) {
-		setup(t)
-		defer teardown()
+		t.Parallel()
+
+		mux, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
 
 		expectedGroup := "job_group"
 		mux.HandleFunc(requestSlug,
@@ -105,12 +115,14 @@ func TestBuildsService_Get(t *testing.T) {
 	})
 
 	t.Run("returns a build struct with expected manual job values", func(t *testing.T) {
-		setup(t)
-		defer teardown()
+		t.Parallel()
+
+		mux, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
 
 		jobType := "manual"
 		unblockedAt := "2023-01-01T15:00:00.00Z"
-		parsedTime, err := time.Parse(BuildKiteDateFormat, unblockedAt)
+		parsedTime := must(time.Parse(BuildKiteDateFormat, unblockedAt))
 
 		mux.HandleFunc(requestSlug,
 			func(w http.ResponseWriter, r *http.Request) {
@@ -135,8 +147,10 @@ func TestBuildsService_Get(t *testing.T) {
 }
 
 func TestBuildsService_List_by_status(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -163,8 +177,10 @@ func TestBuildsService_List_by_status(t *testing.T) {
 }
 
 func TestBuildsService_List_by_multiple_status(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -192,8 +208,10 @@ func TestBuildsService_List_by_multiple_status(t *testing.T) {
 }
 
 func TestBuildsService_List_by_created_date(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	ts, err := time.Parse(BuildKiteDateFormat, "2016-03-24T01:00:00Z")
 	if err != nil {
@@ -225,8 +243,10 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 }
 
 func TestBuildsService_ListByOrg(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -245,8 +265,10 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 }
 
 func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -274,8 +296,10 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 }
 
 func TestBuildsService_List_by_multiple_branches(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -301,8 +325,10 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 }
 
 func TestBuildsService_ListByPipeline(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")

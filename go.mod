@@ -1,6 +1,6 @@
 module github.com/buildkite/go-buildkite/v3
 
-go 1.20
+go 1.22
 
 require (
 	github.com/cenkalti/backoff v1.1.1-0.20171020064038-309aa717adbf

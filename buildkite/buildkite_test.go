@@ -10,35 +10,25 @@ import (
 	"testing"
 )
 
-var (
-	// mux is the HTTP request multiplexer used with the test server.
-	mux *http.ServeMux
-
-	// client is the buildkite client being tested.
-	client *Client
-
-	// server is a test HTTP server used to provide mock API responses.
-	server *httptest.Server
-)
-
-// setup sets up a test HTTP server along with a buildkite.Client that is
+// newMockServerAndClient sets up a test HTTP server along with a buildkite.Client that is
 // configured to talk to that test server.  Tests should register handlers on
 // mux which provide mock responses for the API method being tested.
-func setup(t *testing.T) {
+func newMockServerAndClient(t *testing.T) (*http.ServeMux, *Client, func()) {
 	// test server
-	mux = http.NewServeMux()
-	server = httptest.NewServer(mux)
+	mux := http.NewServeMux()
+	// Fail test if unexpected request is received, "/" matches any request not matched by a more specific handler
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		t.Fatalf("unexpected %s request for %s", r.Method, r.URL.Path)
+	})
 
-	var err error
-	client, err = NewOpts(WithBaseURL(server.URL))
+	server := httptest.NewServer(mux)
+
+	client, err := NewOpts(WithBaseURL(server.URL))
 	if err != nil {
 		t.Fatalf("unexpected NewOpts() error: %v", err)
 	}
-}
 
-// teardown closes the test HTTP server.
-func teardown() {
-	server.Close()
+	return mux, client, func() { server.Close() }
 }
 
 func testMethod(t *testing.T, r *http.Request, want string) {

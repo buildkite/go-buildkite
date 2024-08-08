@@ -10,8 +10,10 @@ import (
 )
 
 func TestClustersService_List(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -67,9 +69,9 @@ func TestClustersService_List(t *testing.T) {
 		t.Errorf("TestClusters.List returned error: %v", err)
 	}
 
-	devClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z")
-	prodClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-04T04:25:55.751Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	devClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z"))
+	prodClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-04T04:25:55.751Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -115,8 +117,10 @@ func TestClustersService_List(t *testing.T) {
 }
 
 func TestClustersService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -150,8 +154,8 @@ func TestClustersService_Get(t *testing.T) {
 		t.Errorf("TestClusters.Get returned error: %v", err)
 	}
 
-	devClusterCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z")
-	userCreatedAt, err := time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z")
+	devClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z"))
+	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
 	clusterCreator := &ClusterCreator{
 		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
@@ -182,8 +186,10 @@ func TestClustersService_Get(t *testing.T) {
 }
 
 func TestClustersService_Create(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterCreate{
 		Name:        "Testing Cluster",
@@ -231,8 +237,10 @@ func TestClustersService_Create(t *testing.T) {
 }
 
 func TestClustersService_Update(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	input := &ClusterCreate{
 		Name:        "Testing Cluster",
@@ -313,8 +321,10 @@ func TestClustersService_Update(t *testing.T) {
 }
 
 func TestClustersService_Delete(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/organizations/my-great-org/clusters/7d2aa9b5-bf2a-4ce0-b9d7-90d3d9b8942c", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")

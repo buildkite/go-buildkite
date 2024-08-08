@@ -8,8 +8,10 @@ import (
 )
 
 func TestUserService_Get(t *testing.T) {
-	setup(t)
-	defer teardown()
+	t.Parallel()
+
+	mux, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
 
 	mux.HandleFunc("/v2/user", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
