@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://api.buildkite.com/"
-	userAgent      = "go-buildkite/" + Version
+	DefaultBaseURL   = "https://api.buildkite.com/"
+	DefaultUserAgent = "go-buildkite/" + Version
 )
 
 var (
@@ -41,30 +41,34 @@ type Client struct {
 	UserAgent string
 
 	// Services used for talking to different parts of the buildkite API.
-	AccessTokens      *AccessTokensService
-	Agents            *AgentsService
-	Annotations       *AnnotationsService
-	Artifacts         *ArtifactsService
-	Builds            *BuildsService
-	Clusters          *ClustersService
-	ClusterQueues     *ClusterQueuesService
-	ClusterTokens     *ClusterTokensService
-	FlakyTests        *FlakyTestsService
-	Jobs              *JobsService
-	Organizations     *OrganizationsService
-	Pipelines         *PipelinesService
-	PipelineTemplates *PipelineTemplatesService
-	User              *UserService
-	Teams             *TeamsService
-	Tests             *TestsService
-	TestRuns          *TestRunsService
-	TestSuites        *TestSuitesService
+	AccessTokens             *AccessTokensService
+	Agents                   *AgentsService
+	Annotations              *AnnotationsService
+	Artifacts                *ArtifactsService
+	Builds                   *BuildsService
+	Clusters                 *ClustersService
+	ClusterQueues            *ClusterQueuesService
+	ClusterTokens            *ClusterTokensService
+	FlakyTests               *FlakyTestsService
+	Jobs                     *JobsService
+	Organizations            *OrganizationsService
+	PackagesService          *PackagesService
+	PackageRegistriesService *PackageRegistriesService
+	Pipelines                *PipelinesService
+	PipelineTemplates        *PipelineTemplatesService
+	User                     *UserService
+	Teams                    *TeamsService
+	Tests                    *TestsService
+	TestRuns                 *TestRunsService
+	TestSuites               *TestSuitesService
 
 	authHeader string
 }
 
 type clientOpt func(*Client) error
 
+// WithHTTPClient configures the buildkite.Client to use the provided http.Client. This can be used to
+// customise the client's transport (e.g. to use a custom TLS configuration) or to provide a mock client
 func WithHTTPClient(client *http.Client) clientOpt {
 	return func(c *Client) error {
 		c.client = client
@@ -72,6 +76,7 @@ func WithHTTPClient(client *http.Client) clientOpt {
 	}
 }
 
+// WithBaseURL configures the buildkite.Client to use the provided base URL, instead of the default of https://api.buildkite.com/
 func WithBaseURL(baseURL string) clientOpt {
 	return func(c *Client) error {
 		var err error
@@ -84,6 +89,7 @@ func WithBaseURL(baseURL string) clientOpt {
 	}
 }
 
+// WithUserAgent configures the buildkite.Client to use the provided user agent string, instead of the default of "go-buildkite/<version>"
 func WithUserAgent(userAgent string) clientOpt {
 	return func(c *Client) error {
 		c.UserAgent = userAgent
@@ -91,6 +97,9 @@ func WithUserAgent(userAgent string) clientOpt {
 	}
 }
 
+// WithTokenAuth configures the buildkite.Client to use the provided token for authentication.
+// This is the recommended way to authenticate with the buildkite API
+// Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided to NewOpts
 func WithTokenAuth(token string) clientOpt {
 	return func(c *Client) error {
 		c.authHeader = fmt.Sprintf("Bearer %s", token)
@@ -98,6 +107,8 @@ func WithTokenAuth(token string) clientOpt {
 	}
 }
 
+// WithBasicAuth configures the buildkite.Client to use the provided username and password for authentication.
+// Deprecated: Use [WithTokenAuth] and an API token instead.
 func WithBasicAuth(username, password string) clientOpt {
 	return func(c *Client) error {
 		auth := fmt.Sprintf("%s:%s", username, password)
@@ -110,12 +121,12 @@ func WithBasicAuth(username, password string) clientOpt {
 // Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided.
 // Otherwise, sensible defaults are used.
 func NewOpts(opts ...clientOpt) (*Client, error) {
-	baseURL, _ := url.Parse(defaultBaseURL)
+	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
 		client:    http.DefaultClient,
 		BaseURL:   baseURL,
-		UserAgent: userAgent,
+		UserAgent: DefaultUserAgent,
 	}
 
 	for _, opt := range opts {
@@ -135,12 +146,12 @@ func NewOpts(opts ...clientOpt) (*Client, error) {
 //
 // Deprecated: Use NewOpts instead.
 func NewClient(httpClient *http.Client) *Client {
-	baseURL, _ := url.Parse(defaultBaseURL)
+	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
 		client:    httpClient,
 		BaseURL:   baseURL,
-		UserAgent: userAgent,
+		UserAgent: DefaultUserAgent,
 	}
 
 	c.populateDefaultServices()
@@ -169,6 +180,8 @@ func (c *Client) populateDefaultServices() {
 	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
 	c.Organizations = &OrganizationsService{c}
+	c.PackagesService = &PackagesService{c}
+	c.PackageRegistriesService = &PackageRegistriesService{c}
 	c.Pipelines = &PipelinesService{c}
 	c.PipelineTemplates = &PipelineTemplatesService{c}
 	c.User = &UserService{c}
@@ -196,11 +209,31 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 
 	u := c.BaseURL.ResolveReference(rel)
 
+	headers := map[string]string{}
+
+	if c.authHeader != "" {
+		headers["Authorization"] = c.authHeader
+	}
+
+	if c.UserAgent != "" {
+		headers["User-Agent"] = c.UserAgent
+	}
+
 	buf := new(bytes.Buffer)
 	if body != nil {
-		err := json.NewEncoder(buf).Encode(body)
-		if err != nil {
-			return nil, err
+		switch v := body.(type) {
+		// If body is an io.Reader, copy it to the buffer, the caller probably knows what they want
+		case io.Reader:
+			_, err := io.Copy(buf, v)
+			if err != nil {
+				return nil, fmt.Errorf("failed to copy body: %w", err)
+			}
+		default:
+			headers["Content-Type"] = "application/json"
+			err := json.NewEncoder(buf).Encode(body)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -209,14 +242,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-
-	if c.authHeader != "" {
-		req.Header.Set("Authorization", c.authHeader)
-	}
-
-	if c.UserAgent != "" {
-		req.Header.Add("User-Agent", c.UserAgent)
+	for k, v := range headers {
+		req.Header.Set(k, v)
 	}
 
 	return req, nil
