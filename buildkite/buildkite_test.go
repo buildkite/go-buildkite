@@ -67,17 +67,17 @@ func testFormValuesList(t *testing.T, r *http.Request, values valuesList) {
 func TestNewClient(t *testing.T) {
 	c := NewClient(nil)
 
-	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
+	if got, want := c.BaseURL.String(), DefaultBaseURL; got != want {
 		t.Errorf("NewClient BaseURL is %v, want %v", got, want)
 	}
-	if got, want := c.UserAgent, userAgent; got != want {
+	if got, want := c.UserAgent, DefaultUserAgent; got != want {
 		t.Errorf("NewClient UserAgent is %v, want %v", got, want)
 	}
 }
 
 func TestNewRequest(t *testing.T) {
 	c := NewClient(nil)
-	inURL, outURL := "/foo", defaultBaseURL+"foo"
+	inURL, outURL := "/foo", DefaultBaseURL+"foo"
 	inBody := &User{ID: String("123"), Name: String("Jane Doe"), Email: String("jane@doe.com")}
 	outBody := `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}` + "\n"
 

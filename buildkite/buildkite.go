@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://api.buildkite.com/"
-	userAgent      = "go-buildkite/" + Version
+	DefaultBaseURL   = "https://api.buildkite.com/"
+	DefaultUserAgent = "go-buildkite/" + Version
 )
 
 var (
@@ -67,6 +67,8 @@ type Client struct {
 
 type clientOpt func(*Client) error
 
+// WithHTTPClient configures the buildkite.Client to use the provided http.Client. This can be used to
+// customise the client's transport (e.g. to use a custom TLS configuration) or to provide a mock client
 func WithHTTPClient(client *http.Client) clientOpt {
 	return func(c *Client) error {
 		c.client = client
@@ -74,6 +76,7 @@ func WithHTTPClient(client *http.Client) clientOpt {
 	}
 }
 
+// WithBaseURL configures the buildkite.Client to use the provided base URL, instead of the default of https://api.buildkite.com/
 func WithBaseURL(baseURL string) clientOpt {
 	return func(c *Client) error {
 		var err error
@@ -86,6 +89,7 @@ func WithBaseURL(baseURL string) clientOpt {
 	}
 }
 
+// WithUserAgent configures the buildkite.Client to use the provided user agent string, instead of the default of "go-buildkite/<version>"
 func WithUserAgent(userAgent string) clientOpt {
 	return func(c *Client) error {
 		c.UserAgent = userAgent
@@ -93,6 +97,9 @@ func WithUserAgent(userAgent string) clientOpt {
 	}
 }
 
+// WithTokenAuth configures the buildkite.Client to use the provided token for authentication.
+// This is the recommended way to authenticate with the buildkite API
+// Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided to NewOpts
 func WithTokenAuth(token string) clientOpt {
 	return func(c *Client) error {
 		c.authHeader = fmt.Sprintf("Bearer %s", token)
@@ -100,6 +107,8 @@ func WithTokenAuth(token string) clientOpt {
 	}
 }
 
+// WithBasicAuth configures the buildkite.Client to use the provided username and password for authentication.
+// Deprecated: Use [WithTokenAuth] and an API token instead.
 func WithBasicAuth(username, password string) clientOpt {
 	return func(c *Client) error {
 		auth := fmt.Sprintf("%s:%s", username, password)
@@ -112,12 +121,12 @@ func WithBasicAuth(username, password string) clientOpt {
 // Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided.
 // Otherwise, sensible defaults are used.
 func NewOpts(opts ...clientOpt) (*Client, error) {
-	baseURL, _ := url.Parse(defaultBaseURL)
+	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
 		client:    http.DefaultClient,
 		BaseURL:   baseURL,
-		UserAgent: userAgent,
+		UserAgent: DefaultUserAgent,
 	}
 
 	for _, opt := range opts {
@@ -137,12 +146,12 @@ func NewOpts(opts ...clientOpt) (*Client, error) {
 //
 // Deprecated: Use NewOpts instead.
 func NewClient(httpClient *http.Client) *Client {
-	baseURL, _ := url.Parse(defaultBaseURL)
+	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
 		client:    httpClient,
 		BaseURL:   baseURL,
-		UserAgent: userAgent,
+		UserAgent: DefaultUserAgent,
 	}
 
 	c.populateDefaultServices()
