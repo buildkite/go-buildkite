@@ -1,3 +1,8 @@
+## [v3.12.0](https://github.com/buildkite/go-buildkite/compare/v3.11.0...v3.12.0) (2024-08-19)
+* Deprecate [`buildkite.NewClient`](https://pkg.go.dev/github.com/buildkite/go-buildkite/v3@v3.11.0/buildkite#NewClient) and its associated authenticating roundtrippers, and replace them with a new function `buildkite.NewOpts` [#185](https://github.com/buildkite/go-buildkite/pull/185) ([moskyb](https://github.com/moskyb))
+* Add bindings for Buildkite Packages APIs [#187](https://github.com/buildkite/go-buildkite/pull/186) ([moskyb](https://github.com/moskyb))
+
+
 ## [v3.11.0](https://github.com/buildkite/go-buildkite/compare/v3.10.0...v3.11.0) (2024-02-08)
 * Expose retry_source and retry_type on jobs [#171](https://github.com/buildkite/go-buildkite/pull/171) ([drcapulet](https://github.com/drcapulet))
 * Expose additional webhook fields on builds and jobs [#173](https://github.com/buildkite/go-buildkite/pull/173) ([mstifflin](https://github.com/mstifflin))
