@@ -18,6 +18,7 @@ type PackagesService struct {
 // Package represents a package which has been stored in a registry
 type Package struct {
 	ID           string          `json:"id"`
+	Name         string          `json:"name"`
 	URL          string          `json:"url"`
 	WebURL       string          `json:"web_url"`
 	Organization Organization    `json:"organization"`
