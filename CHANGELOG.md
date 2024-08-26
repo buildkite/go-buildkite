@@ -1,3 +1,7 @@
+## [v3.13.0](https://github.com/buildkite/go-buildkite/compare/v3.12.0...v3.13.0) (2024-08-27)
+* Add `Name` field to `buildkite.Package` struct [#190](https://github.com/buildkite/go-buildkite/pull/190) ([moskyb](ttps://github.com/moskyb))
+
+
 ## [v3.12.0](https://github.com/buildkite/go-buildkite/compare/v3.11.0...v3.12.0) (2024-08-19)
 * Deprecate [`buildkite.NewClient`](https://pkg.go.dev/github.com/buildkite/go-buildkite/v3@v3.11.0/buildkite#NewClient) and its associated authenticating roundtrippers, and replace them with a new function `buildkite.NewOpts` [#185](https://github.com/buildkite/go-buildkite/pull/185) ([moskyb](https://github.com/moskyb))
 * Add bindings for Buildkite Packages APIs [#187](https://github.com/buildkite/go-buildkite/pull/186) ([moskyb](https://github.com/moskyb))
