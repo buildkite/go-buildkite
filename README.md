@@ -26,7 +26,7 @@ var (
 client, err := buildkite.NewOpts(buildkite.WithTokenAuth(*apiToken))
 
 if err != nil {
-	log.Fatalf("New client configuration failed: %s", err)
+	log.Fatalf("client config failed: %s", err)
 }
 
 pipelines, _, err := client.Pipelines.List(*org, nil)
