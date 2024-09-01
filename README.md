@@ -15,12 +15,12 @@ Simple shortened example for listing all pipelines:
 ```go
 import (
     "github.com/buildkite/go-buildkite/v3/buildkite"
-
     "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	apiToken = kingpin.Flag("token", "API token").Required().String()
+    org = kingpin.Flag("org", "Organization slug").Required().String()
 )
 
 client, err := buildkite.NewOpts(buildkite.WithTokenAuth(*apiToken))
