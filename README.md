@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	apiToken = kingpin.Flag("token", "API token").Required().String()
+    apiToken = kingpin.Flag("token", "API token").Required().String()
     org = kingpin.Flag("org", "Organization slug").Required().String()
 )
 
