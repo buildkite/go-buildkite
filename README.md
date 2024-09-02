@@ -15,19 +15,21 @@ Simple shortened example for listing all pipelines:
 ```go
 import (
     "github.com/buildkite/go-buildkite/v3/buildkite"
+    "gopkg.in/alecthomas/kingpin.v2"
 )
-...
 
-config, err := buildkite.NewTokenConfig(*apiToken, false)
+var (
+    apiToken = kingpin.Flag("token", "API token").Required().String()
+    org = kingpin.Flag("org", "Organization slug").Required().String()
+)
+
+client, err := buildkite.NewOpts(buildkite.WithTokenAuth(*apiToken))
 
 if err != nil {
 	log.Fatalf("client config failed: %s", err)
 }
 
-client := buildkite.NewClient(config.Client())
-
 pipelines, _, err := client.Pipelines.List(*org, nil)
-
 ```
 
 See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
