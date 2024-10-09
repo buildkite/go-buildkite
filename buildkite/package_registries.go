@@ -28,9 +28,27 @@ type PackageRegistry struct {
 
 // CreatePackageRegistryInput represents the input to create a package registry.
 type CreatePackageRegistryInput struct {
-	Name        string `json:"name,omitempty"`        // The name of the package registry
-	Ecosystem   string `json:"ecosystem,omitempty"`   // The ecosystem of the package registry
-	Description string `json:"description,omitempty"` // A description for the package registry
+	Name        string                    `json:"name,omitempty"`        // The name of the package registry
+	Ecosystem   string                    `json:"ecosystem,omitempty"`   // The ecosystem of the package registry
+	Description string                    `json:"description,omitempty"` // A description for the package registry
+	Emoji       string                    `json:"emoji,omitempty"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
+	Color       string                    `json:"color,omitempty"`       // A color for the package registry, in hex format (eg "#FF0000")
+	OIDCPolicy  PackageRegistryOIDCPolicy `json:"oidc_policy,omitempty"` // The OIDC policy for the package registry, as a YAML or JSON string
+}
+
+type PackageRegistryOIDCPolicy []OIDCPolicyStatement
+
+type OIDCPolicyStatement struct {
+	Issuer string               `json:"iss"`
+	Claims map[string]ClaimRule `json:"claims"`
+}
+
+type ClaimRule struct {
+	Equals    any      `json:"equals,omitempty"`
+	NotEquals any      `json:"not_equals,omitempty"`
+	In        []any    `json:"in,omitempty"`
+	NotIn     []any    `json:"not_in,omitempty"`
+	Matches   []string `json:"matches,omitempty"`
 }
 
 // Create creates a package registry for an organization
@@ -51,8 +69,11 @@ func (rs *PackageRegistriesService) Create(ctx context.Context, organizationSlug
 }
 
 type UpdatePackageRegistryInput struct {
-	Name        string `json:"name,omitempty"`        // The name of the package registry
-	Description string `json:"description,omitempty"` // A description for the package registry
+	Name        string                    `json:"name,omitempty"`        // The name of the package registry
+	Description string                    `json:"description,omitempty"` // A description for the package registry
+	Emoji       string                    `json:"emoji,omitempty"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
+	Color       string                    `json:"color,omitempty"`       // A color for the package registry, in hex format (eg "#FF0000")
+	OIDCPolicy  PackageRegistryOIDCPolicy `json:"oidc_policy,omitempty"` // The OIDC policy for the package registry, as a YAML or JSON string
 }
 
 // Update updates a package registry for an organization
