@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -18,7 +19,7 @@ func TestUserService_Get(t *testing.T) {
 		fmt.Fprint(w, `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}`)
 	})
 
-	user, _, err := client.User.Get()
+	user, _, err := client.User.Get(context.Background())
 	if err != nil {
 		t.Errorf("User.Get returned error: %v", err)
 	}

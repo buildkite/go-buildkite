@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 
@@ -22,7 +23,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	registries, _, err := client.PackageRegistriesService.List(*org)
+	registries, _, err := client.PackageRegistriesService.List(context.Background(), *org)
 	if err != nil {
 		log.Fatalf("Creating registry failed: %v", err)
 	}

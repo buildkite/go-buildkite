@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -25,7 +26,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	resp, err := client.ClusterTokens.Delete(*org, *clusterID, *tokenID)
+	resp, err := client.ClusterTokens.Delete(context.Background(), *org, *clusterID, *tokenID)
 
 	if err != nil {
 		log.Fatalf("Deleting cluster token %s failed: %s", *tokenID, err)

@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,7 +23,7 @@ func TestJobsService_UnblockJob(t *testing.T) {
 }`)
 	})
 
-	job, _, err := client.Jobs.UnblockJob("my-great-org", "sup-keith", "awesome-build", "awesome-job-id", nil)
+	job, _, err := client.Jobs.UnblockJob(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", nil)
 	if err != nil {
 		t.Errorf("UnblockJob returned error: %v", err)
 	}
@@ -49,7 +50,7 @@ func TestJobsService_RetryJob(t *testing.T) {
 }`)
 	})
 
-	job, _, err := client.Jobs.RetryJob("my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
+	job, _, err := client.Jobs.RetryJob(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
 	if err != nil {
 		t.Errorf("RetryJob returned error: %v", err)
 	}
@@ -76,7 +77,7 @@ func TestJobsService_GetJobLog(t *testing.T) {
 }`)
 	})
 
-	job, _, err := client.Jobs.GetJobLog("my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
+	job, _, err := client.Jobs.GetJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
 	if err != nil {
 		t.Errorf("GetJobLog returned error: %v", err)
 	}
@@ -134,7 +135,7 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 		fmt.Fprintf(w, `%s`, jsonString)
 	})
 
-	jobEnvVars, _, err := client.Jobs.GetJobEnvironmentVariables("my-great-org", "sup-keith", "15", "awesome-job-id")
+	jobEnvVars, _, err := client.Jobs.GetJobEnvironmentVariables(context.Background(), "my-great-org", "sup-keith", "15", "awesome-job-id")
 	if err != nil {
 		t.Errorf("GetJobEnvironmentVariables returned error: %v", err)
 	}

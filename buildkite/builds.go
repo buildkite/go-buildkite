@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"time"
@@ -158,9 +159,9 @@ type BuildsListOptions struct {
 // Cancel - Trigger a cancel for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#cancel-a-build
-func (bs *BuildsService) Cancel(org, pipeline, build string) (*Build, error) {
+func (bs *BuildsService) Cancel(ctx context.Context, org, pipeline, build string) (*Build, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/cancel", org, pipeline, build)
-	req, err := bs.client.NewRequest("PUT", u, nil)
+	req, err := bs.client.NewRequest(ctx, "PUT", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -175,10 +176,10 @@ func (bs *BuildsService) Cancel(org, pipeline, build string) (*Build, error) {
 // Create - Create a pipeline
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#create-a-build
-func (bs *BuildsService) Create(org string, pipeline string, b *CreateBuild) (*Build, *Response, error) {
+func (bs *BuildsService) Create(ctx context.Context, org string, pipeline string, b *CreateBuild) (*Build, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds", org, pipeline)
 
-	req, err := bs.client.NewRequest("POST", u, b)
+	req, err := bs.client.NewRequest(ctx, "POST", u, b)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -195,7 +196,7 @@ func (bs *BuildsService) Create(org string, pipeline string, b *CreateBuild) (*B
 // Get fetches a build.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
-func (bs *BuildsService) Get(org string, pipeline string, id string, opt *BuildsListOptions) (*Build, *Response, error) {
+func (bs *BuildsService) Get(ctx context.Context, org string, pipeline string, id string, opt *BuildsListOptions) (*Build, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
 
 	u, err := addOptions(u, opt)
@@ -203,7 +204,7 @@ func (bs *BuildsService) Get(org string, pipeline string, id string, opt *Builds
 		return nil, nil, err
 	}
 
-	req, err := bs.client.NewRequest("GET", u, nil)
+	req, err := bs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -220,7 +221,7 @@ func (bs *BuildsService) Get(org string, pipeline string, id string, opt *Builds
 // List the builds for the current user.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#list-all-builds
-func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error) {
+func (bs *BuildsService) List(ctx context.Context, opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/builds")
@@ -230,7 +231,7 @@ func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error
 		return nil, nil, err
 	}
 
-	req, err := bs.client.NewRequest("GET", u, nil)
+	req, err := bs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -247,7 +248,7 @@ func (bs *BuildsService) List(opt *BuildsListOptions) ([]Build, *Response, error
 // ListByOrg lists the builds within the specified orginisation.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#list-builds-for-an-organization
-func (bs *BuildsService) ListByOrg(org string, opt *BuildsListOptions) ([]Build, *Response, error) {
+func (bs *BuildsService) ListByOrg(ctx context.Context, org string, opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/builds", org)
@@ -257,7 +258,7 @@ func (bs *BuildsService) ListByOrg(org string, opt *BuildsListOptions) ([]Build,
 		return nil, nil, err
 	}
 
-	req, err := bs.client.NewRequest("GET", u, nil)
+	req, err := bs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -274,7 +275,7 @@ func (bs *BuildsService) ListByOrg(org string, opt *BuildsListOptions) ([]Build,
 // ListByPipeline lists the builds for a pipeline within the specified originisation.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#list-builds-for-a-pipeline
-func (bs *BuildsService) ListByPipeline(org string, pipeline string, opt *BuildsListOptions) ([]Build, *Response, error) {
+func (bs *BuildsService) ListByPipeline(ctx context.Context, org string, pipeline string, opt *BuildsListOptions) ([]Build, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds", org, pipeline)
@@ -284,7 +285,7 @@ func (bs *BuildsService) ListByPipeline(org string, pipeline string, opt *Builds
 		return nil, nil, err
 	}
 
-	req, err := bs.client.NewRequest("GET", u, nil)
+	req, err := bs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -301,9 +302,9 @@ func (bs *BuildsService) ListByPipeline(org string, pipeline string, opt *Builds
 // Rebuild triggers a rebuild for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#rebuild-a-build
-func (bs *BuildsService) Rebuild(org, pipeline, build string) (*Build, error) {
+func (bs *BuildsService) Rebuild(ctx context.Context, org, pipeline, build string) (*Build, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/rebuild", org, pipeline, build)
-	req, err := bs.client.NewRequest("PUT", u, nil)
+	req, err := bs.client.NewRequest(ctx, "PUT", u, nil)
 	if err != nil {
 		return nil, err
 	}

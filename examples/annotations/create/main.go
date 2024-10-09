@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -34,7 +35,7 @@ func main() {
 		Append:  buildkite.Bool(false),
 	}
 
-	annotation, _, err := client.Annotations.Create(*org, *slug, *number, &annotationCreate)
+	annotation, _, err := client.Annotations.Create(context.Background(), *org, *slug, *number, &annotationCreate)
 
 	if err != nil {
 		log.Fatalf("Listing annotations for build %s in pipeline %s failed: %s", *number, *slug, err)

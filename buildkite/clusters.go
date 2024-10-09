@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -57,7 +58,7 @@ type ClustersListOptions struct {
 	ListOptions
 }
 
-func (cs *ClustersService) List(org string, opt *ClustersListOptions) ([]Cluster, *Response, error) {
+func (cs *ClustersService) List(ctx context.Context, org string, opt *ClustersListOptions) ([]Cluster, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters", org)
 
@@ -67,7 +68,7 @@ func (cs *ClustersService) List(org string, opt *ClustersListOptions) ([]Cluster
 		return nil, nil, err
 	}
 
-	req, err := cs.client.NewRequest("GET", u, nil)
+	req, err := cs.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -84,11 +85,11 @@ func (cs *ClustersService) List(org string, opt *ClustersListOptions) ([]Cluster
 	return *clusters, resp, err
 }
 
-func (cs *ClustersService) Get(org, id string) (*Cluster, *Response, error) {
+func (cs *ClustersService) Get(ctx context.Context, org, id string) (*Cluster, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s", org, id)
 
-	req, err := cs.client.NewRequest("GET", u, nil)
+	req, err := cs.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -105,7 +106,7 @@ func (cs *ClustersService) Get(org, id string) (*Cluster, *Response, error) {
 	return cluster, resp, err
 }
 
-func (cs *ClustersService) Create(org string, cc *ClusterCreate) (*Cluster, *Response, error) {
+func (cs *ClustersService) Create(ctx context.Context, org string, cc *ClusterCreate) (*Cluster, *Response, error) {
 
 	if cc == nil {
 		return nil, nil, errors.New("ClusterCreate struct instance must not be nil")
@@ -113,7 +114,7 @@ func (cs *ClustersService) Create(org string, cc *ClusterCreate) (*Cluster, *Res
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters", org)
 
-	req, err := cs.client.NewRequest("POST", u, cc)
+	req, err := cs.client.NewRequest(ctx, "POST", u, cc)
 
 	if err != nil {
 		return nil, nil, err
@@ -130,7 +131,7 @@ func (cs *ClustersService) Create(org string, cc *ClusterCreate) (*Cluster, *Res
 	return cluster, resp, err
 }
 
-func (cs *ClustersService) Update(org, id string, cu *ClusterUpdate) (*Response, error) {
+func (cs *ClustersService) Update(ctx context.Context, org, id string, cu *ClusterUpdate) (*Response, error) {
 
 	if cu == nil {
 		return nil, errors.New("ClusterUpdate struct instance must not be nil")
@@ -138,7 +139,7 @@ func (cs *ClustersService) Update(org, id string, cu *ClusterUpdate) (*Response,
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s", org, id)
 
-	req, err := cs.client.NewRequest("PATCH", u, cu)
+	req, err := cs.client.NewRequest(ctx, "PATCH", u, cu)
 
 	if err != nil {
 		return nil, nil
@@ -153,11 +154,11 @@ func (cs *ClustersService) Update(org, id string, cu *ClusterUpdate) (*Response,
 	return resp, err
 }
 
-func (cs *ClustersService) Delete(org, id string) (*Response, error) {
+func (cs *ClustersService) Delete(ctx context.Context, org, id string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s", org, id)
 
-	req, err := cs.client.NewRequest("DELETE", u, nil)
+	req, err := cs.client.NewRequest(ctx, "DELETE", u, nil)
 
 	if err != nil {
 		return nil, err

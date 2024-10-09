@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 
@@ -25,7 +26,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	reg, _, err := client.PackageRegistriesService.Create(*org, buildkite.CreatePackageRegistryInput{
+	reg, _, err := client.PackageRegistriesService.Create(context.Background(), *org, buildkite.CreatePackageRegistryInput{
 		Name:        *registryName,
 		Ecosystem:   *registryEcosystem,
 		Description: *registryDescription,

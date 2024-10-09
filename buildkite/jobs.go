@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -102,7 +103,7 @@ type JobPriority struct {
 // UnblockJob - unblock a job
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#unblock-a-job
-func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber string, jobID string, opt *JobUnblockOptions) (*Job, *Response, error) {
+func (js *JobsService) UnblockJob(ctx context.Context, org string, pipeline string, buildNumber string, jobID string, opt *JobUnblockOptions) (*Job, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/unblock", org, pipeline, buildNumber, jobID)
@@ -116,7 +117,7 @@ func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber strin
 		opt = &JobUnblockOptions{}
 	}
 
-	req, err := js.client.NewRequest("PUT", u, opt)
+	req, err := js.client.NewRequest(ctx, "PUT", u, opt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -133,12 +134,12 @@ func (js *JobsService) UnblockJob(org string, pipeline string, buildNumber strin
 // RetryJob - retry a job
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#retry-a-job
-func (js *JobsService) RetryJob(org string, pipeline string, buildNumber string, jobID string) (*Job, *Response, error) {
+func (js *JobsService) RetryJob(ctx context.Context, org string, pipeline string, buildNumber string, jobID string) (*Job, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/retry", org, pipeline, buildNumber, jobID)
 
-	req, err := js.client.NewRequest("PUT", u, nil)
+	req, err := js.client.NewRequest(ctx, "PUT", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -155,11 +156,11 @@ func (js *JobsService) RetryJob(org string, pipeline string, buildNumber string,
 // GetJobLog - get a job’s log output
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
-func (js *JobsService) GetJobLog(org string, pipeline string, buildNumber string, jobID string) (*JobLog, *Response, error) {
+func (js *JobsService) GetJobLog(ctx context.Context, org string, pipeline string, buildNumber string, jobID string) (*JobLog, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/log", org, pipeline, buildNumber, jobID)
-	req, err := js.client.NewRequest("GET", u, nil)
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -178,11 +179,11 @@ func (js *JobsService) GetJobLog(org string, pipeline string, buildNumber string
 // GetJobEnvironmentVariables - get a job’s environment variables
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-environment-variables
-func (js *JobsService) GetJobEnvironmentVariables(org string, pipeline string, buildNumber string, jobID string) (*JobEnvs, *Response, error) {
+func (js *JobsService) GetJobEnvironmentVariables(ctx context.Context, org string, pipeline string, buildNumber string, jobID string) (*JobEnvs, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/env", org, pipeline, buildNumber, jobID)
-	req, err := js.client.NewRequest("GET", u, nil)
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}

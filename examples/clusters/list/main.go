@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -25,7 +26,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusters, _, err := client.Clusters.List(*org, nil)
+	clusters, _, err := client.Clusters.List(context.Background(), *org, nil)
 
 	if err != nil {
 		log.Fatalf("listing clusters failed: %s", err)

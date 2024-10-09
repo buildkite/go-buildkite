@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -29,7 +30,7 @@ func main() {
 		Description: buildkite.String("Dev squad agent token"),
 	}
 
-	resp, err := client.ClusterTokens.Update(*org, *clusterID, *tokenID, &clusterTokenUpdate)
+	resp, err := client.ClusterTokens.Update(context.Background(), *org, *clusterID, *tokenID, &clusterTokenUpdate)
 
 	if err != nil {
 		log.Fatalf("Updating cluster token failed: %s", err)

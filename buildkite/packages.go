@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -25,9 +26,9 @@ type Package struct {
 	Registry     PackageRegistry `json:"registry"`
 }
 
-func (ps *PackagesService) Get(organizationSlug, registrySlug, packageID string) (Package, *Response, error) {
+func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySlug, packageID string) (Package, *Response, error) {
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s", organizationSlug, registrySlug, packageID)
-	req, err := ps.client.NewRequest("GET", url, nil)
+	req, err := ps.client.NewRequest(ctx, "GET", url, nil)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating GET package request: %v", err)
 	}
@@ -49,7 +50,7 @@ type CreatePackageInput struct {
 }
 
 // Create creates a package in a registry for an organization
-func (ps *PackagesService) Create(organizationSlug, registrySlug string, cpi CreatePackageInput) (Package, *Response, error) {
+func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registrySlug string, cpi CreatePackageInput) (Package, *Response, error) {
 	filename := cpi.Filename
 	if f, ok := cpi.Package.(*os.File); ok && filename == "" {
 		filename = f.Name()
@@ -69,7 +70,7 @@ func (ps *PackagesService) Create(organizationSlug, registrySlug string, cpi Cre
 	w.Close()
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", organizationSlug, registrySlug)
-	req, err := ps.client.NewRequest("POST", url, &b)
+	req, err := ps.client.NewRequest(ctx, "POST", url, &b)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
 	}

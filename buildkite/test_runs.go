@@ -1,6 +1,9 @@
 package buildkite
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // TestRunsService handles communication with test run related
 // methods of the Buildkite Test Analytics API.
@@ -23,7 +26,7 @@ type TestRunsListOptions struct {
 	ListOptions
 }
 
-func (trs *TestRunsService) List(org, slug string, opt *TestRunsListOptions) ([]TestRun, *Response, error) {
+func (trs *TestRunsService) List(ctx context.Context, org, slug string, opt *TestRunsListOptions) ([]TestRun, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/runs", org, slug)
 
@@ -33,7 +36,7 @@ func (trs *TestRunsService) List(org, slug string, opt *TestRunsListOptions) ([]
 		return nil, nil, err
 	}
 
-	req, err := trs.client.NewRequest("GET", u, nil)
+	req, err := trs.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -50,11 +53,11 @@ func (trs *TestRunsService) List(org, slug string, opt *TestRunsListOptions) ([]
 	return *testRuns, resp, err
 }
 
-func (trs *TestRunsService) Get(org, slug, runID string) (*TestRun, *Response, error) {
+func (trs *TestRunsService) Get(ctx context.Context, org, slug, runID string) (*TestRun, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/runs/%s", org, slug, runID)
 
-	req, err := trs.client.NewRequest("GET", u, nil)
+	req, err := trs.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err

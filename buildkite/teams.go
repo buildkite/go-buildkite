@@ -3,7 +3,10 @@
 
 package buildkite
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // TeamService handles communication with the teams related
 // methods of the buildkite API.
@@ -35,7 +38,7 @@ type TeamsListOptions struct {
 // Get the teams for an org.
 //
 // buildkite API docs: https://buildkite.com/docs/api
-func (ts *TeamsService) List(org string, opt *TeamsListOptions) ([]Team, *Response, error) {
+func (ts *TeamsService) List(ctx context.Context, org string, opt *TeamsListOptions) ([]Team, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/teams", org)
@@ -45,7 +48,7 @@ func (ts *TeamsService) List(org string, opt *TeamsListOptions) ([]Team, *Respon
 		return nil, nil, err
 	}
 
-	req, err := ts.client.NewRequest("GET", u, nil)
+	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}

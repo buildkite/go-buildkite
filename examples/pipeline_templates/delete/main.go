@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -24,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	resp, err := client.PipelineTemplates.Delete(*org, *templateUUID)
+	resp, err := client.PipelineTemplates.Delete(context.Background(), *org, *templateUUID)
 
 	if err != nil {
 		log.Fatalf("Deleting pipeline template %s failed: %s", *templateUUID, err)

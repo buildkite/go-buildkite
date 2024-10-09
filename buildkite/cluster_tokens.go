@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -34,7 +35,7 @@ type ClusterTokensListOptions struct {
 	ListOptions
 }
 
-func (cts *ClusterTokensService) List(org, clusterID string, opt *ClusterTokensListOptions) ([]ClusterToken, *Response, error) {
+func (cts *ClusterTokensService) List(ctx context.Context, org, clusterID string, opt *ClusterTokensListOptions) ([]ClusterToken, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens", org, clusterID)
 
@@ -44,7 +45,7 @@ func (cts *ClusterTokensService) List(org, clusterID string, opt *ClusterTokensL
 		return nil, nil, err
 	}
 
-	req, err := cts.client.NewRequest("GET", u, nil)
+	req, err := cts.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -61,11 +62,11 @@ func (cts *ClusterTokensService) List(org, clusterID string, opt *ClusterTokensL
 	return *tokens, resp, err
 }
 
-func (cts *ClusterTokensService) Get(org, clusterID, tokenID string) (*ClusterToken, *Response, error) {
+func (cts *ClusterTokensService) Get(ctx context.Context, org, clusterID, tokenID string) (*ClusterToken, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens/%s", org, clusterID, tokenID)
 
-	req, err := cts.client.NewRequest("GET", u, nil)
+	req, err := cts.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -82,7 +83,7 @@ func (cts *ClusterTokensService) Get(org, clusterID, tokenID string) (*ClusterTo
 	return token, resp, err
 }
 
-func (cts *ClusterTokensService) Create(org, clusterID string, ctc *ClusterTokenCreateUpdate) (*ClusterToken, *Response, error) {
+func (cts *ClusterTokensService) Create(ctx context.Context, org, clusterID string, ctc *ClusterTokenCreateUpdate) (*ClusterToken, *Response, error) {
 
 	if ctc == nil {
 		return nil, nil, errors.New("ClusterTokenCreateUpdate struct instance must not be nil")
@@ -90,7 +91,7 @@ func (cts *ClusterTokensService) Create(org, clusterID string, ctc *ClusterToken
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens", org, clusterID)
 
-	req, err := cts.client.NewRequest("POST", u, ctc)
+	req, err := cts.client.NewRequest(ctx, "POST", u, ctc)
 
 	if err != nil {
 		return nil, nil, err
@@ -107,7 +108,7 @@ func (cts *ClusterTokensService) Create(org, clusterID string, ctc *ClusterToken
 	return token, resp, err
 }
 
-func (cts *ClusterTokensService) Update(org, clusterID, tokenID string, ctc *ClusterTokenCreateUpdate) (*Response, error) {
+func (cts *ClusterTokensService) Update(ctx context.Context, org, clusterID, tokenID string, ctc *ClusterTokenCreateUpdate) (*Response, error) {
 
 	if ctc == nil {
 		return nil, errors.New("ClusterTokenCreateUpdate struct instance must not be nil")
@@ -115,7 +116,7 @@ func (cts *ClusterTokensService) Update(org, clusterID, tokenID string, ctc *Clu
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens/%s", org, clusterID, tokenID)
 
-	req, err := cts.client.NewRequest("PATCH", u, ctc)
+	req, err := cts.client.NewRequest(ctx, "PATCH", u, ctc)
 
 	if err != nil {
 		return nil, err
@@ -130,11 +131,11 @@ func (cts *ClusterTokensService) Update(org, clusterID, tokenID string, ctc *Clu
 	return resp, err
 }
 
-func (cts *ClusterTokensService) Delete(org, clusterID, tokenID string) (*Response, error) {
+func (cts *ClusterTokensService) Delete(ctx context.Context, org, clusterID, tokenID string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens/%s", org, clusterID, tokenID)
 
-	req, err := cts.client.NewRequest("DELETE", u, nil)
+	req, err := cts.client.NewRequest(ctx, "DELETE", u, nil)
 
 	if err != nil {
 		return nil, err

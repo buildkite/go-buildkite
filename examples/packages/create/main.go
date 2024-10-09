@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ func main() {
 
 	log.Println(file.Name())
 
-	pkg, _, err := client.PackagesService.Create(*org, *registrySlug, buildkite.CreatePackageInput{Package: file})
+	pkg, _, err := client.PackagesService.Create(context.Background(), *org, *registrySlug, buildkite.CreatePackageInput{Package: file})
 	if err != nil {
 		log.Fatalf("Creating package failed: %v", err)
 	}

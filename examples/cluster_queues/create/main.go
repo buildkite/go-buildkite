@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -31,7 +32,7 @@ func main() {
 		Description: buildkite.String("Development 1 Cluster queue"),
 	}
 
-	queue, _, err := client.ClusterQueues.Create(*org, *clusterID, &clusterQueueCreate)
+	queue, _, err := client.ClusterQueues.Create(context.Background(), *org, *clusterID, &clusterQueueCreate)
 
 	if err != nil {
 		log.Fatalf("Creating cluster queue failed: %s", err)

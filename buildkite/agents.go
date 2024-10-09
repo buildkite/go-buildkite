@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -54,7 +55,7 @@ type AgentListOptions struct {
 // List the agents for a given orginisation.
 //
 // buildkite API docs: https://buildkite.com/docs/api/agents#list-agents
-func (as *AgentsService) List(org string, opt *AgentListOptions) ([]Agent, *Response, error) {
+func (as *AgentsService) List(ctx context.Context, org string, opt *AgentListOptions) ([]Agent, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/agents", org)
@@ -64,7 +65,7 @@ func (as *AgentsService) List(org string, opt *AgentListOptions) ([]Agent, *Resp
 		return nil, nil, err
 	}
 
-	req, err := as.client.NewRequest("GET", u, nil)
+	req, err := as.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,11 +82,11 @@ func (as *AgentsService) List(org string, opt *AgentListOptions) ([]Agent, *Resp
 // Get fetches an agent.
 //
 // buildkite API docs: https://buildkite.com/docs/api/agents#get-an-agent
-func (as *AgentsService) Get(org string, id string) (*Agent, *Response, error) {
+func (as *AgentsService) Get(ctx context.Context, org string, id string) (*Agent, *Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/agents/%s", org, id)
 
-	req, err := as.client.NewRequest("GET", u, nil)
+	req, err := as.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -102,13 +103,13 @@ func (as *AgentsService) Get(org string, id string) (*Agent, *Response, error) {
 // Create a new buildkite agent.
 //
 // buildkite API docs: https://buildkite.com/docs/api/agents#create-an-agent
-func (as *AgentsService) Create(org string, agent *Agent) (*Agent, *Response, error) {
+func (as *AgentsService) Create(ctx context.Context, org string, agent *Agent) (*Agent, *Response, error) {
 
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/agents", org)
 
-	req, err := as.client.NewRequest("POST", u, agent)
+	req, err := as.client.NewRequest(ctx, "POST", u, agent)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -125,11 +126,11 @@ func (as *AgentsService) Create(org string, agent *Agent) (*Agent, *Response, er
 // Delete an agent.
 //
 // buildkite API docs: https://buildkite.com/docs/api/agents#delete-an-agent
-func (as *AgentsService) Delete(org string, id string) (*Response, error) {
+func (as *AgentsService) Delete(ctx context.Context, org string, id string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/agents/%s", org, id)
 
-	req, err := as.client.NewRequest("DELETE", u, nil)
+	req, err := as.client.NewRequest(ctx, "DELETE", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +141,7 @@ func (as *AgentsService) Delete(org string, id string) (*Response, error) {
 // Stop an agent.
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/agents#stop-an-agent
-func (as *AgentsService) Stop(org string, id string, force bool) (*Response, error) {
+func (as *AgentsService) Stop(ctx context.Context, org string, id string, force bool) (*Response, error) {
 
 	u := fmt.Sprintf("v2/organizations/%s/agents/%s/stop", org, id)
 
@@ -148,7 +149,7 @@ func (as *AgentsService) Stop(org string, id string, force bool) (*Response, err
 		Force bool `json:"force"`
 	}{force}
 
-	req, err := as.client.NewRequest("PUT", u, body)
+	req, err := as.client.NewRequest(ctx, "PUT", u, body)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -27,7 +28,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	annotations, _, err := client.Annotations.ListByBuild(*org, *slug, *number, nil)
+	annotations, _, err := client.Annotations.ListByBuild(context.Background(), *org, *slug, *number, nil)
 
 	if err != nil {
 		log.Fatalf("Listing annotations for build %s in pipeline %s failed: %s", *number, *slug, err)

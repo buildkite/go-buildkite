@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -19,7 +20,7 @@ func TestPipelinesService_List(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	pipelines, _, err := client.Pipelines.List("my-great-org", nil)
+	pipelines, _, err := client.Pipelines.List(context.Background(), "my-great-org", nil)
 	if err != nil {
 		t.Errorf("Pipelines.List returned error: %v", err)
 	}
@@ -92,7 +93,7 @@ func TestPipelinesService_Create(t *testing.T) {
 					}`)
 	})
 
-	pipeline, _, err := client.Pipelines.Create("my-great-org", input)
+	pipeline, _, err := client.Pipelines.Create(context.Background(), "my-great-org", input)
 	if err != nil {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
@@ -165,7 +166,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 					}`)
 	})
 
-	pipeline, _, err := client.Pipelines.Create("my-great-org", input)
+	pipeline, _, err := client.Pipelines.Create(context.Background(), "my-great-org", input)
 	if err != nil {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
@@ -210,7 +211,7 @@ func TestPipelinesService_Get(t *testing.T) {
 						]}`)
 	})
 
-	pipeline, _, err := client.Pipelines.Get("my-great-org", "my-great-pipeline-slug")
+	pipeline, _, err := client.Pipelines.Get(context.Background(), "my-great-org", "my-great-pipeline-slug")
 	if err != nil {
 		t.Errorf("Pipelines.Get returned error: %v", err)
 	}
@@ -231,7 +232,7 @@ func TestPipelinesService_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.Pipelines.Delete("my-great-org", "my-great-pipeline-slug")
+	_, err := client.Pipelines.Delete(context.Background(), "my-great-org", "my-great-pipeline-slug")
 	if err != nil {
 		t.Errorf("Pipelines.Delete returned error: %v", err)
 	}
@@ -290,7 +291,7 @@ func TestPipelinesService_Update(t *testing.T) {
 					}`)
 	})
 
-	pipeline, _, err := client.Pipelines.Create("my-great-org", input)
+	pipeline, _, err := client.Pipelines.Create(context.Background(), "my-great-org", input)
 	if err != nil {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
@@ -327,7 +328,7 @@ func TestPipelinesService_Update(t *testing.T) {
 					}`)
 	})
 
-	_, err = client.Pipelines.Update("my-great-org", pipeline)
+	_, err = client.Pipelines.Update(context.Background(), "my-great-org", pipeline)
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
 	}
@@ -367,7 +368,7 @@ func TestPipelinesService_AddWebhook(t *testing.T) {
 		testMethod(t, r, "POST")
 	})
 
-	_, err := client.Pipelines.AddWebhook("my-great-org", "my-great-pipeline-slug")
+	_, err := client.Pipelines.AddWebhook(context.Background(), "my-great-org", "my-great-pipeline-slug")
 	if err != nil {
 		t.Errorf("Pipelines.AddWebhook returned error: %v", err)
 	}
@@ -383,7 +384,7 @@ func TestPipelinesService_Archive(t *testing.T) {
 		testMethod(t, r, "POST")
 	})
 
-	_, err := client.Pipelines.Archive("my-great-org", "my-great-pipeline-slug")
+	_, err := client.Pipelines.Archive(context.Background(), "my-great-org", "my-great-pipeline-slug")
 	if err != nil {
 		t.Errorf("Pipelines.Archive returned error: %v", err)
 	}
@@ -399,7 +400,7 @@ func TestPipelinesService_Unarchive(t *testing.T) {
 		testMethod(t, r, "POST")
 	})
 
-	_, err := client.Pipelines.Unarchive("my-great-org", "my-great-pipeline-slug")
+	_, err := client.Pipelines.Unarchive(context.Background(), "my-great-org", "my-great-pipeline-slug")
 	if err != nil {
 		t.Errorf("Pipelines.UnArchive returned error: %v", err)
 	}

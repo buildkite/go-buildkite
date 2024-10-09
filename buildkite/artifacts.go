@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"io"
 )
@@ -39,7 +40,7 @@ type ArtifactListOptions struct {
 // ListByBuild gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/api/artifacts#list-artifacts-for-a-build
-func (as *ArtifactsService) ListByBuild(org string, pipeline string, build string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
+func (as *ArtifactsService) ListByBuild(ctx context.Context, org string, pipeline string, build string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/artifacts", org, pipeline, build)
@@ -48,7 +49,7 @@ func (as *ArtifactsService) ListByBuild(org string, pipeline string, build strin
 		return nil, nil, err
 	}
 
-	req, err := as.client.NewRequest("GET", u, nil)
+	req, err := as.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,7 +65,7 @@ func (as *ArtifactsService) ListByBuild(org string, pipeline string, build strin
 // ListByJob gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/artifacts#list-artifacts-for-a-job
-func (as *ArtifactsService) ListByJob(org string, pipeline string, build string, job string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
+func (as *ArtifactsService) ListByJob(ctx context.Context, org string, pipeline string, build string, job string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
 	var u string
 
 	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts", org, pipeline, build, job)
@@ -73,7 +74,7 @@ func (as *ArtifactsService) ListByJob(org string, pipeline string, build string,
 		return nil, nil, err
 	}
 
-	req, err := as.client.NewRequest("GET", u, nil)
+	req, err := as.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,8 +90,8 @@ func (as *ArtifactsService) ListByJob(org string, pipeline string, build string,
 // DownloadArtifactByURL gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/api/artifacts#list-artifacts-for-a-build
-func (as *ArtifactsService) DownloadArtifactByURL(url string, w io.Writer) (*Response, error) {
-	req, err := as.client.NewRequest("GET", url, nil)
+func (as *ArtifactsService) DownloadArtifactByURL(ctx context.Context, url string, w io.Writer) (*Response, error) {
+	req, err := as.client.NewRequest(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}

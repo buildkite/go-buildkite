@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -25,7 +26,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	resp, err := client.ClusterQueues.Resume(*org, *clusterID, *queueID)
+	resp, err := client.ClusterQueues.Resume(context.Background(), *org, *clusterID, *queueID)
 
 	if err != nil {
 		log.Fatalf("Resuming dispatch on cluster queue %s failed: %s", *queueID, err)

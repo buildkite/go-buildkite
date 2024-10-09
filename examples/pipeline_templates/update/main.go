@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -28,7 +29,7 @@ func main() {
 		Description: buildkite.String("Production pipeline template uploader"),
 	}
 
-	resp, err := client.PipelineTemplates.Update(*org, *templateUUID, &pipelineTemplateUpdate)
+	resp, err := client.PipelineTemplates.Update(context.Background(), *org, *templateUUID, &pipelineTemplateUpdate)
 
 	if err != nil {
 		log.Fatalf("Updating cluster %s failed: %s", *templateUUID, err)

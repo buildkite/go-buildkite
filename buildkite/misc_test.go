@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -18,7 +19,7 @@ func TestListEmojis(t *testing.T) {
 		fmt.Fprint(w, `[{"name":"rocket","url":"https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2"}]`)
 	})
 
-	emoji, _, err := client.ListEmojis("my-great-org")
+	emoji, _, err := client.ListEmojis(context.Background(), "my-great-org")
 	if err != nil {
 		t.Errorf("ListEmojis returned error: %v", err)
 	}

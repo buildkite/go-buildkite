@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -27,7 +28,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	build, _, err := client.Builds.Get(*org, *slug, *number, nil)
+	build, _, err := client.Builds.Get(context.Background(), *org, *slug, *number, nil)
 
 	if err != nil {
 		log.Fatalf("Getting build %s of pipeline %s failed: %s", *number, *slug, err)

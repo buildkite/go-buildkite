@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -57,13 +58,13 @@ func TestPackageRegistryGet(t *testing.T) {
 		}
 	})
 
-	got, _, err := client.PackageRegistriesService.Get("test-org", "my-cool-registry")
+	got, _, err := client.PackageRegistriesService.Get(context.Background(), "test-org", "my-cool-registry")
 	if err != nil {
 		t.Fatalf("PackageRegistries.Get returned error: %v", err)
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Fatalf("client.PackageRegistriesService.Get(%q, %q) diff: (-got +want)\n%s", "test-org", "my-cool-registry", diff)
+		t.Fatalf("client.PackageRegistriesService.Get(context.Background(),%q, %q) diff: (-got +want)\n%s", "test-org", "my-cool-registry", diff)
 	}
 }
 
@@ -83,13 +84,13 @@ func TestPackageRegistryList(t *testing.T) {
 		}
 	})
 
-	got, _, err := client.PackageRegistriesService.List("test-org")
+	got, _, err := client.PackageRegistriesService.List(context.Background(), "test-org")
 	if err != nil {
 		t.Fatalf("PackageRegistries.List returned error: %v", err)
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Fatalf("client.PackageRegistriesService.List(%q) diff: (-got +want)\n%s", "test-org", diff)
+		t.Fatalf("client.PackageRegistriesService.List(context.Background(),%q) diff: (-got +want)\n%s", "test-org", diff)
 	}
 }
 
@@ -129,13 +130,13 @@ func TestPackageRegistryCreate(t *testing.T) {
 		}
 	})
 
-	got, _, err := client.PackageRegistriesService.Create("test-org", wantInput)
+	got, _, err := client.PackageRegistriesService.Create(context.Background(), "test-org", wantInput)
 	if err != nil {
 		t.Fatalf("PackageRegistries.Create returned error: %v", err)
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Fatalf("client.PackageRegistriesService.Create(%q, %#v) diff: (-got +want)\n%s", "test-org", wantInput, diff)
+		t.Fatalf("client.PackageRegistriesService.Create(context.Background(),%q, %#v) diff: (-got +want)\n%s", "test-org", wantInput, diff)
 	}
 }
 
@@ -177,13 +178,13 @@ func TestPackageRegistryUpdate(t *testing.T) {
 		}
 	})
 
-	got, _, err := client.PackageRegistriesService.Update("test-org", "my-cool-registry", wantInput)
+	got, _, err := client.PackageRegistriesService.Update(context.Background(), "test-org", "my-cool-registry", wantInput)
 	if err != nil {
 		t.Fatalf("PackageRegistries.Update returned error: %v", err)
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Fatalf("client.PackageRegistriesService.Update(%q, %q, %#v) diff: (-got +want)\n%s", "test-org", "my-cool-registry", wantInput, diff)
+		t.Fatalf("client.PackageRegistriesService.Update(context.Background(),%q, %q, %#v) diff: (-got +want)\n%s", "test-org", "my-cool-registry", wantInput, diff)
 	}
 }
 
@@ -198,12 +199,12 @@ func TestPackageRegistryDelete(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.PackageRegistriesService.Delete("test-org", "my-cool-registry")
+	resp, err := client.PackageRegistriesService.Delete(context.Background(), "test-org", "my-cool-registry")
 	if err != nil {
 		t.Fatalf("PackageRegistries.Delete returned error: %v", err)
 	}
 
 	if got, want := resp.StatusCode, http.StatusNoContent; got != want {
-		t.Fatalf("client.PackageRegistriesService.Delete(%q, %q) status: %d, want %d", "test-org", "my-cool-registry", got, want)
+		t.Fatalf("client.PackageRegistriesService.Delete(context.Background(),%q, %q) status: %d, want %d", "test-org", "my-cool-registry", got, want)
 	}
 }

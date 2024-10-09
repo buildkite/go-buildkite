@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -18,7 +19,7 @@ func TestTeamsService_List(t *testing.T) {
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
-	teams, _, err := client.Teams.List("my-great-org", nil)
+	teams, _, err := client.Teams.List(context.Background(), "my-great-org", nil)
 	if err != nil {
 		t.Errorf("Teams.List returned error: %v", err)
 	}
@@ -44,7 +45,7 @@ func TestTeamsService_ListForUser(t *testing.T) {
 	})
 
 	opt := &TeamsListOptions{UserID: "abc"}
-	teams, _, err := client.Teams.List("my-great-org", opt)
+	teams, _, err := client.Teams.List(context.Background(), "my-great-org", opt)
 	if err != nil {
 		t.Errorf("Teams.List returned error: %v", err)
 	}

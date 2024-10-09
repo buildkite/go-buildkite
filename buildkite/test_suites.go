@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -34,7 +35,7 @@ type TestSuiteListOptions struct {
 	ListOptions
 }
 
-func (tss *TestSuitesService) List(org string, opt *TestSuiteListOptions) ([]TestSuite, *Response, error) {
+func (tss *TestSuitesService) List(ctx context.Context, org string, opt *TestSuiteListOptions) ([]TestSuite, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites", org)
 
@@ -44,7 +45,7 @@ func (tss *TestSuitesService) List(org string, opt *TestSuiteListOptions) ([]Tes
 		return nil, nil, err
 	}
 
-	req, err := tss.client.NewRequest("GET", u, nil)
+	req, err := tss.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -61,11 +62,11 @@ func (tss *TestSuitesService) List(org string, opt *TestSuiteListOptions) ([]Tes
 	return *testSuites, resp, err
 }
 
-func (tss *TestSuitesService) Get(org, slug string) (*TestSuite, *Response, error) {
+func (tss *TestSuitesService) Get(ctx context.Context, org, slug string) (*TestSuite, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
 
-	req, err := tss.client.NewRequest("GET", u, nil)
+	req, err := tss.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err
@@ -82,11 +83,11 @@ func (tss *TestSuitesService) Get(org, slug string) (*TestSuite, *Response, erro
 	return testSuite, resp, err
 }
 
-func (tss *TestSuitesService) Create(org string, ts *TestSuiteCreate) (*TestSuite, *Response, error) {
+func (tss *TestSuitesService) Create(ctx context.Context, org string, ts *TestSuiteCreate) (*TestSuite, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites", org)
 
-	req, err := tss.client.NewRequest("POST", u, ts)
+	req, err := tss.client.NewRequest(ctx, "POST", u, ts)
 
 	if err != nil {
 		return nil, nil, err
@@ -102,7 +103,7 @@ func (tss *TestSuitesService) Create(org string, ts *TestSuiteCreate) (*TestSuit
 	return testSuite, resp, err
 }
 
-func (tss *TestSuitesService) Update(org string, ts *TestSuite) (*Response, error) {
+func (tss *TestSuitesService) Update(ctx context.Context, org string, ts *TestSuite) (*Response, error) {
 
 	if ts == nil {
 		return nil, errors.New("Test suite must not be nil")
@@ -110,7 +111,7 @@ func (tss *TestSuitesService) Update(org string, ts *TestSuite) (*Response, erro
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, *ts.Slug)
 
-	req, err := tss.client.NewRequest("PATCH", u, ts)
+	req, err := tss.client.NewRequest(ctx, "PATCH", u, ts)
 
 	if err != nil {
 		return nil, nil
@@ -125,11 +126,11 @@ func (tss *TestSuitesService) Update(org string, ts *TestSuite) (*Response, erro
 	return resp, err
 }
 
-func (tss *TestSuitesService) Delete(org, slug string) (*Response, error) {
+func (tss *TestSuitesService) Delete(ctx context.Context, org, slug string) (*Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
 
-	req, err := tss.client.NewRequest("DELETE", u, nil)
+	req, err := tss.client.NewRequest(ctx, "DELETE", u, nil)
 
 	if err != nil {
 		return nil, err

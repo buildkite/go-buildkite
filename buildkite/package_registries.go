@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -33,9 +34,9 @@ type CreatePackageRegistryInput struct {
 }
 
 // Create creates a package registry for an organization
-func (rs *PackageRegistriesService) Create(organizationSlug string, cpri CreatePackageRegistryInput) (PackageRegistry, *Response, error) {
+func (rs *PackageRegistriesService) Create(ctx context.Context, organizationSlug string, cpri CreatePackageRegistryInput) (PackageRegistry, *Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries", organizationSlug)
-	req, err := rs.client.NewRequest("POST", u, cpri)
+	req, err := rs.client.NewRequest(ctx, "POST", u, cpri)
 	if err != nil {
 		return PackageRegistry{}, nil, fmt.Errorf("creating POST package registry request: %v", err)
 	}
@@ -55,9 +56,9 @@ type UpdatePackageRegistryInput struct {
 }
 
 // Update updates a package registry for an organization
-func (rs *PackageRegistriesService) Update(organizationSlug, registrySlug string, upri UpdatePackageRegistryInput) (PackageRegistry, *Response, error) {
+func (rs *PackageRegistriesService) Update(ctx context.Context, organizationSlug, registrySlug string, upri UpdatePackageRegistryInput) (PackageRegistry, *Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s", organizationSlug, registrySlug)
-	req, err := rs.client.NewRequest("PATCH", u, upri)
+	req, err := rs.client.NewRequest(ctx, "PATCH", u, upri)
 	if err != nil {
 		return PackageRegistry{}, nil, fmt.Errorf("creating PATCH package registry request: %v", err)
 	}
@@ -72,9 +73,9 @@ func (rs *PackageRegistriesService) Update(organizationSlug, registrySlug string
 }
 
 // Get retrieves a package registry for an organization
-func (rs *PackageRegistriesService) Get(organizationSlug, registrySlug string) (PackageRegistry, *Response, error) {
+func (rs *PackageRegistriesService) Get(ctx context.Context, organizationSlug, registrySlug string) (PackageRegistry, *Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s", organizationSlug, registrySlug)
-	req, err := rs.client.NewRequest("GET", u, nil)
+	req, err := rs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return PackageRegistry{}, nil, fmt.Errorf("creating GET package registry request: %v", err)
 	}
@@ -89,9 +90,9 @@ func (rs *PackageRegistriesService) Get(organizationSlug, registrySlug string) (
 }
 
 // List retrieves a list of package all package registries for an organization
-func (rs *PackageRegistriesService) List(organizationSlug string) ([]PackageRegistry, *Response, error) {
+func (rs *PackageRegistriesService) List(ctx context.Context, organizationSlug string) ([]PackageRegistry, *Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries", organizationSlug)
-	req, err := rs.client.NewRequest("GET", u, nil)
+	req, err := rs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("creating GET package registry request: %v", err)
 	}
@@ -106,9 +107,9 @@ func (rs *PackageRegistriesService) List(organizationSlug string) ([]PackageRegi
 }
 
 // Delete deletes a package registry for an organization
-func (rs *PackageRegistriesService) Delete(organizationSlug, registrySlug string) (*Response, error) {
+func (rs *PackageRegistriesService) Delete(ctx context.Context, organizationSlug, registrySlug string) (*Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s", organizationSlug, registrySlug)
-	req, err := rs.client.NewRequest("DELETE", u, nil)
+	req, err := rs.client.NewRequest(ctx, "DELETE", u, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating DELETE package registry request: %v", err)
 	}

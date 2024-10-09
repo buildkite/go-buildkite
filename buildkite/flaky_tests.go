@@ -1,6 +1,9 @@
 package buildkite
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // FlakyTestsService handles communication with flaky test related
 // methods of the Buildkite Test Analytics API.
@@ -25,7 +28,7 @@ type FlakyTestsListOptions struct {
 	ListOptions
 }
 
-func (fts *FlakyTestsService) List(org, slug string, opt *FlakyTestsListOptions) ([]FlakyTest, *Response, error) {
+func (fts *FlakyTestsService) List(ctx context.Context, org, slug string, opt *FlakyTestsListOptions) ([]FlakyTest, *Response, error) {
 
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/flaky-tests", org, slug)
 
@@ -35,7 +38,7 @@ func (fts *FlakyTestsService) List(org, slug string, opt *FlakyTestsListOptions)
 		return nil, nil, err
 	}
 
-	req, err := fts.client.NewRequest("GET", u, nil)
+	req, err := fts.client.NewRequest(ctx, "GET", u, nil)
 
 	if err != nil {
 		return nil, nil, err

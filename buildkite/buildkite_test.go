@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"context"
 	"encoding/base64"
 	"io"
 	"net/http"
@@ -81,7 +82,7 @@ func TestNewRequest(t *testing.T) {
 	inBody := &User{ID: String("123"), Name: String("Jane Doe"), Email: String("jane@doe.com")}
 	outBody := `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}` + "\n"
 
-	req, _ := c.NewRequest("GET", inURL, inBody)
+	req, _ := c.NewRequest(context.Background(), "GET", inURL, inBody)
 
 	// test that relative URL was expanded
 	if got, want := req.URL.String(), outURL; got != want {
@@ -112,7 +113,7 @@ func TestNewRequest_WhenBasicAuthIsConfigured_AddsBasicAuthToHeaders(t *testing.
 	}
 	encodedAuth := base64.StdEncoding.EncodeToString([]byte("shirley_dander:hunter2"))
 
-	req, _ := c.NewRequest("GET", "/foo", nil)
+	req, _ := c.NewRequest(context.Background(), "GET", "/foo", nil)
 
 	expectedAuthString := "Basic " + encodedAuth
 	if got, want := req.Header.Get("Authorization"), expectedAuthString; got != want {
@@ -125,7 +126,7 @@ func TestNewRequest_WhenTokenAuthIsConfigured_AddsBearerTokenToHeaders(t *testin
 	if err != nil {
 		t.Fatalf("unexpected NewOpts() error: %v", err)
 	}
-	req, _ := c.NewRequest("GET", "/foo", nil)
+	req, _ := c.NewRequest(context.Background(), "GET", "/foo", nil)
 
 	if got, want := req.Header.Get("Authorization"), "Bearer hunter2"; got != want {
 		t.Errorf("NewRequest() Authorization is %v, want %v", got, want)
