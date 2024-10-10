@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/buildkite/go-buildkite/v3/internal/bkmultipart"
 )
@@ -82,4 +85,108 @@ func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
 	}
 
 	return f, nil
+}
+
+type PackagePresignedUpload struct {
+	OrganizationSlug string `json:"-"`
+	RegistrySlug     string `json:"-"`
+
+	URI  string `json:"uri"`
+	Form struct {
+		FileInput string            `json:"file_input"`
+		Method    string            `json:"method"`
+		URL       string            `json:"url"`
+		Data      map[string]string `json:"data"`
+	} `json:"form"`
+}
+
+func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizationSlug, registrySlug string) (PackagePresignedUpload, *Response, error) {
+	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/upload", organizationSlug, registrySlug)
+	req, err := ps.client.NewRequest(ctx, "POST", url, nil)
+	if err != nil {
+		return PackagePresignedUpload{}, nil, fmt.Errorf("creating POST presigned upload request: %v", err)
+	}
+
+	var p PackagePresignedUpload
+	resp, err := ps.client.Do(req, &p)
+	if err != nil {
+		fmt.Println(string(err.(*ErrorResponse).RawBody))
+		return PackagePresignedUpload{}, resp, fmt.Errorf("executing POST presigned upload request: %v", err)
+	}
+
+	p.OrganizationSlug = organizationSlug
+	p.RegistrySlug = registrySlug
+
+	return p, resp, err
+}
+
+func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesService, file *os.File) (string, error) {
+	if _, ok := ppu.Form.Data["key"]; !ok {
+		return "", fmt.Errorf("missing 'key' in presigned upload form data")
+	}
+
+	baseFilePath := filepath.Base(file.Name())
+
+	s := bkmultipart.NewStreamer()
+	s.WriteFields(ppu.Form.Data)
+	s.WriteFile(ppu.Form.FileInput, file, baseFilePath)
+
+	req, err := http.NewRequestWithContext(ctx, ppu.Form.Method, ppu.Form.URL, s)
+	if err != nil {
+		return "", fmt.Errorf("creating %s request: %v", ppu.Form.Method, err)
+	}
+
+	req.Header.Set("Content-Type", s.ContentType)
+
+	// Don't set the Content-Length header here, you fool, you absolute buffoon
+	// When passed an io.Reader, http.NewRequestWithContext will not set the Content-Length header, and will instead
+	// stream the request body. This _would_ be exactly what we want, except that S3 uploads infuriatingly require a
+	// Content-Length header. So we have to calculate the length of the request body ourselves and set it manually on the
+	// request. Adding:
+	// 	req.Header.Set("Content-Length", fmt.Sprintf("%d", s.Len()))
+	// is not sufficient, as the Content-Length header is stripped by the http client when the request body is an io.Reader.
+	req.ContentLength = s.Len()
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("executing %s request: %v", ppu.Form.Method, err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("S3 rejected upload with unexpected status code %d. Error reading response body: %v", resp.StatusCode, err)
+		}
+
+		return "", fmt.Errorf("S3 rejected upload with unexpected status code %d. Response body %s", resp.StatusCode, string(body))
+	}
+
+	uploadPath, err := url.JoinPath(ppu.Form.URL, strings.ReplaceAll(ppu.Form.Data["key"], "${filename}", baseFilePath))
+	if err != nil {
+		return "", fmt.Errorf("joining URL path: %v", err)
+	}
+
+	return uploadPath, nil
+}
+
+func (ppu PackagePresignedUpload) Finalize(ctx context.Context, ps *PackagesService, s3URL string) (Package, *Response, error) {
+	s := bkmultipart.NewStreamer()
+	s.WriteField("package_url", s3URL)
+
+	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", ppu.OrganizationSlug, ppu.RegistrySlug)
+	req, err := ps.client.NewRequest(ctx, "POST", url, s)
+	if err != nil {
+		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", s.ContentType)
+	req.ContentLength = s.Len()
+
+	var p Package
+	resp, err := ps.client.Do(req, &p)
+	if err != nil {
+		return Package{}, resp, fmt.Errorf("executing POST package request: %v", err)
+	}
+
+	return p, resp, err
 }
