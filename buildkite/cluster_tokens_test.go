@@ -13,10 +13,10 @@ import (
 func TestClusterTokensService_List(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w,
 			`
@@ -106,10 +106,10 @@ func TestClusterTokensService_List(t *testing.T) {
 func TestClusterTokensService_Get(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/38e8fdb0-52bf-4e73-ad82-ce93cfbaa724", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w,
 			`
@@ -169,14 +169,14 @@ func TestClusterTokensService_Get(t *testing.T) {
 func TestClusterTokensService_Create(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &ClusterTokenCreateUpdate{
 		Description: String("Development 2 cluster token"),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
 		v := new(ClusterTokenCreateUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -211,14 +211,14 @@ func TestClusterTokensService_Create(t *testing.T) {
 func TestClusterTokensService_Update(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &ClusterTokenCreateUpdate{
 		Description: String("Development 1 Fleet Token"),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
 		v := new(ClusterTokenCreateUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -245,7 +245,7 @@ func TestClusterTokensService_Update(t *testing.T) {
 	// Lets update the description of the cluster token
 	token.Description = String("Development 1 agent token")
 
-	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
 		v := new(ClusterTokenCreateUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -282,10 +282,10 @@ func TestClusterTokensService_Update(t *testing.T) {
 func TestClusterTokensService_Delete(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 	})
 

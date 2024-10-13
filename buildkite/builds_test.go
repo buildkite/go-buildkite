@@ -13,10 +13,10 @@ import (
 func TestBuildsService_Cancel(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/1/cancel", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/1/cancel", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
 		fmt.Fprint(w, `{
   "id": "1",
@@ -38,10 +38,10 @@ func TestBuildsService_Cancel(t *testing.T) {
 func TestBuildsService_List(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -68,10 +68,10 @@ func TestBuildsService_Get(t *testing.T) {
 	t.Run("returns a build struct with expected id", func(t *testing.T) {
 		t.Parallel()
 
-		mux, client, teardown := newMockServerAndClient(t)
+		server, client, teardown := newMockServerAndClient(t)
 		t.Cleanup(teardown)
 
-		mux.HandleFunc(requestSlug,
+		server.HandleFunc(requestSlug,
 			func(w http.ResponseWriter, r *http.Request) {
 				testMethod(t, r, "GET")
 				_, _ = fmt.Fprintf(w, `{"id":"%s"}`, buildNumber)
@@ -91,11 +91,11 @@ func TestBuildsService_Get(t *testing.T) {
 	t.Run("returns a build struct with expected job containing a group key", func(t *testing.T) {
 		t.Parallel()
 
-		mux, client, teardown := newMockServerAndClient(t)
+		server, client, teardown := newMockServerAndClient(t)
 		t.Cleanup(teardown)
 
 		expectedGroup := "job_group"
-		mux.HandleFunc(requestSlug,
+		server.HandleFunc(requestSlug,
 			func(w http.ResponseWriter, r *http.Request) {
 				testMethod(t, r, "GET")
 				_, _ = fmt.Fprintf(w, `{"id":"%s", "jobs": [ {"group_key": "%s" }]}`,
@@ -118,14 +118,14 @@ func TestBuildsService_Get(t *testing.T) {
 	t.Run("returns a build struct with expected manual job values", func(t *testing.T) {
 		t.Parallel()
 
-		mux, client, teardown := newMockServerAndClient(t)
+		server, client, teardown := newMockServerAndClient(t)
 		t.Cleanup(teardown)
 
 		jobType := "manual"
 		unblockedAt := "2023-01-01T15:00:00.00Z"
 		parsedTime := must(time.Parse(BuildKiteDateFormat, unblockedAt))
 
-		mux.HandleFunc(requestSlug,
+		server.HandleFunc(requestSlug,
 			func(w http.ResponseWriter, r *http.Request) {
 				testMethod(t, r, "GET")
 				_, _ = fmt.Fprintf(w, `{"id":"%s", "jobs": [ {"type": "%s", "unblocked_at": "%s" }]}`,
@@ -150,10 +150,10 @@ func TestBuildsService_Get(t *testing.T) {
 func TestBuildsService_List_by_status(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
 			"state[]": "running",
@@ -180,10 +180,10 @@ func TestBuildsService_List_by_status(t *testing.T) {
 func TestBuildsService_List_by_multiple_status(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValuesList(t, r, valuesList{
 			{"state[]", "running"},
@@ -211,7 +211,7 @@ func TestBuildsService_List_by_multiple_status(t *testing.T) {
 func TestBuildsService_List_by_created_date(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	ts, err := time.Parse(BuildKiteDateFormat, "2016-03-24T01:00:00Z")
@@ -219,7 +219,7 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
 			"created_from": "2016-03-24T01:00:00Z",
@@ -246,10 +246,10 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 func TestBuildsService_ListByOrg(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -268,10 +268,10 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
 			"branch[]": "my-great-branch",
@@ -299,10 +299,10 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValuesList(t, r, valuesList{
 			{"branch[]", "my-great-branch"},
@@ -328,10 +328,10 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 func TestBuildsService_ListByPipeline(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})

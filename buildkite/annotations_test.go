@@ -13,10 +13,10 @@ import (
 func TestAnnotationsService_ListByBuild(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{
 			"id": "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
@@ -67,7 +67,7 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 func TestAnnotationsService_Create(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &AnnotationCreate{
@@ -77,7 +77,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 		Append:  Bool(false),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline/builds/10/annotations", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline/builds/10/annotations", func(w http.ResponseWriter, r *http.Request) {
 		v := new(AnnotationCreate)
 		json.NewDecoder(r.Body).Decode(&v)
 

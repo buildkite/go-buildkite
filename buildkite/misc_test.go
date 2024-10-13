@@ -11,10 +11,10 @@ import (
 func TestListEmojis(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/emojis", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/emojis", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"name":"rocket","url":"https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2"}]`)
 	})

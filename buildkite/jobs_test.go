@@ -12,10 +12,10 @@ import (
 func TestJobsService_UnblockJob(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/unblock", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/unblock", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
 		fmt.Fprint(w, `{
   "id": "awesome-job-id",
@@ -37,10 +37,10 @@ func TestJobsService_UnblockJob(t *testing.T) {
 func TestJobsService_RetryJob(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/retry", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/retry", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
 		fmt.Fprint(w, `{
   "id": "awesome-job-id",
@@ -64,10 +64,10 @@ func TestJobsService_RetryJob(t *testing.T) {
 func TestJobsService_GetJobLog(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{
   "url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log",
@@ -96,7 +96,7 @@ func TestJobsService_GetJobLog(t *testing.T) {
 func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	envVars := map[string]string{
@@ -123,7 +123,7 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 		"BUILDKITE_BUILD_CREATOR_EMAIL":   "keith@buildkite.com",
 		"BUILDKITE_AGENT_META_DATA_LOCAL": "true",
 	}
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/15/jobs/awesome-job-id/env", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/15/jobs/awesome-job-id/env", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		body := map[string]map[string]string{
 			"env": envVars,
