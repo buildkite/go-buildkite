@@ -25,7 +25,7 @@ func TestOrganizationsService_List(t *testing.T) {
 		t.Errorf("Organizations.List returned error: %v", err)
 	}
 
-	want := []Organization{{ID: String("123")}, {ID: String("1234")}}
+	want := []Organization{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(orgs, want); diff != "" {
 		t.Errorf("Organizations.List diff: (-got +want)\n%s", diff)
 	}
@@ -47,7 +47,7 @@ func TestOrganizationsService_Get(t *testing.T) {
 		t.Errorf("Organizations.Get returned error: %v", err)
 	}
 
-	want := &Organization{ID: String("123")}
+	want := Organization{ID: "123"}
 	if diff := cmp.Diff(org, want); diff != "" {
 		t.Errorf("Organizations.Get diff: (-got +want)\n%s", diff)
 	}

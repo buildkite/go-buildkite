@@ -23,9 +23,9 @@ var (
 		WebURL:   "https://buildkite.com/my-org/my-registry/my-package",
 		Registry: registry,
 		Organization: Organization{
-			ID:   String(uuid.NewString()),
-			Slug: String("my-org"),
-			Name: String("My Org"),
+			ID:   "my-org",
+			Slug: "my-org",
+			Name: "My Org",
 		},
 	}
 )
