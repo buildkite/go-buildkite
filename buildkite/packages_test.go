@@ -23,7 +23,7 @@ var (
 		WebURL:   "https://buildkite.com/my-org/my-registry/my-package",
 		Registry: registry,
 		Organization: Organization{
-			ID:   String("my-org"),
+			ID:   String(uuid.NewString()),
 			Slug: String("my-org"),
 			Name: String("My Org"),
 		},
@@ -33,12 +33,12 @@ var (
 func TestGetPackage(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	want := pkg
 	endpoint := fmt.Sprintf("/v2/packages/organizations/my-org/registries/my-registry/packages/%s", pkg.ID)
-	mux.HandleFunc(endpoint, func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc(endpoint, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 
 		err := json.NewEncoder(w).Encode(pkg)

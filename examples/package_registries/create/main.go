@@ -30,6 +30,17 @@ func main() {
 		Name:        *registryName,
 		Ecosystem:   *registryEcosystem,
 		Description: *registryDescription,
+
+		OIDCPolicy: buildkite.PackageRegistryOIDCPolicy{
+			buildkite.OIDCPolicyStatement{
+				Issuer: "https://agent.buildkite.com",
+				Claims: map[string]buildkite.ClaimRule{
+					"pipeline_slug": {
+						Equals: "my-pipeline",
+					},
+				},
+			},
+		},
 	})
 	if err != nil {
 		log.Fatalf("Creating registry failed: %v", err)

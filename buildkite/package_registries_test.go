@@ -45,11 +45,11 @@ var (
 func TestPackageRegistryGet(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	want := registry
-	mux.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 
 		err := json.NewEncoder(w).Encode(want)
@@ -71,11 +71,11 @@ func TestPackageRegistryGet(t *testing.T) {
 func TestPackageRegistryList(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	want := registries
-	mux.HandleFunc("/v2/packages/organizations/test-org/registries", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/packages/organizations/test-org/registries", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 
 		err := json.NewEncoder(w).Encode(want)
@@ -97,7 +97,7 @@ func TestPackageRegistryList(t *testing.T) {
 func TestPackageRegistryCreate(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	wantInput := CreatePackageRegistryInput{
@@ -107,7 +107,7 @@ func TestPackageRegistryCreate(t *testing.T) {
 	}
 
 	want := registry
-	mux.HandleFunc("/v2/packages/organizations/test-org/registries", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/packages/organizations/test-org/registries", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 
 		testMethod(t, r, "POST")
@@ -143,7 +143,7 @@ func TestPackageRegistryCreate(t *testing.T) {
 func TestPackageRegistryUpdate(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	wantInput := UpdatePackageRegistryInput{
@@ -155,7 +155,7 @@ func TestPackageRegistryUpdate(t *testing.T) {
 	want.Name = wantInput.Name
 	want.Description = wantInput.Description
 
-	mux.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 
 		testMethod(t, r, "PATCH")
@@ -191,10 +191,10 @@ func TestPackageRegistryUpdate(t *testing.T) {
 func TestPackageRegistryDelete(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		w.WriteHeader(http.StatusNoContent)
 	})

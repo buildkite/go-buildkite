@@ -13,10 +13,10 @@ import (
 func TestPipelineTemplatesService_List(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w,
 			`
@@ -138,10 +138,10 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 func TestPipelineTemplatesService_Get(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/90333dc7-b86a-4485-98c3-9419a5dbc52e", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/90333dc7-b86a-4485-98c3-9419a5dbc52e", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w,
 			`
@@ -216,7 +216,7 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 func TestPipelineTemplatesService_Create(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &PipelineTemplateCreateUpdate{
@@ -226,7 +226,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 		Available:     Bool(true),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		v := new(PipelineTemplateCreateUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -271,7 +271,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 func TestPipelineTemplatesService_Update(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &PipelineTemplateCreateUpdate{
@@ -281,7 +281,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 		Available:     Bool(true),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		v := new(PipelineTemplateCreateUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -312,7 +312,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 	// Lets update the description of the pipeline template
 	pipelineTemplate.Description = String("A pipeline template for uploading a production pipeline YAML (pipeline-production.yml)")
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", func(w http.ResponseWriter, r *http.Request) {
 		v := new(PipelineTemplateCreateUpdate)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -357,10 +357,10 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 func TestPipelineTemplatesService_Delete(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/19dbd05a-96d7-430f-bac0-14b791558562", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/19dbd05a-96d7-430f-bac0-14b791558562", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 	})
 

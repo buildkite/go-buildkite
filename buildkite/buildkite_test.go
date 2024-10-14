@@ -11,10 +11,30 @@ import (
 	"testing"
 )
 
+type httpCall struct {
+	Method string
+	Path   string
+}
+
+type mockServer struct {
+	mux   *http.ServeMux
+	calls []httpCall
+}
+
+func (ms *mockServer) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+	ms.mux.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		ms.calls = append(ms.calls, httpCall{
+			Method: r.Method,
+			Path:   r.URL.Path,
+		})
+		handler(w, r)
+	})
+}
+
 // newMockServerAndClient sets up a test HTTP server along with a buildkite.Client that is
 // configured to talk to that test server.  Tests should register handlers on
 // mux which provide mock responses for the API method being tested.
-func newMockServerAndClient(t *testing.T) (*http.ServeMux, *Client, func()) {
+func newMockServerAndClient(t *testing.T) (*mockServer, *Client, func()) {
 	// test server
 	mux := http.NewServeMux()
 	// Fail test if unexpected request is received, "/" matches any request not matched by a more specific handler
@@ -29,7 +49,9 @@ func newMockServerAndClient(t *testing.T) (*http.ServeMux, *Client, func()) {
 		t.Fatalf("unexpected NewOpts() error: %v", err)
 	}
 
-	return mux, client, func() { server.Close() }
+	ms := &mockServer{mux: mux, calls: make([]httpCall, 0, 10)}
+
+	return ms, client, func() { server.Close() }
 }
 
 func testMethod(t *testing.T, r *http.Request, want string) {

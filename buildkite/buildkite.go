@@ -220,25 +220,26 @@ func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body int
 		headers["User-Agent"] = c.UserAgent
 	}
 
-	buf := new(bytes.Buffer)
+	var reqBody io.Reader
 	if body != nil {
 		switch v := body.(type) {
-		// If body is an io.Reader, copy it to the buffer, the caller probably knows what they want
-		case io.Reader:
-			_, err := io.Copy(buf, v)
-			if err != nil {
-				return nil, fmt.Errorf("failed to copy body: %w", err)
-			}
-		default:
+		case io.Reader: // If body is an io.Reader, use it directly, the caller is responsible for encoding
+			reqBody = v
+
+		default: // Otherwise, encode it as JSON
+			buf := &bytes.Buffer{}
 			headers["Content-Type"] = "application/json"
+
 			err := json.NewEncoder(buf).Encode(body)
 			if err != nil {
 				return nil, err
 			}
+
+			reqBody = buf
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), buf)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), reqBody)
 	if err != nil {
 		return nil, err
 	}

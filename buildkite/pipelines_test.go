@@ -12,10 +12,10 @@ import (
 func TestPipelinesService_List(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
@@ -34,7 +34,7 @@ func TestPipelinesService_List(t *testing.T) {
 func TestPipelinesService_Create(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -59,7 +59,7 @@ func TestPipelinesService_Create(t *testing.T) {
 		},
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		v := new(CreatePipeline)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -128,7 +128,7 @@ func TestPipelinesService_Create(t *testing.T) {
 func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -136,7 +136,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		v := new(CreatePipeline)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -197,10 +197,10 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 func TestPipelinesService_Get(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		fmt.Fprint(w, `{"id":"123",
 						"slug":"my-great-pipeline-slug",
@@ -225,10 +225,10 @@ func TestPipelinesService_Get(t *testing.T) {
 func TestPipelinesService_Delete(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 	})
 
@@ -241,7 +241,7 @@ func TestPipelinesService_Delete(t *testing.T) {
 func TestPipelinesService_Update(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
 	input := &CreatePipeline{Name: *String("my-great-pipeline"),
@@ -261,7 +261,7 @@ func TestPipelinesService_Update(t *testing.T) {
 		},
 	}
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		v := new(CreatePipeline)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -298,7 +298,7 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	pipeline.Name = String("derp")
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
 		v := new(CreatePipeline)
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -361,10 +361,10 @@ func TestPipelinesService_Update(t *testing.T) {
 func TestPipelinesService_AddWebhook(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/webhook", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/webhook", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 	})
 
@@ -377,10 +377,10 @@ func TestPipelinesService_AddWebhook(t *testing.T) {
 func TestPipelinesService_Archive(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/archive", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/archive", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 	})
 
@@ -393,10 +393,10 @@ func TestPipelinesService_Archive(t *testing.T) {
 func TestPipelinesService_Unarchive(t *testing.T) {
 	t.Parallel()
 
-	mux, client, teardown := newMockServerAndClient(t)
+	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	mux.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/unarchive", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/unarchive", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 	})
 

@@ -1,12 +1,13 @@
 package buildkite
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"os"
+	"path/filepath"
+
+	"github.com/buildkite/go-buildkite/v3/internal/bkmultipart"
 )
 
 const fileFormKey = "file"
@@ -56,26 +57,26 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 		filename = f.Name()
 	}
 
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
-	fw, err := w.CreateFormFile(fileFormKey, filename)
+	packageTempFile, err := normalizeToFile(cpi.Package, filename)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("creating multipart form file: %v", err)
+		return Package{}, nil, fmt.Errorf("writing package to tempfile: %v", err)
 	}
+	defer func() {
+		packageTempFile.Close()
+		os.Remove(packageTempFile.Name())
+	}()
 
-	_, err = io.Copy(fw, cpi.Package)
-	if err != nil {
-		return Package{}, nil, fmt.Errorf("copying data into multipart payload: %v", err)
-	}
-	w.Close()
+	s := bkmultipart.NewStreamer()
+	s.WriteFile(fileFormKey, packageTempFile, filename)
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", organizationSlug, registrySlug)
-	req, err := ps.client.NewRequest(ctx, "POST", url, &b)
+	req, err := ps.client.NewRequest(ctx, "POST", url, s.Reader())
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("Content-Type", s.ContentType)
+	req.Header.Set("Content-Length", fmt.Sprintf("%d", s.Len()))
 
 	var p Package
 	resp, err := ps.client.Do(req, &p)
@@ -84,4 +85,28 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 	}
 
 	return p, resp, err
+}
+
+// normalizeToFile takes an io.Reader (which might itself already be a file, but could be a stream or other source) and
+// writes it to a temporary file, returning the file handle.
+// We do this normalization to ensure that we can accurately calculate the Content-Length of the request body, which is
+// required by S3. We write to disk (instead of buffering in memory) to avoid memory exhaustion for large files.
+func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
+	basename := filepath.Base(filename)
+	f, err := os.CreateTemp("", basename)
+	if err != nil {
+		return nil, fmt.Errorf("creating temporary file: %v", err)
+	}
+
+	_, err = io.Copy(f, r)
+	if err != nil {
+		return nil, fmt.Errorf("writing to temporary file: %v", err)
+	}
+
+	_, err = f.Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, fmt.Errorf("seeking to beginning of temporary file: %v", err)
+	}
+
+	return f, nil
 }
