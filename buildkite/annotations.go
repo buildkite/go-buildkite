@@ -15,19 +15,19 @@ type AnnotationsService struct {
 
 // Annotation represents an annotation which has been stored from a build
 type Annotation struct {
-	ID        *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	Context   *string    `json:"context,omitempty" yaml:"context,omitempty"`
-	Style     *string    `json:"style,omitempty" yaml:"style,omitempty"`
-	BodyHTML  *string    `json:"body_html,omitempty" yaml:"body_html,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	UpdatedAt *Timestamp `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
+	ID        *string    `json:"id,omitempty"`
+	Context   *string    `json:"context,omitempty"`
+	Style     *string    `json:"style,omitempty"`
+	BodyHTML  *string    `json:"body_html,omitempty"`
+	CreatedAt *Timestamp `json:"created_at,omitempty"`
+	UpdatedAt *Timestamp `json:"updated_at,omitempty"`
 }
 
 type AnnotationCreate struct {
-	Body    *string `json:"body,omitempty" yaml:"body,omitempty"`
-	Context *string `json:"context,omitempty" yaml:"context,omitempty"`
-	Style   *string `json:"style,omitempty" yaml:"style,omitempty"`
-	Append  *bool   `json:"append,omitempty" yaml:"append,omitempty"`
+	Body    *string `json:"body,omitempty"`
+	Context *string `json:"context,omitempty"`
+	Style   *string `json:"style,omitempty"`
+	Append  *bool   `json:"append,omitempty"`
 }
 
 // AnnotationListOptions specifies the optional parameters to the

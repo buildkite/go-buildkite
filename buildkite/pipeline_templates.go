@@ -15,34 +15,34 @@ type PipelineTemplatesService struct {
 }
 
 type PipelineTemplate struct {
-	UUID          *string                  `json:"uuid,omitempty" yaml:"uuid,omitempty"`
-	GraphQLID     *string                  `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	Name          *string                  `json:"name,omitempty" yaml:"name,omitempty"`
-	Description   *string                  `json:"description,omitempty" yaml:"description,omitempty"`
-	Configuration *string                  `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Available     *bool                    `json:"available,omitempty" yaml:"available,omitempty"`
-	URL           *string                  `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL        *string                  `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	CreatedAt     *Timestamp               `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	CreatedBy     *PipelineTemplateCreator `json:"created_by,omitempty" yaml:"created_by,omitempty"`
-	UpdatedAt     *Timestamp               `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
-	UpdatedBy     *PipelineTemplateCreator `json:"updated_by,omitempty" yaml:"updated_by,omitempty"`
+	UUID          *string                  `json:"uuid,omitempty"`
+	GraphQLID     *string                  `json:"graphql_id,omitempty"`
+	Name          *string                  `json:"name,omitempty"`
+	Description   *string                  `json:"description,omitempty"`
+	Configuration *string                  `json:"configuration,omitempty"`
+	Available     *bool                    `json:"available,omitempty"`
+	URL           *string                  `json:"url,omitempty"`
+	WebURL        *string                  `json:"web_url,omitempty"`
+	CreatedAt     *Timestamp               `json:"created_at,omitempty"`
+	CreatedBy     *PipelineTemplateCreator `json:"created_by,omitempty"`
+	UpdatedAt     *Timestamp               `json:"updated_at,omitempty"`
+	UpdatedBy     *PipelineTemplateCreator `json:"updated_by,omitempty"`
 }
 
 type PipelineTemplateCreateUpdate struct {
-	Name          *string `json:"name,omitempty" yaml:"name,omitempty"`
-	Configuration *string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Description   *string `json:"description,omitempty" yaml:"description,omitempty"`
-	Available     *bool   `json:"available,omitempty" yaml:"available,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	Configuration *string `json:"configuration,omitempty"`
+	Description   *string `json:"description,omitempty"`
+	Available     *bool   `json:"available,omitempty"`
 }
 
 type PipelineTemplateCreator struct {
-	ID        *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID *string    `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	Name      *string    `json:"name,omitempty" yaml:"name,omitempty"`
-	Email     *string    `json:"email,omitempty" yaml:"email,omitempty"`
-	AvatarURL *string    `json:"avatar_url,omitempty" yaml:"avatar_url,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ID        *string    `json:"id,omitempty"`
+	GraphQLID *string    `json:"graphql_id,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Email     *string    `json:"email,omitempty"`
+	AvatarURL *string    `json:"avatar_url,omitempty"`
+	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
 type PipelineTemplateListOptions struct {

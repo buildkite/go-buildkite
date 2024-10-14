@@ -17,94 +17,94 @@ type BuildsService struct {
 
 // Author of a commit (used in CreateBuild)
 type Author struct {
-	Username string `json:"username,omitempty" yaml:"username,omitempty"`
-	Name     string `json:"name,omitempty" yaml:"name,omitempty"`
-	Email    string `json:"email,omitempty" yaml:"email,omitempty"`
+	Username string `json:"username,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Email    string `json:"email,omitempty"`
 }
 
 // CreateBuild - Create a build.
 type CreateBuild struct {
-	Commit  string `json:"commit" yaml:"commit"`
-	Branch  string `json:"branch" yaml:"branch"`
-	Message string `json:"message" yaml:"message"`
+	Commit  string `json:"commit"`
+	Branch  string `json:"branch"`
+	Message string `json:"message"`
 
 	// Optional fields
-	Author                      Author            `json:"author,omitempty" yaml:"author,omitempty"`
-	CleanCheckout               bool              `json:"clean_checkout,omitempty" yaml:"clean_checkout,omitempty"`
-	Env                         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
-	MetaData                    map[string]string `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
-	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters,omitempty" yaml:"ignore_pipeline_branch_filters,omitempty"`
-	PullRequestBaseBranch       string            `json:"pull_request_base_branch,omitempty" yaml:"pull_request_base_branch,omitempty"`
-	PullRequestID               int64             `json:"pull_request_id,omitempty" yaml:"pull_request_id,omitempty"`
-	PullRequestRepository       string            `json:"pull_request_repository,omitempty" yaml:"pull_request_repository,omitempty"`
+	Author                      Author            `json:"author,omitempty"`
+	CleanCheckout               bool              `json:"clean_checkout,omitempty"`
+	Env                         map[string]string `json:"env,omitempty"`
+	MetaData                    map[string]string `json:"meta_data,omitempty"`
+	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters,omitempty"`
+	PullRequestBaseBranch       string            `json:"pull_request_base_branch,omitempty"`
+	PullRequestID               int64             `json:"pull_request_id,omitempty"`
+	PullRequestRepository       string            `json:"pull_request_repository,omitempty"`
 }
 
 // Creator represents who created a build
 type Creator struct {
-	AvatarURL string     `json:"avatar_url" yaml:"avatar_url"`
-	CreatedAt *Timestamp `json:"created_at" yaml:"created_at"`
-	Email     string     `json:"email" yaml:"email"`
-	ID        string     `json:"id" yaml:"id"`
-	Name      string     `json:"name" yaml:"name"`
+	AvatarURL string     `json:"avatar_url"`
+	CreatedAt *Timestamp `json:"created_at"`
+	Email     string     `json:"email"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
 }
 
 // RebuiltFrom references a previous build
 type RebuiltFrom struct {
-	ID     string `json:"id" yaml:"id"`
-	Number int    `json:"number" yaml:"number"`
-	URL    string `json:"url" yaml:"url"`
+	ID     string `json:"id"`
+	Number int    `json:"number"`
+	URL    string `json:"url"`
 }
 
 // PullRequest represents a Github PR
 type PullRequest struct {
-	ID         *string `json:"id,omitempty" yaml:"id,omitempty"`
-	Base       *string `json:"base,omitempty" yaml:"base,omitempty"`
-	Repository *string `json:"repository,omitempty" yaml:"repository,omitempty"`
+	ID         *string `json:"id,omitempty"`
+	Base       *string `json:"base,omitempty"`
+	Repository *string `json:"repository,omitempty"`
 }
 
 type TriggeredFrom struct {
-	BuildID           *string `json:"build_id,omitempty" yaml:"build_id,omitempty"`
-	BuildNumber       *int    `json:"build_number,omitempty" yaml:"build_number,omitempty"`
-	BuildPipelineSlug *string `json:"build_pipeline_slug,omitempty" yaml:"build_pipeline_slug,omitempty"`
+	BuildID           *string `json:"build_id,omitempty"`
+	BuildNumber       *int    `json:"build_number,omitempty"`
+	BuildPipelineSlug *string `json:"build_pipeline_slug,omitempty"`
 }
 
 // Build represents a build which has run in buildkite
 type Build struct {
-	ID          *string                `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID   *string                `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	URL         *string                `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL      *string                `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Number      *int                   `json:"number,omitempty" yaml:"number,omitempty"`
-	State       *string                `json:"state,omitempty" yaml:"state,omitempty"`
-	Blocked     *bool                  `json:"blocked,omitempty" yaml:"blocked,omitempty"`
-	Message     *string                `json:"message,omitempty" yaml:"message,omitempty"`
-	Commit      *string                `json:"commit,omitempty" yaml:"commit,omitempty"`
-	Branch      *string                `json:"branch,omitempty" yaml:"branch,omitempty"`
-	Author      *Author                `json:"author,omitempty" yaml:"author,omitempty"`
-	Env         map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
-	CreatedAt   *Timestamp             `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty" yaml:"scheduled_at,omitempty"`
-	StartedAt   *Timestamp             `json:"started_at,omitempty" yaml:"started_at,omitempty"`
-	FinishedAt  *Timestamp             `json:"finished_at,omitempty" yaml:"finished_at,omitempty"`
-	MetaData    map[string]string      `json:"meta_data,omitempty" yaml:"meta_data,omitempty"`
-	Creator     *Creator               `json:"creator,omitempty" yaml:"creator,omitempty"`
-	Source      *string                `json:"source,omitempty" yaml:"source,omitempty"`
+	ID          *string                `json:"id,omitempty"`
+	GraphQLID   *string                `json:"graphql_id,omitempty"`
+	URL         *string                `json:"url,omitempty"`
+	WebURL      *string                `json:"web_url,omitempty"`
+	Number      *int                   `json:"number,omitempty"`
+	State       *string                `json:"state,omitempty"`
+	Blocked     *bool                  `json:"blocked,omitempty"`
+	Message     *string                `json:"message,omitempty"`
+	Commit      *string                `json:"commit,omitempty"`
+	Branch      *string                `json:"branch,omitempty"`
+	Author      *Author                `json:"author,omitempty"`
+	Env         map[string]interface{} `json:"env,omitempty"`
+	CreatedAt   *Timestamp             `json:"created_at,omitempty"`
+	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty"`
+	StartedAt   *Timestamp             `json:"started_at,omitempty"`
+	FinishedAt  *Timestamp             `json:"finished_at,omitempty"`
+	MetaData    map[string]string      `json:"meta_data,omitempty"`
+	Creator     *Creator               `json:"creator,omitempty"`
+	Source      *string                `json:"source,omitempty"`
 
 	// jobs run during the build
-	Jobs []*Job `json:"jobs,omitempty" yaml:"jobs,omitempty"`
+	Jobs []*Job `json:"jobs,omitempty"`
 
 	// the pipeline this build is associated with
-	Pipeline *Pipeline `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+	Pipeline *Pipeline `json:"pipeline,omitempty"`
 
 	// the build this build is a rebuild of
-	RebuiltFrom *RebuiltFrom `json:"rebuilt_from,omitempty" yaml:"rebuilt_from,omitempty"`
+	RebuiltFrom *RebuiltFrom `json:"rebuilt_from,omitempty"`
 
 	// the pull request this build is associated with
-	PullRequest *PullRequest `json:"pull_request,omitempty" yaml:"pull_request,omitempty"`
+	PullRequest *PullRequest `json:"pull_request,omitempty"`
 
 	// the build that this build is triggered from
 	// https://buildkite.com/docs/pipelines/trigger-step
-	TriggeredFrom *TriggeredFrom `json:"triggered_from,omitempty" yaml:"triggered_from,omitempty"`
+	TriggeredFrom *TriggeredFrom `json:"triggered_from,omitempty"`
 }
 
 type MetaDataFilters struct {

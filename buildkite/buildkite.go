@@ -396,8 +396,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 // ErrorResponse provides a message.
 type ErrorResponse struct {
 	Response *http.Response // HTTP response that caused this error
-	Message  string         `json:"message" yaml:"message"` // error message
-	RawBody  []byte         `json:"-" yaml:"-"`             // Raw Response Body
+	Message  string         `json:"message"` // error message
+	RawBody  []byte         `json:"-"`       // Raw Response Body
 }
 
 func (r *ErrorResponse) Error() string {

@@ -15,10 +15,10 @@ type UserService struct {
 
 // User represents a buildkite user.
 type User struct {
-	ID        *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	Name      *string    `json:"name,omitempty" yaml:"name,omitempty"`
-	Email     *string    `json:"email,omitempty" yaml:"email,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ID        *string    `json:"id,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Email     *string    `json:"email,omitempty"`
+	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
 // Get the current user.

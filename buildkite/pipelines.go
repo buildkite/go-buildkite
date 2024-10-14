@@ -17,100 +17,100 @@ type PipelinesService struct {
 
 // CreatePipeline - Create a Pipeline.
 type CreatePipeline struct {
-	Name       string `json:"name" yaml:"name"`
-	Repository string `json:"repository" yaml:"repository"`
+	Name       string `json:"name"`
+	Repository string `json:"repository"`
 
 	// Either configuration needs to be specified as a yaml string or steps.
-	Configuration string `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Steps         []Step `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Configuration string `json:"configuration,omitempty"`
+	Steps         []Step `json:"steps,omitempty"`
 
 	// Optional fields
-	DefaultBranch                   string            `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
-	Description                     string            `json:"description,omitempty" yaml:"description,omitempty"`
-	Env                             map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
-	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
-	BranchConfiguration             string            `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
-	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
-	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
-	TeamUuids                       []string          `json:"team_uuids,omitempty" yaml:"team_uuids,omitempty"`
-	ClusterID                       string            `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
-	Visibility                      *string           `json:"visibility,omitempty" yaml:"visibility,omitempty"`
-	Tags                            []string          `json:"tags,omitempty" yaml:"tags,omitempty"`
+	DefaultBranch                   string            `json:"default_branch,omitempty"`
+	Description                     string            `json:"description,omitempty"`
+	Env                             map[string]string `json:"env,omitempty"`
+	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty"`
+	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
+	TeamUuids                       []string          `json:"team_uuids,omitempty"`
+	ClusterID                       string            `json:"cluster_id,omitempty"`
+	Visibility                      *string           `json:"visibility,omitempty"`
+	Tags                            []string          `json:"tags,omitempty"`
 }
 
 type UpdatePipeline struct {
 	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
-	Configuration string  `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Steps         []*Step `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Configuration string  `json:"configuration,omitempty"`
+	Steps         []*Step `json:"steps,omitempty"`
 
-	Name                            *string          `json:"name,omitempty" yaml:"name,omitempty"`
-	Repository                      *string          `json:"repository,omitempty" yaml:"repository,omitempty"`
-	DefaultBranch                   *string          `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
-	Description                     *string          `json:"description,omitempty" yaml:"description,omitempty"`
-	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty" yaml:"provider_settings,omitempty"`
-	BranchConfiguration             *string          `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          *bool            `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
-	SkipQueuedBranchBuildsFilter    *string          `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       *bool            `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
-	CancelRunningBranchBuildsFilter *string          `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
-	ClusterID                       *string          `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
-	Visibility                      *string          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
-	Tags                            []string         `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Name                            *string          `json:"name,omitempty"`
+	Repository                      *string          `json:"repository,omitempty"`
+	DefaultBranch                   *string          `json:"default_branch,omitempty"`
+	Description                     *string          `json:"description,omitempty"`
+	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty"`
+	BranchConfiguration             *string          `json:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          *bool            `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    *string          `json:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       *bool            `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter *string          `json:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       *string          `json:"cluster_id,omitempty"`
+	Visibility                      *string          `json:"visibility,omitempty"`
+	Tags                            []string         `json:"tags,omitempty"`
 }
 
 // Pipeline represents a buildkite pipeline.
 type Pipeline struct {
-	ID                              *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID                       *string    `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	URL                             *string    `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL                          *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Name                            *string    `json:"name,omitempty" yaml:"name,omitempty"`
-	Slug                            *string    `json:"slug,omitempty" yaml:"slug,omitempty"`
-	Repository                      *string    `json:"repository,omitempty" yaml:"repository,omitempty"`
-	BuildsURL                       *string    `json:"builds_url,omitempty" yaml:"builds_url,omitempty"`
-	BadgeURL                        *string    `json:"badge_url,omitempty" yaml:"badge_url,omitempty"`
-	CreatedAt                       *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	ArchivedAt                      *Timestamp `json:"archived_at,omitempty" yaml:"archived_at,omitempty"`
-	DefaultBranch                   *string    `json:"default_branch,omitempty" yaml:"default_branch,omitempty"`
-	Description                     *string    `json:"description,omitempty" yaml:"description,omitempty"`
-	BranchConfiguration             *string    `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          *bool      `json:"skip_queued_branch_builds,omitempty" yaml:"skip_queued_branch_builds,omitempty"`
-	SkipQueuedBranchBuildsFilter    *string    `json:"skip_queued_branch_builds_filter,omitempty" yaml:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty" yaml:"cancel_running_branch_builds,omitempty"`
-	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty" yaml:"cancel_running_branch_builds_filter,omitempty"`
-	ClusterID                       *string    `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
-	Visibility                      *string    `json:"visibility,omitempty" yaml:"visibility,omitempty"`
-	Tags                            []string   `json:"tags,omitempty" yaml:"tags,omitempty"`
+	ID                              *string    `json:"id,omitempty"`
+	GraphQLID                       *string    `json:"graphql_id,omitempty"`
+	URL                             *string    `json:"url,omitempty"`
+	WebURL                          *string    `json:"web_url,omitempty"`
+	Name                            *string    `json:"name,omitempty"`
+	Slug                            *string    `json:"slug,omitempty"`
+	Repository                      *string    `json:"repository,omitempty"`
+	BuildsURL                       *string    `json:"builds_url,omitempty"`
+	BadgeURL                        *string    `json:"badge_url,omitempty"`
+	CreatedAt                       *Timestamp `json:"created_at,omitempty"`
+	ArchivedAt                      *Timestamp `json:"archived_at,omitempty"`
+	DefaultBranch                   *string    `json:"default_branch,omitempty"`
+	Description                     *string    `json:"description,omitempty"`
+	BranchConfiguration             *string    `json:"branch_configuration,omitempty"`
+	SkipQueuedBranchBuilds          *bool      `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuildsFilter    *string    `json:"skip_queued_branch_builds_filter,omitempty"`
+	CancelRunningBranchBuilds       *bool      `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuildsFilter *string    `json:"cancel_running_branch_builds_filter,omitempty"`
+	ClusterID                       *string    `json:"cluster_id,omitempty"`
+	Visibility                      *string    `json:"visibility,omitempty"`
+	Tags                            []string   `json:"tags,omitempty"`
 
-	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty" yaml:"scheduled_builds_count,omitempty"`
-	RunningBuildsCount   *int `json:"running_builds_count,omitempty" yaml:"running_builds_count,omitempty"`
-	ScheduledJobsCount   *int `json:"scheduled_jobs_count,omitempty" yaml:"scheduled_jobs_count,omitempty"`
-	RunningJobsCount     *int `json:"running_jobs_count,omitempty" yaml:"running_jobs_count,omitempty"`
-	WaitingJobsCount     *int `json:"waiting_jobs_count,omitempty" yaml:"waiting_jobs_count,omitempty"`
+	ScheduledBuildsCount *int `json:"scheduled_builds_count,omitempty"`
+	RunningBuildsCount   *int `json:"running_builds_count,omitempty"`
+	ScheduledJobsCount   *int `json:"scheduled_jobs_count,omitempty"`
+	RunningJobsCount     *int `json:"running_jobs_count,omitempty"`
+	WaitingJobsCount     *int `json:"waiting_jobs_count,omitempty"`
 
 	// the provider of sources
-	Provider *Provider `json:"provider,omitempty" yaml:"provider,omitempty"`
+	Provider *Provider `json:"provider,omitempty"`
 
 	// build steps
-	Steps         []*Step                `json:"steps,omitempty" yaml:"steps,omitempty"`
-	Configuration string                 `json:"configuration,omitempty" yaml:"configuration,omitempty"`
-	Env           map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	Steps         []*Step                `json:"steps,omitempty"`
+	Configuration string                 `json:"configuration,omitempty"`
+	Env           map[string]interface{} `json:"env,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
 type Step struct {
-	Type                *string           `json:"type,omitempty" yaml:"type,omitempty"`
-	Name                *string           `json:"name,omitempty" yaml:"name,omitempty"`
-	Label               *string           `json:"label,omitempty" yaml:"label,omitempty"`
-	Command             *string           `json:"command,omitempty" yaml:"command,omitempty"`
-	ArtifactPaths       *string           `json:"artifact_paths,omitempty" yaml:"artifact_paths,omitempty"`
-	BranchConfiguration *string           `json:"branch_configuration,omitempty" yaml:"branch_configuration,omitempty"`
-	Env                 map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
-	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty" yaml:"timeout_in_minutes,omitempty"`
-	AgentQueryRules     []string          `json:"agent_query_rules,omitempty" yaml:"agent_query_rules,omitempty"`
-	Plugins             Plugins           `json:"plugins,omitempty" yaml:"plugins,omitempty"`
+	Type                *string           `json:"type,omitempty"`
+	Name                *string           `json:"name,omitempty"`
+	Label               *string           `json:"label,omitempty"`
+	Command             *string           `json:"command,omitempty"`
+	ArtifactPaths       *string           `json:"artifact_paths,omitempty"`
+	BranchConfiguration *string           `json:"branch_configuration,omitempty"`
+	Env                 map[string]string `json:"env,omitempty"`
+	TimeoutInMinutes    *int              `json:"timeout_in_minutes,omitempty"`
+	AgentQueryRules     []string          `json:"agent_query_rules,omitempty"`
+	Plugins             Plugins           `json:"plugins,omitempty"`
 }
 
 type Plugins map[string]Plugin
