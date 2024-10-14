@@ -25,9 +25,9 @@ func TestAccessTokensService_Get(t *testing.T) {
 		t.Errorf("AccessTokens.Get returned error: %v", err)
 	}
 
-	want := &AccessToken{
-		UUID:   String("b63254c0-3271-4a98-8270-7cfbd6c2f14e"),
-		Scopes: &[]string{"read_build"},
+	want := AccessToken{
+		UUID:   "b63254c0-3271-4a98-8270-7cfbd6c2f14e",
+		Scopes: []string{"read_build"},
 	}
 	if diff := cmp.Diff(ats, want); diff != "" {
 		t.Errorf("AccessTokens.Get diff: (-got +want)\n%s", diff)
