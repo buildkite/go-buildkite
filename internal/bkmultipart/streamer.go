@@ -17,12 +17,12 @@ type Streamer struct {
 	ContentType string
 
 	bodyBuffer  *bytes.Buffer
-	closeBuffer *bytes.Buffer
 	bodyWriter  *multipart.Writer
+	closeBuffer *bytes.Reader
+	file        *os.File
 
-	reader        io.Reader
-	contentLength int64
-	writtenFile   bool
+	fileLength  int64
+	writtenFile bool
 }
 
 // NewStreamer initializes a new Streamer.
@@ -34,10 +34,7 @@ func NewStreamer() *Streamer {
 	s.ContentType = "multipart/form-data; boundary=" + boundary
 
 	closeBoundary := fmt.Sprintf("\r\n--%s--\r\n", boundary)
-	s.closeBuffer = bytes.NewBufferString(closeBoundary)
-
-	// if a file is added, the reader will be set up to read from the body, the file and the closer
-	s.reader = io.MultiReader(s.bodyBuffer, s.closeBuffer)
+	s.closeBuffer = bytes.NewReader([]byte(closeBoundary))
 
 	return s
 }
@@ -59,7 +56,7 @@ func (s *Streamer) WriteFields(fields map[string]string) error {
 // WriteFile writes the multi-part preamble which will be followed by file data
 // This can only be called once and must be the last thing written to the streamer
 func (s *Streamer) WriteFile(key string, file *os.File, displayedFilename string) error {
-	if s.writtenFile {
+	if s.file != nil {
 		return errors.New("WriteFile can't be called multiple times")
 	}
 
@@ -68,25 +65,27 @@ func (s *Streamer) WriteFile(key string, file *os.File, displayedFilename string
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	s.contentLength = fi.Size()
+	s.fileLength = fi.Size()
 
 	_, err = s.bodyWriter.CreateFormFile(key, displayedFilename)
 	if err != nil {
 		return fmt.Errorf("failed to create form file: %w", err)
 	}
 
-	// Set up a reader that combines the body, the file and the closer in a stream
-	s.reader = io.MultiReader(s.bodyBuffer, file, s.closeBuffer)
-	s.writtenFile = true
+	s.file = file
 
 	return nil
 }
 
 // Len calculates the byte size of the multipart content.
 func (s *Streamer) Len() int64 {
-	return int64(s.bodyBuffer.Len()) + s.contentLength + int64(s.closeBuffer.Len())
+	return int64(s.bodyBuffer.Len()) + s.fileLength + int64(s.closeBuffer.Len())
 }
 
-func (s *Streamer) Read(p []byte) (n int, err error) {
-	return s.reader.Read(p)
+func (s *Streamer) Reader() io.Reader {
+	if s.file == nil {
+		return io.MultiReader(s.bodyBuffer, s.closeBuffer)
+	} else {
+		return io.MultiReader(s.bodyBuffer, s.file, s.closeBuffer)
+	}
 }

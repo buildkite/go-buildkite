@@ -101,7 +101,7 @@ func parseForm(t *testing.T, streamer *bkmultipart.Streamer) *multipart.Form {
 	}
 
 	b := &bytes.Buffer{}
-	_, err = io.Copy(b, streamer)
+	_, err = io.Copy(b, streamer.Reader())
 	if err != nil {
 		t.Fatalf("io.Copy(bytes.Buffer, s) = %v, want nil", err)
 	}
