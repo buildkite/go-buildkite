@@ -43,8 +43,10 @@ func TestEncodingFile(t *testing.T) {
 		t.Fatalf("os.CreateTemp() = %v, want nil", err)
 	}
 
-	t.Cleanup(func() { os.Remove(tempFile.Name()) })
-	t.Cleanup(func() { tempFile.Close() })
+	t.Cleanup(func() {
+		tempFile.Close()
+		os.Remove(tempFile.Name())
+	})
 
 	if _, err := tempFile.WriteString("hello world"); err != nil {
 		t.Fatalf(`tempFile.WriteString("hello world") = %v, want nil`, err)
