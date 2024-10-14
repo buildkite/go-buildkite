@@ -39,22 +39,22 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 	s := bkmultipart.NewStreamer()
 	s.WriteFile(fileFormKey, packageTempFile, filename)
 
-	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", organizationSlug, registrySlug)
-	req, err := ps.client.NewRequest(ctx, "POST", url, s.Reader())
+	ppu, _, err := ps.RequestPresignedUpload(ctx, organizationSlug, registrySlug)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
+		return Package{}, nil, fmt.Errorf("requesting presigned upload: %v", err)
 	}
 
-	req.Header.Set("Content-Type", s.ContentType)
-	req.Header.Set("Content-Length", fmt.Sprintf("%d", s.Len()))
-
-	var p Package
-	resp, err := ps.client.Do(req, &p)
+	s3URL, err := ppu.Perform(ctx, ps, packageTempFile)
 	if err != nil {
-		return Package{}, resp, fmt.Errorf("executing POST package request: %v", err)
+		return Package{}, nil, fmt.Errorf("performing presigned upload: %v", err)
 	}
 
-	return p, resp, err
+	p, resp, err := ppu.Finalize(ctx, ps, s3URL)
+	if err != nil {
+		return Package{}, nil, fmt.Errorf("finalizing package: %v", err)
+	}
+
+	return p, resp, nil
 }
 
 // normalizeToFile takes and io.Reader (which might itself already be a file, but could be a stream or other source) and
@@ -74,27 +74,43 @@ func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
 		return nil, fmt.Errorf("writing to temporary file: %v", err)
 	}
 
-	_, err = f.Seek(0, 0)
+	err = f.Close()
 	if err != nil {
-		return nil, fmt.Errorf("seeking to beginning of temporary file: %v", err)
+		return nil, fmt.Errorf("closing temporary file: %v", err)
+	}
+
+	// Rename the temporary file to the desired filename, which is important for Buildkite Package indexing
+	newFileName := filepath.Join(filepath.Dir(f.Name()), basename)
+	err = os.Rename(f.Name(), newFileName)
+	if err != nil {
+		return nil, fmt.Errorf("renaming temporary file: %v", err)
+	}
+
+	f, err = os.Open(newFileName)
+	if err != nil {
+		return nil, fmt.Errorf("opening renamed file: %v", err)
 	}
 
 	return f, nil
 }
 
+// PackagePresignedUpload represents a presigned upload URL for a Buildkite package, returned by the Buildkite API
 type PackagePresignedUpload struct {
 	OrganizationSlug string `json:"-"`
 	RegistrySlug     string `json:"-"`
 
-	URI  string `json:"uri"`
-	Form struct {
-		FileInput string            `json:"file_input"`
-		Method    string            `json:"method"`
-		URL       string            `json:"url"`
-		Data      map[string]string `json:"data"`
-	} `json:"form"`
+	URI  string                     `json:"uri"`
+	Form PackagePresignedUploadForm `json:"form"`
 }
 
+type PackagePresignedUploadForm struct {
+	FileInput string            `json:"file_input"`
+	Method    string            `json:"method"`
+	URL       string            `json:"url"`
+	Data      map[string]string `json:"data"`
+}
+
+// RequestPresignedUpload requests a presigned upload URL for a Buildkite package from the buildkite API
 func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizationSlug, registrySlug string) (PackagePresignedUpload, *Response, error) {
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/upload", organizationSlug, registrySlug)
 	req, err := ps.client.NewRequest(ctx, "POST", url, nil)
@@ -105,7 +121,6 @@ func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizat
 	var p PackagePresignedUpload
 	resp, err := ps.client.Do(req, &p)
 	if err != nil {
-		fmt.Println(string(err.(*ErrorResponse).RawBody))
 		return PackagePresignedUpload{}, resp, fmt.Errorf("executing POST presigned upload request: %v", err)
 	}
 
@@ -115,6 +130,9 @@ func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizat
 	return p, resp, err
 }
 
+// Perform performs uploads the package file referred to by `file` to the presigned upload URL.
+// It does not create the package in the registry, only uploads the file to S3. The returned string is the URL of the
+// uploaded file in S3, which can then be passed to [Finalize] to create the package in the registry.
 func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesService, file *os.File) (string, error) {
 	if _, ok := ppu.Form.Data["key"]; !ok {
 		return "", fmt.Errorf("missing 'key' in presigned upload form data")
@@ -123,8 +141,15 @@ func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesServi
 	baseFilePath := filepath.Base(file.Name())
 
 	s := bkmultipart.NewStreamer()
-	s.WriteFields(ppu.Form.Data)
-	s.WriteFile(ppu.Form.FileInput, file, baseFilePath)
+	err := s.WriteFields(ppu.Form.Data)
+	if err != nil {
+		return "", fmt.Errorf("writing form fields: %v", err)
+	}
+
+	err = s.WriteFile(ppu.Form.FileInput, file, baseFilePath)
+	if err != nil {
+		return "", fmt.Errorf("writing form file: %v", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, ppu.Form.Method, ppu.Form.URL, s.Reader())
 	if err != nil {
@@ -164,12 +189,16 @@ func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesServi
 	return uploadPath, nil
 }
 
+// Finalize creates a package in the registry for the organization, using the S3 URL of the uploaded package file.
 func (ppu PackagePresignedUpload) Finalize(ctx context.Context, ps *PackagesService, s3URL string) (Package, *Response, error) {
 	s := bkmultipart.NewStreamer()
-	s.WriteField("package_url", s3URL)
+	err := s.WriteField("package_url", s3URL)
+	if err != nil {
+		return Package{}, nil, fmt.Errorf("writing package_url field: %v", err)
+	}
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", ppu.OrganizationSlug, ppu.RegistrySlug)
-	req, err := ps.client.NewRequest(ctx, "POST", url, s)
+	req, err := ps.client.NewRequest(ctx, "POST", url, s.Reader())
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
 	}
