@@ -9,9 +9,10 @@ import (
 	"os"
 )
 
-// A wrapper around the complexities of streaming a multipart file and fields to
-// an http endpoint that infuriatingly requires a Content-Length
-// Derived from https://github.com/technoweenie/multipartstreamer
+// A wrapper around the complexities of streaming a multipart file and fields to an http endpoint that infuriatingly
+// requires a Content-Length
+// Stolen/adapted from the multipart streamer in https://github.com/buildkite/agentv/v3/internal/artifact, which itself
+// was derived from https://github.com/technoweenie/multipartstreamer
 type Streamer struct {
 	ContentType string
 
