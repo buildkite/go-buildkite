@@ -110,7 +110,7 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (group key) returned error: %v", err)
 		}
 
-		want := Build{ID: buildNumber, Jobs: []*Job{{GroupKey: &expectedGroup}}}
+		want := Build{ID: buildNumber, Jobs: []Job{{GroupKey: expectedGroup}}}
 		if diff := cmp.Diff(build, want); diff != "" {
 			t.Errorf("Builds.Get (group key) diff: (-got +want)\n%s", diff)
 		}
@@ -141,7 +141,7 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (manual job) returned error: %v", err)
 		}
 
-		want := Build{ID: buildNumber, Jobs: []*Job{{Type: &jobType, UnblockedAt: NewTimestamp(parsedTime)}}}
+		want := Build{ID: buildNumber, Jobs: []Job{{Type: jobType, UnblockedAt: NewTimestamp(parsedTime)}}}
 		if diff := cmp.Diff(build, want); diff != "" {
 			t.Errorf("Builds.Get (manual job) diff: (-got +want)\n%s", diff)
 		}

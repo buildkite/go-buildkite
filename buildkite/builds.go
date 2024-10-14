@@ -91,7 +91,7 @@ type Build struct {
 	Source      string                 `json:"source,omitempty"`
 
 	// jobs run during the build
-	Jobs []*Job `json:"jobs,omitempty"`
+	Jobs []Job `json:"jobs,omitempty"`
 
 	// the pipeline this build is associated with
 	Pipeline *Pipeline `json:"pipeline,omitempty"`

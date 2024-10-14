@@ -29,7 +29,7 @@ func TestJobsService_UnblockJob(t *testing.T) {
 		t.Errorf("UnblockJob returned error: %v", err)
 	}
 
-	want := &Job{ID: String("awesome-job-id"), State: String("unblocked")}
+	want := Job{ID: "awesome-job-id", State: "unblocked"}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("UnblockJob diff: (-got +want)\n%s", diff)
 	}
@@ -56,7 +56,7 @@ func TestJobsService_RetryJob(t *testing.T) {
 		t.Errorf("RetryJob returned error: %v", err)
 	}
 
-	want := &Job{ID: String("awesome-job-id"), State: String("scheduled"), Retried: bool(true), RetriesCount: int(1)}
+	want := Job{ID: "awesome-job-id", State: "scheduled", Retried: true, RetriesCount: 1}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("RetryJob diff: (-got +want)\n%s", diff)
 	}
@@ -83,10 +83,10 @@ func TestJobsService_GetJobLog(t *testing.T) {
 		t.Errorf("GetJobLog returned error: %v", err)
 	}
 
-	want := &JobLog{
-		URL:         String("https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log"),
-		Content:     String("This is the job's log output"),
-		Size:        Int(28),
+	want := JobLog{
+		URL:         "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log",
+		Content:     "This is the job's log output",
+		Size:        28,
 		HeaderTimes: []int64{1563337899810051000, 1563337899811015000, 1563337905336878000, 1563337906589603000, 156333791038291900},
 	}
 	if diff := cmp.Diff(job, want); diff != "" {
@@ -124,16 +124,16 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 		"BUILDKITE_BUILD_CREATOR_EMAIL":   "keith@buildkite.com",
 		"BUILDKITE_AGENT_META_DATA_LOCAL": "true",
 	}
+
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/15/jobs/awesome-job-id/env", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		body := map[string]map[string]string{
-			"env": envVars,
-		}
-		jsonString, err := json.Marshal(body)
+		body := map[string]map[string]string{"env": envVars}
+		bytes, err := json.Marshal(body)
 		if err != nil {
-			t.Errorf("Cast map into string returned error: %v", err)
+			t.Errorf("json.Marshal(body) returned error: %v", err)
 		}
-		fmt.Fprintf(w, `%s`, jsonString)
+
+		fmt.Fprint(w, string(bytes))
 	})
 
 	jobEnvVars, _, err := client.Jobs.GetJobEnvironmentVariables(context.Background(), "my-great-org", "sup-keith", "15", "awesome-job-id")
@@ -141,9 +141,7 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 		t.Errorf("GetJobEnvironmentVariables returned error: %v", err)
 	}
 
-	want := &JobEnvs{
-		EnvironmentVariables: &envVars,
-	}
+	want := JobEnvs{EnvironmentVariables: envVars}
 	if diff := cmp.Diff(jobEnvVars, want); diff != "" {
 		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
 	}
