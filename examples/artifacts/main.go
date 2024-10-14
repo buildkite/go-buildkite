@@ -44,8 +44,8 @@ func main() {
 
 			fmt.Fprintf(os.Stdout, "%s\n", string(data))
 		} else {
-			if *artifactName == *artifact.Filename || *artifactName == *artifact.ID {
-				_, err := client.Artifacts.DownloadArtifactByURL(context.Background(), *artifact.DownloadURL, os.Stdout)
+			if *artifactName == artifact.Filename || *artifactName == artifact.ID {
+				_, err := client.Artifacts.DownloadArtifactByURL(context.Background(), artifact.DownloadURL, os.Stdout)
 				if err != nil {
 					log.Fatalf("DownloadArtifactByURL failed: %s", err)
 				}
