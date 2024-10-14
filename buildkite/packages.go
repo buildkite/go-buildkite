@@ -102,7 +102,7 @@ func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
 		return nil, fmt.Errorf("writing to temporary file: %v", err)
 	}
 
-	_, err = f.Seek(0, 0)
+	_, err = f.Seek(0, io.SeekStart)
 	if err != nil {
 		return nil, fmt.Errorf("seeking to beginning of temporary file: %v", err)
 	}

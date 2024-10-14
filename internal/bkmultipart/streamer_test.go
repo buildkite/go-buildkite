@@ -50,8 +50,8 @@ func TestEncodingFile(t *testing.T) {
 		t.Fatalf(`tempFile.WriteString("hello world") = %v, want nil`, err)
 	}
 
-	if _, err := tempFile.Seek(0, 0); err != nil {
-		t.Fatalf("tempFile.Seek(0, 0) = %v, want nil", err)
+	if _, err := tempFile.Seek(0, io.SeekStart); err != nil {
+		t.Fatalf("tempFile.Seek(0, io.SeekStart) = %v, want nil", err)
 	}
 
 	s := bkmultipart.NewStreamer()
