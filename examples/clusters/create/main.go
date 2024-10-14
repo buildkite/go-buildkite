@@ -28,12 +28,12 @@ func main() {
 
 	clusterCreate := buildkite.ClusterCreate{
 		Name:        "Development Cluster",
-		Description: buildkite.String("A cluster for development work"),
-		Emoji:       buildkite.String(":toolbox:"),
-		Color:       buildkite.String("#A9CCE3"),
+		Description: "A cluster for development work",
+		Emoji:       ":toolbox:",
+		Color:       "#A9CCE3",
 	}
 
-	cluster, _, err := client.Clusters.Create(context.Background(), *org, &clusterCreate)
+	cluster, _, err := client.Clusters.Create(context.Background(), *org, clusterCreate)
 
 	if err != nil {
 		log.Fatalf("Creating cluster failed: %s", err)

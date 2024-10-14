@@ -26,10 +26,10 @@ func main() {
 	}
 
 	clusterQueueUpdate := buildkite.ClusterQueueUpdate{
-		Description: buildkite.String("Development team cluster queue"),
+		Description: "Development team cluster queue",
 	}
 
-	resp, err := client.ClusterQueues.Update(context.Background(), *org, *clusterID, *queueID, &clusterQueueUpdate)
+	resp, err := client.ClusterQueues.Update(context.Background(), *org, *clusterID, *queueID, clusterQueueUpdate)
 
 	if err != nil {
 		log.Fatalf("Updating cluster queue failed: %s", err)

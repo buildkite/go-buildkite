@@ -26,10 +26,10 @@ func main() {
 	}
 
 	clusterUpdate := buildkite.ClusterUpdate{
-		Description: buildkite.String("Development cluster"),
+		Description: "Development cluster",
 	}
 
-	resp, err := client.Clusters.Update(context.Background(), *org, *clusterID, &clusterUpdate)
+	resp, err := client.Clusters.Update(context.Background(), *org, *clusterID, clusterUpdate)
 
 	if err != nil {
 		log.Fatalf("Updating cluster %s failed: %s", *clusterID, err)

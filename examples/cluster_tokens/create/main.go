@@ -27,18 +27,14 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusterTokenCreate := buildkite.ClusterTokenCreateUpdate{
-		Description: buildkite.String("Dev squad agent fleet token"),
-	}
+	clusterTokenCreate := buildkite.ClusterTokenCreateUpdate{Description: "Dev squad agent fleet token"}
 
-	token, _, err := client.ClusterTokens.Create(context.Background(), *org, *clusterID, &clusterTokenCreate)
-
+	token, _, err := client.ClusterTokens.Create(context.Background(), *org, *clusterID, clusterTokenCreate)
 	if err != nil {
 		log.Fatalf("Creating cluster token failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(token, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

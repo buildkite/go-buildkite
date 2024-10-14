@@ -28,11 +28,11 @@ func main() {
 	}
 
 	clusterQueueCreate := buildkite.ClusterQueueCreate{
-		Key:         buildkite.String("dev1"),
-		Description: buildkite.String("Development 1 Cluster queue"),
+		Key:         "dev1",
+		Description: "Development 1 Cluster queue",
 	}
 
-	queue, _, err := client.ClusterQueues.Create(context.Background(), *org, *clusterID, &clusterQueueCreate)
+	queue, _, err := client.ClusterQueues.Create(context.Background(), *org, *clusterID, clusterQueueCreate)
 
 	if err != nil {
 		log.Fatalf("Creating cluster queue failed: %s", err)

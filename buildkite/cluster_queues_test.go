@@ -84,38 +84,38 @@ func TestClusterQueuesService_List(t *testing.T) {
 	devQueuePausedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z"))
 	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
-	clusterCreator := &ClusterCreator{
-		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-		Name:      String("Joe Smith"),
-		Email:     String("jsmith@example.com"),
-		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+	clusterCreator := ClusterCreator{
+		ID:        "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+		GraphQLID: "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
+		Name:      "Joe Smith",
+		Email:     "jsmith@example.com",
+		AvatarURL: "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 		CreatedAt: NewTimestamp(userCreatedAt),
 	}
 
 	want := []ClusterQueue{
 		{
-			ID:             String("da3b950b-5761-4940-900d-d9d88307c337"),
-			GraphQLID:      String("Q2x1c3RlclF1ZXVlLS0tZGEzYjk1MGItNTc2MS00OTQwLTkwMGQtZDlkODgzMDdjMzM3"),
-			Key:            String("default"),
-			Description:    String("Cluster's default queue"),
-			URL:            String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/da3b950b-5761-4940-900d-d9d88307c337"),
-			WebURL:         String("https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/da3b950b-5761-4940-900d-d9d88307c337"),
-			ClusterURL:     String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
-			DispatchPaused: Bool(false),
+			ID:             "da3b950b-5761-4940-900d-d9d88307c337",
+			GraphQLID:      "Q2x1c3RlclF1ZXVlLS0tZGEzYjk1MGItNTc2MS00OTQwLTkwMGQtZDlkODgzMDdjMzM3",
+			Key:            "default",
+			Description:    "Cluster's default queue",
+			URL:            "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/da3b950b-5761-4940-900d-d9d88307c337",
+			WebURL:         "https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/da3b950b-5761-4940-900d-d9d88307c337",
+			ClusterURL:     "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
+			DispatchPaused: false,
 			CreatedAt:      NewTimestamp(defaultQueueCreatedAt),
 			CreatedBy:      clusterCreator,
 		},
 		{
-			ID:                 String("46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
-			GraphQLID:          String("Q2x1c3RlclF1ZXVlLS0tNDY3MThiYjYtM2IyYS00OGRhLTlkY2ItOTIyYzZiN2JhMTQw"),
-			Key:                String("development"),
-			Description:        String("Development queue"),
-			URL:                String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
-			WebURL:             String("https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
-			ClusterURL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
-			DispatchPaused:     Bool(true),
-			DispatchPausedBy:   clusterCreator,
+			ID:                 "46718bb6-3b2a-48da-9dcb-922c6b7ba140",
+			GraphQLID:          "Q2x1c3RlclF1ZXVlLS0tNDY3MThiYjYtM2IyYS00OGRhLTlkY2ItOTIyYzZiN2JhMTQw",
+			Key:                "development",
+			Description:        "Development queue",
+			URL:                "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140",
+			WebURL:             "https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140",
+			ClusterURL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
+			DispatchPaused:     true,
+			DispatchPausedBy:   &clusterCreator,
 			DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
 			DispatchPausedNote: String("Weekend queue pause"),
 			CreatedAt:          NewTimestamp(devQueueClusterCreatedAt),
@@ -179,25 +179,25 @@ func TestClusterQueuesService_Get(t *testing.T) {
 	devQueuePausedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-25T08:53:05.824Z"))
 	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
-	clusterCreator := &ClusterCreator{
-		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-		Name:      String("Joe Smith"),
-		Email:     String("jsmith@example.com"),
-		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+	clusterCreator := ClusterCreator{
+		ID:        "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+		GraphQLID: "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
+		Name:      "Joe Smith",
+		Email:     "jsmith@example.com",
+		AvatarURL: "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 		CreatedAt: NewTimestamp(userCreatedAt),
 	}
 
-	want := &ClusterQueue{
-		ID:                 String("46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
-		GraphQLID:          String("Q2x1c3RlclF1ZXVlLS0tNDY3MThiYjYtM2IyYS00OGRhLTlkY2ItOTIyYzZiN2JhMTQw"),
-		Key:                String("development"),
-		Description:        String("Development queue"),
-		URL:                String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
-		WebURL:             String("https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140"),
-		ClusterURL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57"),
-		DispatchPaused:     Bool(true),
-		DispatchPausedBy:   clusterCreator,
+	want := ClusterQueue{
+		ID:                 "46718bb6-3b2a-48da-9dcb-922c6b7ba140",
+		GraphQLID:          "Q2x1c3RlclF1ZXVlLS0tNDY3MThiYjYtM2IyYS00OGRhLTlkY2ItOTIyYzZiN2JhMTQw",
+		Key:                "development",
+		Description:        "Development queue",
+		URL:                "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140",
+		WebURL:             "https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140",
+		ClusterURL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
+		DispatchPaused:     true,
+		DispatchPausedBy:   &clusterCreator,
 		DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
 		DispatchPausedNote: String("Weekend queue pause"),
 		CreatedAt:          NewTimestamp(devQueueClusterCreatedAt),
@@ -215,13 +215,13 @@ func TestClusterQueuesService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &ClusterQueueCreate{
-		Key:         String("development1"),
-		Description: String("Development 1 queue"),
+	input := ClusterQueueCreate{
+		Key:         "development1",
+		Description: "Development 1 queue",
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterQueueCreate)
+		var v ClusterQueueCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -244,9 +244,9 @@ func TestClusterQueuesService_Create(t *testing.T) {
 		t.Errorf("TestClusterQueues.Create returned error: %v", err)
 	}
 
-	want := &ClusterQueue{
-		Key:         String("development1"),
-		Description: String("Development 1 queue"),
+	want := ClusterQueue{
+		Key:         "development1",
+		Description: "Development 1 queue",
 	}
 
 	if diff := cmp.Diff(queue, want); diff != "" {
@@ -260,13 +260,13 @@ func TestClusterQueuesService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &ClusterQueueCreate{
-		Key:         String("development1"),
-		Description: String("Development 1 queue"),
+	input := ClusterQueueCreate{
+		Key:         "development1",
+		Description: "Development 1 queue",
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterQueueCreate)
+		var v ClusterQueueCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -291,10 +291,10 @@ func TestClusterQueuesService_Update(t *testing.T) {
 	}
 
 	// Lets update the description of the cluster queue
-	queue.Description = String("Development 1 Team queue")
+	queue.Description = "Development 1 Team queue"
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterQueueUpdate)
+		var v ClusterQueueUpdate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "PATCH")
@@ -309,19 +309,19 @@ func TestClusterQueuesService_Update(t *testing.T) {
 	})
 
 	queueUpdate := ClusterQueueUpdate{
-		Description: String("Development 1 Team queue"),
+		Description: "Development 1 Team queue",
 	}
 
-	_, err = client.ClusterQueues.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", &queueUpdate)
+	_, err = client.ClusterQueues.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", queueUpdate)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Update returned error: %v", err)
 	}
 
-	want := &ClusterQueue{
-		ID:          String("1374ffd0-c5ed-49a5-aebe-67ce906e68ca"),
-		Key:         String("development1"),
-		Description: String("Development 1 Team queue"),
+	want := ClusterQueue{
+		ID:          "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
+		Key:         "development1",
+		Description: "Development 1 Team queue",
 	}
 
 	if diff := cmp.Diff(queue, want); diff != "" {
@@ -352,13 +352,13 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &ClusterQueueCreate{
-		Key:         String("development1"),
-		Description: String("Development 1 Team queue"),
+	input := ClusterQueueCreate{
+		Key:         "development1",
+		Description: "Development 1 Team queue",
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterQueueCreate)
+		var v ClusterQueueCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -402,19 +402,19 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 	})
 
 	queuePause := ClusterQueuePause{
-		Note: String("Pausing dispatch for the weekend"),
+		Note: "Pausing dispatch for the weekend",
 	}
 
-	_, err = client.ClusterQueues.Pause(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f", &queuePause)
+	_, err = client.ClusterQueues.Pause(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f", queuePause)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Pause returned error: %v", err)
 	}
 
-	want := &ClusterQueue{
-		ID:                 String("5cadac07-51dd-4e12-bea3-d91be4655c2f"),
-		Key:                String("development1"),
-		Description:        String("Development 1 Team queue"),
+	want := ClusterQueue{
+		ID:                 "5cadac07-51dd-4e12-bea3-d91be4655c2f",
+		Key:                "development1",
+		Description:        "Development 1 Team queue",
 		DispatchPausedNote: String("Pausing dispatch for the weekend"),
 	}
 
