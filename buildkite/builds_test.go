@@ -30,7 +30,7 @@ func TestBuildsService_Cancel(t *testing.T) {
 		t.Errorf("Cancel returned error: %v", err)
 	}
 
-	want := &Build{ID: String("1"), State: String("cancelled")}
+	want := Build{ID: "1", State: "cancelled"}
 	if diff := cmp.Diff(build, want); diff != "" {
 		t.Errorf("Cancel diff: (-got +want)\n%s", diff)
 	}
@@ -52,7 +52,7 @@ func TestBuildsService_List(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -83,7 +83,7 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (expected id) returned error: %v", err)
 		}
 
-		want := &Build{ID: String(buildNumber)}
+		want := Build{ID: buildNumber}
 		if diff := cmp.Diff(build, want); diff != "" {
 			t.Errorf("Builds.Get (expected id) diff: (-got +want)\n%s", diff)
 		}
@@ -110,7 +110,7 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (group key) returned error: %v", err)
 		}
 
-		want := &Build{ID: String(buildNumber), Jobs: []*Job{{GroupKey: &expectedGroup}}}
+		want := Build{ID: buildNumber, Jobs: []*Job{{GroupKey: &expectedGroup}}}
 		if diff := cmp.Diff(build, want); diff != "" {
 			t.Errorf("Builds.Get (group key) diff: (-got +want)\n%s", diff)
 		}
@@ -141,7 +141,7 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (manual job) returned error: %v", err)
 		}
 
-		want := &Build{ID: String(buildNumber), Jobs: []*Job{{Type: &jobType, UnblockedAt: NewTimestamp(parsedTime)}}}
+		want := Build{ID: buildNumber, Jobs: []*Job{{Type: &jobType, UnblockedAt: NewTimestamp(parsedTime)}}}
 		if diff := cmp.Diff(build, want); diff != "" {
 			t.Errorf("Builds.Get (manual job) diff: (-got +want)\n%s", diff)
 		}
@@ -172,7 +172,7 @@ func TestBuildsService_List_by_status(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -203,7 +203,7 @@ func TestBuildsService_List_by_multiple_status(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -238,7 +238,7 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}}
+	want := []Build{{ID: "123"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -260,7 +260,7 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -291,7 +291,7 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -320,7 +320,7 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
@@ -342,7 +342,7 @@ func TestBuildsService_ListByPipeline(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: String("123")}, {ID: String("1234")}}
+	want := []Build{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
