@@ -27,17 +27,17 @@ func main() {
 	}
 
 	createPipeline := buildkite.CreatePipeline{
-		Name:          *buildkite.String("my-great-pipeline"),
-		Repository:    *buildkite.String("git@github.com:my_great_org/my_great_repo2.git"),
-		Configuration: *buildkite.String("env:\n \"FOO\": \"bar\"\nsteps:\n - command: \"script/release.sh\"\n   \"name\": \"Build 📦\""),
+		Name:          "my-great-pipeline",
+		Repository:    "git@github.com:my_great_org/my_great_repo2.git",
+		Configuration: "env:\n \"FOO\": \"bar\"\nsteps:\n - command: \"script/release.sh\"\n   \"name\": \"Build 📦\"",
 		Tags:          []string{"great", "pipeline"},
-		Description:   *buildkite.String("This ia a great pipeline!"),
+		Description:   "This ia a great pipeline!",
 		ProviderSettings: &buildkite.GitHubSettings{
-			TriggerMode: buildkite.String("code"),
+			TriggerMode: "code",
 		},
 	}
 
-	pipeline, _, err := client.Pipelines.Create(context.Background(), *org, &createPipeline)
+	pipeline, _, err := client.Pipelines.Create(context.Background(), *org, createPipeline)
 
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)

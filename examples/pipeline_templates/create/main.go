@@ -27,20 +27,18 @@ func main() {
 	}
 
 	pipelineTemplateCreate := buildkite.PipelineTemplateCreateUpdate{
-		Name:          buildkite.String("Production Pipeline uploader"),
-		Description:   buildkite.String("Production pipeline upload template"),
-		Configuration: buildkite.String("steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n"),
-		Available:     buildkite.Bool(true),
+		Name:          "Production Pipeline uploader",
+		Description:   "Production pipeline upload template",
+		Configuration: "steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n",
+		Available:     true,
 	}
 
-	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), *org, &pipelineTemplateCreate)
-
+	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), *org, pipelineTemplateCreate)
 	if err != nil {
 		log.Fatalf("Creating pipeline template failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(pipelineTemplate, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

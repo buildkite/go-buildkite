@@ -11,9 +11,11 @@ import (
 )
 
 var (
-	apiToken = kingpin.Flag("token", "API token").Required().String()
-	org      = kingpin.Flag("org", "Orginization slug").Required().String()
-	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
+	apiToken       = kingpin.Flag("token", "API token").Required().String()
+	org            = kingpin.Flag("org", "Organization slug").Required().String()
+	pipelineSlug   = kingpin.Flag("pipeline", "Pipeline slug").Required().String()
+	newDescription = kingpin.Flag("description", "New pipeline description").Required().String()
+	debug          = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
@@ -24,22 +26,10 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pipeline := buildkite.Pipeline{
-		Slug:        buildkite.String("my-great-repo"),
-		Description: buildkite.String("This ia a great pipeline!"),
-		Provider: &buildkite.Provider{
-			Settings: &buildkite.GitHubSettings{
-				TriggerMode:       buildkite.String("fork"),
-				BuildPullRequests: buildkite.Bool(false),
-			},
-		},
-	}
-
-	resp, err := client.Pipelines.Update(context.Background(), *org, &pipeline)
-
+	_, _, err = client.Pipelines.Update(context.Background(), *org, *pipelineSlug, buildkite.UpdatePipeline{Description: *newDescription})
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)
 	}
 
-	fmt.Println(resp.StatusCode)
+	fmt.Println("Changed pipeline description to " + *newDescription)
 }
