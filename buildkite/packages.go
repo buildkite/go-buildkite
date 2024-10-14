@@ -61,14 +61,16 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("writing package to tempfile: %v", err)
 	}
-	defer os.Remove(packageTempFile.Name())
-	defer packageTempFile.Close()
+	defer func() {
+		packageTempFile.Close()
+		os.Remove(packageTempFile.Name())
+	}()
 
 	s := bkmultipart.NewStreamer()
 	s.WriteFile(fileFormKey, packageTempFile, filename)
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", organizationSlug, registrySlug)
-	req, err := ps.client.NewRequest(ctx, "POST", url, s)
+	req, err := ps.client.NewRequest(ctx, "POST", url, s.Reader())
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
 	}
@@ -85,9 +87,8 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 	return p, resp, err
 }
 
-// normalizeToFile takes and io.Reader (which might itself already be a file, but could be a stream or other source) and
+// normalizeToFile takes an io.Reader (which might itself already be a file, but could be a stream or other source) and
 // writes it to a temporary file, returning the file handle.
-// The file is written to a temporary directory, and then renamed to the desired filename.
 // We do this normalization to ensure that we can accurately calculate the Content-Length of the request body, which is
 // required by S3. We write to disk (instead of buffering in memory) to avoid memory exhaustion for large files.
 func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
@@ -105,13 +106,6 @@ func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
 	_, err = f.Seek(0, io.SeekStart)
 	if err != nil {
 		return nil, fmt.Errorf("seeking to beginning of temporary file: %v", err)
-	}
-
-	// Rename the temporary file to the desired filename, which is important for Buildkite Package indexing
-	tempFileDir := filepath.Dir(f.Name())
-	err = os.Rename(f.Name(), filepath.Join(tempFileDir, basename))
-	if err != nil {
-		return nil, fmt.Errorf("renaming temporary file: %v", err)
 	}
 
 	return f, nil
