@@ -28,9 +28,9 @@ func TestAgentsService_List(t *testing.T) {
 		t.Errorf("Agents.List returned error: %v", err)
 	}
 
-	want := []Agent{{ID: String("123")}, {ID: String("1234")}}
+	want := []Agent{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(agents, want); diff != "" {
-		t.Errorf("Agents.List diff: (-got +want)\n%s", diff)
+		t.Errorf("Agents.List: diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -50,9 +50,9 @@ func TestAgentsService_Get(t *testing.T) {
 		t.Errorf("Agents.Get returned error: %v", err)
 	}
 
-	want := &Agent{ID: String("123")}
+	want := Agent{ID: "123"}
 	if diff := cmp.Diff(agent, want); diff != "" {
-		t.Errorf("Agents.Get diff: (-got +want)\n%s", diff)
+		t.Errorf("Agents.List(): diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -62,10 +62,10 @@ func TestAgentsService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &Agent{Name: String("new_agent_bob")}
+	input := Agent{Name: "new_agent_bob"}
 
 	server.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
-		v := new(Agent)
+		var v Agent
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -82,11 +82,10 @@ func TestAgentsService_Create(t *testing.T) {
 		t.Errorf("Agents.Create returned error: %v", err)
 	}
 
-	want := &Agent{ID: String("123")}
+	want := Agent{ID: "123"}
 	if diff := cmp.Diff(agent, want); diff != "" {
-		t.Errorf("Agents.Create diff: (-got +want)\n%s", diff)
+		t.Errorf("Agents.Create() diff: (-got +want)\n%s", diff)
 	}
-
 }
 
 func TestAgentsService_Delete(t *testing.T) {
