@@ -131,7 +131,7 @@ func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizat
 }
 
 // Perform performs uploads the package file referred to by `file` to the presigned upload URL.
-// It does not create the package in the registry, only uploads the file to S3. The returned string is the URL of the
+// It does not create the package in the registry, only uploads the file to the package host. The returned string is the URL of the
 // uploaded file in S3, which can then be passed to [Finalize] to create the package in the registry.
 func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesService, file *os.File) (string, error) {
 	if _, ok := ppu.Form.Data["key"]; !ok {
