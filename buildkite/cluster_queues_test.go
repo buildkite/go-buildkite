@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestClusterQueuesService_List(t *testing.T) {
@@ -122,8 +123,8 @@ func TestClusterQueuesService_List(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(queues, want) {
-		t.Errorf("TestClusterQueues.List returned %+v, want %+v", queues, want)
+	if diff := cmp.Diff(queues, want); diff != "" {
+		t.Errorf("TestClusterQueues.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -203,8 +204,8 @@ func TestClusterQueuesService_Get(t *testing.T) {
 		CreatedBy:          clusterCreator,
 	}
 
-	if !reflect.DeepEqual(queue, want) {
-		t.Errorf("TestClusterQueues.Get returned %+v, want %+v", queue, want)
+	if diff := cmp.Diff(queue, want); diff != "" {
+		t.Errorf("TestClusterQueues.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -225,8 +226,8 @@ func TestClusterQueuesService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -248,8 +249,8 @@ func TestClusterQueuesService_Create(t *testing.T) {
 		Description: String("Development 1 queue"),
 	}
 
-	if !reflect.DeepEqual(queue, want) {
-		t.Errorf("TestClusterQueues.Create returned %+v, want %+v", queue, want)
+	if diff := cmp.Diff(queue, want); diff != "" {
+		t.Errorf("TestClusterQueues.Create diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -270,8 +271,8 @@ func TestClusterQueuesService_Update(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -323,8 +324,8 @@ func TestClusterQueuesService_Update(t *testing.T) {
 		Description: String("Development 1 Team queue"),
 	}
 
-	if !reflect.DeepEqual(queue, want) {
-		t.Errorf("TestClusterQueues.Update returned %+v, want %+v", queue, want)
+	if diff := cmp.Diff(queue, want); diff != "" {
+		t.Errorf("TestClusterQueues.Update diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -362,8 +363,8 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -417,8 +418,8 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 		DispatchPausedNote: String("Pausing dispatch for the weekend"),
 	}
 
-	if !reflect.DeepEqual(queue, want) {
-		t.Errorf("TestClusterQueues.Pause returned %+v, want %+v", queue, want)
+	if diff := cmp.Diff(queue, want); diff != "" {
+		t.Errorf("TestClusterQueues.Pause diff: (-got +want)\n%s", diff)
 	}
 }
 

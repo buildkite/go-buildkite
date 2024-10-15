@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestClusterTokensService_List(t *testing.T) {
@@ -98,8 +99,8 @@ func TestClusterTokensService_List(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(tokens, want) {
-		t.Errorf("TestClusterTokens.List returned %+v, want %+v", tokens, want)
+	if diff := cmp.Diff(tokens, want); diff != "" {
+		t.Errorf("TestClusterTokens.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -161,8 +162,8 @@ func TestClusterTokensService_Get(t *testing.T) {
 		AllowedIPAddresses: String("99.26.83.126/24 220.189.137.145/32"),
 	}
 
-	if !reflect.DeepEqual(token, want) {
-		t.Errorf("TestClusterTokens.Get returned %+v, want %+v", token, want)
+	if diff := cmp.Diff(token, want); diff != "" {
+		t.Errorf("TestClusterTokens.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -182,8 +183,8 @@ func TestClusterTokensService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -203,8 +204,8 @@ func TestClusterTokensService_Create(t *testing.T) {
 		Description: String("Development 2 cluster token"),
 	}
 
-	if !reflect.DeepEqual(token, want) {
-		t.Errorf("TestClusterTokens.Create returned %+v, want %+v", token, want)
+	if diff := cmp.Diff(token, want); diff != "" {
+		t.Errorf("TestClusterTokens.Create diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -224,8 +225,8 @@ func TestClusterTokensService_Update(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -274,8 +275,8 @@ func TestClusterTokensService_Update(t *testing.T) {
 		Description: String("Development 1 agent token"),
 	}
 
-	if !reflect.DeepEqual(token, want) {
-		t.Errorf("TestClusterTokens.Update returned %+v, want %+v", token, want)
+	if diff := cmp.Diff(token, want); diff != "" {
+		t.Errorf("TestClusterTokens.Update diff: (-got +want)\n%s", diff)
 	}
 }
 

@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestPipelinesService_List(t *testing.T) {
@@ -26,8 +27,8 @@ func TestPipelinesService_List(t *testing.T) {
 	}
 
 	want := []Pipeline{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(pipelines, want) {
-		t.Errorf("Pipelines.List returned %+v, want %+v", pipelines, want)
+	if diff := cmp.Diff(pipelines, want); diff != "" {
+		t.Errorf("Pipelines.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -65,8 +66,8 @@ func TestPipelinesService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w, `{
@@ -119,8 +120,8 @@ func TestPipelinesService_Create(t *testing.T) {
 			"great-config",
 		},
 	}
-	if !reflect.DeepEqual(pipeline, want) {
-		t.Errorf("Pipelines.Create returned %+v, want %+v", pipeline, want)
+	if diff := cmp.Diff(pipeline, want); diff != "" {
+		t.Errorf("Pipelines.Create diff: (-got +want)\n%s", diff)
 	}
 
 }
@@ -142,8 +143,8 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w, `{
@@ -188,8 +189,8 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 		},
 		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
 	}
-	if !reflect.DeepEqual(pipeline, want) {
-		t.Errorf("Pipelines.Create returned %+v, want %+v", pipeline.Configuration, want.Configuration)
+	if diff := cmp.Diff(pipeline, want); diff != "" {
+		t.Errorf("Pipelines.Create diff: (-got +want)\n%s", diff)
 	}
 
 }
@@ -217,8 +218,8 @@ func TestPipelinesService_Get(t *testing.T) {
 	}
 
 	want := &Pipeline{ID: String("123"), Slug: String("my-great-pipeline-slug")}
-	if !reflect.DeepEqual(pipeline, want) {
-		t.Errorf("Pipelines.Get returned %+v, want %+v", pipeline, want)
+	if diff := cmp.Diff(pipeline, want); diff != "" {
+		t.Errorf("Pipelines.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -267,8 +268,8 @@ func TestPipelinesService_Update(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w, `{
@@ -353,8 +354,8 @@ func TestPipelinesService_Update(t *testing.T) {
 		Tags:       []string{"fresh-tag"},
 	}
 
-	if !reflect.DeepEqual(pipeline, want) {
-		t.Errorf("Pipelines.Update returned %+v, want %+v", pipeline, want)
+	if diff := cmp.Diff(pipeline, want); diff != "" {
+		t.Errorf("Pipelines.Update diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -437,8 +438,8 @@ func TestPluginsUnmarshal(t *testing.T) {
 					"workdir": "/app",
 				},
 			}
-			if !reflect.DeepEqual(plugins, want) {
-				t.Errorf("Plugins.Unmarshal returned %+v, want %+v", plugins, want)
+			if diff := cmp.Diff(plugins, want); diff != "" {
+				t.Errorf("Plugins.Unmarshal diff: (-got +want)\n%s", diff)
 			}
 		})
 	}

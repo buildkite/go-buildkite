@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestParseWebHook(t *testing.T) {
@@ -95,8 +96,8 @@ func TestParseWebHook(t *testing.T) {
 			t.Fatalf("ParseWebHook: %v", err)
 		}
 
-		if want := test.payload; !reflect.DeepEqual(got, want) {
-			t.Errorf("ParseWebHook(%#v, %#v) = %#v, want %#v", test.messageType, p, got, want)
+		if diff := cmp.Diff(got, test.payload); diff != "" {
+			t.Errorf("ParseWebHook(%q, []byte(%q)) returned unexpected output. diff: (-got +want)\n%s", test.messageType, string(p), diff)
 		}
 	}
 }

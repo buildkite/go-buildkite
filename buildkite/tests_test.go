@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestTestsService_Get(t *testing.T) {
@@ -45,7 +46,7 @@ func TestTestsService_Get(t *testing.T) {
 		FileName: String("./resources/test_example_test.go"),
 	}
 
-	if !reflect.DeepEqual(test, want) {
-		t.Errorf("TestsService.Get returned %+v, want %+v", test, want)
+	if diff := cmp.Diff(test, want); diff != "" {
+		t.Errorf("TestsService.Get diff: (-got +want)\n%s", diff)
 	}
 }

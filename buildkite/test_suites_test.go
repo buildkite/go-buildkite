@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestTestSuitesService_List(t *testing.T) {
@@ -67,8 +68,8 @@ func TestTestSuitesService_List(t *testing.T) {
 			DefaultBranch: String("main"),
 		},
 	}
-	if !reflect.DeepEqual(suites, want) {
-		t.Errorf("TestSuites.List returned %+v, want %+v", suites, want)
+	if diff := cmp.Diff(suites, want); diff != "" {
+		t.Errorf("TestSuites.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -109,8 +110,8 @@ func TestTestSuitesService_Get(t *testing.T) {
 		DefaultBranch: String("main"),
 	}
 
-	if !reflect.DeepEqual(suite, want) {
-		t.Errorf("TestSuites.Get returned %+v, want %+v", suite, want)
+	if diff := cmp.Diff(suite, want); diff != "" {
+		t.Errorf("TestSuites.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -132,8 +133,8 @@ func TestTestSuitesService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -156,8 +157,8 @@ func TestTestSuitesService_Create(t *testing.T) {
 		DefaultBranch: String("main"),
 	}
 
-	if !reflect.DeepEqual(suite, want) {
-		t.Errorf("TestSuites.Create returned %+v, want %+v", suite, want)
+	if diff := cmp.Diff(suite, want); diff != "" {
+		t.Errorf("TestSuites.Create diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -179,8 +180,8 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -230,8 +231,8 @@ func TestTestSuitesService_Update(t *testing.T) {
 		DefaultBranch: String("develop"),
 	}
 
-	if !reflect.DeepEqual(suite, want) {
-		t.Errorf("TestSuites.Update returned %+v, want %+v", suite, want)
+	if diff := cmp.Diff(suite, want); diff != "" {
+		t.Errorf("TestSuites.Update diff: (-got +want)\n%s", diff)
 	}
 }
 

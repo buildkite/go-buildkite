@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestListEmojis(t *testing.T) {
@@ -25,7 +26,7 @@ func TestListEmojis(t *testing.T) {
 	}
 
 	want := []Emoji{{Name: String("rocket"), URL: String("https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2")}}
-	if !reflect.DeepEqual(want, emoji) {
-		t.Errorf("ListEmojis returned %+v, want %+v", emoji, want)
+	if diff := cmp.Diff(want, emoji); diff != "" {
+		t.Errorf("ListEmojis diff: (-got +want)\n%s", diff)
 	}
 }

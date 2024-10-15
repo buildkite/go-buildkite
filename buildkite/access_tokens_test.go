@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestAccessTokensService_Get(t *testing.T) {
@@ -28,8 +29,8 @@ func TestAccessTokensService_Get(t *testing.T) {
 		UUID:   String("b63254c0-3271-4a98-8270-7cfbd6c2f14e"),
 		Scopes: &[]string{"read_build"},
 	}
-	if !reflect.DeepEqual(ats, want) {
-		t.Errorf("AccessTokens.Get returned %+v, want %+v", ats, want)
+	if diff := cmp.Diff(ats, want); diff != "" {
+		t.Errorf("AccessTokens.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -52,7 +53,7 @@ func TestAccessTokensService_Revoke(t *testing.T) {
 	want := http.StatusNoContent
 	got := resp.Response.StatusCode
 
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("AccessTokens.Revoke returned %+v, want %+v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("AccessTokens.Revoke diff: (-got +want)\n%s", diff)
 	}
 }

@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestUserService_Get(t *testing.T) {
@@ -25,7 +26,7 @@ func TestUserService_Get(t *testing.T) {
 	}
 
 	want := &User{ID: String("123"), Name: String("Jane Doe"), Email: String("jane@doe.com")}
-	if !reflect.DeepEqual(user, want) {
-		t.Errorf("User.Get returned %+v, want %+v", user, want)
+	if diff := cmp.Diff(user, want); diff != "" {
+		t.Errorf("User.Get diff: (-got +want)\n%s", diff)
 	}
 }

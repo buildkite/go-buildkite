@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestAnnotationsService_ListByBuild(t *testing.T) {
@@ -59,8 +60,8 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 			UpdatedAt: NewTimestamp(time.Date(2019, 4, 9, 18, 7, 16, 320000000, time.UTC)),
 		},
 	}
-	if !reflect.DeepEqual(annotations, want) {
-		t.Errorf("ListByBuild returned %+v, want %+v", annotations, want)
+	if diff := cmp.Diff(annotations, want); diff != "" {
+		t.Errorf("ListByBuild diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -83,8 +84,8 @@ func TestAnnotationsService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -117,7 +118,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 		UpdatedAt: NewTimestamp(annotationUpatedAt),
 	}
 
-	if !reflect.DeepEqual(annotation, want) {
-		t.Errorf("TestAnnotations.Create returned %+v, want %+v", annotation, want)
+	if diff := cmp.Diff(annotation, want); diff != "" {
+		t.Errorf("TestAnnotations.Create diff: (-got +want)\n%s", diff)
 	}
 }

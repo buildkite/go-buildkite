@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestPipelineTemplatesService_List(t *testing.T) {
@@ -130,8 +131,8 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(pipelineTemplates, want) {
-		t.Errorf("TestPipelineTemplates.List returned %+v, want %+v", pipelineTemplates, want)
+	if diff := cmp.Diff(pipelineTemplates, want); diff != "" {
+		t.Errorf("TestPipelineTemplates.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -208,8 +209,8 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 		WebURL:        String("https://buildkite.com/organizations/my-great-org/pipeline-templates/90333dc7-b86a-4485-98c3-9419a5dbc52e"),
 	}
 
-	if !reflect.DeepEqual(pipelineTemplate, want) {
-		t.Errorf("TestPipelineTemplates.Get returned %+v, want %+v", pipelineTemplate, want)
+	if diff := cmp.Diff(pipelineTemplate, want); diff != "" {
+		t.Errorf("TestPipelineTemplates.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -232,8 +233,8 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -263,8 +264,8 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 		Available:     Bool(true),
 	}
 
-	if !reflect.DeepEqual(pipelineTemplate, want) {
-		t.Errorf("TestPipelineTemplates.Create returned %+v, want %+v", pipelineTemplate, want)
+	if diff := cmp.Diff(pipelineTemplate, want); diff != "" {
+		t.Errorf("TestPipelineTemplates.Create diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -287,8 +288,8 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -349,8 +350,8 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 		Available:     Bool(true),
 	}
 
-	if !reflect.DeepEqual(pipelineTemplate, want) {
-		t.Errorf("TestPipelineTemplates.Update returned %+v, want %+v", pipelineTemplate, want)
+	if diff := cmp.Diff(pipelineTemplate, want); diff != "" {
+		t.Errorf("TestPipelineTemplates.Update diff: (-got +want)\n%s", diff)
 	}
 }
 

@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 type httpCall struct {
@@ -70,8 +71,8 @@ func testFormValues(t *testing.T, r *http.Request, values values) {
 	}
 
 	r.ParseForm()
-	if got := r.Form; !reflect.DeepEqual(got, want) {
-		t.Errorf("Request parameters: %v, want %v", got, want)
+	if diff := cmp.Diff(r.Form, want); diff != "" {
+		t.Errorf("Request parameters diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -82,8 +83,8 @@ func testFormValuesList(t *testing.T, r *http.Request, values valuesList) {
 	}
 
 	r.ParseForm()
-	if got := r.Form; !reflect.DeepEqual(got, want) {
-		t.Errorf("Request parameters: %v, want %v", got, want)
+	if diff := cmp.Diff(r.Form, want); diff != "" {
+		t.Errorf("Request parameters diff: (-got +want)\n%s", diff)
 	}
 }
 
