@@ -21,10 +21,10 @@ type User struct {
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
-// Get the current user.
+// CurrentUser returns the user associated with the access token being used
 //
 // buildkite API docs: https://buildkite.com/docs/api
-func (us *UserService) Get(ctx context.Context) (User, *Response, error) {
+func (us *UserService) CurrentUser(ctx context.Context) (User, *Response, error) {
 	u := fmt.Sprintf("v2/user")
 	req, err := us.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
