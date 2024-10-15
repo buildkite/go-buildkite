@@ -25,7 +25,7 @@ func TestTeamsService_List(t *testing.T) {
 		t.Errorf("Teams.List returned error: %v", err)
 	}
 
-	want := []Team{{ID: String("123")}, {ID: String("1234")}}
+	want := []Team{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(teams, want); diff != "" {
 		t.Errorf("Teams.List diff: (-got +want)\n%s", diff)
 	}
@@ -51,7 +51,7 @@ func TestTeamsService_ListForUser(t *testing.T) {
 		t.Errorf("Teams.List returned error: %v", err)
 	}
 
-	want := []Team{{ID: String("123")}}
+	want := []Team{{ID: "123"}}
 	if diff := cmp.Diff(teams, want); diff != "" {
 		t.Errorf("Teams.List diff: (-got +want)\n%s", diff)
 	}
