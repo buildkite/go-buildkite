@@ -25,7 +25,7 @@ func TestUserService_Get(t *testing.T) {
 		t.Errorf("User.Get returned error: %v", err)
 	}
 
-	want := &User{ID: String("123"), Name: String("Jane Doe"), Email: String("jane@doe.com")}
+	want := User{ID: "123", Name: "Jane Doe", Email: "jane@doe.com"}
 	if diff := cmp.Diff(user, want); diff != "" {
 		t.Errorf("User.Get diff: (-got +want)\n%s", diff)
 	}
