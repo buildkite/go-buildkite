@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"context"
-	"errors"
 	"fmt"
 )
 
@@ -22,116 +21,89 @@ type TestSuiteCreate struct {
 }
 
 type TestSuite struct {
-	ID            *string `json:"id,omitempty"`
-	GraphQLID     *string `json:"graphql_id,omitempty"`
-	Slug          *string `json:"slug,omitempty"`
-	Name          *string `json:"name,omitempty"`
-	URL           *string `json:"url,omitempty"`
-	WebURL        *string `json:"web_url,omitempty"`
-	DefaultBranch *string `json:"default_branch,omitempty"`
+	ID            string `json:"id,omitempty"`
+	GraphQLID     string `json:"graphql_id,omitempty"`
+	Slug          string `json:"slug,omitempty"`
+	Name          string `json:"name,omitempty"`
+	URL           string `json:"url,omitempty"`
+	WebURL        string `json:"web_url,omitempty"`
+	DefaultBranch string `json:"default_branch,omitempty"`
 }
 
-type TestSuiteListOptions struct {
-	ListOptions
-}
+type TestSuiteListOptions struct{ ListOptions }
 
 func (tss *TestSuitesService) List(ctx context.Context, org string, opt *TestSuiteListOptions) ([]TestSuite, *Response, error) {
-
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites", org)
-
 	u, err := addOptions(u, opt)
-
 	if err != nil {
 		return nil, nil, err
 	}
 
 	req, err := tss.client.NewRequest(ctx, "GET", u, nil)
-
 	if err != nil {
 		return nil, nil, err
 	}
 
-	testSuites := new([]TestSuite)
-
-	resp, err := tss.client.Do(req, testSuites)
-
+	var testSuites []TestSuite
+	resp, err := tss.client.Do(req, &testSuites)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return *testSuites, resp, err
+	return testSuites, resp, err
 }
 
-func (tss *TestSuitesService) Get(ctx context.Context, org, slug string) (*TestSuite, *Response, error) {
-
+func (tss *TestSuitesService) Get(ctx context.Context, org, slug string) (TestSuite, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
-
 	req, err := tss.client.NewRequest(ctx, "GET", u, nil)
-
 	if err != nil {
-		return nil, nil, err
+		return TestSuite{}, nil, err
 	}
 
-	testSuite := new(TestSuite)
-
-	resp, err := tss.client.Do(req, testSuite)
-
+	var testSuite TestSuite
+	resp, err := tss.client.Do(req, &testSuite)
 	if err != nil {
-		return nil, resp, err
+		return TestSuite{}, resp, err
 	}
 
 	return testSuite, resp, err
 }
 
-func (tss *TestSuitesService) Create(ctx context.Context, org string, ts *TestSuiteCreate) (*TestSuite, *Response, error) {
-
+func (tss *TestSuitesService) Create(ctx context.Context, org string, ts TestSuiteCreate) (TestSuite, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites", org)
-
 	req, err := tss.client.NewRequest(ctx, "POST", u, ts)
-
 	if err != nil {
-		return nil, nil, err
+		return TestSuite{}, nil, err
 	}
 
-	testSuite := new(TestSuite)
-	resp, err := tss.client.Do(req, testSuite)
-
+	var testSuite TestSuite
+	resp, err := tss.client.Do(req, &testSuite)
 	if err != nil {
-		return nil, resp, err
+		return TestSuite{}, resp, err
 	}
 
 	return testSuite, resp, err
 }
 
-func (tss *TestSuitesService) Update(ctx context.Context, org string, ts *TestSuite) (*Response, error) {
-
-	if ts == nil {
-		return nil, errors.New("Test suite must not be nil")
-	}
-
-	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, *ts.Slug)
-
+func (tss *TestSuitesService) Update(ctx context.Context, org, slug string, ts TestSuite) (TestSuite, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
 	req, err := tss.client.NewRequest(ctx, "PATCH", u, ts)
-
 	if err != nil {
-		return nil, nil
+		return TestSuite{}, nil, nil
 	}
 
-	resp, err := tss.client.Do(req, ts)
-
+	var out TestSuite
+	resp, err := tss.client.Do(req, &out)
 	if err != nil {
-		return resp, err
+		return TestSuite{}, resp, err
 	}
 
-	return resp, err
+	return out, resp, err
 }
 
 func (tss *TestSuitesService) Delete(ctx context.Context, org, slug string) (*Response, error) {
-
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
-
 	req, err := tss.client.NewRequest(ctx, "DELETE", u, nil)
-
 	if err != nil {
 		return nil, err
 	}

@@ -14,32 +14,28 @@ type TestsService struct {
 }
 
 type Test struct {
-	ID       *string `json:"id,omitempty"`
-	URL      *string `json:"url,omitempty"`
-	WebURL   *string `json:"web_url,omitempty"`
-	Scope    *string `json:"scope,omitempty"`
-	Name     *string `json:"name,omitempty"`
-	Location *string `json:"location,omitempty"`
-	FileName *string `json:"file_name,omitempty"`
+	ID       string `json:"id,omitempty"`
+	URL      string `json:"url,omitempty"`
+	WebURL   string `json:"web_url,omitempty"`
+	Scope    string `json:"scope,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Location string `json:"location,omitempty"`
+	FileName string `json:"file_name,omitempty"`
 }
 
-func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (*Test, *Response, error) {
-
+func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (Test, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s", org, slug, testID)
-
 	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
-
 	if err != nil {
-		return nil, nil, err
+		return Test{}, nil, err
 	}
 
-	test := new(Test)
-
-	resp, err := ts.client.Do(req, test)
+	var t Test
+	resp, err := ts.client.Do(req, &t)
 
 	if err != nil {
-		return nil, resp, err
+		return Test{}, resp, err
 	}
 
-	return test, resp, err
+	return t, resp, err
 }

@@ -50,22 +50,22 @@ func TestTestSuitesService_List(t *testing.T) {
 
 	want := []TestSuite{
 		{
-			ID:            String("7c202aaa-3165-4811-9813-173c4c285463"),
-			GraphQLID:     String("N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz="),
-			Slug:          String("suite-1"),
-			Name:          String("suite-1"),
-			URL:           String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1"),
-			WebURL:        String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1"),
-			DefaultBranch: String("main"),
+			ID:            "7c202aaa-3165-4811-9813-173c4c285463",
+			GraphQLID:     "N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz=",
+			Slug:          "suite-1",
+			Name:          "suite-1",
+			URL:           "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1",
+			WebURL:        "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1",
+			DefaultBranch: "main",
 		},
 		{
-			ID:            String("38ed1d73-cea9-4aba-b223-def25e66ef51"),
-			GraphQLID:     String("MzhlZDFkNzMtY2VhOS00YWJhLWIyMjMtZGVmMjVlNjZlZjUx="),
-			Slug:          String("suite-2"),
-			Name:          String("suite-2"),
-			URL:           String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-2"),
-			WebURL:        String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-2"),
-			DefaultBranch: String("main"),
+			ID:            "38ed1d73-cea9-4aba-b223-def25e66ef51",
+			GraphQLID:     "MzhlZDFkNzMtY2VhOS00YWJhLWIyMjMtZGVmMjVlNjZlZjUx=",
+			Slug:          "suite-2",
+			Name:          "suite-2",
+			URL:           "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-2",
+			WebURL:        "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-2",
+			DefaultBranch: "main",
 		},
 	}
 	if diff := cmp.Diff(suites, want); diff != "" {
@@ -100,14 +100,14 @@ func TestTestSuitesService_Get(t *testing.T) {
 		t.Errorf("TestSuites.Get returned error: %v", err)
 	}
 
-	want := &TestSuite{
-		ID:            String("7c202aaa-3165-4811-9813-173c4c285463"),
-		GraphQLID:     String("N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz="),
-		Slug:          String("suite-1"),
-		Name:          String("suite-1"),
-		URL:           String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1"),
-		WebURL:        String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1"),
-		DefaultBranch: String("main"),
+	want := TestSuite{
+		ID:            "7c202aaa-3165-4811-9813-173c4c285463",
+		GraphQLID:     "N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz=",
+		Slug:          "suite-1",
+		Name:          "suite-1",
+		URL:           "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1",
+		WebURL:        "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1",
+		DefaultBranch: "main",
 	}
 
 	if diff := cmp.Diff(suite, want); diff != "" {
@@ -121,14 +121,14 @@ func TestTestSuitesService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &TestSuiteCreate{
+	input := TestSuiteCreate{
 		Name:          "Suite 3",
 		DefaultBranch: "main",
 		TeamUUIDs:     []string{"8369b300-fff0-4ef1-91de-010f72f4458d"},
 	}
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
-		v := new(TestSuiteCreate)
+		var v TestSuiteCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -152,9 +152,9 @@ func TestTestSuitesService_Create(t *testing.T) {
 		t.Errorf("TestSuites.Create returned error: %v", err)
 	}
 
-	want := &TestSuite{
-		Name:          String("Suite 3"),
-		DefaultBranch: String("main"),
+	want := TestSuite{
+		Name:          "Suite 3",
+		DefaultBranch: "main",
 	}
 
 	if diff := cmp.Diff(suite, want); diff != "" {
@@ -168,14 +168,14 @@ func TestTestSuitesService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &TestSuiteCreate{
+	input := TestSuiteCreate{
 		Name:          "Suite 4",
 		DefaultBranch: "main",
 		TeamUUIDs:     []string{"818b0849-9718-4898-8de3-42d591a7fe26"},
 	}
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
-		v := new(TestSuiteCreate)
+		var v TestSuiteCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -195,16 +195,12 @@ func TestTestSuitesService_Update(t *testing.T) {
 	})
 
 	suite, _, err := client.TestSuites.Create(context.Background(), "my-great-org", input)
-
 	if err != nil {
 		t.Errorf("TestSuites.Create returned error: %v", err)
 	}
 
-	// Lets update the default branch to develop
-	suite.DefaultBranch = String("develop")
-
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-4", func(w http.ResponseWriter, r *http.Request) {
-		v := new(TestSuiteCreate)
+		var v TestSuiteCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "PATCH")
@@ -219,19 +215,18 @@ func TestTestSuitesService_Update(t *testing.T) {
 			}`)
 	})
 
-	_, err = client.TestSuites.Update(context.Background(), "my-great-org", suite)
-
+	got, _, err := client.TestSuites.Update(context.Background(), "my-great-org", suite.Slug, TestSuite{DefaultBranch: "default"})
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
 	}
 
-	want := &TestSuite{
-		Name:          String("Suite 4"),
-		Slug:          String("suite-4"),
-		DefaultBranch: String("develop"),
+	want := TestSuite{
+		Name:          "Suite 4",
+		Slug:          "suite-4",
+		DefaultBranch: "develop",
 	}
 
-	if diff := cmp.Diff(suite, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestSuites.Update diff: (-got +want)\n%s", diff)
 	}
 }
