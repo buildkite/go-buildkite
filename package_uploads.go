@@ -22,34 +22,30 @@ type CreatePackageInput struct {
 
 // Create creates a package in a registry for an organization
 func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registrySlug string, cpi CreatePackageInput) (Package, *Response, error) {
-	filename := cpi.Filename
-	if f, ok := cpi.Package.(*os.File); ok && filename == "" {
-		filename = f.Name()
-	}
+	var file *os.File
+	switch f := cpi.Package.(type) {
+	case *os.File:
+		file = f
 
-	packageTempFile, err := normalizeToFile(cpi.Package, filename)
-	if err != nil {
-		return Package{}, nil, fmt.Errorf("writing package to tempfile: %v", err)
+	default:
+		var err error
+		file, err = readIntoTempFile(cpi.Package, cpi.Filename)
+		if err != nil {
+			return Package{}, nil, fmt.Errorf("writing package to tempfile: %v", err)
+		}
 	}
-	defer func() {
-		packageTempFile.Close()
-		os.Remove(packageTempFile.Name())
-	}()
-
-	s := bkmultipart.NewStreamer()
-	s.WriteFile(fileFormKey, packageTempFile, filename)
 
 	ppu, _, err := ps.RequestPresignedUpload(ctx, organizationSlug, registrySlug)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("requesting presigned upload: %v", err)
 	}
 
-	s3URL, err := ppu.Perform(ctx, ps, packageTempFile)
+	s3URL, err := ppu.Perform(ctx, file)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("performing presigned upload: %v", err)
 	}
 
-	p, resp, err := ppu.Finalize(ctx, ps, s3URL)
+	p, resp, err := ppu.Finalize(ctx, s3URL)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("finalizing package: %v", err)
 	}
@@ -57,12 +53,11 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 	return p, resp, nil
 }
 
-// normalizeToFile takes and io.Reader (which might itself already be a file, but could be a stream or other source) and
-// writes it to a temporary file, returning the file handle.
+// readIntoTempFile takes an io.Reader and writes it to a temporary file, returning the file handle.
 // The file is written to a temporary directory, and then renamed to the desired filename.
 // We do this normalization to ensure that we can accurately calculate the Content-Length of the request body, which is
 // required by S3. We write to disk (instead of buffering in memory) to avoid memory exhaustion for large files.
-func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
+func readIntoTempFile(r io.Reader, filename string) (*os.File, error) {
 	basename := filepath.Base(filename)
 	f, err := os.CreateTemp("", basename)
 	if err != nil {
@@ -96,6 +91,8 @@ func normalizeToFile(r io.Reader, filename string) (*os.File, error) {
 
 // PackagePresignedUpload represents a presigned upload URL for a Buildkite package, returned by the Buildkite API
 type PackagePresignedUpload struct {
+	bkClient *Client
+
 	OrganizationSlug string `json:"-"`
 	RegistrySlug     string `json:"-"`
 
@@ -111,19 +108,20 @@ type PackagePresignedUploadForm struct {
 }
 
 // RequestPresignedUpload requests a presigned upload URL for a Buildkite package from the buildkite API
-func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizationSlug, registrySlug string) (PackagePresignedUpload, *Response, error) {
+func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizationSlug, registrySlug string) (*PackagePresignedUpload, *Response, error) {
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/upload", organizationSlug, registrySlug)
 	req, err := ps.client.NewRequest(ctx, "POST", url, nil)
 	if err != nil {
-		return PackagePresignedUpload{}, nil, fmt.Errorf("creating POST presigned upload request: %v", err)
+		return nil, nil, fmt.Errorf("creating POST presigned upload request: %v", err)
 	}
 
-	var p PackagePresignedUpload
+	var p *PackagePresignedUpload
 	resp, err := ps.client.Do(req, &p)
 	if err != nil {
-		return PackagePresignedUpload{}, resp, fmt.Errorf("executing POST presigned upload request: %v", err)
+		return nil, resp, fmt.Errorf("executing POST presigned upload request: %v", err)
 	}
 
+	p.bkClient = ps.client
 	p.OrganizationSlug = organizationSlug
 	p.RegistrySlug = registrySlug
 
@@ -133,7 +131,7 @@ func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizat
 // Perform performs uploads the package file referred to by `file` to the presigned upload URL.
 // It does not create the package in the registry, only uploads the file to the package host. The returned string is the URL of the
 // uploaded file in S3, which can then be passed to [Finalize] to create the package in the registry.
-func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesService, file *os.File) (string, error) {
+func (ppu *PackagePresignedUpload) Perform(ctx context.Context, file *os.File) (string, error) {
 	if _, ok := ppu.Form.Data["key"]; !ok {
 		return "", fmt.Errorf("missing 'key' in presigned upload form data")
 	}
@@ -151,6 +149,7 @@ func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesServi
 		return "", fmt.Errorf("writing form file: %v", err)
 	}
 
+	// note NOT using client.NewRequest here, as it'll add buildkite-specific stuff that we don't want
 	req, err := http.NewRequestWithContext(ctx, ppu.Form.Method, ppu.Form.URL, s.Reader())
 	if err != nil {
 		return "", fmt.Errorf("creating %s request: %v", ppu.Form.Method, err)
@@ -167,7 +166,7 @@ func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesServi
 	// is not sufficient, as the Content-Length header is stripped by the http client when the request body is an io.Reader.
 	req.ContentLength = s.Len()
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := ppu.bkClient.client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("executing %s request: %v", ppu.Form.Method, err)
 	}
@@ -190,7 +189,7 @@ func (ppu PackagePresignedUpload) Perform(ctx context.Context, ps *PackagesServi
 }
 
 // Finalize creates a package in the registry for the organization, using the S3 URL of the uploaded package file.
-func (ppu PackagePresignedUpload) Finalize(ctx context.Context, ps *PackagesService, s3URL string) (Package, *Response, error) {
+func (ppu *PackagePresignedUpload) Finalize(ctx context.Context, s3URL string) (Package, *Response, error) {
 	s := bkmultipart.NewStreamer()
 	err := s.WriteField("package_url", s3URL)
 	if err != nil {
@@ -198,7 +197,7 @@ func (ppu PackagePresignedUpload) Finalize(ctx context.Context, ps *PackagesServ
 	}
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", ppu.OrganizationSlug, ppu.RegistrySlug)
-	req, err := ps.client.NewRequest(ctx, "POST", url, s.Reader())
+	req, err := ppu.bkClient.NewRequest(ctx, "POST", url, s.Reader())
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
 	}
@@ -207,7 +206,7 @@ func (ppu PackagePresignedUpload) Finalize(ctx context.Context, ps *PackagesServ
 	req.ContentLength = s.Len()
 
 	var p Package
-	resp, err := ps.client.Do(req, &p)
+	resp, err := ppu.bkClient.Do(req, &p)
 	if err != nil {
 		return Package{}, resp, fmt.Errorf("executing POST package request: %v", err)
 	}

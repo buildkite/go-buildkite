@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -107,10 +106,6 @@ func TestCreatePackage(t *testing.T) {
 
 				testMethod(t, r, "POST")
 
-				if r.Header.Get("Content-Type") == "" {
-					t.Fatalf("missing Content-Type header - S3 requires it")
-				}
-
 				if r.Header.Get("Content-Length") == "" {
 					t.Fatalf("missing Content-Length header - S3 requires it")
 				}
@@ -123,10 +118,6 @@ func TestCreatePackage(t *testing.T) {
 
 				if got, want := mt, "multipart/form-data"; got != want {
 					t.Fatalf("unexpected media type: got %q, want %q", got, want)
-				}
-
-				if !strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-					t.Fatalf("unexpected Content-Type: %q", r.Header.Get("Content-Type"))
 				}
 
 				fi, header, err := r.FormFile(fileFormKey)
@@ -183,13 +174,13 @@ func TestCreatePackage(t *testing.T) {
 				t.Fatalf("Packages.Create returned error: %v", err)
 			}
 
-			expectedHTTPCalls := []httpCall{
+			wantHTTPCalls := []httpCall{
 				{Method: "POST", Path: "/v2/packages/organizations/my-org/registries/my-registry/packages/upload"},
 				{Method: "POST", Path: "/s3"},
 				{Method: "POST", Path: "/v2/packages/organizations/my-org/registries/my-registry/packages"},
 			}
 
-			if diff := cmp.Diff(expectedHTTPCalls, server.calls); diff != "" {
+			if diff := cmp.Diff(wantHTTPCalls, server.calls); diff != "" {
 				t.Fatalf("unexpected HTTP calls (-want +got):\n%s", diff)
 			}
 

@@ -37,14 +37,14 @@ func main() {
 		log.Fatalf("Creating package failed: %v", err)
 	}
 
-	url, err := ppu.Perform(context.Background(), client.PackagesService, file)
+	url, err := ppu.Perform(context.Background(), file)
 	if err != nil {
 		log.Fatalf("Package upload to S3 failed: %v", err)
 	}
 
 	log.Println("Uploaded package to: " + url)
 
-	pkg, _, err := ppu.Finalize(context.Background(), client.PackagesService, url)
+	pkg, _, err := ppu.Finalize(context.Background(), url)
 	if err != nil {
 		log.Fatalf("Finalizing package failed: %v", err)
 	}
