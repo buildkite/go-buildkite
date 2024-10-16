@@ -14,13 +14,13 @@ type TestsService struct {
 }
 
 type Test struct {
-	ID       *string `json:"id,omitempty" yaml:"id,omitempty"`
-	URL      *string `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL   *string `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Scope    *string `json:"scope,omitempty" yaml:"scope,omitempty"`
-	Name     *string `json:"name,omitempty" yaml:"name,omitempty"`
-	Location *string `json:"location,omitempty" yaml:"location,omitempty"`
-	FileName *string `json:"file_name,omitempty" yaml:"file_name,omitempty"`
+	ID       *string `json:"id,omitempty"`
+	URL      *string `json:"url,omitempty"`
+	WebURL   *string `json:"web_url,omitempty"`
+	Scope    *string `json:"scope,omitempty"`
+	Name     *string `json:"name,omitempty"`
+	Location *string `json:"location,omitempty"`
+	FileName *string `json:"file_name,omitempty"`
 }
 
 func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (*Test, *Response, error) {

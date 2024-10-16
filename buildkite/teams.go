@@ -18,14 +18,14 @@ type TeamsService struct {
 
 // Team represents a buildkite team.
 type Team struct {
-	ID          *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	Name        *string    `json:"name,omitempty" yaml:"name,omitempty"`
-	Slug        *string    `json:"slug,omitempty" yaml:"slug,omitempty"`
-	Description *string    `json:"description,omitempty" yaml:"description,omitempty"`
-	Privacy     *string    `json:"privacy,omitempty" yaml:"privacy,omitempty"`
-	Default     *bool      `json:"default,omitempty" yaml:"default,omitempty"`
-	CreatedAt   *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	CreatedBy   *User      `json:"created_by,omitempty" yaml:"created_by,omitempty"`
+	ID          *string    `json:"id,omitempty"`
+	Name        *string    `json:"name,omitempty"`
+	Slug        *string    `json:"slug,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Privacy     *string    `json:"privacy,omitempty"`
+	Default     *bool      `json:"default,omitempty"`
+	CreatedAt   *Timestamp `json:"created_at,omitempty"`
+	CreatedBy   *User      `json:"created_by,omitempty"`
 }
 
 // TeamsListOptions specifies the optional parameters to the

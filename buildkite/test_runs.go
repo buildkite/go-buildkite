@@ -14,12 +14,12 @@ type TestRunsService struct {
 }
 
 type TestRun struct {
-	ID        *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	URL       *string    `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL    *string    `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	Branch    *string    `json:"branch,omitempty" yaml:"branch,omitempty"`
-	CommitSHA *string    `json:"commit_sha,omitempty" yaml:"commit_sha,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ID        *string    `json:"id,omitempty"`
+	URL       *string    `json:"url,omitempty"`
+	WebURL    *string    `json:"web_url,omitempty"`
+	Branch    *string    `json:"branch,omitempty"`
+	CommitSHA *string    `json:"commit_sha,omitempty"`
+	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
 type TestRunsListOptions struct {

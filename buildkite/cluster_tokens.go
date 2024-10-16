@@ -15,20 +15,20 @@ type ClusterTokensService struct {
 }
 
 type ClusterToken struct {
-	ID                 *string         `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID          *string         `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	Description        *string         `json:"description,omitempty" yaml:"description,omitempty"`
-	AllowedIPAddresses *string         `json:"allowed_ip_addresses,omitempty" yaml:"allowed_ip_addresses,omitempty"`
-	URL                *string         `json:"url,omitempty" yaml:"url,omitempty"`
-	ClusterURL         *string         `json:"cluster_url,omitempty" yaml:"cluster_url,omitempty"`
-	CreatedAt          *Timestamp      `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	CreatedBy          *ClusterCreator `json:"created_by,omitempty" yaml:"created_by,omitempty"`
-	Token              *string         `json:"token,omitempty" yaml:"token,omitempty"`
+	ID                 *string         `json:"id,omitempty"`
+	GraphQLID          *string         `json:"graphql_id,omitempty"`
+	Description        *string         `json:"description,omitempty"`
+	AllowedIPAddresses *string         `json:"allowed_ip_addresses,omitempty"`
+	URL                *string         `json:"url,omitempty"`
+	ClusterURL         *string         `json:"cluster_url,omitempty"`
+	CreatedAt          *Timestamp      `json:"created_at,omitempty"`
+	CreatedBy          *ClusterCreator `json:"created_by,omitempty"`
+	Token              *string         `json:"token,omitempty"`
 }
 
 type ClusterTokenCreateUpdate struct {
-	Description        *string `json:"description,omitempty" yaml:"description,omitempty"`
-	AllowedIPAddresses *string `json:"allowed_ip_addresses,omitempty" yaml:"allowed_ip_addresses,omitempty"`
+	Description        *string `json:"description,omitempty"`
+	AllowedIPAddresses *string `json:"allowed_ip_addresses,omitempty"`
 }
 
 type ClusterTokensListOptions struct {

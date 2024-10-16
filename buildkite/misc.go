@@ -7,8 +7,8 @@ import (
 
 // Emoji emoji, what else can you say?
 type Emoji struct {
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-	URL  *string `json:"url,omitempty" yaml:"url,omitempty"`
+	Name *string `json:"name,omitempty"`
+	URL  *string `json:"url,omitempty"`
 }
 
 // ListEmojis list all the emojis for a given account, including custom emojis and aliases.
@@ -36,6 +36,6 @@ func (c *Client) ListEmojis(ctx context.Context, org string) ([]Emoji, *Response
 
 // Token an oauth access token for the buildkite service
 type Token struct {
-	AccessToken *string `json:"access_token,omitempty" yaml:"access_token,omitempty"`
-	Type        *string `json:"token_type,omitempty" yaml:"token_type,omitempty"`
+	AccessToken *string `json:"access_token,omitempty"`
+	Type        *string `json:"token_type,omitempty"`
 }

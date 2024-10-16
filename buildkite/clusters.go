@@ -15,43 +15,43 @@ type ClustersService struct {
 }
 
 type ClusterCreate struct {
-	Name        string  `json:"name,omitempty" yaml:"name,omitempty"`
-	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
-	Emoji       *string `json:"emoji,omitempty" yaml:"emoji,omitempty"`
-	Color       *string `json:"color,omitempty" yaml:"color,omitempty"`
+	Name        string  `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Emoji       *string `json:"emoji,omitempty"`
+	Color       *string `json:"color,omitempty"`
 }
 
 type ClusterUpdate struct {
-	Name           *string `json:"name,omitempty" yaml:"name,omitempty"`
-	Description    *string `json:"description,omitempty" yaml:"description,omitempty"`
-	Emoji          *string `json:"emoji,omitempty" yaml:"emoji,omitempty"`
-	Color          *string `json:"color,omitempty" yaml:"color,omitempty"`
-	DefaultQueueID *string `json:"default_queue_id,omitempty" yaml:"default_queue_id,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	Description    *string `json:"description,omitempty"`
+	Emoji          *string `json:"emoji,omitempty"`
+	Color          *string `json:"color,omitempty"`
+	DefaultQueueID *string `json:"default_queue_id,omitempty"`
 }
 
 type Cluster struct {
-	ID              *string         `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID       *string         `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	DefaultQueueID  *string         `json:"default_queue_id,omitempty" yaml:"default_queue_id,omitempty"`
-	Name            *string         `json:"name,omitempty" yaml:"name,omitempty"`
-	Description     *string         `json:"description,omitempty" yaml:"description,omitempty"`
-	Emoji           *string         `json:"emoji,omitempty" yaml:"emoji,omitempty"`
-	Color           *string         `json:"color,omitempty" yaml:"color,omitempty"`
-	URL             *string         `json:"url,omitempty" yaml:"url,omitempty"`
-	WebURL          *string         `json:"web_url,omitempty" yaml:"web_url,omitempty"`
-	QueuesURL       *string         `json:"queues_url,omitempty" yaml:"queues_url,omitempty"`
-	DefaultQueueURL *string         `json:"default_queue_url,omitempty" yaml:"default_queue_url,omitempty"`
-	CreatedAt       *Timestamp      `json:"created_at,omitempty" yaml:"created_at,omitempty"`
-	CreatedBy       *ClusterCreator `json:"created_by,omitempty" yaml:"created_by,omitempty"`
+	ID              *string         `json:"id,omitempty"`
+	GraphQLID       *string         `json:"graphql_id,omitempty"`
+	DefaultQueueID  *string         `json:"default_queue_id,omitempty"`
+	Name            *string         `json:"name,omitempty"`
+	Description     *string         `json:"description,omitempty"`
+	Emoji           *string         `json:"emoji,omitempty"`
+	Color           *string         `json:"color,omitempty"`
+	URL             *string         `json:"url,omitempty"`
+	WebURL          *string         `json:"web_url,omitempty"`
+	QueuesURL       *string         `json:"queues_url,omitempty"`
+	DefaultQueueURL *string         `json:"default_queue_url,omitempty"`
+	CreatedAt       *Timestamp      `json:"created_at,omitempty"`
+	CreatedBy       *ClusterCreator `json:"created_by,omitempty"`
 }
 
 type ClusterCreator struct {
-	ID        *string    `json:"id,omitempty" yaml:"id,omitempty"`
-	GraphQLID *string    `json:"graphql_id,omitempty" yaml:"graphql_id,omitempty"`
-	Name      *string    `json:"name,omitempty" yaml:"name,omitempty"`
-	Email     *string    `json:"email,omitempty" yaml:"email,omitempty"`
-	AvatarURL *string    `json:"avatar_url,omitempty" yaml:"avatar_url,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	ID        *string    `json:"id,omitempty"`
+	GraphQLID *string    `json:"graphql_id,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Email     *string    `json:"email,omitempty"`
+	AvatarURL *string    `json:"avatar_url,omitempty"`
+	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
 type ClustersListOptions struct {
