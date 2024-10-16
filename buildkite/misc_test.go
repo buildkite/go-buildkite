@@ -25,8 +25,8 @@ func TestListEmojis(t *testing.T) {
 		t.Errorf("ListEmojis returned error: %v", err)
 	}
 
-	want := []Emoji{{Name: String("rocket"), URL: String("https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2")}}
-	if diff := cmp.Diff(want, emoji); diff != "" {
-		t.Errorf("ListEmojis diff: (-got +want)\n%s", diff)
+	want := []Emoji{{Name: "rocket", URL: "https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2"}}
+	if diff := cmp.Diff(emoji, want); diff != "" {
+		t.Errorf("ListEmojis diff: (-got +want): \n%s", diff)
 	}
 }

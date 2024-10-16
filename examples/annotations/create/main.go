@@ -29,20 +29,18 @@ func main() {
 	}
 
 	annotationCreate := buildkite.AnnotationCreate{
-		Style:   buildkite.String("info"),
-		Context: buildkite.String("default"),
-		Body:    buildkite.String("An example annotation!"),
-		Append:  buildkite.Bool(false),
+		Style:   "info",
+		Context: "default",
+		Body:    "An example annotation!",
+		Append:  false,
 	}
 
-	annotation, _, err := client.Annotations.Create(context.Background(), *org, *slug, *number, &annotationCreate)
-
+	annotation, _, err := client.Annotations.Create(context.Background(), *org, *slug, *number, annotationCreate)
 	if err != nil {
 		log.Fatalf("Listing annotations for build %s in pipeline %s failed: %s", *number, *slug, err)
 	}
 
 	data, err := json.MarshalIndent(annotation, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

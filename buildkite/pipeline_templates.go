@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"context"
-	"errors"
 	"fmt"
 )
 
@@ -15,33 +14,35 @@ type PipelineTemplatesService struct {
 }
 
 type PipelineTemplate struct {
-	UUID          *string                  `json:"uuid,omitempty"`
-	GraphQLID     *string                  `json:"graphql_id,omitempty"`
-	Name          *string                  `json:"name,omitempty"`
-	Description   *string                  `json:"description,omitempty"`
-	Configuration *string                  `json:"configuration,omitempty"`
-	Available     *bool                    `json:"available,omitempty"`
-	URL           *string                  `json:"url,omitempty"`
-	WebURL        *string                  `json:"web_url,omitempty"`
-	CreatedAt     *Timestamp               `json:"created_at,omitempty"`
-	CreatedBy     *PipelineTemplateCreator `json:"created_by,omitempty"`
-	UpdatedAt     *Timestamp               `json:"updated_at,omitempty"`
-	UpdatedBy     *PipelineTemplateCreator `json:"updated_by,omitempty"`
+	UUID          string `json:"uuid,omitempty"`
+	GraphQLID     string `json:"graphql_id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Description   string `json:"description,omitempty"`
+	Configuration string `json:"configuration,omitempty"`
+	Available     bool   `json:"available,omitempty"`
+	URL           string `json:"url,omitempty"`
+	WebURL        string `json:"web_url,omitempty"`
+
+	CreatedAt *Timestamp              `json:"created_at,omitempty"`
+	CreatedBy PipelineTemplateCreator `json:"created_by,omitempty"`
+
+	UpdatedAt *Timestamp              `json:"updated_at,omitempty"`
+	UpdatedBy PipelineTemplateCreator `json:"updated_by,omitempty"`
 }
 
 type PipelineTemplateCreateUpdate struct {
-	Name          *string `json:"name,omitempty"`
-	Configuration *string `json:"configuration,omitempty"`
-	Description   *string `json:"description,omitempty"`
-	Available     *bool   `json:"available,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Configuration string `json:"configuration,omitempty"`
+	Description   string `json:"description,omitempty"`
+	Available     bool   `json:"available,omitempty"`
 }
 
 type PipelineTemplateCreator struct {
-	ID        *string    `json:"id,omitempty"`
-	GraphQLID *string    `json:"graphql_id,omitempty"`
-	Name      *string    `json:"name,omitempty"`
-	Email     *string    `json:"email,omitempty"`
-	AvatarURL *string    `json:"avatar_url,omitempty"`
+	ID        string     `json:"id,omitempty"`
+	GraphQLID string     `json:"graphql_id,omitempty"`
+	Name      string     `json:"name,omitempty"`
+	Email     string     `json:"email,omitempty"`
+	AvatarURL string     `json:"avatar_url,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
@@ -50,107 +51,78 @@ type PipelineTemplateListOptions struct {
 }
 
 func (pts *PipelineTemplatesService) List(ctx context.Context, org string, opt *PipelineTemplateListOptions) ([]PipelineTemplate, *Response, error) {
-
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates", org)
-
 	u, err := addOptions(u, opt)
-
 	if err != nil {
 		return nil, nil, err
 	}
 
 	req, err := pts.client.NewRequest(ctx, "GET", u, nil)
-
 	if err != nil {
 		return nil, nil, err
 	}
 
-	templates := new([]PipelineTemplate)
-
-	resp, err := pts.client.Do(req, templates)
+	var templates []PipelineTemplate
+	resp, err := pts.client.Do(req, &templates)
 
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return *templates, resp, err
+	return templates, resp, err
 }
 
-func (pts *PipelineTemplatesService) Get(ctx context.Context, org, templateUUID string) (*PipelineTemplate, *Response, error) {
-
+func (pts *PipelineTemplatesService) Get(ctx context.Context, org, templateUUID string) (PipelineTemplate, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
-
 	req, err := pts.client.NewRequest(ctx, "GET", u, nil)
-
 	if err != nil {
-		return nil, nil, err
+		return PipelineTemplate{}, nil, err
 	}
 
-	template := new(PipelineTemplate)
-
-	resp, err := pts.client.Do(req, template)
-
+	var template PipelineTemplate
+	resp, err := pts.client.Do(req, &template)
 	if err != nil {
-		return nil, resp, err
+		return PipelineTemplate{}, resp, err
 	}
 
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc *PipelineTemplateCreateUpdate) (*PipelineTemplate, *Response, error) {
-
-	if ptc == nil {
-		return nil, nil, errors.New("PipelineTemplateCreateUpdate struct instance must not be nil")
-	}
-
+func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc PipelineTemplateCreateUpdate) (PipelineTemplate, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates", org)
-
 	req, err := pts.client.NewRequest(ctx, "POST", u, ptc)
-
 	if err != nil {
-		return nil, nil, err
+		return PipelineTemplate{}, nil, err
 	}
 
-	template := new(PipelineTemplate)
-
-	resp, err := pts.client.Do(req, template)
-
+	var template PipelineTemplate
+	resp, err := pts.client.Do(req, &template)
 	if err != nil {
-		return nil, resp, err
+		return PipelineTemplate{}, resp, err
 	}
 
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu *PipelineTemplateCreateUpdate) (*Response, error) {
-
-	if ptu == nil {
-		return nil, errors.New("PipelineTemplateCreateUpdate struct instance must not be nil")
-	}
-
+func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu PipelineTemplateCreateUpdate) (PipelineTemplate, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
-
 	req, err := pts.client.NewRequest(ctx, "PATCH", u, ptu)
-
 	if err != nil {
-		return nil, nil
+		return PipelineTemplate{}, nil, err
 	}
 
-	resp, err := pts.client.Do(req, ptu)
-
+	var template PipelineTemplate
+	resp, err := pts.client.Do(req, &template)
 	if err != nil {
-		return resp, err
+		return PipelineTemplate{}, resp, err
 	}
 
-	return resp, err
+	return template, resp, err
 }
 
 func (pts *PipelineTemplatesService) Delete(ctx context.Context, org, templateUUID string) (*Response, error) {
-
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
-
 	req, err := pts.client.NewRequest(ctx, "DELETE", u, nil)
-
 	if err != nil {
 		return nil, err
 	}

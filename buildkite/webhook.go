@@ -57,7 +57,7 @@ func ParseWebHook(messageType string, payload []byte) (interface{}, error) {
 	}
 
 	event := Event{
-		Type:       &eventType,
+		Type:       eventType,
 		RawPayload: (*json.RawMessage)(&payload),
 	}
 	return event.ParsePayload()
@@ -143,7 +143,7 @@ func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err err
 
 // Event represents a Buildkite webhook event
 type Event struct {
-	Type       *string          `json:"type"`
+	Type       string           `json:"type"`
 	RawPayload *json.RawMessage `json:"payload,omitempty"`
 }
 
@@ -157,7 +157,7 @@ type Event struct {
 //
 // Example usage:
 func (e *Event) ParsePayload() (payload interface{}, err error) {
-	switch *e.Type {
+	switch e.Type {
 	case "AgentConnectedEvent":
 		payload = &AgentConnectedEvent{}
 	case "AgentDisconnectedEvent":

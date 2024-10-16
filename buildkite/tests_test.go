@@ -30,23 +30,22 @@ func TestTestsService_Get(t *testing.T) {
 			}`)
 	})
 
-	test, _, err := client.Tests.Get(context.Background(), "my-great-org", "suite-example", "b3abe2e9-35c5-4905-85e1-8c9f2da3240f")
-
+	got, _, err := client.Tests.Get(context.Background(), "my-great-org", "suite-example", "b3abe2e9-35c5-4905-85e1-8c9f2da3240f")
 	if err != nil {
 		t.Errorf("TestSuites.Get returned error: %v", err)
 	}
 
-	want := &Test{
-		ID:       String("b3abe2e9-35c5-4905-85e1-8c9f2da3240f"),
-		URL:      String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f"),
-		WebURL:   String("https://buildkite.com/organizations/my-great-org/analytics/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f"),
-		Name:     String("TestExample1_Create"),
-		Scope:    String("User#email"),
-		Location: String("./resources/test_example_test.go:123"),
-		FileName: String("./resources/test_example_test.go"),
+	want := Test{
+		ID:       "b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
+		URL:      "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
+		WebURL:   "https://buildkite.com/organizations/my-great-org/analytics/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
+		Name:     "TestExample1_Create",
+		Scope:    "User#email",
+		Location: "./resources/test_example_test.go:123",
+		FileName: "./resources/test_example_test.go",
 	}
 
-	if diff := cmp.Diff(test, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestsService.Get diff: (-got +want)\n%s", diff)
 	}
 }

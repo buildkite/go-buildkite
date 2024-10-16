@@ -10,29 +10,24 @@ type AccessTokensService struct {
 }
 
 type AccessToken struct {
-	UUID   *string   `json:"uuid,omitempty"`
-	Scopes *[]string `json:"scopes,omitempty"`
+	UUID   string   `json:"uuid,omitempty"`
+	Scopes []string `json:"scopes,omitempty"`
 }
 
 // Get gets the current token which was used to authenticate the request
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/access-token
-func (ats *AccessTokensService) Get(ctx context.Context) (*AccessToken, *Response, error) {
-
-	var u string
-
-	u = fmt.Sprintf("v2/access-token")
-
+func (ats *AccessTokensService) Get(ctx context.Context) (AccessToken, *Response, error) {
+	u := fmt.Sprintf("v2/access-token")
 	req, err := ats.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
-		return nil, nil, err
+		return AccessToken{}, nil, err
 	}
 
-	accessToken := new(AccessToken)
-
-	resp, err := ats.client.Do(req, accessToken)
+	var accessToken AccessToken
+	resp, err := ats.client.Do(req, &accessToken)
 	if err != nil {
-		return nil, resp, err
+		return AccessToken{}, resp, err
 	}
 
 	return accessToken, resp, nil
@@ -42,11 +37,7 @@ func (ats *AccessTokensService) Get(ctx context.Context) (*AccessToken, *Respons
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/access-token
 func (ats *AccessTokensService) Revoke(ctx context.Context) (*Response, error) {
-
-	var u string
-
-	u = fmt.Sprintf("v2/access-token")
-
+	u := fmt.Sprintf("v2/access-token")
 	req, err := ats.client.NewRequest(ctx, "DELETE", u, nil)
 	if err != nil {
 		return nil, err

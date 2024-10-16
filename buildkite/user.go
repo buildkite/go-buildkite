@@ -15,29 +15,26 @@ type UserService struct {
 
 // User represents a buildkite user.
 type User struct {
-	ID        *string    `json:"id,omitempty"`
-	Name      *string    `json:"name,omitempty"`
-	Email     *string    `json:"email,omitempty"`
+	ID        string     `json:"id,omitempty"`
+	Name      string     `json:"name,omitempty"`
+	Email     string     `json:"email,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 }
 
-// Get the current user.
+// CurrentUser returns the user associated with the access token being used
 //
 // buildkite API docs: https://buildkite.com/docs/api
-func (os *UserService) Get(ctx context.Context) (*User, *Response, error) {
-	var u string
-
-	u = fmt.Sprintf("v2/user")
-
-	req, err := os.client.NewRequest(ctx, "GET", u, nil)
+func (us *UserService) CurrentUser(ctx context.Context) (User, *Response, error) {
+	u := fmt.Sprintf("v2/user")
+	req, err := us.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
-		return nil, nil, err
+		return User{}, nil, err
 	}
 
-	user := new(User)
-	resp, err := os.client.Do(req, user)
+	var user User
+	resp, err := us.client.Do(req, &user)
 	if err != nil {
-		return nil, resp, err
+		return User{}, resp, err
 	}
 
 	return user, resp, err

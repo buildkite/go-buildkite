@@ -26,7 +26,7 @@ func TestPipelinesService_List(t *testing.T) {
 		t.Errorf("Pipelines.List returned error: %v", err)
 	}
 
-	want := []Pipeline{{ID: String("123")}, {ID: String("1234")}}
+	want := []Pipeline{{ID: "123"}, {ID: "1234"}}
 	if diff := cmp.Diff(pipelines, want); diff != "" {
 		t.Errorf("Pipelines.List diff: (-got +want)\n%s", diff)
 	}
@@ -38,13 +38,13 @@ func TestPipelinesService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &CreatePipeline{Name: *String("my-great-pipeline"),
-		Repository: *String("my-great-repo"),
+	input := CreatePipeline{Name: "my-great-pipeline",
+		Repository: "my-great-repo",
 		Steps: []Step{
 			{
-				Type:    String("script"),
-				Name:    String("Build :package"),
-				Command: String("script/release.sh"),
+				Type:    "script",
+				Name:    "Build :package",
+				Command: "script/release.sh",
 				Plugins: Plugins{
 					"my-org/docker#v3.3.0": {
 						"image":   "node",
@@ -53,7 +53,7 @@ func TestPipelinesService_Create(t *testing.T) {
 				},
 			},
 		},
-		DefaultBranch: *String("main"),
+		DefaultBranch: "main",
 		Tags: []string{
 			"well-tested",
 			"great-config",
@@ -61,7 +61,7 @@ func TestPipelinesService_Create(t *testing.T) {
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
-		v := new(CreatePipeline)
+		var v CreatePipeline
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -99,13 +99,14 @@ func TestPipelinesService_Create(t *testing.T) {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
 
-	want := &Pipeline{Name: String("my-great-pipeline"),
-		Repository: String("my-great-repo"),
-		Steps: []*Step{
+	want := Pipeline{
+		Name:       "my-great-pipeline",
+		Repository: "my-great-repo",
+		Steps: []Step{
 			{
-				Type:    String("script"),
-				Name:    String("Build :package:"),
-				Command: String("script/release.sh"),
+				Type:    "script",
+				Name:    "Build :package:",
+				Command: "script/release.sh",
 				Plugins: Plugins{
 					"my-org/docker#v3.3.0": {
 						"image":   "node",
@@ -114,7 +115,7 @@ func TestPipelinesService_Create(t *testing.T) {
 				},
 			},
 		},
-		DefaultBranch: String("main"),
+		DefaultBranch: "main",
 		Tags: []string{
 			"well-tested",
 			"great-config",
@@ -132,13 +133,13 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &CreatePipeline{Name: *String("my-great-pipeline"),
-		Repository:    *String("my-great-repo"),
-		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
+	input := CreatePipeline{Name: "my-great-pipeline",
+		Repository:    "my-great-repo",
+		Configuration: "steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
-		v := new(CreatePipeline)
+		var v CreatePipeline
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -172,13 +173,14 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
 
-	want := &Pipeline{Name: String("my-great-pipeline"),
-		Repository: String("my-great-repo"),
-		Steps: []*Step{
+	want := Pipeline{
+		Name:       "my-great-pipeline",
+		Repository: "my-great-repo",
+		Steps: []Step{
 			{
-				Type:    String("script"),
-				Name:    String("Build :package:"),
-				Command: String("script/release.sh"),
+				Type:    "script",
+				Name:    "Build :package:",
+				Command: "script/release.sh",
 				Plugins: Plugins{
 					"my-org/docker#v3.3.0": {
 						"image":   "node",
@@ -187,7 +189,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 				},
 			},
 		},
-		Configuration: *String("steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\""),
+		Configuration: "steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
 	}
 	if diff := cmp.Diff(pipeline, want); diff != "" {
 		t.Errorf("Pipelines.Create diff: (-got +want)\n%s", diff)
@@ -217,7 +219,7 @@ func TestPipelinesService_Get(t *testing.T) {
 		t.Errorf("Pipelines.Get returned error: %v", err)
 	}
 
-	want := &Pipeline{ID: String("123"), Slug: String("my-great-pipeline-slug")}
+	want := Pipeline{ID: "123", Slug: "my-great-pipeline-slug"}
 	if diff := cmp.Diff(pipeline, want); diff != "" {
 		t.Errorf("Pipelines.Get diff: (-got +want)\n%s", diff)
 	}
@@ -245,13 +247,13 @@ func TestPipelinesService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &CreatePipeline{Name: *String("my-great-pipeline"),
-		Repository: *String("my-great-repo"),
+	input := CreatePipeline{Name: "my-great-pipeline",
+		Repository: "my-great-repo",
 		Steps: []Step{
 			{
-				Type:    String("script"),
-				Name:    String("Build :package"),
-				Command: String("script/release.sh"),
+				Type:    "script",
+				Name:    "Build :package",
+				Command: "script/release.sh",
 				Plugins: Plugins{
 					"my-org/docker#v3.3.0": {
 						"image":   "node",
@@ -263,7 +265,7 @@ func TestPipelinesService_Update(t *testing.T) {
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
-		v := new(CreatePipeline)
+		var v CreatePipeline
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
@@ -292,16 +294,18 @@ func TestPipelinesService_Update(t *testing.T) {
 					}`)
 	})
 
-	pipeline, _, err := client.Pipelines.Create(context.Background(), "my-great-org", input)
+	_, _, err := client.Pipelines.Create(context.Background(), "my-great-org", input)
 	if err != nil {
 		t.Errorf("Pipelines.Create returned error: %v", err)
 	}
 
-	pipeline.Name = String("derp")
-
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
-		v := new(CreatePipeline)
+		var v UpdatePipeline
 		json.NewDecoder(r.Body).Decode(&v)
+
+		if diff := cmp.Diff(v, UpdatePipeline{Name: "derp"}); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
+		}
 
 		testMethod(t, r, "PATCH")
 
@@ -323,24 +327,23 @@ func TestPipelinesService_Update(t *testing.T) {
 						],
 						"slug": "my-great-repo",
             "visibility": "public",
-            "tags": [
-              "fresh-tag"
-            ]
+            "tags": ["fresh-tag"]
 					}`)
 	})
 
-	_, err = client.Pipelines.Update(context.Background(), "my-great-org", pipeline)
+	got, _, err := client.Pipelines.Update(context.Background(), "my-great-org", "my-great-repo", UpdatePipeline{Name: "derp"})
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
 	}
 
-	want := &Pipeline{Name: String("derp"),
-		Repository: String("my-great-repo"),
-		Steps: []*Step{
+	want := Pipeline{
+		Name:       "derp",
+		Repository: "my-great-repo",
+		Steps: []Step{
 			{
-				Type:    String("script"),
-				Name:    String("Build :package:"),
-				Command: String("script/release.sh"),
+				Type:    "script",
+				Name:    "Build :package:",
+				Command: "script/release.sh",
 				Plugins: Plugins{
 					"my-org/docker#v3.3.0": {
 						"image":   "node",
@@ -349,12 +352,12 @@ func TestPipelinesService_Update(t *testing.T) {
 				},
 			},
 		},
-		Slug:       String("my-great-repo"),
-		Visibility: String("public"),
+		Slug:       "my-great-repo",
+		Visibility: "public",
 		Tags:       []string{"fresh-tag"},
 	}
 
-	if diff := cmp.Diff(pipeline, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("Pipelines.Update diff: (-got +want)\n%s", diff)
 	}
 }

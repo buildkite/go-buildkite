@@ -56,19 +56,19 @@ func TestTestRunsService_List(t *testing.T) {
 
 	want := []TestRun{
 		{
-			ID:        String("3c90a8ad-8e86-4e78-87b4-acae5e808de4"),
-			URL:       String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4"),
-			WebURL:    String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4"),
-			Branch:    String("main"),
-			CommitSHA: String("a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"),
+			ID:        "3c90a8ad-8e86-4e78-87b4-acae5e808de4",
+			URL:       "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4",
+			WebURL:    "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4",
+			Branch:    "main",
+			CommitSHA: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
 			CreatedAt: NewTimestamp(parsedTime1),
 		},
 		{
-			ID:        String("70fe7e45-c9e4-446b-95e3-c50d61519b87"),
-			URL:       String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/runs/70fe7e45-c9e4-446b-95e3-c50d61519b87"),
-			WebURL:    String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/70fe7e45-c9e4-446b-95e3-c50d61519b87"),
-			Branch:    String("main"),
-			CommitSHA: String("109f4b3c50d7b0df729d299bc6f8e9ef9066971f"),
+			ID:        "70fe7e45-c9e4-446b-95e3-c50d61519b87",
+			URL:       "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/runs/70fe7e45-c9e4-446b-95e3-c50d61519b87",
+			WebURL:    "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/70fe7e45-c9e4-446b-95e3-c50d61519b87",
+			Branch:    "main",
+			CommitSHA: "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
 			CreatedAt: NewTimestamp(parsedTime2),
 		},
 	}
@@ -99,25 +99,22 @@ func TestTestRunsService_Get(t *testing.T) {
 	})
 
 	run, _, err := client.TestRuns.Get(context.Background(), "my-great-org", "suite-example", "3c90a8ad-8e86-4e78-87b4-acae5e808de4")
-
 	if err != nil {
 		t.Errorf("TestSuites.Get returned error: %v", err)
 	}
 
 	// Create Time instance from string in BuildKiteDateFormat friendly format
 	parsedTime, err := time.Parse(BuildKiteDateFormat, "2023-05-20T10:25:50.264Z")
-
 	if err != nil {
 		t.Errorf("TestSuites.Get time.Parse error: %v", err)
 	}
 
-	want := &TestRun{
-
-		ID:        String("3c90a8ad-8e86-4e78-87b4-acae5e808de4"),
-		URL:       String("https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4"),
-		WebURL:    String("https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4"),
-		Branch:    String("main"),
-		CommitSHA: String("a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"),
+	want := TestRun{
+		ID:        "3c90a8ad-8e86-4e78-87b4-acae5e808de4",
+		URL:       "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4",
+		WebURL:    "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4",
+		Branch:    "main",
+		CommitSHA: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
 		CreatedAt: NewTimestamp(parsedTime),
 	}
 

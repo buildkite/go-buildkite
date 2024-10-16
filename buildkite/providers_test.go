@@ -16,7 +16,7 @@ func TestUnmarshalBitbucketProvider(t *testing.T) {
 
 	want := Provider{
 		ID:       "bitbucket",
-		Settings: &BitbucketSettings{Repository: String("my-bitbucket-repo")},
+		Settings: &BitbucketSettings{Repository: "my-bitbucket-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -33,7 +33,7 @@ func TestUnmarshalGitHubProvider(t *testing.T) {
 
 	want := Provider{
 		ID:       "github",
-		Settings: &GitHubSettings{Repository: String("my-github-repo")},
+		Settings: &GitHubSettings{Repository: "my-github-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -50,7 +50,7 @@ func TestUnmarshalGitHubEnterpriseProvider(t *testing.T) {
 
 	want := Provider{
 		ID:       "github_enterprise",
-		Settings: &GitHubEnterpriseSettings{Repository: String("my-github-enterprise-repo")},
+		Settings: &GitHubEnterpriseSettings{Repository: "my-github-enterprise-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -67,7 +67,7 @@ func TestUnmarshalGitLabProvider(t *testing.T) {
 
 	want := Provider{
 		ID:       "gitlab",
-		Settings: &GitLabSettings{Repository: String("my-gitlab-repo")},
+		Settings: &GitLabSettings{Repository: "my-gitlab-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {

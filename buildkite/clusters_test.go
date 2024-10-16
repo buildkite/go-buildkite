@@ -75,39 +75,39 @@ func TestClustersService_List(t *testing.T) {
 	prodClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-04T04:25:55.751Z"))
 	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
-	clusterCreator := &ClusterCreator{
-		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-		Name:      String("Joe Smith"),
-		Email:     String("jsmith@example.com"),
-		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+	clusterCreator := ClusterCreator{
+		ID:        "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+		GraphQLID: "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
+		Name:      "Joe Smith",
+		Email:     "jsmith@example.com",
+		AvatarURL: "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 		CreatedAt: NewTimestamp(userCreatedAt),
 	}
 
 	want := []Cluster{
 		{
-			ID:          String("528000d8-4ee1-4479-8af1-032b143185f0"),
-			GraphQLID:   String("Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA=="),
-			Name:        String("Development Cluster"),
-			Description: String("A cluster for development pipelines"),
-			Emoji:       String(":toolbox:"),
-			Color:       String("#A9CCE3"),
-			URL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
-			WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
-			QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues"),
+			ID:          "528000d8-4ee1-4479-8af1-032b143185f0",
+			GraphQLID:   "Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA==",
+			Name:        "Development Cluster",
+			Description: "A cluster for development pipelines",
+			Emoji:       ":toolbox:",
+			Color:       "#A9CCE3",
+			URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+			WebURL:      "https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+			QueuesURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues",
 			CreatedAt:   NewTimestamp(devClusterCreatedAt),
 			CreatedBy:   clusterCreator,
 		},
 		{
-			ID:          String("3edcecdb-5191-44f1-a5ae-370083c8f92e"),
-			GraphQLID:   String("Q2x1c3Rlci0tLTNlZGNlY2RiLTUxOTEtNDRmMS1hNWFlLTM3MDA4M2M4ZjkyZQ=="),
-			Name:        String("Production Cluster"),
-			Description: String("A cluster for production pipelines"),
-			Emoji:       String(":toolbox:"),
-			Color:       String("#B9E3A9"),
-			URL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e"),
-			WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e"),
-			QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues"),
+			ID:          "3edcecdb-5191-44f1-a5ae-370083c8f92e",
+			GraphQLID:   "Q2x1c3Rlci0tLTNlZGNlY2RiLTUxOTEtNDRmMS1hNWFlLTM3MDA4M2M4ZjkyZQ==",
+			Name:        "Production Cluster",
+			Description: "A cluster for production pipelines",
+			Emoji:       ":toolbox:",
+			Color:       "#B9E3A9",
+			URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
+			WebURL:      "https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
+			QueuesURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues",
 			CreatedAt:   NewTimestamp(prodClusterCreatedAt),
 			CreatedBy:   clusterCreator,
 		},
@@ -159,25 +159,25 @@ func TestClustersService_Get(t *testing.T) {
 	devClusterCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-09-01T04:27:11.392Z"))
 	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
-	clusterCreator := &ClusterCreator{
-		ID:        String("7da07e25-0383-4aff-a7cf-14d1a9aa098f"),
-		GraphQLID: String("VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg=="),
-		Name:      String("Joe Smith"),
-		Email:     String("jsmith@example.com"),
-		AvatarURL: String("https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4"),
+	clusterCreator := ClusterCreator{
+		ID:        "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+		GraphQLID: "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
+		Name:      "Joe Smith",
+		Email:     "jsmith@example.com",
+		AvatarURL: "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 		CreatedAt: NewTimestamp(userCreatedAt),
 	}
 
-	want := &Cluster{
-		ID:          String("528000d8-4ee1-4479-8af1-032b143185f0"),
-		GraphQLID:   String("Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA=="),
-		Name:        String("Development Cluster"),
-		Description: String("A cluster for development pipelines"),
-		Emoji:       String(":toolbox:"),
-		Color:       String("#A9CCE3"),
-		URL:         String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
-		WebURL:      String("https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0"),
-		QueuesURL:   String("https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues"),
+	want := Cluster{
+		ID:          "528000d8-4ee1-4479-8af1-032b143185f0",
+		GraphQLID:   "Q2x1c3Rlci0tLTUyODAwMGQ4LTRlZTEtNDQ3OS04YWYxLTAzMmIxNDMxODVmMA==",
+		Name:        "Development Cluster",
+		Description: "A cluster for development pipelines",
+		Emoji:       ":toolbox:",
+		Color:       "#A9CCE3",
+		URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+		WebURL:      "https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+		QueuesURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues",
 		CreatedAt:   NewTimestamp(devClusterCreatedAt),
 		CreatedBy:   clusterCreator,
 	}
@@ -193,21 +193,21 @@ func TestClustersService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &ClusterCreate{
+	input := ClusterCreate{
 		Name:        "Testing Cluster",
-		Description: String("A cluster for testing"),
-		Emoji:       String(":construction:"),
-		Color:       String("E5F185"),
+		Description: "A cluster for testing",
+		Emoji:       ":construction:",
+		Color:       "E5F185",
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterCreate)
+		var v ClusterCreate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
 
 		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
+			t.Errorf("$3 diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -221,16 +221,15 @@ func TestClustersService_Create(t *testing.T) {
 	})
 
 	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", input)
-
 	if err != nil {
 		t.Errorf("TestClusters.Create returned error: %v", err)
 	}
 
-	want := &Cluster{
-		Name:        String("Testing Cluster"),
-		Description: String("A cluster for testing"),
-		Emoji:       String(":construction:"),
-		Color:       String("E5F185"),
+	want := Cluster{
+		Name:        "Testing Cluster",
+		Description: "A cluster for testing",
+		Emoji:       ":construction:",
+		Color:       "E5F185",
 	}
 
 	if diff := cmp.Diff(cluster, want); diff != "" {
@@ -244,45 +243,12 @@ func TestClustersService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := &ClusterCreate{
-		Name:        "Testing Cluster",
-		Description: String("A cluster for testing"),
-		Emoji:       String(":construction:"),
-		Color:       String("E5F185"),
-	}
+	orgSlug := "my-great-org"
+	clusterID := "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"
 
-	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterCreate)
-		json.NewDecoder(r.Body).Decode(&v)
-
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
-		}
-
-		fmt.Fprint(w,
-			`
-			{
-				"id": "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1",
-				"name" : "Testing Cluster",
-				"description": "A cluster for testing",
-				"emoji": ":construction:",
-				"color": "E5F185"
-			}`)
-	})
-
-	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", input)
-
-	if err != nil {
-		t.Errorf("TestClusters.Create returned error: %v", err)
-	}
-
-	// Lets update the description of the cluster
-	cluster.Description = String("A test cluster")
-
-	server.HandleFunc("/v2/organizations/my-great-org/clusters/a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterUpdate)
+	clustersPutEndpoint := fmt.Sprintf("/v2/organizations/%s/clusters/%s", orgSlug, clusterID)
+	server.HandleFunc(clustersPutEndpoint, func(w http.ResponseWriter, r *http.Request) {
+		var v ClusterUpdate
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "PATCH")
@@ -298,28 +264,23 @@ func TestClustersService_Update(t *testing.T) {
 			}`)
 	})
 
-	clusterUpdate := ClusterUpdate{
-		Description: String("A test cluster"),
-	}
-
-	_, err = client.Clusters.Update(context.Background(), "my-great-org", *cluster.ID, &clusterUpdate)
-
+	clusterUpdate := ClusterUpdate{Description: "A test cluster"}
+	cluster, _, err := client.Clusters.Update(context.Background(), orgSlug, clusterID, clusterUpdate)
 	if err != nil {
 		t.Errorf("TestClusters.Update returned error: %v", err)
 	}
 
-	want := &Cluster{
-		ID:          String("a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"),
-		Name:        String("Testing Cluster"),
-		Description: String("A test cluster"),
-		Emoji:       String(":construction:"),
-		Color:       String("E5F185"),
+	want := Cluster{
+		ID:          "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1",
+		Name:        "Testing Cluster",
+		Description: "A test cluster",
+		Emoji:       ":construction:",
+		Color:       "E5F185",
 	}
 
 	if diff := cmp.Diff(cluster, want); diff != "" {
 		t.Errorf("TestClusters.Update diff: (-got +want)\n%s", diff)
 	}
-
 }
 
 func TestClustersService_Delete(t *testing.T) {
@@ -333,7 +294,6 @@ func TestClustersService_Delete(t *testing.T) {
 	})
 
 	_, err := client.Clusters.Delete(context.Background(), "my-great-org", "7d2aa9b5-bf2a-4ce0-b9d7-90d3d9b8942c")
-
 	if err != nil {
 		t.Errorf("TestClusters.Delete returned error: %v", err)
 	}

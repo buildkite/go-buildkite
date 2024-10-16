@@ -16,19 +16,19 @@ type ArtifactsService struct {
 
 // Artifact represents an artifact which has been stored from a build
 type Artifact struct {
-	ID           *string `json:"id,omitempty"`
-	JobID        *string `json:"job_id,omitempty"`
-	URL          *string `json:"url,omitempty"`
-	DownloadURL  *string `json:"download_url,omitempty"`
-	State        *string `json:"state,omitempty"`
-	Path         *string `json:"path,omitempty"`
-	Dirname      *string `json:"dirname,omitempty"`
-	Filename     *string `json:"filename,omitempty"`
-	MimeType     *string `json:"mime_type,omitempty"`
-	FileSize     *int64  `json:"file_size,omitempty"`
-	GlobPath     *string `json:"glob_path,omitempty"`
-	OriginalPath *string `json:"original_path,omitempty"`
-	SHA1         *string `json:"sha1sum,omitempty"`
+	ID           string `json:"id,omitempty"`
+	JobID        string `json:"job_id,omitempty"`
+	URL          string `json:"url,omitempty"`
+	DownloadURL  string `json:"download_url,omitempty"`
+	State        string `json:"state,omitempty"`
+	Path         string `json:"path,omitempty"`
+	Dirname      string `json:"dirname,omitempty"`
+	Filename     string `json:"filename,omitempty"`
+	MimeType     string `json:"mime_type,omitempty"`
+	FileSize     int64  `json:"file_size,omitempty"`
+	GlobPath     string `json:"glob_path,omitempty"`
+	OriginalPath string `json:"original_path,omitempty"`
+	SHA1         string `json:"sha1sum,omitempty"`
 }
 
 // ArtifactListOptions specifies the optional parameters to the
@@ -41,9 +41,7 @@ type ArtifactListOptions struct {
 //
 // buildkite API docs: https://buildkite.com/docs/api/artifacts#list-artifacts-for-a-build
 func (as *ArtifactsService) ListByBuild(ctx context.Context, org string, pipeline string, build string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
-	var u string
-
-	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/artifacts", org, pipeline, build)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/artifacts", org, pipeline, build)
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err
@@ -54,21 +52,19 @@ func (as *ArtifactsService) ListByBuild(ctx context.Context, org string, pipelin
 		return nil, nil, err
 	}
 
-	artifacts := new([]Artifact)
-	resp, err := as.client.Do(req, artifacts)
+	var artifacts []Artifact
+	resp, err := as.client.Do(req, &artifacts)
 	if err != nil {
 		return nil, resp, err
 	}
-	return *artifacts, resp, err
+	return artifacts, resp, err
 }
 
 // ListByJob gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/artifacts#list-artifacts-for-a-job
 func (as *ArtifactsService) ListByJob(ctx context.Context, org string, pipeline string, build string, job string, opt *ArtifactListOptions) ([]Artifact, *Response, error) {
-	var u string
-
-	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts", org, pipeline, build, job)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts", org, pipeline, build, job)
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err
@@ -79,12 +75,12 @@ func (as *ArtifactsService) ListByJob(ctx context.Context, org string, pipeline 
 		return nil, nil, err
 	}
 
-	artifacts := new([]Artifact)
-	resp, err := as.client.Do(req, artifacts)
+	var artifacts []Artifact
+	resp, err := as.client.Do(req, &artifacts)
 	if err != nil {
 		return nil, resp, err
 	}
-	return *artifacts, resp, err
+	return artifacts, resp, err
 }
 
 // DownloadArtifactByURL gets artifacts for a specific build

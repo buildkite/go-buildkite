@@ -15,19 +15,19 @@ type AnnotationsService struct {
 
 // Annotation represents an annotation which has been stored from a build
 type Annotation struct {
-	ID        *string    `json:"id,omitempty"`
-	Context   *string    `json:"context,omitempty"`
-	Style     *string    `json:"style,omitempty"`
-	BodyHTML  *string    `json:"body_html,omitempty"`
+	ID        string     `json:"id,omitempty"`
+	Context   string     `json:"context,omitempty"`
+	Style     string     `json:"style,omitempty"`
+	BodyHTML  string     `json:"body_html,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	UpdatedAt *Timestamp `json:"updated_at,omitempty"`
 }
 
 type AnnotationCreate struct {
-	Body    *string `json:"body,omitempty"`
-	Context *string `json:"context,omitempty"`
-	Style   *string `json:"style,omitempty"`
-	Append  *bool   `json:"append,omitempty"`
+	Body    string `json:"body,omitempty"`
+	Context string `json:"context,omitempty"`
+	Style   string `json:"style,omitempty"`
+	Append  bool   `json:"append,omitempty"`
 }
 
 // AnnotationListOptions specifies the optional parameters to the
@@ -40,9 +40,7 @@ type AnnotationListOptions struct {
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/annotations#list-annotations-for-a-build
 func (as *AnnotationsService) ListByBuild(ctx context.Context, org string, pipeline string, build string, opt *AnnotationListOptions) ([]Annotation, *Response, error) {
-	var u string
-
-	u = fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/annotations", org, pipeline, build)
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/annotations", org, pipeline, build)
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err
@@ -53,30 +51,26 @@ func (as *AnnotationsService) ListByBuild(ctx context.Context, org string, pipel
 		return nil, nil, err
 	}
 
-	annotations := new([]Annotation)
-	resp, err := as.client.Do(req, annotations)
+	var annotations []Annotation
+	resp, err := as.client.Do(req, &annotations)
 	if err != nil {
 		return nil, resp, err
 	}
-	return *annotations, resp, err
+	return annotations, resp, err
 }
 
-func (as *AnnotationsService) Create(ctx context.Context, org, pipeline, build string, ac *AnnotationCreate) (*Annotation, *Response, error) {
-
+func (as *AnnotationsService) Create(ctx context.Context, org, pipeline, build string, ac AnnotationCreate) (Annotation, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/annotations", org, pipeline, build)
-
 	req, err := as.client.NewRequest(ctx, "POST", u, ac)
-
 	if err != nil {
-		return nil, nil, err
+		return Annotation{}, nil, err
 	}
 
-	annotation := new(Annotation)
-
-	resp, err := as.client.Do(req, annotation)
+	var annotation Annotation
+	resp, err := as.client.Do(req, &annotation)
 
 	if err != nil {
-		return nil, resp, err
+		return Annotation{}, resp, err
 	}
 
 	return annotation, resp, err

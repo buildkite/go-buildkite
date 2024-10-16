@@ -23,9 +23,9 @@ var (
 		WebURL:   "https://buildkite.com/my-org/my-registry/my-package",
 		Registry: registry,
 		Organization: Organization{
-			ID:   String(uuid.NewString()),
-			Slug: String("my-org"),
-			Name: String("My Org"),
+			ID:   "my-org",
+			Slug: "my-org",
+			Name: "My Org",
 		},
 	}
 )
@@ -103,10 +103,10 @@ func TestCreatePackage(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			mux, client, teardown := newMockServerAndClient(t)
+			server, client, teardown := newMockServerAndClient(t)
 			t.Cleanup(teardown)
 
-			mux.HandleFunc("/v2/packages/organizations/my-org/registries/my-registry/packages", func(w http.ResponseWriter, r *http.Request) {
+			server.HandleFunc("/v2/packages/organizations/my-org/registries/my-registry/packages", func(w http.ResponseWriter, r *http.Request) {
 				defer r.Body.Close()
 
 				testMethod(t, r, "POST")

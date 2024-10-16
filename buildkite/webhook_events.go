@@ -4,9 +4,9 @@ package buildkite
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/agent-events
 type AgentEvent struct {
-	Event  *string `json:"event"`
-	Agent  *Agent  `json:"agent"`
-	Sender *User   `json:"sender"`
+	Event  string `json:"event"`
+	Agent  Agent  `json:"agent"`
+	Sender User   `json:"sender"`
 }
 
 // AgentConnectedEvent is triggered when an agent has connected to the API
@@ -48,10 +48,10 @@ type AgentStoppingEvent struct {
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/build-events
 type BuildEvent struct {
-	Event    *string   `json:"event"`
-	Build    *Build    `json:"build"`
-	Pipeline *Pipeline `json:"pipeline"`
-	Sender   *User     `json:"sender"`
+	Event    string   `json:"event"`
+	Build    Build    `json:"build"`
+	Pipeline Pipeline `json:"pipeline"`
+	Sender   User     `json:"sender"`
 }
 
 // BuildFailingEvent is triggered when a build enters a failing state
@@ -86,11 +86,11 @@ type BuildScheduledEvent struct {
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/job-events
 type JobEvent struct {
-	Event    *string   `json:"event"`
-	Build    *Build    `json:"build"`
-	Job      *Job      `json:"job"`
-	Pipeline *Pipeline `json:"pipeline"`
-	Sender   *User     `json:"sender"`
+	Event    string   `json:"event"`
+	Build    Build    `json:"build"`
+	Job      Job      `json:"job"`
+	Pipeline Pipeline `json:"pipeline"`
+	Sender   User     `json:"sender"`
 }
 
 // JobActivatedEvent is triggered when a job is activated
@@ -125,7 +125,7 @@ type JobStartedEvent struct {
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/webhooks/ping-events
 type PingEvent struct {
-	Event        *string       `json:"event"`
-	Organization *Organization `json:"organization"`
-	Sender       *User         `json:"sender"`
+	Event        string       `json:"event"`
+	Organization Organization `json:"organization"`
+	Sender       User         `json:"sender"`
 }
