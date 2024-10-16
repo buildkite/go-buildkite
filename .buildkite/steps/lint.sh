@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -Eeufo pipefail
+set -eufo
 
 echo --- :go: Checking go mod tidiness...
 go mod tidy
@@ -22,8 +22,8 @@ if ! git diff --no-ext-diff --exit-code; then
   exit 1
 fi
 
-echo --- :go: Checking go vet...
-go vet ./...
+echo --- :go: Running golangci-lint...
+golangci-lint run
 
 echo --- :go: Checking code generation...
 go generate ./...
