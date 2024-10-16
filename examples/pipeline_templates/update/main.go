@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	apiToken     = kingpin.Flag("token", "API token").Required().String()
-	org          = kingpin.Flag("org", "Orginization slug").Required().String()
-	templateUUID = kingpin.Flag("templateUUID", "Cluster UUID").Required().String()
-	debug        = kingpin.Flag("debug", "Enable debugging").Bool()
+	apiToken       = kingpin.Flag("token", "API token").Required().String()
+	org            = kingpin.Flag("org", "Orginization slug").Required().String()
+	templateUUID   = kingpin.Flag("templateUUID", "Cluster UUID").Required().String()
+	newDescription = kingpin.Flag("description", "New description for the pipeline template").Required().String()
+	debug          = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
@@ -25,14 +26,12 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pipelineTemplateUpdate := buildkite.PipelineTemplateCreateUpdate{
-		Description: "Production pipeline template uploader",
-	}
+	pipelineTemplateUpdate := buildkite.PipelineTemplateCreateUpdate{Description: "Production pipeline template uploader"}
 
-	resp, err := client.PipelineTemplates.Update(context.Background(), *org, *templateUUID, pipelineTemplateUpdate)
+	cluster, _, err := client.PipelineTemplates.Update(context.Background(), *org, *templateUUID, pipelineTemplateUpdate)
 	if err != nil {
 		log.Fatalf("Updating cluster %s failed: %s", *templateUUID, err)
 	}
 
-	fmt.Println(resp.StatusCode)
+	fmt.Printf("Updated cluster %s: new description: %s\n", *templateUUID, cluster.Description)
 }

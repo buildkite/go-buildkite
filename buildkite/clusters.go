@@ -109,19 +109,20 @@ func (cs *ClustersService) Create(ctx context.Context, org string, cc ClusterCre
 	return cluster, resp, err
 }
 
-func (cs *ClustersService) Update(ctx context.Context, org, id string, cu ClusterUpdate) (*Response, error) {
+func (cs *ClustersService) Update(ctx context.Context, org, id string, cu ClusterUpdate) (Cluster, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s", org, id)
 	req, err := cs.client.NewRequest(ctx, "PATCH", u, cu)
 	if err != nil {
-		return nil, nil
+		return Cluster{}, nil, nil
 	}
 
-	resp, err := cs.client.Do(req, nil)
+	var cluster Cluster
+	resp, err := cs.client.Do(req, &cluster)
 	if err != nil {
-		return resp, err
+		return Cluster{}, resp, err
 	}
 
-	return resp, err
+	return cluster, resp, err
 }
 
 func (cs *ClustersService) Delete(ctx context.Context, org, id string) (*Response, error) {

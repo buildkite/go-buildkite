@@ -87,19 +87,20 @@ func (cts *ClusterTokensService) Create(ctx context.Context, org, clusterID stri
 	return token, resp, err
 }
 
-func (cts *ClusterTokensService) Update(ctx context.Context, org, clusterID, tokenID string, ctc ClusterTokenCreateUpdate) (*Response, error) {
+func (cts *ClusterTokensService) Update(ctx context.Context, org, clusterID, tokenID string, ctc ClusterTokenCreateUpdate) (ClusterToken, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens/%s", org, clusterID, tokenID)
 	req, err := cts.client.NewRequest(ctx, "PATCH", u, ctc)
 	if err != nil {
-		return nil, err
+		return ClusterToken{}, nil, err
 	}
 
-	resp, err := cts.client.Do(req, nil)
+	var ct ClusterToken
+	resp, err := cts.client.Do(req, &ct)
 	if err != nil {
-		return resp, err
+		return ClusterToken{}, resp, err
 	}
 
-	return resp, err
+	return ct, resp, err
 }
 
 func (cts *ClusterTokensService) Delete(ctx context.Context, org, clusterID, tokenID string) (*Response, error) {

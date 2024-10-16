@@ -243,43 +243,11 @@ func TestClustersService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := ClusterCreate{
-		Name:        "Testing Cluster",
-		Description: "A cluster for testing",
-		Emoji:       ":construction:",
-		Color:       "E5F185",
-	}
+	orgSlug := "my-great-org"
+	clusterID := "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"
 
-	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterCreate
-		json.NewDecoder(r.Body).Decode(&v)
-
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("$3 diff: (-got +want)\n%s", diff)
-		}
-
-		fmt.Fprint(w,
-			`
-			{
-				"id": "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1",
-				"name" : "Testing Cluster",
-				"description": "A cluster for testing",
-				"emoji": ":construction:",
-				"color": "E5F185"
-			}`)
-	})
-
-	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", input)
-	if err != nil {
-		t.Errorf("TestClusters.Create returned error: %v", err)
-	}
-
-	// Lets update the description of the cluster
-	cluster.Description = "A test cluster"
-
-	server.HandleFunc("/v2/organizations/my-great-org/clusters/a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1", func(w http.ResponseWriter, r *http.Request) {
+	clustersPutEndpoint := fmt.Sprintf("/v2/organizations/%s/clusters/%s", orgSlug, clusterID)
+	server.HandleFunc(clustersPutEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterUpdate
 		json.NewDecoder(r.Body).Decode(&v)
 
@@ -297,7 +265,7 @@ func TestClustersService_Update(t *testing.T) {
 	})
 
 	clusterUpdate := ClusterUpdate{Description: "A test cluster"}
-	_, err = client.Clusters.Update(context.Background(), "my-great-org", cluster.ID, clusterUpdate)
+	cluster, _, err := client.Clusters.Update(context.Background(), orgSlug, clusterID, clusterUpdate)
 	if err != nil {
 		t.Errorf("TestClusters.Update returned error: %v", err)
 	}

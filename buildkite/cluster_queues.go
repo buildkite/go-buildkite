@@ -24,7 +24,7 @@ type ClusterQueue struct {
 	DispatchPaused     bool            `json:"dispatch_paused,omitempty"`
 	DispatchPausedBy   *ClusterCreator `json:"dispatch_paused_by,omitempty"`
 	DispatchPausedAt   *Timestamp      `json:"dispatch_paused_at,omitempty"`
-	DispatchPausedNote *string         `json:"dispatch_paused_note,omitempty"`
+	DispatchPausedNote string          `json:"dispatch_paused_note,omitempty"`
 	CreatedAt          *Timestamp      `json:"created_at,omitempty"`
 	CreatedBy          ClusterCreator  `json:"created_by,omitempty"`
 }
@@ -100,19 +100,20 @@ func (cqs *ClusterQueuesService) Create(ctx context.Context, org, clusterID stri
 	return queue, resp, err
 }
 
-func (cqs *ClusterQueuesService) Update(ctx context.Context, org, clusterID, queueID string, qu ClusterQueueUpdate) (*Response, error) {
+func (cqs *ClusterQueuesService) Update(ctx context.Context, org, clusterID, queueID string, qu ClusterQueueUpdate) (ClusterQueue, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s", org, clusterID, queueID)
 	req, err := cqs.client.NewRequest(ctx, "PATCH", u, qu)
 	if err != nil {
-		return nil, err
+		return ClusterQueue{}, nil, err
 	}
 
-	resp, err := cqs.client.Do(req, nil)
+	var cq ClusterQueue
+	resp, err := cqs.client.Do(req, &cq)
 	if err != nil {
-		return resp, err
+		return ClusterQueue{}, resp, err
 	}
 
-	return resp, err
+	return cq, resp, err
 }
 
 func (cqs *ClusterQueuesService) Delete(ctx context.Context, org, clusterID, queueID string) (*Response, error) {
@@ -125,14 +126,20 @@ func (cqs *ClusterQueuesService) Delete(ctx context.Context, org, clusterID, que
 	return cqs.client.Do(req, nil)
 }
 
-func (cqs *ClusterQueuesService) Pause(ctx context.Context, org, clusterID, queueID string, qp ClusterQueuePause) (*Response, error) {
+func (cqs *ClusterQueuesService) Pause(ctx context.Context, org, clusterID, queueID string, qp ClusterQueuePause) (ClusterQueue, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/queues/%s/pause_dispatch", org, clusterID, queueID)
 	req, err := cqs.client.NewRequest(ctx, "POST", u, qp)
 	if err != nil {
-		return nil, err
+		return ClusterQueue{}, nil, err
 	}
 
-	return cqs.client.Do(req, nil)
+	var cq ClusterQueue
+	resp, err := cqs.client.Do(req, &cq)
+	if err != nil {
+		return ClusterQueue{}, resp, err
+	}
+
+	return cq, resp, err
 }
 
 func (cqs *ClusterQueuesService) Resume(ctx context.Context, org, clusterID, queueID string) (*Response, error) {

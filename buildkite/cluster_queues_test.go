@@ -117,7 +117,7 @@ func TestClusterQueuesService_List(t *testing.T) {
 			DispatchPaused:     true,
 			DispatchPausedBy:   &clusterCreator,
 			DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
-			DispatchPausedNote: String("Weekend queue pause"),
+			DispatchPausedNote: "Weekend queue pause",
 			CreatedAt:          NewTimestamp(devQueueClusterCreatedAt),
 			CreatedBy:          clusterCreator,
 		},
@@ -199,7 +199,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 		DispatchPaused:     true,
 		DispatchPausedBy:   &clusterCreator,
 		DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
-		DispatchPausedNote: String("Weekend queue pause"),
+		DispatchPausedNote: "Weekend queue pause",
 		CreatedAt:          NewTimestamp(devQueueClusterCreatedAt),
 		CreatedBy:          clusterCreator,
 	}
@@ -260,39 +260,6 @@ func TestClusterQueuesService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := ClusterQueueCreate{
-		Key:         "development1",
-		Description: "Development 1 queue",
-	}
-
-	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterQueueCreate
-		json.NewDecoder(r.Body).Decode(&v)
-
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
-		}
-
-		fmt.Fprint(w,
-			`
-			{
-				"id" : "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
-				"key" : "development1",
-				"description": "Development 1 queue"
-			}`)
-	})
-
-	queue, _, err := client.ClusterQueues.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
-
-	if err != nil {
-		t.Errorf("TestClusterQueues.Update returned error: %v", err)
-	}
-
-	// Lets update the description of the cluster queue
-	queue.Description = "Development 1 Team queue"
-
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterQueueUpdate
 		json.NewDecoder(r.Body).Decode(&v)
@@ -308,11 +275,9 @@ func TestClusterQueuesService_Update(t *testing.T) {
 			}`)
 	})
 
-	queueUpdate := ClusterQueueUpdate{
-		Description: "Development 1 Team queue",
-	}
+	queueUpdate := ClusterQueueUpdate{Description: "Development 1 Team queue"}
 
-	_, err = client.ClusterQueues.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", queueUpdate)
+	got, _, err := client.ClusterQueues.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", queueUpdate)
 
 	if err != nil {
 		t.Errorf("TestClusterQueues.Update returned error: %v", err)
@@ -324,7 +289,7 @@ func TestClusterQueuesService_Update(t *testing.T) {
 		Description: "Development 1 Team queue",
 	}
 
-	if diff := cmp.Diff(queue, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestClusterQueues.Update diff: (-got +want)\n%s", diff)
 	}
 }
@@ -352,73 +317,43 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := ClusterQueueCreate{
-		Key:         "development1",
-		Description: "Development 1 Team queue",
-	}
+	clusterUUID := "b7c9bc4f-526f-4c18-a3be-dc854ab75d57"
+	queueUUID := "b7c9bc4f-526f-4c18-a3be-dc854ab75d57"
 
-	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterQueueCreate
-		json.NewDecoder(r.Body).Decode(&v)
-
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
+	pauseEndpoint := fmt.Sprintf("/v2/organizations/my-great-org/clusters/%s/queues/%s/pause_dispatch", clusterUUID, queueUUID)
+	server.HandleFunc(pauseEndpoint, func(w http.ResponseWriter, r *http.Request) {
+		var v ClusterQueuePause
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Errorf("TestClusterQueues.Pause error decoding request: %v", err)
 		}
 
-		fmt.Fprint(w,
-			`
-			{
-				"id" : "5cadac07-51dd-4e12-bea3-d91be4655c2f",
-				"key" : "development1",
-				"description": "Development 1 Team queue"
-			}`)
-	})
-
-	queue, _, err := client.ClusterQueues.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
-
-	if err != nil {
-		t.Errorf("TestClusterQueues.Pause returned error: %v", err)
-	}
-
-	// Update the dispatch paused note of the queue
-	queue.DispatchPausedNote = String("Pausing dispatch for the weekend")
-
-	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/5cadac07-51dd-4e12-bea3-d91be4655c2f/pause_dispatch", func(w http.ResponseWriter, r *http.Request) {
-		v := new(ClusterQueueUpdate)
-		json.NewDecoder(r.Body).Decode(&v)
-
 		testMethod(t, r, "POST")
 
-		fmt.Fprint(w,
+		fmt.Fprintf(w,
 			`
 			{
-				"id" : "5cadac07-51dd-4e12-bea3-d91be4655c2f",
+				"id" : %q,
 				"key" : "development1",
-				"description": "Development 1 Team queue"
-				"dispatch_paused_note": "Pausing dispatch for the weekend"",
-			}`)
+				"description": "Development 1 Team queue",
+				"dispatch_paused_note": "Pausing dispatch for the weekend"
+			}`, queueUUID)
 	})
 
-	queuePause := ClusterQueuePause{
-		Note: "Pausing dispatch for the weekend",
-	}
-
-	_, err = client.ClusterQueues.Pause(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "5cadac07-51dd-4e12-bea3-d91be4655c2f", queuePause)
-
+	queuePause := ClusterQueuePause{Note: "Pausing dispatch for the weekend"}
+	got, _, err := client.ClusterQueues.Pause(context.Background(), "my-great-org", clusterUUID, queueUUID, queuePause)
 	if err != nil {
 		t.Errorf("TestClusterQueues.Pause returned error: %v", err)
 	}
 
 	want := ClusterQueue{
-		ID:                 "5cadac07-51dd-4e12-bea3-d91be4655c2f",
+		ID:                 queueUUID,
 		Key:                "development1",
 		Description:        "Development 1 Team queue",
-		DispatchPausedNote: String("Pausing dispatch for the weekend"),
+		DispatchPausedNote: "Pausing dispatch for the weekend",
 	}
 
-	if diff := cmp.Diff(queue, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestClusterQueues.Pause diff: (-got +want)\n%s", diff)
 	}
 }

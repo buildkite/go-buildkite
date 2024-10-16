@@ -11,11 +11,12 @@ import (
 )
 
 var (
-	apiToken  = kingpin.Flag("token", "API token").Required().String()
-	org       = kingpin.Flag("org", "Orginization slug").Required().String()
-	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
-	tokenID   = kingpin.Flag("tokenID", "Cluster token UUID").Required().String()
-	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
+	apiToken       = kingpin.Flag("token", "API token").Required().String()
+	org            = kingpin.Flag("org", "Orginization slug").Required().String()
+	clusterID      = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
+	tokenID        = kingpin.Flag("tokenID", "Cluster token UUID").Required().String()
+	newDescription = kingpin.Flag("description", "New description for the cluster token").Required().String()
+	debug          = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
@@ -26,12 +27,12 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusterTokenUpdate := buildkite.ClusterTokenCreateUpdate{Description: "Dev squad agent token"}
+	clusterTokenUpdate := buildkite.ClusterTokenCreateUpdate{Description: *newDescription}
 
-	resp, err := client.ClusterTokens.Update(context.Background(), *org, *clusterID, *tokenID, clusterTokenUpdate)
+	token, _, err := client.ClusterTokens.Update(context.Background(), *org, *clusterID, *tokenID, clusterTokenUpdate)
 	if err != nil {
 		log.Fatalf("Updating cluster token failed: %s", err)
 	}
 
-	fmt.Println(resp.StatusCode)
+	fmt.Printf("Updated cluster token: %s\n", token.Description)
 }

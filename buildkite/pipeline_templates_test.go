@@ -275,44 +275,6 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := PipelineTemplateCreateUpdate{
-		Name:          "Production Pipeline uploader",
-		Description:   "Production pipeline upload template",
-		Configuration: "steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n",
-		Available:     true,
-	}
-
-	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
-		var v PipelineTemplateCreateUpdate
-		json.NewDecoder(r.Body).Decode(&v)
-
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
-		}
-
-		fmt.Fprint(w,
-			`
-			{
-				"uuid": "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0",
-				"graphql_id": "UGlwZWxpbmVUZW1wbG5lLS0tYjhjMmUxNzEtMWM3ZC00N2E0LWE0ZDEtYTIwZDY5MWY1MWQw==",
-				"name" : "Production Pipeline template",
-				"description": "Production pipeline upload template",
-				"configuration": "steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n",
-				"available": true
-			}`)
-	})
-
-	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), "my-great-org", input)
-
-	if err != nil {
-		t.Errorf("TestPipelineTemplates.Update returned error: %v", err)
-	}
-
-	// Lets update the description of the pipeline template
-	pipelineTemplate.Description = "A pipeline template for uploading a production pipeline YAML (pipeline-production.yml"
-
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", func(w http.ResponseWriter, r *http.Request) {
 		var v PipelineTemplateCreateUpdate
 		json.NewDecoder(r.Body).Decode(&v)
@@ -335,8 +297,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 		Description: "A pipeline template for uploading a production pipeline YAML (pipeline-production.yml",
 	}
 
-	_, err = client.PipelineTemplates.Update(context.Background(), "my-great-org", "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", pipelineTemplateUpdate)
-
+	got, _, err := client.PipelineTemplates.Update(context.Background(), "my-great-org", "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", pipelineTemplateUpdate)
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Update returned error: %v", err)
 	}
@@ -345,12 +306,12 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 		UUID:          "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0",
 		GraphQLID:     "UGlwZWxpbmVUZW1wbG5lLS0tYjhjMmUxNzEtMWM3ZC00N2E0LWE0ZDEtYTIwZDY5MWY1MWQw==",
 		Name:          "Production Pipeline template",
-		Description:   "A pipeline template for uploading a production pipeline YAML (pipeline-production.yml",
+		Description:   "A pipeline template for uploading a production pipeline YAML (pipeline-production.yml)",
 		Configuration: "steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n",
 		Available:     true,
 	}
 
-	if diff := cmp.Diff(pipelineTemplate, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestPipelineTemplates.Update diff: (-got +want)\n%s", diff)
 	}
 }

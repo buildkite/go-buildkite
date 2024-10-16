@@ -104,14 +104,20 @@ func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu PipelineTemplateCreateUpdate) (*Response, error) {
+func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu PipelineTemplateCreateUpdate) (PipelineTemplate, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 	req, err := pts.client.NewRequest(ctx, "PATCH", u, ptu)
 	if err != nil {
-		return nil, err
+		return PipelineTemplate{}, nil, err
 	}
 
-	return pts.client.Do(req, nil)
+	var template PipelineTemplate
+	resp, err := pts.client.Do(req, &template)
+	if err != nil {
+		return PipelineTemplate{}, resp, err
+	}
+
+	return template, resp, err
 }
 
 func (pts *PipelineTemplatesService) Delete(ctx context.Context, org, templateUUID string) (*Response, error) {
