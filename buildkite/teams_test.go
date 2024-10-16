@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestTeamsService_List(t *testing.T) {
@@ -25,8 +26,8 @@ func TestTeamsService_List(t *testing.T) {
 	}
 
 	want := []Team{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(teams, want) {
-		t.Errorf("Teams.List returned %+v, want %+v", teams, want)
+	if diff := cmp.Diff(teams, want); diff != "" {
+		t.Errorf("Teams.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -51,7 +52,7 @@ func TestTeamsService_ListForUser(t *testing.T) {
 	}
 
 	want := []Team{{ID: String("123")}}
-	if !reflect.DeepEqual(teams, want) {
-		t.Errorf("Teams.List returned %+v, want %+v", teams, want)
+	if diff := cmp.Diff(teams, want); diff != "" {
+		t.Errorf("Teams.List diff: (-got +want)\n%s", diff)
 	}
 }

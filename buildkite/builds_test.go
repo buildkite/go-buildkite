@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestBuildsService_Cancel(t *testing.T) {
@@ -30,8 +31,8 @@ func TestBuildsService_Cancel(t *testing.T) {
 	}
 
 	want := &Build{ID: String("1"), State: String("cancelled")}
-	if !reflect.DeepEqual(build, want) {
-		t.Errorf("Cancel returned %+v, want %+v", build, want)
+	if diff := cmp.Diff(build, want); diff != "" {
+		t.Errorf("Cancel diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -52,8 +53,8 @@ func TestBuildsService_List(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -83,8 +84,8 @@ func TestBuildsService_Get(t *testing.T) {
 		}
 
 		want := &Build{ID: String(buildNumber)}
-		if !reflect.DeepEqual(build, want) {
-			t.Errorf("Builds.Get (expected id) returned %+v, want %+v", build, want)
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (expected id) diff: (-got +want)\n%s", diff)
 		}
 	})
 
@@ -110,8 +111,8 @@ func TestBuildsService_Get(t *testing.T) {
 		}
 
 		want := &Build{ID: String(buildNumber), Jobs: []*Job{{GroupKey: &expectedGroup}}}
-		if !reflect.DeepEqual(build, want) {
-			t.Errorf("Builds.Get (group key) returned %+v, want %+v", build, want)
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (group key) diff: (-got +want)\n%s", diff)
 		}
 	})
 
@@ -141,8 +142,8 @@ func TestBuildsService_Get(t *testing.T) {
 		}
 
 		want := &Build{ID: String(buildNumber), Jobs: []*Job{{Type: &jobType, UnblockedAt: NewTimestamp(parsedTime)}}}
-		if !reflect.DeepEqual(build, want) {
-			t.Errorf("Builds.Get (manual job) returned %+v, want %+v", build, want)
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (manual job) diff: (-got +want)\n%s", diff)
 		}
 	})
 }
@@ -172,8 +173,8 @@ func TestBuildsService_List_by_status(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -203,8 +204,8 @@ func TestBuildsService_List_by_multiple_status(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -238,8 +239,8 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -260,8 +261,8 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -291,8 +292,8 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -320,8 +321,8 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -342,8 +343,8 @@ func TestBuildsService_ListByPipeline(t *testing.T) {
 	}
 
 	want := []Build{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(builds, want) {
-		t.Errorf("Builds.List returned %+v, want %+v", builds, want)
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
 }
 

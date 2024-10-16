@@ -2,8 +2,9 @@ package buildkite
 
 import (
 	"encoding/json"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestUnmarshalBitbucketProvider(t *testing.T) {
@@ -18,8 +19,8 @@ func TestUnmarshalBitbucketProvider(t *testing.T) {
 		Settings: &BitbucketSettings{Repository: String("my-bitbucket-repo")},
 	}
 
-	if !reflect.DeepEqual(provider, want) {
-		t.Errorf("Failed to unmarshal Bitbucket provider: got %+v, want %+v", provider, want)
+	if diff := cmp.Diff(provider, want); diff != "" {
+		t.Errorf("Unmarshalling Bitbucket provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -35,8 +36,8 @@ func TestUnmarshalGitHubProvider(t *testing.T) {
 		Settings: &GitHubSettings{Repository: String("my-github-repo")},
 	}
 
-	if !reflect.DeepEqual(provider, want) {
-		t.Errorf("Failed to unmarshal GitHub provider: got %+v, want %+v", provider, want)
+	if diff := cmp.Diff(provider, want); diff != "" {
+		t.Errorf("Unmarshalling GitHub provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -52,8 +53,8 @@ func TestUnmarshalGitHubEnterpriseProvider(t *testing.T) {
 		Settings: &GitHubEnterpriseSettings{Repository: String("my-github-enterprise-repo")},
 	}
 
-	if !reflect.DeepEqual(provider, want) {
-		t.Errorf("Failed to unmarshal GitHub Enterprise provider: got %+v, want %+v", provider, want)
+	if diff := cmp.Diff(provider, want); diff != "" {
+		t.Errorf("Unmarshalling GitHub Enterprise provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -69,8 +70,8 @@ func TestUnmarshalGitLabProvider(t *testing.T) {
 		Settings: &GitLabSettings{Repository: String("my-gitlab-repo")},
 	}
 
-	if !reflect.DeepEqual(provider, want) {
-		t.Errorf("Failed to unmarshal GitLab provider: got %+v, want %+v", provider, want)
+	if diff := cmp.Diff(provider, want); diff != "" {
+		t.Errorf("Unmarshalling GitLab provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -86,7 +87,7 @@ func TestUnmarshalUnknownProvider(t *testing.T) {
 		Settings: nil,
 	}
 
-	if !reflect.DeepEqual(provider, want) {
-		t.Errorf("Failed to unmarshal unknown provider: got %+v, want %+v", provider, want)
+	if diff := cmp.Diff(provider, want); diff != "" {
+		t.Errorf("Unmarshalling unknown provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
 	}
 }

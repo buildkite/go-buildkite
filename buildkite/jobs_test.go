@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestJobsService_UnblockJob(t *testing.T) {
@@ -29,8 +30,8 @@ func TestJobsService_UnblockJob(t *testing.T) {
 	}
 
 	want := &Job{ID: String("awesome-job-id"), State: String("unblocked")}
-	if !reflect.DeepEqual(job, want) {
-		t.Errorf("UnblockJob returned %+v, want %+v", job, want)
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("UnblockJob diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -56,8 +57,8 @@ func TestJobsService_RetryJob(t *testing.T) {
 	}
 
 	want := &Job{ID: String("awesome-job-id"), State: String("scheduled"), Retried: bool(true), RetriesCount: int(1)}
-	if !reflect.DeepEqual(job, want) {
-		t.Errorf("RetryJob returned %+v, want %+v", job, want)
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("RetryJob diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -88,8 +89,8 @@ func TestJobsService_GetJobLog(t *testing.T) {
 		Size:        Int(28),
 		HeaderTimes: []int64{1563337899810051000, 1563337899811015000, 1563337905336878000, 1563337906589603000, 156333791038291900},
 	}
-	if !reflect.DeepEqual(job, want) {
-		t.Errorf("GetJobLog returned %+v, want %+v", job, want)
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -143,7 +144,7 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 	want := &JobEnvs{
 		EnvironmentVariables: &envVars,
 	}
-	if !reflect.DeepEqual(jobEnvVars, want) {
-		t.Errorf("GetJobLog returned %+v, want %+v", jobEnvVars, want)
+	if diff := cmp.Diff(jobEnvVars, want); diff != "" {
+		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
 	}
 }

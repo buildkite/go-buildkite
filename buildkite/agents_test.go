@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestAgentsService_List(t *testing.T) {
@@ -28,8 +29,8 @@ func TestAgentsService_List(t *testing.T) {
 	}
 
 	want := []Agent{{ID: String("123")}, {ID: String("1234")}}
-	if !reflect.DeepEqual(agents, want) {
-		t.Errorf("Agents.List returned %+v, want %+v", agents, want)
+	if diff := cmp.Diff(agents, want); diff != "" {
+		t.Errorf("Agents.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -50,8 +51,8 @@ func TestAgentsService_Get(t *testing.T) {
 	}
 
 	want := &Agent{ID: String("123")}
-	if !reflect.DeepEqual(agent, want) {
-		t.Errorf("Agents.Get returned %+v, want %+v", agent, want)
+	if diff := cmp.Diff(agent, want); diff != "" {
+		t.Errorf("Agents.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -69,8 +70,8 @@ func TestAgentsService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w, `{"id":"123"}`)
@@ -82,8 +83,8 @@ func TestAgentsService_Create(t *testing.T) {
 	}
 
 	want := &Agent{ID: String("123")}
-	if !reflect.DeepEqual(agent, want) {
-		t.Errorf("Agents.Create returned %+v, want %+v", agent, want)
+	if diff := cmp.Diff(agent, want); diff != "" {
+		t.Errorf("Agents.Create diff: (-got +want)\n%s", diff)
 	}
 
 }

@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestClustersService_List(t *testing.T) {
@@ -112,8 +113,8 @@ func TestClustersService_List(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(clusters, want) {
-		t.Errorf("TestClusters.List returned %+v, want %+v", clusters, want)
+	if diff := cmp.Diff(clusters, want); diff != "" {
+		t.Errorf("TestClusters.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -181,8 +182,8 @@ func TestClustersService_Get(t *testing.T) {
 		CreatedBy:   clusterCreator,
 	}
 
-	if !reflect.DeepEqual(cluster, want) {
-		t.Errorf("TestClusters.Get returned %+v, want %+v", cluster, want)
+	if diff := cmp.Diff(cluster, want); diff != "" {
+		t.Errorf("TestClusters.Get diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -205,8 +206,8 @@ func TestClustersService_Create(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -232,8 +233,8 @@ func TestClustersService_Create(t *testing.T) {
 		Color:       String("E5F185"),
 	}
 
-	if !reflect.DeepEqual(cluster, want) {
-		t.Errorf("TestClusters.Create returned %+v, want %+v", cluster, want)
+	if diff := cmp.Diff(cluster, want); diff != "" {
+		t.Errorf("TestClusters.Create diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -256,8 +257,8 @@ func TestClustersService_Update(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		if !reflect.DeepEqual(v, input) {
-			t.Errorf("Request body = %+v, want %+v", v, input)
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
 		fmt.Fprint(w,
@@ -315,8 +316,8 @@ func TestClustersService_Update(t *testing.T) {
 		Color:       String("E5F185"),
 	}
 
-	if !reflect.DeepEqual(cluster, want) {
-		t.Errorf("TestClusters.Update returned %+v, want %+v", cluster, want)
+	if diff := cmp.Diff(cluster, want); diff != "" {
+		t.Errorf("TestClusters.Update diff: (-got +want)\n%s", diff)
 	}
 
 }

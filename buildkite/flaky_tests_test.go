@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestFlakyTestsService_List(t *testing.T) {
@@ -80,7 +81,7 @@ func TestFlakyTestsService_List(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(flakyTests, want) {
-		t.Errorf("FlakyTests.List returned %+v, want %+v", flakyTests, want)
+	if diff := cmp.Diff(flakyTests, want); diff != "" {
+		t.Errorf("FlakyTests.List diff: (-got +want)\n%s", diff)
 	}
 }

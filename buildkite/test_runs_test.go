@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestTestRunsService_List(t *testing.T) {
@@ -72,8 +73,8 @@ func TestTestRunsService_List(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(runs, want) {
-		t.Errorf("TestRuns.List returned %+v, want %+v", runs, want)
+	if diff := cmp.Diff(runs, want); diff != "" {
+		t.Errorf("TestRuns.List diff: (-got +want)\n%s", diff)
 	}
 }
 
@@ -120,7 +121,7 @@ func TestTestRunsService_Get(t *testing.T) {
 		CreatedAt: NewTimestamp(parsedTime),
 	}
 
-	if !reflect.DeepEqual(run, want) {
-		t.Errorf("TestRuns.Get returned %+v, want %+v", run, want)
+	if diff := cmp.Diff(run, want); diff != "" {
+		t.Errorf("TestRuns.Get diff: (-got +want)\n%s", diff)
 	}
 }
