@@ -3,7 +3,6 @@ package buildkite
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,10 +22,6 @@ import (
 const (
 	DefaultBaseURL   = "https://api.buildkite.com/"
 	DefaultUserAgent = "go-buildkite/" + Version
-)
-
-var (
-	httpDebug = false
 )
 
 // Client - A Client manages communication with the buildkite API.
@@ -64,6 +59,7 @@ type Client struct {
 	TestSuites               *TestSuitesService
 
 	authHeader string
+	httpDebug  bool
 }
 
 type clientOpt func(*Client) error
@@ -108,20 +104,18 @@ func WithTokenAuth(token string) clientOpt {
 	}
 }
 
-// WithBasicAuth configures the buildkite.Client to use the provided username and password for authentication.
-// Deprecated: Use [WithTokenAuth] and an API token instead.
-func WithBasicAuth(username, password string) clientOpt {
+// WithHTTPDebug configures the buildkite.Client to print debug information about HTTP requests and responses as it makes them
+func WithHTTPDebug(debug bool) clientOpt {
 	return func(c *Client) error {
-		auth := fmt.Sprintf("%s:%s", username, password)
-		c.authHeader = "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
+		c.httpDebug = debug
 		return nil
 	}
 }
 
-// NewOpts returns a new buildkite API client with the provided options.
-// Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided.
+// NewClient returns a new buildkite API client with the provided options.
+// Note that at [WithTokenAuth] must be provided for requests to the buildkite API to succeed.
 // Otherwise, sensible defaults are used.
-func NewOpts(opts ...clientOpt) (*Client, error) {
+func NewClient(opts ...clientOpt) (*Client, error) {
 	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
@@ -142,31 +136,9 @@ func NewOpts(opts ...clientOpt) (*Client, error) {
 	return c, nil
 }
 
-// NewClient returns a new buildkite API client. As API calls require authentication
-// you MUST supply a client which provides the required API key.
-//
-// Deprecated: Use NewOpts instead.
-func NewClient(httpClient *http.Client) *Client {
-	baseURL, _ := url.Parse(DefaultBaseURL)
-
-	c := &Client{
-		client:    httpClient,
-		BaseURL:   baseURL,
-		UserAgent: DefaultUserAgent,
-	}
-
-	c.populateDefaultServices()
-
-	if c.client != nil {
-		if tokenAuth, ok := c.client.Transport.(*TokenAuthTransport); ok {
-			tokenAuth.APIHost = baseURL.Host
-		}
-
-		if basicAuth, ok := c.client.Transport.(*BasicAuthTransport); ok {
-			basicAuth.APIHost = baseURL.Host
-		}
-	}
-	return c
+// NewOpts is an alias for NewClient
+func NewOpts(opts ...clientOpt) (*Client, error) {
+	return NewClient(opts...)
 }
 
 func (c *Client) populateDefaultServices() {
@@ -190,11 +162,6 @@ func (c *Client) populateDefaultServices() {
 	c.Tests = &TestsService{c}
 	c.TestRuns = &TestRunsService{c}
 	c.TestSuites = &TestSuitesService{c}
-}
-
-// SetHttpDebug this enables global http request/response dumping for this API
-func SetHttpDebug(flag bool) {
-	httpDebug = flag
 }
 
 // NewRequest creates an API request. A relative URL can be provided in urlStr,
@@ -328,7 +295,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	respCh := make(chan *http.Response, 1)
 
 	op := func() error {
-		if httpDebug {
+		if c.httpDebug {
 			if dump, err := httputil.DumpRequest(req, true); err == nil {
 				fmt.Printf("DEBUG request uri=%s\n%s\n", req.URL, dump)
 			}
@@ -339,7 +306,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 			return backoff.Permanent(err)
 		}
 
-		if httpDebug {
+		if c.httpDebug {
 			if dump, err := httputil.DumpResponse(resp, true); err == nil {
 				fmt.Printf("DEBUG response uri=%s\n%s\n", req.URL, dump)
 			}
@@ -359,7 +326,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	}
 
 	notify := func(err error, delay time.Duration) {
-		if httpDebug {
+		if c.httpDebug {
 			fmt.Printf("DEBUG error %v, retry in %v\n", err, delay)
 		}
 	}
