@@ -223,7 +223,7 @@ func (bs *BuildsService) Get(ctx context.Context, org string, pipeline string, i
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#list-all-builds
 func (bs *BuildsService) List(ctx context.Context, opt *BuildsListOptions) ([]Build, *Response, error) {
-	u := fmt.Sprintf("v2/builds")
+	u := "v2/builds"
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err

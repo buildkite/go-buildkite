@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"context"
-	"fmt"
 )
 
 // UserService handles communication with the user related
@@ -25,7 +24,7 @@ type User struct {
 //
 // buildkite API docs: https://buildkite.com/docs/api
 func (us *UserService) CurrentUser(ctx context.Context) (User, *Response, error) {
-	u := fmt.Sprintf("v2/user")
+	u := "v2/user"
 	req, err := us.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return User{}, nil, err

@@ -67,7 +67,10 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 	}()
 
 	s := bkmultipart.NewStreamer()
-	s.WriteFile(fileFormKey, packageTempFile, filename)
+	err = s.WriteFile(fileFormKey, packageTempFile, filename)
+	if err != nil {
+		return Package{}, nil, fmt.Errorf("writing package to multipart stream: %v", err)
+	}
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", organizationSlug, registrySlug)
 	req, err := ps.client.NewRequest(ctx, "POST", url, s.Reader())

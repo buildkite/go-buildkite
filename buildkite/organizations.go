@@ -36,7 +36,7 @@ type OrganizationListOptions struct{ ListOptions }
 //
 // buildkite API docs: https://buildkite.com/docs/api/organizations#list-organizations
 func (os *OrganizationsService) List(ctx context.Context, opt *OrganizationListOptions) ([]Organization, *Response, error) {
-	u := fmt.Sprintf("v2/organizations")
+	u := "v2/organizations"
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err

@@ -19,10 +19,9 @@ type Streamer struct {
 	bodyBuffer  *bytes.Buffer
 	bodyWriter  *multipart.Writer
 	closeBuffer *bytes.Reader
-	file        *os.File
 
-	fileLength  int64
-	writtenFile bool
+	file       *os.File
+	fileLength int64
 }
 
 // NewStreamer initializes a new Streamer.

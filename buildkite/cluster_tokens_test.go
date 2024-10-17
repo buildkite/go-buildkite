@@ -176,7 +176,10 @@ func TestClusterTokensService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterTokenCreateUpdate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -211,7 +214,10 @@ func TestClusterTokensService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterTokenCreateUpdate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "PATCH")
 

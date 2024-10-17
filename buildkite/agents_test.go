@@ -66,7 +66,10 @@ func TestAgentsService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
 		var v Agent
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 

@@ -62,7 +62,10 @@ func TestPipelinesService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		var v CreatePipeline
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -140,7 +143,10 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		var v CreatePipeline
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -266,7 +272,10 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		var v CreatePipeline
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -301,7 +310,10 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
 		var v UpdatePipeline
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		if diff := cmp.Diff(v, UpdatePipeline{Name: "derp"}); diff != "" {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)

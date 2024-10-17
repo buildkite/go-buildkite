@@ -129,7 +129,10 @@ func TestTestSuitesService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
 		var v TestSuiteCreate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -176,7 +179,10 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
 		var v TestSuiteCreate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -201,7 +207,10 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-4", func(w http.ResponseWriter, r *http.Request) {
 		var v TestSuiteCreate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "PATCH")
 

@@ -229,7 +229,10 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		var v PipelineTemplateCreateUpdate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -277,7 +280,10 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", func(w http.ResponseWriter, r *http.Request) {
 		var v PipelineTemplateCreateUpdate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "PATCH")
 
