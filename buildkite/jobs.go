@@ -85,7 +85,7 @@ type JobLog struct {
 
 // JobEnvs represent job environments output
 type JobEnvs struct {
-	EnvironmentVariables map[string]string `json:"env,string"`
+	EnvironmentVariables map[string]string `json:"env"`
 }
 
 type TriggeredBuild struct {
