@@ -371,7 +371,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	resp := <-respCh
 
 	defer resp.Body.Close()
-	defer io.Copy(io.Discard, resp.Body)
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body) }()
 
 	response := newResponse(resp)
 
@@ -411,10 +411,18 @@ func checkResponse(r *http.Response) error {
 	if c := r.StatusCode; 200 <= c && c <= 299 {
 		return nil
 	}
+
+	errorResponse := &ErrorResponse{Response: r}
+
 	data, err := io.ReadAll(r.Body)
-	errorResponse := &ErrorResponse{Response: r, RawBody: data}
-	if err == nil && data != nil {
-		json.Unmarshal(data, errorResponse)
+	if err != nil {
+		return fmt.Errorf("response failed with error %w, but reading response body failed with error %w", errorResponse, err)
+	}
+	errorResponse.RawBody = data
+
+	err = json.Unmarshal(data, errorResponse)
+	if err != nil {
+		return fmt.Errorf("response failed with error %w, but parsing response body JSON failed with error: %w. Raw body of error was: %s", errorResponse, err, string(data))
 	}
 	return errorResponse
 }

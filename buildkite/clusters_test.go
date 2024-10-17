@@ -202,7 +202,10 @@ func TestClustersService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterCreate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -249,7 +252,10 @@ func TestClustersService_Update(t *testing.T) {
 	clustersPutEndpoint := fmt.Sprintf("/v2/organizations/%s/clusters/%s", orgSlug, clusterID)
 	server.HandleFunc(clustersPutEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterUpdate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "PATCH")
 

@@ -222,7 +222,10 @@ func TestClusterQueuesService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterQueueCreate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "POST")
 
@@ -262,7 +265,10 @@ func TestClusterQueuesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
 		var v ClusterQueueUpdate
-		json.NewDecoder(r.Body).Decode(&v)
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
 
 		testMethod(t, r, "PATCH")
 

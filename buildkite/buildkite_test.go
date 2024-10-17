@@ -70,7 +70,11 @@ func testFormValues(t *testing.T, r *http.Request, values values) {
 		want.Add(k, v)
 	}
 
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		t.Fatalf("parsing HTTP form body: %v", err)
+	}
+
 	if diff := cmp.Diff(r.Form, want); diff != "" {
 		t.Errorf("Request parameters diff: (-got +want)\n%s", diff)
 	}
@@ -82,7 +86,11 @@ func testFormValuesList(t *testing.T, r *http.Request, values valuesList) {
 		want.Add(v.key, v.val)
 	}
 
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		t.Fatalf("parsing HTTP form body: %v", err)
+	}
+
 	if diff := cmp.Diff(r.Form, want); diff != "" {
 		t.Errorf("Request parameters diff: (-got +want)\n%s", diff)
 	}
