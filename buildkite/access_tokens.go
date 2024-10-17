@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"context"
-	"fmt"
 )
 
 type AccessTokensService struct {
@@ -18,7 +17,7 @@ type AccessToken struct {
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/access-token
 func (ats *AccessTokensService) Get(ctx context.Context) (AccessToken, *Response, error) {
-	u := fmt.Sprintf("v2/access-token")
+	u := "v2/access-token"
 	req, err := ats.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return AccessToken{}, nil, err
@@ -37,7 +36,7 @@ func (ats *AccessTokensService) Get(ctx context.Context) (AccessToken, *Response
 //
 // buildkite API docs: https://buildkite.com/docs/rest-api/access-token
 func (ats *AccessTokensService) Revoke(ctx context.Context) (*Response, error) {
-	u := fmt.Sprintf("v2/access-token")
+	u := "v2/access-token"
 	req, err := ats.client.NewRequest(ctx, "DELETE", u, nil)
 	if err != nil {
 		return nil, err
