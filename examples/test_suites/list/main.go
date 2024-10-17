@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/buildkite/go-buildkite/v3/buildkite"
+	"github.com/buildkite/go-buildkite/v3"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
