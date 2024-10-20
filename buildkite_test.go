@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -97,7 +96,10 @@ func testFormValuesList(t *testing.T, r *http.Request, values valuesList) {
 }
 
 func TestNewClient(t *testing.T) {
-	c := NewClient(nil)
+	c, err := NewClient()
+	if err != nil {
+		t.Fatalf("unexpected NewClient() error: %v", err)
+	}
 
 	if got, want := c.BaseURL.String(), DefaultBaseURL; got != want {
 		t.Errorf("NewClient BaseURL is %v, want %v", got, want)
@@ -108,7 +110,11 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewRequest(t *testing.T) {
-	c := NewClient(nil)
+	c, err := NewClient()
+	if err != nil {
+		t.Fatalf("unexpected NewClient() error: %v", err)
+	}
+
 	inURL, outURL := "/foo", DefaultBaseURL+"foo"
 	inBody := User{ID: "123", Name: "Jane Doe", Email: "jane@doe.com"}
 	outBody := `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}` + "\n"
@@ -134,21 +140,6 @@ func TestNewRequest(t *testing.T) {
 	// test that default user-agent is attached to the request
 	if got, want := req.Header.Get("User-Agent"), c.UserAgent; got != want {
 		t.Errorf("NewRequest() User-Agent is %v, want %v", got, want)
-	}
-}
-
-func TestNewRequest_WhenBasicAuthIsConfigured_AddsBasicAuthToHeaders(t *testing.T) {
-	c, err := NewOpts(WithBasicAuth("shirley_dander", "hunter2"))
-	if err != nil {
-		t.Fatalf("unexpected NewOpts() error: %v", err)
-	}
-	encodedAuth := base64.StdEncoding.EncodeToString([]byte("shirley_dander:hunter2"))
-
-	req, _ := c.NewRequest(context.Background(), "GET", "/foo", nil)
-
-	expectedAuthString := "Basic " + encodedAuth
-	if got, want := req.Header.Get("Authorization"), expectedAuthString; got != want {
-		t.Errorf("NewRequest() Authorization is %v, want %v", got, want)
 	}
 }
 
