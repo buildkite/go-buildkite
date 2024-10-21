@@ -187,6 +187,15 @@ func TestCreatePackage(t *testing.T) {
 			if diff := cmp.Diff(p, pkg); diff != "" {
 				t.Fatalf("client.PackagesService.Create(%q, %q, %v) diff: (-got +want)\n%s", "test-org", "my-cool-registry", tc.in, diff)
 			}
+
+			// If we get passed in a file, we really don't want to delete it in the upload process. If this stat fails,
+			// the file was deleted.
+			if p, ok := tc.in.Package.(*os.File); ok {
+				_, err := os.Stat(p.Name())
+				if err != nil {
+					t.Fatalf("expected stat file to have nil error, got: %v", err)
+				}
+			}
 		})
 	}
 }

@@ -33,6 +33,11 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 		if err != nil {
 			return Package{}, nil, fmt.Errorf("writing package to tempfile: %v", err)
 		}
+
+		defer func() {
+			file.Close()
+			os.Remove(file.Name())
+		}()
 	}
 
 	ppu, _, err := ps.RequestPresignedUpload(ctx, organizationSlug, registrySlug)
