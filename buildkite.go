@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/buildkite/go-buildkite/v3/internal/bkmultipart"
+	"github.com/buildkite/go-buildkite/v4/internal/bkmultipart"
 	"github.com/cenkalti/backoff"
 	"github.com/google/go-querystring/query"
 )
