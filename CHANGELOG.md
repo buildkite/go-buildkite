@@ -1,3 +1,103 @@
+## [v4.0.0](https://github.com/buildkite/go-buildkite/tree/v4.0.0) (2024-10-21)
+
+Our first major release in a little while! This release is mostly a cleanup release, which __does not contain any major feature releases__.
+
+### Notable Breaking Changes
+
+#### Import Path
+The module import path has changed from `github.com/buildkite/go-buildkite/v3/buildkite` to `github.com/buildkite/go-buildkite/v4`. Note that the version number has changed, and that the `buildkite` package is now at the root of the module.
+
+#### Contexts
+All methods that interact with Buildkite API now require a context parameter. This is to allow for better control over timeouts and cancellations. For example, to spend a maximum of five seconds trying to get a list of builds for a pipeline, you could run:
+```go
+ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+builds, _, err := client.Builds.ListByPipeline(ctx, "my-org", "my-pipeline", nil)
+```
+
+#### Removal of pointers
+Previously, this library had a lot of pointers in its method signatures and struct values. Where practical, we've removed these pointers to make the API clearer and more idiomatic. This means that you'll need to update your code to pass values directly instead of pointers. For example, previously you might have done:
+```go
+pipeline := buildkite.Pipeline{
+  Name: buildkite.String("My Pipeline"),
+}
+_, _, err := client.Pipelines.Create(ctx, "my-org", &pipeline)
+```
+
+Now, you should do:
+```go
+pipeline := buildkite.Pipeline{
+  Name: "My Pipeline",
+}
+_, _, err := client.Pipelines.Create(ctx, "my-org", pipeline)
+```
+
+Along with this change, we've removed the `buildkite.String`, `buildkite.Bool`, and `buildkite.Int` helper functions. You should now pass values directly to the struct fields.
+
+One notable difference in API after this change is that many (but not all!) `Update` methods for various API resources previously unmarshalled their response into a parameter that was passed into them. This is no longer the case, and the response is now returned directly from the method. For example, previously you might have done:
+```go
+updatePipeline := buildkite.UpdatePipeline{
+  Name: buildkite.String("My Pipeline"),
+}
+
+_, err := client.Pipelines.Update("my-org", "my-pipeline", &updatePipeline)
+// Result of update is unmarshalled into updatePipeline, with surprising results in some cases
+```
+now, you should do:
+```go
+updatePipeline := buildkite.UpdatePipeline{
+  Name: "My Pipeline",
+}
+updated, _, err := client.Pipelines.Update(ctx, "my-org", "my-pipeline", updatePipeline)
+// updated is the result of the update
+// updatePipeline is unchanged
+```
+
+#### New Client Creation
+We've changed the `buildkite.NewClient` method so that it includes functional args. Previously, you would have done something like this to create a client:
+```go
+config, err := buildkite.NewTokenConfig(apiToken, debug)
+if err != nil {
+  return fmt.Errorf("client config failed: %w", err)
+}
+
+client := buildkite.NewClient(config.Client())
+```
+Config creation has been moved inside the `NewClient` method and its functional arguments, so the new equivalent is:
+```go
+client, err := buildkite.NewClient(
+  buildkite.WithTokenAuth(apitoken),
+  buildkite.WithHTTPDebug(debug),
+)
+```
+
+For a full list of functional arguments to `NewClient`, see the [godoc](https://pkg.go.dev/github.com/buildkite/go-buildkite/v4@v4.0.0).
+
+The `NewOpts` method, which was introduced in v3.12.0, remains in place as an alias for `NewClient`.
+
+#### Removal of YAML Bindings
+We've removed the YAML bindings for exported data types. This means that marshalling the data types to and from YAML will no longer work. Code like the following will no longer work, and will produce undefined behaviour:
+```go
+pipeline := buildkite.Pipeline{
+  Name: "My Pipeline",
+  Repository: "https://github.com/buildkite/go-buildkite",
+}
+
+yamlBytes, err := yaml.Marshal(pipeline)
+```
+
+These YAML bindings weren't used within the library itself, and so aren't necessary for the operation of this library. If you were marshalling this library's data types to YAML, you should be able to use the `encoding/json` package instead, as all JSON is a subset of YAML.
+
+### Other Changes
+
+#### Changed
+- Create packages using presigned uploads, rather than transiting them through the buildkite backend [#194](https://github.com/buildkite/go-buildkite/pull/194) [#195](https://github.com/buildkite/go-buildkite/pull/195) (@moskyb)
+
+#### Internal
+- Use golang-ci lint in CI [#199](https://github.com/buildkite/go-buildkite/pull/199) (@moskyb)
+- Update README with NewOpts client/kingpin example [#192](https://github.com/buildkite/go-buildkite/pull/192) (@james2791)
+- Update tests to use cmp.Diff instead of reflect.DeepEqual [#198](https://github.com/buildkite/go-buildkite/pull/198) (@moskyb)
+
+
 ## [v3.13.0](https://github.com/buildkite/go-buildkite/compare/v3.12.0...v3.13.0) (2024-08-27)
 * Add `Name` field to `buildkite.Package` struct [#190](https://github.com/buildkite/go-buildkite/pull/190) ([moskyb](ttps://github.com/moskyb))
 
