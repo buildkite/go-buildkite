@@ -19,10 +19,7 @@ var (
 func main() {
 	kingpin.Parse()
 
-	client, err := buildkite.NewOpts(
-		buildkite.WithTokenAuth(*apiToken),
-		buildkite.WithBaseURL("http://api.buildkite.localhost"),
-	)
+	client, err := buildkite.NewOpts(buildkite.WithTokenAuth(*apiToken))
 	if err != nil {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
