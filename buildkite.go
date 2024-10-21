@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/buildkite/go-buildkite/v3/internal/bkmultipart"
 	"github.com/cenkalti/backoff"
 	"github.com/google/go-querystring/query"
 )
@@ -190,6 +191,9 @@ func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body int
 	var reqBody io.Reader
 	if body != nil {
 		switch v := body.(type) {
+		case *bkmultipart.Streamer:
+			panic("bkmultipart.Streamer passed directly to NewRequest. Did you mean to pass bkstreamer.Streamer.Reader() instead?")
+
 		case io.Reader: // If body is an io.Reader, use it directly, the caller is responsible for encoding
 			reqBody = v
 

@@ -31,8 +31,6 @@ func main() {
 		log.Fatalf("opening file %s failed: %v", *filePath, err)
 	}
 
-	log.Println(file.Name())
-
 	pkg, _, err := client.PackagesService.Create(context.Background(), *org, *registrySlug, buildkite.CreatePackageInput{Package: file})
 	if err != nil {
 		log.Fatalf("Creating package failed: %v", err)
