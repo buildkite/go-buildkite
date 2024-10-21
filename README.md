@@ -1,4 +1,4 @@
-# buildkite-go [![Go Reference](https://pkg.go.dev/badge/github.com/buildkite/go-buildkite.svg)](https://pkg.go.dev/github.com/buildkite/go-buildkite/v3) [![Build status](https://badge.buildkite.com/b16a0d730b8732a1cfba06068f8450aa7cc4b2cf40eb6e6717.svg?branch=master)](https://buildkite.com/buildkite/go-buildkite)
+# buildkite-go [![Go Reference](https://pkg.go.dev/badge/github.com/buildkite/go-buildkite.svg)](https://pkg.go.dev/github.com/buildkite/go-buildkite/v4) [![Build status](https://badge.buildkite.com/b16a0d730b8732a1cfba06068f8450aa7cc4b2cf40eb6e6717.svg?branch=master)](https://buildkite.com/buildkite/go-buildkite)
 
 A [Go](http://golang.org) library and client for the [Buildkite API](https://buildkite.com/docs/api). This project draws a lot of its structure and testing methods from [go-github](https://github.com/google/go-github).
 
@@ -7,14 +7,14 @@ A [Go](http://golang.org) library and client for the [Buildkite API](https://bui
 To get the package, execute:
 
 ```
-go get github.com/buildkite/go-buildkite/v3
+go get github.com/buildkite/go-buildkite/v4
 ```
 
 Simple shortened example for listing all pipelines:
 
 ```go
 import (
-    "github.com/buildkite/go-buildkite/v3"
+    "github.com/buildkite/go-buildkite/v4"
     "gopkg.in/alecthomas/kingpin.v2"
 )
 

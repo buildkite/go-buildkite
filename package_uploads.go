@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/buildkite/go-buildkite/v3/internal/bkmultipart"
+	"github.com/buildkite/go-buildkite/v4/internal/bkmultipart"
 )
 
 // CreatePackageInput specifies the input parameters for the Create method.

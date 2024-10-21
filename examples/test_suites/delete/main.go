@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/buildkite/go-buildkite/v3"
+	"github.com/buildkite/go-buildkite/v4"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
