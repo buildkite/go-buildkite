@@ -38,26 +38,26 @@ type Client struct {
 	UserAgent string
 
 	// Services used for talking to different parts of the buildkite API.
-	AccessTokens             *AccessTokensService
-	Agents                   *AgentsService
-	Annotations              *AnnotationsService
-	Artifacts                *ArtifactsService
-	Builds                   *BuildsService
-	Clusters                 *ClustersService
-	ClusterQueues            *ClusterQueuesService
-	ClusterTokens            *ClusterTokensService
-	FlakyTests               *FlakyTestsService
-	Jobs                     *JobsService
-	Organizations            *OrganizationsService
-	PackagesService          *PackagesService
-	PackageRegistriesService *PackageRegistriesService
-	Pipelines                *PipelinesService
-	PipelineTemplates        *PipelineTemplatesService
-	User                     *UserService
-	Teams                    *TeamsService
-	Tests                    *TestsService
-	TestRuns                 *TestRunsService
-	TestSuites               *TestSuitesService
+	AccessTokens             AccessTokens
+	Agents                   Agents
+	Annotations              Annotations
+	Artifacts                Artifacts
+	Builds                   Builds
+	ClusterQueues            ClusterQueues
+	ClusterTokens            ClusterTokens
+	Clusters                 Clusters
+	FlakyTests               FlakyTests
+	Jobs                     Jobs
+	Organizations            Organizations
+	PackageRegistriesService PackageRegistries
+	PackagesService          Packages
+	PipelineTemplates        PipelineTemplates
+	Pipelines                Pipelines
+	User                     Users
+	Teams                    Teams
+	TestRuns                 TestRuns
+	TestSuites               TestSuites
+	Tests                    Tests
 
 	authHeader string
 	httpDebug  bool
