@@ -391,3 +391,30 @@ func TestBuildsUnmarshalWebhook(t *testing.T) {
 		t.Fatalf("could not unmarshal: %v", err)
 	}
 }
+
+func TestBuildService_Create(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		fmt.Fprint(w, `{"id":"123"}`)
+	})
+
+	cb := CreateBuild{
+		Commit:  "HEAD",
+		Branch:  "main",
+		Message: "Hello, world!",
+	}
+	build, _, err := client.Builds.Create(context.Background(), "my-great-org", "sup-keith", cb)
+	if err != nil {
+		t.Fatalf("Builds.Create returned error: %v", err)
+	}
+
+	want := Build{ID: "123"}
+	if diff := cmp.Diff(build, want); diff != "" {
+		t.Fatalf("Builds.Create diff: (-got +want)\n%s", diff)
+	}
+}

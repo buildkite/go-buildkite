@@ -186,7 +186,7 @@ func (bs *BuildsService) Create(ctx context.Context, org string, pipeline string
 	}
 
 	var build Build
-	resp, err := bs.client.Do(req, build)
+	resp, err := bs.client.Do(req, &build)
 	if err != nil {
 		return Build{}, resp, err
 	}
