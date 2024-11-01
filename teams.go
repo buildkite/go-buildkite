@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-// TeamService handles communication with the teams related
+// TeamsService handles communication with the teams related
 // methods of the buildkite API.
 //
 // buildkite API docs: https://buildkite.com/docs/api
@@ -35,6 +35,16 @@ type TeamsListOptions struct {
 	UserID string `url:"user_id,omitempty"`
 }
 
+// CreateTeam represents a request to create a team.
+type CreateTeam struct {
+	Name                      string `json:"name,omitempty"`
+	Description               string `json:"description,omitempty"`
+	Privacy                   string `json:"privacy,omitempty"`
+	IsDefaultTeam             bool   `json:"is_default_team,omitempty"`
+	DefaultMemberRole         string `json:"default_member_role,omitempty"`
+	MembersCanCreatePipelines bool   `json:"members_can_create_pipelines,omitempty"`
+}
+
 // Get the teams for an org.
 //
 // buildkite API docs: https://buildkite.com/docs/api
@@ -57,4 +67,75 @@ func (ts *TeamsService) List(ctx context.Context, org string, opt *TeamsListOpti
 	}
 
 	return teams, resp, err
+}
+
+// GetTeam gets a team.
+func (ts *TeamsService) GetTeam(ctx context.Context, org string, id string) (Team, error) {
+	u := fmt.Sprintf("v2/organizations/%s/teams/%s", org, id)
+
+	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return Team{}, err
+	}
+
+	var team Team
+	_, err = ts.client.Do(req, &team)
+	if err != nil {
+		return team, err
+	}
+
+	return team, err
+}
+
+// CreateTeam creates a team.
+func (ts *TeamsService) CreateTeam(ctx context.Context, org string, t CreateTeam) (Team, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/teams", org)
+
+	req, err := ts.client.NewRequest(ctx, "POST", u, t)
+	if err != nil {
+		return Team{}, nil, err
+	}
+
+	var team Team
+	resp, err := ts.client.Do(req, &team)
+	if err != nil {
+		return team, nil, err
+	}
+
+	return team, resp, err
+}
+
+// UpdateTeam updates a team.
+func (ts *TeamsService) UpdateTeam(ctx context.Context, org string, id string, t CreateTeam) (Team, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/teams/%s", org, id)
+
+	req, err := ts.client.NewRequest(ctx, "PATCH", u, t)
+	if err != nil {
+		return Team{}, nil, err
+	}
+
+	var team Team
+	resp, err := ts.client.Do(req, &team)
+	if err != nil {
+		return team, nil, err
+	}
+
+	return team, resp, err
+}
+
+// DeleteTeam deletes a team.
+func (ts *TeamsService) DeleteTeam(ctx context.Context, org string, id string) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/teams/%s", org, id)
+
+	req, err := ts.client.NewRequest(ctx, "DELETE", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := ts.client.Do(req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
 }
