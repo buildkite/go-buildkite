@@ -2,8 +2,10 @@ package buildkite
 
 import (
 	"context"
-	//"encoding/json"	
-	"fmt" 
+	"encoding/json"
+
+	//"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -19,7 +21,7 @@ func TestTeamPipelinesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			[{
 				"access_level": "manage_build_and_read",
@@ -36,7 +38,7 @@ func TestTeamPipelinesService_List(t *testing.T) {
 			`)
 	})
 
-	got, _, err := client.TeamPipelines.List(context.Background(), "my-org", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", nil) 
+	got, _, err := client.TeamPipelines.List(context.Background(), "my-org", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", nil)
 	if err != nil {
 		t.Errorf("TeamPipelinesService.List returned error: %v", err)
 	}
@@ -46,16 +48,16 @@ func TestTeamPipelinesService_List(t *testing.T) {
 
 	want := []TeamPipeline{
 		{
-			ID: "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
-			URL: "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
+			ID:          "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+			URL:         "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
 			AccessLevel: "manage_build_and_read",
-			CreatedAt: NewTimestamp(pipeline1CreatedAt),
+			CreatedAt:   NewTimestamp(pipeline1CreatedAt),
 		},
 		{
-			ID: "4569ddb1-1697-4fad-a46b-372f7318432d",
-			URL: "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-2",
+			ID:          "4569ddb1-1697-4fad-a46b-372f7318432d",
+			URL:         "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-2",
 			AccessLevel: "manage_build_and_read",
-			CreatedAt: NewTimestamp(pipeline2CreatedAt),
+			CreatedAt:   NewTimestamp(pipeline2CreatedAt),
 		},
 	}
 
@@ -72,7 +74,7 @@ func TestTeamPipelinesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"access_level": "manage_build_and_read",
@@ -86,31 +88,46 @@ func TestTeamPipelinesService_Get(t *testing.T) {
 	if err != nil {
 		t.Errorf("TeamPipelinesService.Get returned error: %v", err)
 	}
-	 
+
 	pipelineCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-10T05:24:08.651Z"))
-	want := TeamPipeline{ 
-			ID: "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
-			URL: "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
-			AccessLevel: "manage_build_and_read",
-			CreatedAt: NewTimestamp(pipelineCreatedAt), 
+	want := TeamPipeline{
+		ID:          "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+		URL:         "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
+		AccessLevel: "manage_build_and_read",
+		CreatedAt:   NewTimestamp(pipelineCreatedAt),
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TeamPipelinesService.Get diff: (-got +want)\n%s", diff)
-	}	
+	}
 
 }
 
-func TestTeamPipelinesService_Create(t *testing.T) { 
-	//t.Skip("This test is not working.Receiving Post Error : EOF")
+func TestTeamPipelinesService_Create(t *testing.T) {
 	t.Parallel()
 
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
+	input := CreateTeamPipelines{
+		PipelineID:  "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+		AccessLevel: "manage_build_and_read",
+	}
+
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		var v CreateTeamPipelines
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Errorf("Error parsing json body: %v", err)
+		}
+
 		testMethod(t, r, "POST")
-		fmt.Fprint(w, 
+
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("create Team Pipelines input diff: (-got +want)\n%s", diff)
+		}
+
+		fmt.Fprint(w,
 			`
 			{
 				"access_level": "manage_build_and_read",
@@ -119,31 +136,24 @@ func TestTeamPipelinesService_Create(t *testing.T) {
 				"pipeline_url": "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1"
 			}`)
 	})
-	
-
-	input := CreateTeamPipelines{
-		PipelineID: "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
-		AccessLevel: "manage_build_and_read",
-	} 	
-
 
 	got, _, err := client.TeamPipelines.Create(context.Background(), "my-org", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", input)
 	if err != nil {
 		t.Errorf("TeamPipelinesService.Create returned error: %v", err)
 	}
- 
+
 	pipelineCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-10T05:24:08.651Z"))
-	want := TeamPipeline{ 
-			ID: "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
-			URL: "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
-			AccessLevel: "manage_build_and_read", 
-			CreatedAt: NewTimestamp(pipelineCreatedAt), 
+	want := TeamPipeline{
+		ID:          "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+		URL:         "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
+		AccessLevel: "manage_build_and_read",
+		CreatedAt:   NewTimestamp(pipelineCreatedAt),
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TeamPipelinesService.Create diff: (-got +want)\n%s", diff)
 	}
-} 
+}
 
 func TestTeamPipelinesService_Update(t *testing.T) {
 	t.Parallel()
@@ -153,7 +163,7 @@ func TestTeamPipelinesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-		fmt.Fprint(w, 
+		fmt.Fprint(w,
 			`
 			{
 				"access_level": "build_and_read",
@@ -171,18 +181,18 @@ func TestTeamPipelinesService_Update(t *testing.T) {
 	if err != nil {
 		t.Errorf("TeamPipelinesService.Get returned error: %v", err)
 	}
-	 
+
 	pipelineCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-08-10T05:24:08.651Z"))
-	want := TeamPipeline{ 
-			ID: "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
-			URL: "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
-			AccessLevel: "build_and_read",
-			CreatedAt: NewTimestamp(pipelineCreatedAt), 
+	want := TeamPipeline{
+		ID:          "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+		URL:         "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-1",
+		AccessLevel: "build_and_read",
+		CreatedAt:   NewTimestamp(pipelineCreatedAt),
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TeamPipelinesService.Get diff: (-got +want)\n%s", diff)
-	}	
+	}
 }
 
 func TestTeamPipelinesService_Delete(t *testing.T) {
@@ -193,7 +203,7 @@ func TestTeamPipelinesService_Delete(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
-	})	
+	})
 
 	_, err := client.TeamPipelines.Delete(context.Background(), "my-org", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", "1239d7f9-394a-4d99-badf-7c3d8577a8ff")
 
