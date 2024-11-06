@@ -1,12 +1,11 @@
 package buildkite
 
-
 import (
 	"context"
 	"fmt"
 )
 
-// TeamSuitesService handles communication with the team pipelines related 
+// TeamSuitesService handles communication with the team pipelines related
 // methods of the buildkite API.
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/rest-api/teams/suites
@@ -16,14 +15,14 @@ type TeamSuitesService struct {
 }
 
 type TeamSuites struct {
-	ID  string     `json:"suite_id,omitempty"`
-	URL string     `json:"suite_url,omitempty"`
-	AccessLevel []string `json:"access_level,omitempty"`
+	ID          string     `json:"suite_id,omitempty"`
+	URL         string     `json:"suite_url,omitempty"`
+	AccessLevel []string   `json:"access_level,omitempty"`
 	CreatedAt   *Timestamp `json:"created_at,omitempty"`
 }
 
 type CreateTeamSuites struct {
-	SuiteID string `json:"suite_id,omitempty"`
+	SuiteID     string   `json:"suite_id,omitempty"`
 	AccessLevel []string `json:"access_level,omitempty"`
 }
 
@@ -73,7 +72,7 @@ func (tss *TeamSuitesService) Get(ctx context.Context, org string, teamID string
 	return ts, resp, err
 }
 
-func (tss *TeamSuitesService) Create(ctx context.Context, org string, teamID string, cts CreateTeamSuites) (TeamSuites,*Response, error) {
+func (tss *TeamSuitesService) Create(ctx context.Context, org string, teamID string, cts CreateTeamSuites) (TeamSuites, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/teams/%s/suite", org, teamID)
 
 	req, err := tss.client.NewRequest(ctx, "POST", u, cts)
@@ -107,7 +106,6 @@ func (tss *TeamSuitesService) Update(ctx context.Context, org string, teamID str
 	return ts, resp, err
 }
 
-
 func (tss *TeamSuitesService) Delete(ctx context.Context, org string, teamID string, suiteID string) (*Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/teams/%s/suites/%s", org, teamID, suiteID)
 
@@ -115,11 +113,11 @@ func (tss *TeamSuitesService) Delete(ctx context.Context, org string, teamID str
 	if err != nil {
 		return nil, err
 	}
- 
+
 	resp, err := tss.client.Do(req, nil)
 	if err != nil {
 		return resp, err
 	}
 
-	return resp, err	
+	return resp, err
 }
