@@ -56,6 +56,8 @@ type Client struct {
 	User                     *UserService
 	Teams                    *TeamsService
 	TeamMember               *TeamMemberService
+	TeamPipelines            *TeamPipelinesService
+	TeamSuites               *TeamSuitesService
 	Tests                    *TestsService
 	TestRuns                 *TestRunsService
 	TestSuites               *TestSuitesService
@@ -162,6 +164,8 @@ func (c *Client) populateDefaultServices() {
 	c.User = &UserService{c}
 	c.Teams = &TeamsService{c}
 	c.TeamMember = &TeamMemberService{c}
+	c.TeamPipelines = &TeamPipelinesService{c}
+	c.TeamSuites = &TeamSuitesService{c}
 	c.Tests = &TestsService{c}
 	c.TestRuns = &TestRunsService{c}
 	c.TestSuites = &TestSuitesService{c}
