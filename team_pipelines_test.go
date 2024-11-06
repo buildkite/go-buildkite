@@ -3,8 +3,6 @@ package buildkite
 import (
 	"context"
 	"encoding/json"
-
-	//"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
