@@ -1,3 +1,9 @@
+
+## [v4.1.0](https://github.com/buildkite/go-buildkite/compare/v4.0.1...v4.1.0) (2024-11-06)
+
+* Support Team Suites and Team Pipelines API [#205](https://github.com/buildkite/go-buildkite/pull/205) ([lizrabuya](https://github.com/lizrabuya))
+* Expand the Teams service to support additional endpoints  [#204](https://github.com/buildkite/go-buildkite/pull/204) ([mstifflin](https://github.com/mstifflin))
+
 ## [v4.0.0](https://github.com/buildkite/go-buildkite/tree/v4.0.0) (2024-10-21)
 
 Our first major release in a little while! This release is mostly a cleanup release, which __does not contain any major feature releases__.
