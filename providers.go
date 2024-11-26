@@ -53,14 +53,14 @@ type ProviderSettings interface {
 
 // BitbucketSettings are settings for pipelines building from Bitbucket repositories.
 type BitbucketSettings struct {
-	BuildPullRequests                       bool   `json:"build_pull_requests,omitempty"`
-	BuildBranches                           bool   `json:"build_branches,omitempty"`
-	PullRequestBranchFilterEnabled          bool   `json:"pull_request_branch_filter_enabled,omitempty"`
+	BuildPullRequests                       bool   `json:"build_pull_requests"`
+	BuildBranches                           bool   `json:"build_branches"`
+	PullRequestBranchFilterEnabled          bool   `json:"pull_request_branch_filter_enabled"`
 	PullRequestBranchFilterConfiguration    string `json:"pull_request_branch_filter_configuration,omitempty"`
-	SkipPullRequestBuildsForExistingCommits bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty"`
-	BuildTags                               bool   `json:"build_tags,omitempty"`
-	PublishCommitStatus                     bool   `json:"publish_commit_status,omitempty"`
-	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step,omitempty"`
+	SkipPullRequestBuildsForExistingCommits bool   `json:"skip_pull_request_builds_for_existing_commits"`
+	BuildTags                               bool   `json:"build_tags"`
+	PublishCommitStatus                     bool   `json:"publish_commit_status"`
+	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step"`
 
 	// Read-only
 	Repository string `json:"repository,omitempty"`
@@ -71,20 +71,20 @@ func (s *BitbucketSettings) isProviderSettings() {}
 // GitHubSettings are settings for pipelines building from GitHub repositories.
 type GitHubSettings struct {
 	TriggerMode                             string `json:"trigger_mode,omitempty"`
-	BuildPullRequests                       bool   `json:"build_pull_requests,omitempty"`
-	BuildBranches                           bool   `json:"build_branches,omitempty"`
-	PullRequestBranchFilterEnabled          bool   `json:"pull_request_branch_filter_enabled,omitempty"`
+	BuildPullRequests                       bool   `json:"build_pull_requests"`
+	BuildBranches                           bool   `json:"build_branches"`
+	PullRequestBranchFilterEnabled          bool   `json:"pull_request_branch_filter_enabled"`
 	PullRequestBranchFilterConfiguration    string `json:"pull_request_branch_filter_configuration,omitempty"`
-	SkipPullRequestBuildsForExistingCommits bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty"`
-	BuildPullRequestForks                   bool   `json:"build_pull_request_forks,omitempty"`
-	PrefixPullRequestForkBranchNames        bool   `json:"prefix_pull_request_fork_branch_names,omitempty"`
-	BuildTags                               bool   `json:"build_tags,omitempty"`
-	PublishCommitStatus                     bool   `json:"publish_commit_status,omitempty"`
-	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step,omitempty"`
-	FilterEnabled                           bool   `json:"filter_enabled,omitempty"`
+	SkipPullRequestBuildsForExistingCommits bool   `json:"skip_pull_request_builds_for_existing_commits"`
+	BuildPullRequestForks                   bool   `json:"build_pull_request_forks"`
+	PrefixPullRequestForkBranchNames        bool   `json:"prefix_pull_request_fork_branch_names"`
+	BuildTags                               bool   `json:"build_tags"`
+	PublishCommitStatus                     bool   `json:"publish_commit_status"`
+	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step"`
+	FilterEnabled                           bool   `json:"filter_enabled"`
 	FilterCondition                         string `json:"filter_condition,omitempty"`
-	SeparatePullRequestStatuses             bool   `json:"separate_pull_request_statuses,omitempty"`
-	PublishBlockedAsPending                 bool   `json:"publish_blocked_as_pending,omitempty"`
+	SeparatePullRequestStatuses             bool   `json:"separate_pull_request_statuses"`
+	PublishBlockedAsPending                 bool   `json:"publish_blocked_as_pending"`
 
 	// Read-only
 	Repository string `json:"repository,omitempty"`
@@ -95,14 +95,14 @@ func (s *GitHubSettings) isProviderSettings() {}
 // GitHubEnterpriseSettings are settings for pipelines building from GitHub Enterprise repositories.
 type GitHubEnterpriseSettings struct {
 	TriggerMode                             string `json:"trigger_mode,omitempty"`
-	BuildPullRequests                       bool   `json:"build_pull_requests,omitempty"`
-	BuildBranches                           bool   `json:"build_branches,omitempty"`
-	PullRequestBranchFilterEnabled          bool   `json:"pull_request_branch_filter_enabled,omitempty"`
+	BuildPullRequests                       bool   `json:"build_pull_requests"`
+	BuildBranches                           bool   `json:"build_branches"`
+	PullRequestBranchFilterEnabled          bool   `json:"pull_request_branch_filter_enabled"`
 	PullRequestBranchFilterConfiguration    string `json:"pull_request_branch_filter_configuration,omitempty"`
-	SkipPullRequestBuildsForExistingCommits bool   `json:"skip_pull_request_builds_for_existing_commits,omitempty"`
-	BuildTags                               bool   `json:"build_tags,omitempty"`
-	PublishCommitStatus                     bool   `json:"publish_commit_status,omitempty"`
-	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step,omitempty"`
+	SkipPullRequestBuildsForExistingCommits bool   `json:"skip_pull_request_builds_for_existing_commits"`
+	BuildTags                               bool   `json:"build_tags"`
+	PublishCommitStatus                     bool   `json:"publish_commit_status"`
+	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step"`
 
 	// Read-only
 	Repository string `json:"repository,omitempty"`

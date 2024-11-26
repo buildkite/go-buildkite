@@ -16,7 +16,7 @@ type TestSuitesService struct {
 type TestSuiteCreate struct {
 	Name          string   `json:"name"`
 	DefaultBranch string   `json:"default_branch,omitempty"`
-	ShowAPIToken  bool     `json:"show_api_token,omitempty"`
+	ShowAPIToken  bool     `json:"show_api_token"`
 	TeamUUIDs     []string `json:"team_ids,omitempty"`
 }
 

@@ -29,9 +29,9 @@ type CreatePipeline struct {
 	Env                             map[string]string `json:"env,omitempty"`
 	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty"`
 	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds"`
 	SkipQueuedBranchBuildsFilter    string            `json:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds"`
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty"`
 	ClusterID                       string            `json:"cluster_id,omitempty"`
@@ -50,9 +50,9 @@ type UpdatePipeline struct {
 	Description                     string           `json:"description,omitempty"`
 	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty"`
 	BranchConfiguration             string           `json:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds"`
 	SkipQueuedBranchBuildsFilter    string           `json:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool             `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuilds       bool             `json:"cancel_running_branch_builds"`
 	CancelRunningBranchBuildsFilter string           `json:"cancel_running_branch_builds_filter,omitempty"`
 	ClusterID                       string           `json:"cluster_id,omitempty"`
 	Visibility                      string           `json:"visibility,omitempty"`
@@ -75,9 +75,9 @@ type Pipeline struct {
 	DefaultBranch                   string     `json:"default_branch,omitempty"`
 	Description                     string     `json:"description,omitempty"`
 	BranchConfiguration             string     `json:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool       `json:"skip_queued_branch_builds,omitempty"`
+	SkipQueuedBranchBuilds          bool       `json:"skip_queued_branch_builds"`
 	SkipQueuedBranchBuildsFilter    string     `json:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool       `json:"cancel_running_branch_builds,omitempty"`
+	CancelRunningBranchBuilds       bool       `json:"cancel_running_branch_builds"`
 	CancelRunningBranchBuildsFilter string     `json:"cancel_running_branch_builds_filter,omitempty"`
 	ClusterID                       string     `json:"cluster_id,omitempty"`
 	Visibility                      string     `json:"visibility,omitempty"`

@@ -21,7 +21,7 @@ type ClusterQueue struct {
 	URL                string          `json:"url,omitempty"`
 	WebURL             string          `json:"web_url,omitempty"`
 	ClusterURL         string          `json:"cluster_url,omitempty"`
-	DispatchPaused     bool            `json:"dispatch_paused,omitempty"`
+	DispatchPaused     bool            `json:"dispatch_paused"`
 	DispatchPausedBy   *ClusterCreator `json:"dispatch_paused_by,omitempty"`
 	DispatchPausedAt   *Timestamp      `json:"dispatch_paused_at,omitempty"`
 	DispatchPausedNote string          `json:"dispatch_paused_note,omitempty"`

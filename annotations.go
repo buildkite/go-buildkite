@@ -27,7 +27,7 @@ type AnnotationCreate struct {
 	Body    string `json:"body,omitempty"`
 	Context string `json:"context,omitempty"`
 	Style   string `json:"style,omitempty"`
-	Append  bool   `json:"append,omitempty"`
+	Append  bool   `json:"append"`
 }
 
 // AnnotationListOptions specifies the optional parameters to the
