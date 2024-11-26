@@ -19,7 +19,7 @@ type PipelineTemplate struct {
 	Name          string `json:"name,omitempty"`
 	Description   string `json:"description,omitempty"`
 	Configuration string `json:"configuration,omitempty"`
-	Available     bool   `json:"available,omitempty"`
+	Available     bool   `json:"available"`
 	URL           string `json:"url,omitempty"`
 	WebURL        string `json:"web_url,omitempty"`
 
@@ -34,7 +34,7 @@ type PipelineTemplateCreateUpdate struct {
 	Name          string `json:"name,omitempty"`
 	Configuration string `json:"configuration,omitempty"`
 	Description   string `json:"description,omitempty"`
-	Available     bool   `json:"available,omitempty"`
+	Available     bool   `json:"available"`
 }
 
 type PipelineTemplateCreator struct {

@@ -23,7 +23,7 @@ type Team struct {
 	Slug        string     `json:"slug,omitempty"`
 	Description string     `json:"description,omitempty"`
 	Privacy     string     `json:"privacy,omitempty"`
-	Default     bool       `json:"default,omitempty"`
+	Default     bool       `json:"default"`
 	CreatedAt   *Timestamp `json:"created_at,omitempty"`
 	CreatedBy   *User      `json:"created_by,omitempty"`
 }
@@ -40,9 +40,9 @@ type CreateTeam struct {
 	Name                      string `json:"name,omitempty"`
 	Description               string `json:"description,omitempty"`
 	Privacy                   string `json:"privacy,omitempty"`
-	IsDefaultTeam             bool   `json:"is_default_team,omitempty"`
+	IsDefaultTeam             bool   `json:"is_default_team"`
 	DefaultMemberRole         string `json:"default_member_role,omitempty"`
-	MembersCanCreatePipelines bool   `json:"members_can_create_pipelines,omitempty"`
+	MembersCanCreatePipelines bool   `json:"members_can_create_pipelines"`
 }
 
 // Get the teams for an org.

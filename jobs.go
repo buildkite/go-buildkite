@@ -38,14 +38,14 @@ type Job struct {
 	Agent              Agent           `json:"agent,omitempty"`
 	AgentQueryRules    []string        `json:"agent_query_rules,omitempty"`
 	WebURL             string          `json:"web_url"`
-	Retried            bool            `json:"retried,omitempty"`
+	Retried            bool            `json:"retried"`
 	RetriedInJobID     string          `json:"retried_in_job_id,omitempty"`
 	RetriesCount       int             `json:"retries_count,omitempty"`
 	RetrySource        *JobRetrySource `json:"retry_source,omitempty"`
 	RetryType          string          `json:"retry_type,omitempty"`
-	SoftFailed         bool            `json:"soft_failed,omitempty"`
+	SoftFailed         bool            `json:"soft_failed"`
 	UnblockedBy        *UnblockedBy    `json:"unblocked_by,omitempty"`
-	Unblockable        bool            `json:"unblockable,omitempty"`
+	Unblockable        bool            `json:"unblockable"`
 	UnblockURL         string          `json:"unblock_url,omitempty"`
 	ParallelGroupIndex *int            `json:"parallel_group_index,omitempty"`
 	ParallelGroupTotal *int            `json:"parallel_group_total,omitempty"`

@@ -30,10 +30,10 @@ type CreateBuild struct {
 
 	// Optional fields
 	Author                      Author            `json:"author,omitempty"`
-	CleanCheckout               bool              `json:"clean_checkout,omitempty"`
+	CleanCheckout               bool              `json:"clean_checkout"`
 	Env                         map[string]string `json:"env,omitempty"`
 	MetaData                    map[string]string `json:"meta_data,omitempty"`
-	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters,omitempty"`
+	IgnorePipelineBranchFilters bool              `json:"ignore_pipeline_branch_filters"`
 	PullRequestBaseBranch       string            `json:"pull_request_base_branch,omitempty"`
 	PullRequestID               int64             `json:"pull_request_id,omitempty"`
 	PullRequestRepository       string            `json:"pull_request_repository,omitempty"`
@@ -76,7 +76,7 @@ type Build struct {
 	WebURL      string                 `json:"web_url,omitempty"`
 	Number      int                    `json:"number,omitempty"`
 	State       string                 `json:"state,omitempty"`
-	Blocked     bool                   `json:"blocked,omitempty"`
+	Blocked     bool                   `json:"blocked"`
 	Message     string                 `json:"message,omitempty"`
 	Commit      string                 `json:"commit,omitempty"`
 	Branch      string                 `json:"branch,omitempty"`
