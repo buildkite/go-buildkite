@@ -48,6 +48,7 @@ type Client struct {
 	ClusterTokens            *ClusterTokensService
 	FlakyTests               *FlakyTestsService
 	Jobs                     *JobsService
+	Metrics                  *MetricsService
 	Organizations            *OrganizationsService
 	PackagesService          *PackagesService
 	PackageRegistriesService *PackageRegistriesService
@@ -156,6 +157,7 @@ func (c *Client) populateDefaultServices() {
 	c.ClusterTokens = &ClusterTokensService{c}
 	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
+	c.Metrics = &MetricsService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.PackagesService = &PackagesService{c}
 	c.PackageRegistriesService = &PackageRegistriesService{c}
