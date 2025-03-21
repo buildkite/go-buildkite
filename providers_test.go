@@ -75,6 +75,23 @@ func TestUnmarshalGitLabProvider(t *testing.T) {
 	}
 }
 
+func TestUnmarshalGitLabEnterpriseProvider(t *testing.T) {
+	var provider Provider
+	err := json.Unmarshal([]byte(`{"id": "gitlab_ee", "settings": {"repository": "my-gitlab-repo"}}`), &provider)
+	if err != nil {
+		t.Errorf("Error unmarshalling GitLab provider: %v", err)
+	}
+
+	want := Provider{
+		ID:       "gitlab_ee",
+		Settings: &GitLabSettings{Repository: "my-gitlab-repo"},
+	}
+
+	if diff := cmp.Diff(provider, want); diff != "" {
+		t.Errorf("Unmarshalling GitLab Enterprise provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestUnmarshalUnknownProvider(t *testing.T) {
 	var provider Provider
 	err := json.Unmarshal([]byte(`{"id": "unknown", "settings": {"emoji": ":shrug:"}}`), &provider)
