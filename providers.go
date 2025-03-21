@@ -31,7 +31,7 @@ func (p *Provider) UnmarshalJSON(data []byte) error {
 		settings = &GitHubSettings{}
 	case "github_enterprise":
 		settings = &GitHubEnterpriseSettings{}
-	case "gitlab":
+	case "gitlab", "gitlab_ee":
 		settings = &GitLabSettings{}
 	default:
 		return nil
@@ -113,7 +113,8 @@ func (s *GitHubEnterpriseSettings) isProviderSettings() {}
 // GitLabSettings are settings for pipelines building from GitLab repositories.
 type GitLabSettings struct {
 	// Read-only
-	Repository string `json:"repository,omitempty"`
+	FilterEnabled bool   `json:"filter_enabled"`
+	Repository    string `json:"repository,omitempty"`
 }
 
 func (s *GitLabSettings) isProviderSettings() {}
