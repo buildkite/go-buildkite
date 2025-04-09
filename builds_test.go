@@ -19,7 +19,7 @@ func TestBuildsService_Cancel(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/1/cancel", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
   "id": "1",
   "state": "cancelled"
 }`)
@@ -44,7 +44,7 @@ func TestBuildsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	builds, _, err := client.Builds.List(context.Background(), nil)
@@ -160,7 +160,7 @@ func TestBuildsService_List_by_status(t *testing.T) {
 			"state[]": "running",
 			"page":    "2",
 		})
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	opt := &BuildsListOptions{
@@ -191,7 +191,7 @@ func TestBuildsService_List_by_multiple_status(t *testing.T) {
 			{"state[]", "scheduled"},
 			{"page", "2"},
 		})
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	opt := &BuildsListOptions{
@@ -226,7 +226,7 @@ func TestBuildsService_List_by_created_date(t *testing.T) {
 			"created_from": "2016-03-24T01:00:00Z",
 			"created_to":   "2016-03-24T02:00:00Z",
 		})
-		fmt.Fprint(w, `[{"id":"123"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"}]`)
 	})
 
 	opt := &BuildsListOptions{
@@ -252,7 +252,7 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	builds, _, err := client.Builds.ListByOrg(context.Background(), "my-great-org", nil)
@@ -278,7 +278,7 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 			"branch[]": "my-great-branch",
 			"commit":   "my-commit-sha1",
 		})
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	opt := &BuildsListOptions{
@@ -309,7 +309,7 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 			{"branch[]", "my-great-branch"},
 			{"branch[]", "my-other-great-branch"},
 		})
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	opt := &BuildsListOptions{
@@ -334,7 +334,7 @@ func TestBuildsService_ListByPipeline(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	builds, _, err := client.Builds.ListByPipeline(context.Background(), "my-great-org", "sup-keith", nil)
@@ -400,7 +400,7 @@ func TestBuildService_Create(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	cb := CreateBuild{

@@ -108,7 +108,7 @@ func TestPackageRegistryCreate(t *testing.T) {
 
 	want := registry
 	server.HandleFunc("/v2/packages/organizations/test-org/registries", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
+		defer func() { _ = r.Body.Close() }()
 
 		testMethod(t, r, "POST")
 
@@ -156,7 +156,7 @@ func TestPackageRegistryUpdate(t *testing.T) {
 	want.Description = wantInput.Description
 
 	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
+		defer func() { _ = r.Body.Close() }()
 
 		testMethod(t, r, "PATCH")
 

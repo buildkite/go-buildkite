@@ -18,7 +18,7 @@ func TestTestSuitesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[
 				{
@@ -81,7 +81,7 @@ func TestTestSuitesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "7c202aaa-3165-4811-9813-173c4c285463",
@@ -140,7 +140,7 @@ func TestTestSuitesService_Create(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"name" : "Suite 3",
@@ -190,7 +190,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"name" : "Suite 4",
@@ -214,7 +214,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"name" : "Suite 4",

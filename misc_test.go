@@ -17,7 +17,7 @@ func TestListEmojis(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/emojis", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"name":"rocket","url":"https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2"}]`)
+		_, _ = fmt.Fprint(w, `[{"name":"rocket","url":"https://a.buildboxassets.com/assets/emoji2/unicode/1f680.png?v2"}]`)
 	})
 
 	emoji, _, err := client.ListEmojis(context.Background(), "my-great-org")

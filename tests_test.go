@@ -17,7 +17,7 @@ func TestTestsService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "b3abe2e9-35c5-4905-85e1-8c9f2da3240f",

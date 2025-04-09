@@ -18,7 +18,7 @@ func TestTestRunsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[
 				{
@@ -86,7 +86,7 @@ func TestTestRunsService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "3c90a8ad-8e86-4e78-87b4-acae5e808de4",

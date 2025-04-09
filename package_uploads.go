@@ -35,8 +35,8 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 		}
 
 		defer func() {
-			file.Close()
-			os.Remove(file.Name())
+			_ = file.Close()
+			_ = os.Remove(file.Name())
 		}()
 	}
 

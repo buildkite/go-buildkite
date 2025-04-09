@@ -16,7 +16,6 @@ var (
 	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
 	queueID   = kingpin.Flag("queueID", "Cluster queue UUID").Required().String()
 	pauseNote = kingpin.Flag("note", "Note to add to the pause").String()
-	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {

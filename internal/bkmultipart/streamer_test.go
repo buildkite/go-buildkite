@@ -44,8 +44,8 @@ func TestEncodingFile(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		tempFile.Close()
-		os.Remove(tempFile.Name())
+		_ = tempFile.Close()
+		_ = os.Remove(tempFile.Name())
 	})
 
 	if _, err := tempFile.WriteString("hello world"); err != nil {

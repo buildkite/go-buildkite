@@ -19,7 +19,7 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[
 				{
@@ -144,7 +144,7 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/90333dc7-b86a-4485-98c3-9419a5dbc52e", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"uuid": "90333dc7-b86a-4485-98c3-9419a5dbc52e",
@@ -240,7 +240,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"uuid": "08ac0872-e3bd-41d2-b0f8-7822bb43ad41",
@@ -287,7 +287,7 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"uuid": "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0",

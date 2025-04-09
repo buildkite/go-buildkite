@@ -18,7 +18,7 @@ func TestFlakyTestsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/flaky-tests", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[
 				{

@@ -19,7 +19,7 @@ func TestClusterQueuesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[
 				{
@@ -136,7 +136,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "46718bb6-3b2a-48da-9dcb-922c6b7ba140",
@@ -233,7 +233,7 @@ func TestClusterQueuesService_Create(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"key" : "development1",
@@ -272,7 +272,7 @@ func TestClusterQueuesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id" : "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
@@ -336,7 +336,7 @@ func TestClusterQueuesService_Pause(t *testing.T) {
 
 		testMethod(t, r, "POST")
 
-		fmt.Fprintf(w,
+		_, _ = fmt.Fprintf(w,
 			`
 			{
 				"id" : %q,

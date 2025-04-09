@@ -255,7 +255,7 @@ func newResponse(r *http.Response) *Response {
 // populatePageValues parses the HTTP Link response headers and populates the
 // various pagination link values in the Reponse.
 func (r *Response) populatePageValues() {
-	if links, ok := r.Response.Header["Link"]; ok && len(links) > 0 {
+	if links, ok := r.Header["Link"]; ok && len(links) > 0 {
 		for _, link := range strings.Split(links[0], ",") {
 			segments := strings.Split(strings.TrimSpace(link), ";")
 
@@ -347,7 +347,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 
 	resp := <-respCh
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	defer func() { _, _ = io.Copy(io.Discard, resp.Body) }()
 
 	response := newResponse(resp)

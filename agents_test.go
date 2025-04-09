@@ -20,7 +20,7 @@ func TestAgentsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	agents, _, err := client.Agents.List(context.Background(), "my-great-org", nil)
@@ -42,7 +42,7 @@ func TestAgentsService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/agents/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	agent, _, err := client.Agents.Get(context.Background(), "my-great-org", "123")
@@ -77,7 +77,7 @@ func TestAgentsService_Create(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	agent, _, err := client.Agents.Create(context.Background(), "my-great-org", input)

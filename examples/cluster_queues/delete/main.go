@@ -15,7 +15,6 @@ var (
 	org       = kingpin.Flag("org", "Orginization slug").Required().String()
 	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
 	queueID   = kingpin.Flag("queueID", "Cluster queue UUID").Required().String()
-	debug     = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {

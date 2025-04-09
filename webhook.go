@@ -104,7 +104,7 @@ func validateSignature(signature string, payload, secretKey []byte) error {
 func getTimestampAndSignature(sig string) (timestamp string, signature []byte, err error) {
 	sigParts := strings.Split(sig, ",")
 	if len(sigParts) != 2 {
-		return "", nil, fmt.Errorf("X-Buildkite-Signature format is incorrect.")
+		return "", nil, fmt.Errorf("X-Buildkite-Signature format is incorrect")
 	}
 
 	ts, sg := sigParts[0], sigParts[1]
@@ -131,7 +131,7 @@ func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err err
 
 	sig := r.Header.Get(SignatureHeader)
 	if sig == "" {
-		return nil, fmt.Errorf("No %s header present on request", SignatureHeader)
+		return nil, fmt.Errorf("no %s header present on request", SignatureHeader)
 	}
 
 	if err = validateSignature(sig, payload, secretKey); err != nil {

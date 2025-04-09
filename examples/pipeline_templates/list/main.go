@@ -15,7 +15,6 @@ import (
 var (
 	apiToken = kingpin.Flag("token", "API token").Required().String()
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
-	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
@@ -38,5 +37,5 @@ func main() {
 		log.Fatalf("json encode failed: %s", err)
 	}
 
-	fmt.Fprintf(os.Stdout, "%s", string(data))
+	_, _ = fmt.Fprintf(os.Stdout, "%s", string(data))
 }

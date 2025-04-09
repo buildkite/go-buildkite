@@ -17,7 +17,7 @@ func TestOrganizationsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	orgs, _, err := client.Organizations.List(context.Background(), nil)
@@ -39,7 +39,7 @@ func TestOrganizationsService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/babelstoemp", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	org, _, err := client.Organizations.Get(context.Background(), "babelstoemp")

@@ -19,7 +19,7 @@ func TestTeamPipelinesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[{
 				"access_level": "manage_build_and_read",
@@ -32,7 +32,7 @@ func TestTeamPipelinesService_List(t *testing.T) {
 				"created_at": "2023-08-10T05:24:08.663Z",
 				"pipeline_id": "4569ddb1-1697-4fad-a46b-372f7318432d",
 				"pipeline_url": "https://api.buildkite.com/v2/organizations/my-org/pipelines/pipeline-2"
-			}]	 
+			}]
 			`)
 	})
 
@@ -72,7 +72,7 @@ func TestTeamPipelinesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"access_level": "manage_build_and_read",
@@ -125,7 +125,7 @@ func TestTeamPipelinesService_Create(t *testing.T) {
 			t.Errorf("create Team Pipelines input diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"access_level": "manage_build_and_read",
@@ -161,7 +161,7 @@ func TestTeamPipelinesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"access_level": "build_and_read",
