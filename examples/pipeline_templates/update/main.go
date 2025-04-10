@@ -11,11 +11,9 @@ import (
 )
 
 var (
-	apiToken       = kingpin.Flag("token", "API token").Required().String()
-	org            = kingpin.Flag("org", "Orginization slug").Required().String()
-	templateUUID   = kingpin.Flag("templateUUID", "Cluster UUID").Required().String()
-	newDescription = kingpin.Flag("description", "New description for the pipeline template").Required().String()
-	debug          = kingpin.Flag("debug", "Enable debugging").Bool()
+	apiToken     = kingpin.Flag("token", "API token").Required().String()
+	org          = kingpin.Flag("org", "Orginization slug").Required().String()
+	templateUUID = kingpin.Flag("templateUUID", "Cluster UUID").Required().String()
 )
 
 func main() {

@@ -19,7 +19,7 @@ func TestClustersService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[
 				{
@@ -126,7 +126,7 @@ func TestClustersService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "528000d8-4ee1-4479-8af1-032b143185f0",
@@ -213,7 +213,7 @@ func TestClustersService_Create(t *testing.T) {
 			t.Errorf("$3 diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"name" : "Testing Cluster",
@@ -259,7 +259,7 @@ func TestClustersService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1",

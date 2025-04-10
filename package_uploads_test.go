@@ -22,7 +22,7 @@ func TestCreatePackage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("creating temporary package file: %v", err)
 	}
-	t.Cleanup(func() { os.Remove(testPackage.Name()) })
+	t.Cleanup(func() { _ = os.Remove(testPackage.Name()) })
 
 	packageContents := "this is totally a valid package! look, i'm a rubygem!"
 	_, err = testPackage.WriteString(packageContents)
@@ -79,7 +79,7 @@ func TestCreatePackage(t *testing.T) {
 
 			// Signed Upload Request
 			server.HandleFunc("/v2/packages/organizations/my-org/registries/my-registry/packages/upload", func(w http.ResponseWriter, r *http.Request) {
-				defer r.Body.Close()
+				defer func() { _ = r.Body.Close() }()
 
 				testMethod(t, r, "POST")
 
@@ -102,7 +102,7 @@ func TestCreatePackage(t *testing.T) {
 
 			// "S3" Upload
 			server.HandleFunc(s3Endpoint, func(w http.ResponseWriter, r *http.Request) {
-				defer r.Body.Close()
+				defer func() { _ = r.Body.Close() }()
 
 				testMethod(t, r, "POST")
 
@@ -124,7 +124,7 @@ func TestCreatePackage(t *testing.T) {
 				if err != nil {
 					t.Fatalf("getting file from request: %v", err)
 				}
-				defer fi.Close()
+				defer func() { _ = fi.Close() }()
 
 				// RFC 7578 says that the any path information should be stripped from the file name, which is what
 				// r.FormFile does - see https://github.com/golang/go/blob/d9f9746/src/mime/multipart/multipart.go#L99-L100
@@ -144,7 +144,7 @@ func TestCreatePackage(t *testing.T) {
 
 			// Create Package / Presigned upload finalization
 			server.HandleFunc("/v2/packages/organizations/my-org/registries/my-registry/packages", func(w http.ResponseWriter, r *http.Request) {
-				defer r.Body.Close()
+				defer func() { _ = r.Body.Close() }()
 
 				testMethod(t, r, "POST")
 

@@ -18,7 +18,7 @@ func TestJobsService_UnblockJob(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/unblock", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
   "id": "awesome-job-id",
   "state": "unblocked"
 }`)
@@ -43,7 +43,7 @@ func TestJobsService_RetryJob(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/retry", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PUT")
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
   "id": "awesome-job-id",
   "state": "scheduled",
   "retries_count": 1,
@@ -70,7 +70,7 @@ func TestJobsService_GetJobLog(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
   "url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sub-keith/builds/awesome-build/jobs/awesome-job-id/log",
   "content": "This is the job's log output",
 	"size": 28,
@@ -133,7 +133,7 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 			t.Errorf("json.Marshal(body) returned error: %v", err)
 		}
 
-		fmt.Fprint(w, string(bytes))
+		_, _ = fmt.Fprint(w, string(bytes))
 	})
 
 	jobEnvVars, _, err := client.Jobs.GetJobEnvironmentVariables(context.Background(), "my-great-org", "sup-keith", "15", "awesome-job-id")

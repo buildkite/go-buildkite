@@ -4,7 +4,7 @@ steps:
     command: .buildkite/steps/lint.sh
     plugins:
       - docker#v5.9.0:
-          image: "golangci/golangci-lint:v1.61-alpine"
+          image: "golangci/golangci-lint:v2.0-alpine"
 
   - name: ":go::test_tube: Test"
     key: test
@@ -12,7 +12,7 @@ steps:
     artifact_paths: junit-*.xml
     plugins:
       - docker#v5.9.0:
-          image: "golang:1.22"
+          image: "golang:1.24"
           propagate-environment: true
       - artifacts#v1.9.0:
           upload: "cover.{html,out}"

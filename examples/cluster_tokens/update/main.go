@@ -16,7 +16,6 @@ var (
 	clusterID      = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
 	tokenID        = kingpin.Flag("tokenID", "Cluster token UUID").Required().String()
 	newDescription = kingpin.Flag("description", "New description for the cluster token").Required().String()
-	debug          = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {

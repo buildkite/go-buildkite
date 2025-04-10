@@ -17,7 +17,7 @@ func TestTeamsService_ListTeamMembers(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123/members", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"user_id":"123"}]`)
+		_, _ = fmt.Fprint(w, `[{"user_id":"123"}]`)
 	})
 
 	members, _, err := client.TeamMember.ListTeamMembers(context.Background(), "my-great-org", "123", nil)
@@ -42,7 +42,7 @@ func TestTeamsService_ListTeamMembersPaginated(t *testing.T) {
 		testFormValues(t, r, values{
 			"page": "2",
 		})
-		fmt.Fprint(w, `[{"user_id":"123"},{"user_id":"456"}]`)
+		_, _ = fmt.Fprint(w, `[{"user_id":"123"},{"user_id":"456"}]`)
 	})
 
 	opt := &TeamMembersListOptions{
@@ -67,7 +67,7 @@ func TestTeamsService_GetTeamMember(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123/members/456", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"user_id":"456"}`)
+		_, _ = fmt.Fprint(w, `{"user_id":"456"}`)
 	})
 
 	member, err := client.TeamMember.GetTeamMember(context.Background(), "my-great-org", "123", "456")
@@ -89,7 +89,7 @@ func TestTeamsService_CreateTeamMember(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123/members", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		fmt.Fprint(w, `{"user_id":"456"}`)
+		_, _ = fmt.Fprint(w, `{"user_id":"456"}`)
 	})
 
 	createTeamMember := CreateTeamMember{UserID: "456"}
@@ -112,7 +112,7 @@ func TestTeamsService_UpdateTeamMember(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123/members/456", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-		fmt.Fprint(w, `{"user_id":"456"}`)
+		_, _ = fmt.Fprint(w, `{"user_id":"456"}`)
 	})
 
 	m, _, err := client.TeamMember.UpdateTeamMember(context.Background(), "my-great-org", "123", "456", "maintainer")

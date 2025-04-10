@@ -17,7 +17,6 @@ var (
 	org      = kingpin.Flag("org", "Orginization slug").Required().String()
 	slug     = kingpin.Flag("slug", "Test suite slug").Required().String()
 	runID    = kingpin.Flag("runID", "Test run ID").Required().String()
-	debug    = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
@@ -40,5 +39,5 @@ func main() {
 		log.Fatalf("json encode failed: %s", err)
 	}
 
-	fmt.Fprintf(os.Stdout, "%s", string(data))
+	_, _ = fmt.Fprintf(os.Stdout, "%s", string(data))
 }

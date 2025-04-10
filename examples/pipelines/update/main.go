@@ -15,7 +15,6 @@ var (
 	org            = kingpin.Flag("org", "Organization slug").Required().String()
 	pipelineSlug   = kingpin.Flag("pipeline", "Pipeline slug").Required().String()
 	newDescription = kingpin.Flag("description", "New pipeline description").Required().String()
-	debug          = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {

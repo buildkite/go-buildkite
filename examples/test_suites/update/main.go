@@ -15,7 +15,6 @@ var (
 	org              = kingpin.Flag("org", "Orginization slug").Required().String()
 	suite            = kingpin.Flag("suite", "Test suite slug").Required().String()
 	newDefaultBranch = kingpin.Flag("new-default-branch", "New default branch").String()
-	debug            = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {

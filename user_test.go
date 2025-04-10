@@ -17,7 +17,7 @@ func TestUserService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/user", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123","name":"Jane Doe","email":"jane@doe.com"}`)
 	})
 
 	user, _, err := client.User.CurrentUser(context.Background())

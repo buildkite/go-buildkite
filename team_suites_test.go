@@ -19,20 +19,20 @@ func TestTeamSuitesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/testorg/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/suites", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			[{
 				"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
-				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams", 
-				"access_level": ["read"], 
+				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams",
+				"access_level": ["read"],
 				"created_at": "2023-08-10T05:24:08.651Z"
-			}, 
+			},
 			{
-				"suite_id": "4569", 
-				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-and-sour", 
-				"access_level": ["read", "edit"], 
+				"suite_id": "4569",
+				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-and-sour",
+				"access_level": ["read", "edit"],
 				"created_at": "2023-08-10T05:24:08.663Z"
-			}]	 
+			}]
 			`)
 	})
 
@@ -72,12 +72,12 @@ func TestTeamSuitesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/testorg/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/suites/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
-				"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff", 
-				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams", 
-				"access_level": ["read"], 
+				"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams",
+				"access_level": ["read"],
 				"created_at": "2023-08-10T05:24:08.651Z"
 			}`)
 	})
@@ -124,10 +124,10 @@ func TestTeamSuitesService_Create(t *testing.T) {
 			t.Errorf("create Team Suites input diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w, `{ 
-			"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff", 
-			"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams", 
-			"access_level": ["read", "edit"], 
+		_, _ = fmt.Fprint(w, `{
+			"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+			"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams",
+			"access_level": ["read", "edit"],
 			"created_at": "2023-08-10T05:24:08.651Z"}`)
 	})
 
@@ -157,12 +157,12 @@ func TestTeamSuitesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/testorg/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/suites/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
-				"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff", 
-				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams", 
-				"access_level": ["read", "edit"], 
+				"suite_id": "1239d7f9-394a-4d99-badf-7c3d8577a8ff",
+				"suite_url": "https://api.buildkite.com/v2/analytics/organizations/testorg/suites/suite-dreams",
+				"access_level": ["read", "edit"],
 				"created_at": "2023-08-10T05:24:08.651Z"
 			}`)
 	})

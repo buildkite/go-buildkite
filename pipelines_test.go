@@ -18,7 +18,7 @@ func TestPipelinesService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	pipelines, _, err := client.Pipelines.List(context.Background(), "my-great-org", nil)
@@ -73,7 +73,7 @@ func TestPipelinesService_Create(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
 						"name":"my-great-pipeline",
 						"repository":"my-great-repo",
 						"steps": [
@@ -154,7 +154,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
 						"name":"my-great-pipeline",
 						"repository":"my-great-repo",
 						"configuration":"steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
@@ -211,7 +211,7 @@ func TestPipelinesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"id":"123",
+		_, _ = fmt.Fprint(w, `{"id":"123",
 						"slug":"my-great-pipeline-slug",
 						"timeout_in_minutes": "1",
 						"agent_query_rules": [
@@ -283,7 +283,7 @@ func TestPipelinesService_Update(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
 						"name":"my-great-pipeline",
 						"repository":"my-great-repo",
 						"steps": [
@@ -321,7 +321,7 @@ func TestPipelinesService_Update(t *testing.T) {
 
 		testMethod(t, r, "PATCH")
 
-		fmt.Fprint(w, `{
+		_, _ = fmt.Fprint(w, `{
 						"name":"derp",
 						"repository":"my-great-repo",
 						"steps": [

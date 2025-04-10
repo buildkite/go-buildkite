@@ -17,7 +17,6 @@ var (
 	pipeline     = kingpin.Flag("pipeline", "Pipeline slug").Required().String()
 	build        = kingpin.Flag("build", "Build Number slug").Required().String()
 	artifactName = kingpin.Flag("artifact", "Artifact to download").String()
-	debug        = kingpin.Flag("debug", "Enable debugging").Bool()
 )
 
 func main() {
@@ -42,7 +41,7 @@ func main() {
 				log.Fatalf("json encode failed: %s", err)
 			}
 
-			fmt.Fprintf(os.Stdout, "%s\n", string(data))
+			_, _ = fmt.Fprintf(os.Stdout, "%s\n", string(data))
 		} else {
 			if *artifactName == artifact.Filename || *artifactName == artifact.ID {
 				_, err := client.Artifacts.DownloadArtifactByURL(context.Background(), artifact.DownloadURL, os.Stdout)

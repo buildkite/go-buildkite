@@ -106,8 +106,8 @@ func TestValidatePayload(t *testing.T) {
 	const defaultBody = `{"event":"ping","service":{"id":"c9f8372d-c0cd-43dc-9274-768a875cf6ca","provider":"webhook","settings":{"url":"https://server.com/webhooks"}},"organization":{"id":"49801950-1df0-474f-bb56-ad6a930c5cb9","graphql_id":"T3JnYW5pemF0aW9uLS0tZTBmMzk3MgsTksGkxOWYtZTZjNzczZTJiYjEy","url":"https://api.buildkite.com/v2/organizations/acme-inc","web_url":"https://buildkite.com/acme-inc","name":"ACME Inc","slug":"acme-inc","agents_url":"https://api.buildkite.com/v2/organizations/acme-inc/agents","emojis_url":"https://api.buildkite.com/v2/organizations/acme-inc/emojis","created_at":"2021-02-03T20:34:10.486Z","pipelines_url":"https://api.buildkite.com/v2/organizations/acme-inc/pipelines"},"sender":{"id":"c9f8372d-c0cd-43dc-9269-bcbb7f308e3f","name":"ACME Man"}}`
 	const defaultSignature = "timestamp=1642080837,signature=582d496ac2d869dd97a3101c4cda346288c49a742592daf582ec64c86449f79c"
 	const errorDecodingSignature = "error decoding signature"
-	const invalidSignatureHeader = "X-Buildkite-Signature format is incorrect."
-	const missingSignatureHeader = "No X-Buildkite-Signature header present on request"
+	const invalidSignatureHeader = "X-Buildkite-Signature format is incorrect"
+	const missingSignatureHeader = "no X-Buildkite-Signature header present on request"
 	const payloadSignatureError = "payload signature check failed"
 	secretKey := []byte("29b1ff5779c76bd48ba6705eb99ff970")
 

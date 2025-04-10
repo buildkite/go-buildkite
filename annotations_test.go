@@ -19,7 +19,7 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{
+		_, _ = fmt.Fprint(w, `[{
 			"id": "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
 			"context": "default",
 			"style": "info",
@@ -91,7 +91,7 @@ func TestAnnotationsService_Create(t *testing.T) {
 			t.Errorf("Request body diff: (-got +want)\n%s", diff)
 		}
 
-		fmt.Fprint(w,
+		_, _ = fmt.Fprint(w,
 			`
 			{
 				"id": "68aef727-f754-48e1-aad8-5f5da8a9960c",

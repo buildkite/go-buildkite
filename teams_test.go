@@ -17,7 +17,7 @@ func TestTeamsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
 	})
 
 	teams, _, err := client.Teams.List(context.Background(), "my-great-org", nil)
@@ -42,7 +42,7 @@ func TestTeamsService_ListForUser(t *testing.T) {
 		testFormValues(t, r, values{
 			"user_id": "abc",
 		})
-		fmt.Fprint(w, `[{"id":"123"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123"}]`)
 	})
 
 	opt := &TeamsListOptions{UserID: "abc"}
@@ -65,7 +65,7 @@ func TestTeamsService_GetTeam(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	team, err := client.Teams.GetTeam(context.Background(), "my-great-org", "123")
@@ -87,7 +87,7 @@ func TestTeamsService_CreateTeam(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	team, _, err := client.Teams.CreateTeam(context.Background(), "my-great-org", CreateTeam{})
@@ -109,7 +109,7 @@ func TestTeamsService_UpdateTeam(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-		fmt.Fprint(w, `{"id":"123"}`)
+		_, _ = fmt.Fprint(w, `{"id":"123"}`)
 	})
 
 	team, _, err := client.Teams.UpdateTeam(context.Background(), "my-great-org", "123", CreateTeam{})
