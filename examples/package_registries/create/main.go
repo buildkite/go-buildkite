@@ -34,6 +34,7 @@ func main() {
 		OIDCPolicy: buildkite.PackageRegistryOIDCPolicy{
 			buildkite.OIDCPolicyStatement{
 				Issuer: "https://agent.buildkite.com",
+				Scopes: []string{"read_packages"},
 				Claims: map[string]buildkite.ClaimRule{
 					"pipeline_slug": {
 						Equals: "my-pipeline",

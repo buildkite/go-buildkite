@@ -40,6 +40,7 @@ type PackageRegistryOIDCPolicy []OIDCPolicyStatement
 
 type OIDCPolicyStatement struct {
 	Issuer string               `json:"iss"`
+	Scopes []string             `json:"scopes,omitzero"`
 	Claims map[string]ClaimRule `json:"claims"`
 }
 
