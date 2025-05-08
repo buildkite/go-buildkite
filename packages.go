@@ -40,3 +40,18 @@ func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySl
 
 	return p, resp, err
 }
+
+func (ps *PackagesService) Delete(ctx context.Context, organizationSlug, registrySlug, packageID string) (*Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s", organizationSlug, registrySlug, packageID)
+	req, err := ps.client.NewRequest(ctx, "DELETE", u, nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating DELETE package request: %w", err)
+	}
+
+	resp, err := ps.client.Do(req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
+}

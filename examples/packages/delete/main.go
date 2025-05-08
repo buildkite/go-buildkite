@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/buildkite/go-buildkite/v4"
@@ -25,15 +24,10 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pkg, _, err := client.PackagesService.Get(context.Background(), *org, *registrySlug, *packageID)
+	_, err = client.PackagesService.Delete(context.Background(), *org, *registrySlug, *packageID)
 	if err != nil {
-		log.Fatalf("Getting package %s failed: %s", *registrySlug, err)
+		log.Fatalf("deleting package %s failed: %s", *registrySlug, err)
 	}
 
-	data, err := json.MarshalIndent(pkg, "", "\t")
-	if err != nil {
-		log.Fatalf("json encode failed: %s", err)
-	}
-
-	log.Println(string(data))
+	log.Printf("Deleted package with ID %s\n", *packageID)
 }
