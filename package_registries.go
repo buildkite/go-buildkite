@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // PackageRegistriesService handles communication with the package registries related Buildkite APIs
@@ -126,6 +127,62 @@ func (rs *PackageRegistriesService) List(ctx context.Context, organizationSlug s
 	}
 
 	return prs, resp, err
+}
+
+type RegistryPackagesOptions struct {
+	Before  string `url:"before,omitempty"`
+	After   string `url:"after,omitempty"`
+	PerPage string `url:"per_page,omitempty"` // Should be a string of an int eg "50"
+}
+
+type RegistryPackagesLink string
+
+func (l RegistryPackagesLink) ToOptions() (*RegistryPackagesOptions, error) {
+	u, err := url.Parse(string(l))
+	if err != nil {
+		return nil, fmt.Errorf("parsing link: %w", err)
+	}
+
+	q := u.Query()
+
+	return &RegistryPackagesOptions{
+		Before:  q.Get("before"),
+		After:   q.Get("after"),
+		PerPage: q.Get("per_page"),
+	}, nil
+}
+
+type RegistryPackagesLinks struct {
+	First    RegistryPackagesLink `json:"first,omitempty"`
+	Previous RegistryPackagesLink `json:"prev,omitempty"`
+	Self     RegistryPackagesLink `json:"self,omitempty"`
+	Next     RegistryPackagesLink `json:"next,omitempty"`
+}
+
+type RegistryPackages struct {
+	Items []Package             `json:"items"`
+	Links RegistryPackagesLinks `json:"links"`
+}
+
+func (rs *PackageRegistriesService) ListPackages(ctx context.Context, organizationSlug, registrySlug string, opts *RegistryPackagesOptions) (RegistryPackages, *Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", organizationSlug, registrySlug)
+	u, err := addOptions(u, opts)
+	if err != nil {
+		return RegistryPackages{}, nil, fmt.Errorf("adding query params to path: %w", err)
+	}
+
+	req, err := rs.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return RegistryPackages{}, nil, fmt.Errorf("creating GET registry packages request: %w", err)
+	}
+
+	var packages RegistryPackages
+	resp, err := rs.client.Do(req, &packages)
+	if err != nil {
+		return RegistryPackages{}, resp, err
+	}
+
+	return packages, resp, nil
 }
 
 // Delete deletes a package registry for an organization

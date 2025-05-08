@@ -16,6 +16,9 @@ type PackagesService struct {
 type Package struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
+	Version      string          `json:"version"`
+	Variant      *string         `json:"variant"`
+	Metadata     map[string]any  `json:"metadata"`
 	URL          string          `json:"url"`
 	WebURL       string          `json:"web_url"`
 	Organization Organization    `json:"organization"`
