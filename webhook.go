@@ -113,7 +113,7 @@ func getTimestampAndSignature(sig string) (timestamp string, signature []byte, e
 	sigStr := strings.Split(sg, "=")[1]
 	signature, err = hex.DecodeString(sigStr)
 	if err != nil {
-		return "", nil, fmt.Errorf("error decoding signature %q: %v", sigStr, err)
+		return "", nil, fmt.Errorf("error decoding signature %q: %w", sigStr, err)
 	}
 
 	return timestamp, signature, nil
