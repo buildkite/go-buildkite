@@ -13,18 +13,18 @@ type PackageRegistriesService struct {
 
 // PackageRegistry represents a package registry within Buildkite
 type PackageRegistry struct {
-	ID          string `json:"id"`
-	GraphQLID   string `json:"graphql_id"`
-	Slug        string `json:"slug"`
-	URL         string `json:"url"`
-	WebURL      string `json:"web_url"`
-	Name        string `json:"name"`
-	Ecosystem   string `json:"ecosystem"`
-	Description string `json:"description"`
-	Emoji       string `json:"emoji"`
-	Color       string `json:"color"`
-	Public      bool   `json:"public"`
-	OIDCPolicy  string `json:"oidc_policy"`
+	ID          string `json:"id,omitempty"`
+	GraphQLID   string `json:"graphql_id,omitempty"`
+	Slug        string `json:"slug,omitempty"`
+	URL         string `json:"url,omitempty"`
+	WebURL      string `json:"web_url,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Ecosystem   string `json:"ecosystem,omitempty"`
+	Description string `json:"description,omitempty"`
+	Emoji       string `json:"emoji,omitempty"`
+	Color       string `json:"color,omitempty"`
+	Public      bool   `json:"public,omitempty"`
+	OIDCPolicy  string `json:"oidc_policy,omitempty"`
 }
 
 // CreatePackageRegistryInput represents the input to create a package registry.
