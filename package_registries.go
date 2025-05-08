@@ -57,7 +57,7 @@ func (rs *PackageRegistriesService) Create(ctx context.Context, organizationSlug
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries", organizationSlug)
 	req, err := rs.client.NewRequest(ctx, "POST", u, cpri)
 	if err != nil {
-		return PackageRegistry{}, nil, fmt.Errorf("creating POST package registry request: %v", err)
+		return PackageRegistry{}, nil, fmt.Errorf("creating POST package registry request: %w", err)
 	}
 
 	var pr PackageRegistry
@@ -82,7 +82,7 @@ func (rs *PackageRegistriesService) Update(ctx context.Context, organizationSlug
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s", organizationSlug, registrySlug)
 	req, err := rs.client.NewRequest(ctx, "PATCH", u, upri)
 	if err != nil {
-		return PackageRegistry{}, nil, fmt.Errorf("creating PATCH package registry request: %v", err)
+		return PackageRegistry{}, nil, fmt.Errorf("creating PATCH package registry request: %w", err)
 	}
 
 	var pr PackageRegistry
@@ -99,7 +99,7 @@ func (rs *PackageRegistriesService) Get(ctx context.Context, organizationSlug, r
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s", organizationSlug, registrySlug)
 	req, err := rs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
-		return PackageRegistry{}, nil, fmt.Errorf("creating GET package registry request: %v", err)
+		return PackageRegistry{}, nil, fmt.Errorf("creating GET package registry request: %w", err)
 	}
 
 	var pr PackageRegistry
@@ -116,7 +116,7 @@ func (rs *PackageRegistriesService) List(ctx context.Context, organizationSlug s
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries", organizationSlug)
 	req, err := rs.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("creating GET package registry request: %v", err)
+		return nil, nil, fmt.Errorf("creating GET package registry request: %w", err)
 	}
 
 	var prs []PackageRegistry
@@ -133,7 +133,7 @@ func (rs *PackageRegistriesService) Delete(ctx context.Context, organizationSlug
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s", organizationSlug, registrySlug)
 	req, err := rs.client.NewRequest(ctx, "DELETE", u, nil)
 	if err != nil {
-		return nil, fmt.Errorf("creating DELETE package registry request: %v", err)
+		return nil, fmt.Errorf("creating DELETE package registry request: %w", err)
 	}
 
 	resp, err := rs.client.Do(req, nil)

@@ -31,7 +31,7 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 		var err error
 		file, err = readIntoTempFile(cpi.Package, cpi.Filename)
 		if err != nil {
-			return Package{}, nil, fmt.Errorf("writing package to tempfile: %v", err)
+			return Package{}, nil, fmt.Errorf("writing package to tempfile: %w", err)
 		}
 
 		defer func() {
@@ -42,17 +42,17 @@ func (ps *PackagesService) Create(ctx context.Context, organizationSlug, registr
 
 	ppu, _, err := ps.RequestPresignedUpload(ctx, organizationSlug, registrySlug)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("requesting presigned upload: %v", err)
+		return Package{}, nil, fmt.Errorf("requesting presigned upload: %w", err)
 	}
 
 	s3URL, err := ppu.Perform(ctx, file)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("performing presigned upload: %v", err)
+		return Package{}, nil, fmt.Errorf("performing presigned upload: %w", err)
 	}
 
 	p, resp, err := ppu.Finalize(ctx, s3URL)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("finalizing package: %v", err)
+		return Package{}, nil, fmt.Errorf("finalizing package: %w", err)
 	}
 
 	return p, resp, nil
@@ -66,29 +66,29 @@ func readIntoTempFile(r io.Reader, filename string) (*os.File, error) {
 	basename := filepath.Base(filename)
 	f, err := os.CreateTemp("", basename)
 	if err != nil {
-		return nil, fmt.Errorf("creating temporary file: %v", err)
+		return nil, fmt.Errorf("creating temporary file: %w", err)
 	}
 
 	_, err = io.Copy(f, r)
 	if err != nil {
-		return nil, fmt.Errorf("writing to temporary file: %v", err)
+		return nil, fmt.Errorf("writing to temporary file: %w", err)
 	}
 
 	err = f.Close()
 	if err != nil {
-		return nil, fmt.Errorf("closing temporary file: %v", err)
+		return nil, fmt.Errorf("closing temporary file: %w", err)
 	}
 
 	// Rename the temporary file to the desired filename, which is important for Buildkite Package indexing
 	newFileName := filepath.Join(filepath.Dir(f.Name()), basename)
 	err = os.Rename(f.Name(), newFileName)
 	if err != nil {
-		return nil, fmt.Errorf("renaming temporary file: %v", err)
+		return nil, fmt.Errorf("renaming temporary file: %w", err)
 	}
 
 	f, err = os.Open(newFileName)
 	if err != nil {
-		return nil, fmt.Errorf("opening renamed file: %v", err)
+		return nil, fmt.Errorf("opening renamed file: %w", err)
 	}
 
 	return f, nil
@@ -117,13 +117,13 @@ func (ps *PackagesService) RequestPresignedUpload(ctx context.Context, organizat
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/upload", organizationSlug, registrySlug)
 	req, err := ps.client.NewRequest(ctx, "POST", url, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("creating POST presigned upload request: %v", err)
+		return nil, nil, fmt.Errorf("creating POST presigned upload request: %w", err)
 	}
 
 	var p *PackagePresignedUpload
 	resp, err := ps.client.Do(req, &p)
 	if err != nil {
-		return nil, resp, fmt.Errorf("executing POST presigned upload request: %v", err)
+		return nil, resp, fmt.Errorf("executing POST presigned upload request: %w", err)
 	}
 
 	p.bkClient = ps.client
@@ -146,18 +146,18 @@ func (ppu *PackagePresignedUpload) Perform(ctx context.Context, file *os.File) (
 	s := bkmultipart.NewStreamer()
 	err := s.WriteFields(ppu.Form.Data)
 	if err != nil {
-		return "", fmt.Errorf("writing form fields: %v", err)
+		return "", fmt.Errorf("writing form fields: %w", err)
 	}
 
 	err = s.WriteFile(ppu.Form.FileInput, file, baseFilePath)
 	if err != nil {
-		return "", fmt.Errorf("writing form file: %v", err)
+		return "", fmt.Errorf("writing form file: %w", err)
 	}
 
 	// note NOT using client.NewRequest here, as it'll add buildkite-specific stuff that we don't want
 	req, err := http.NewRequestWithContext(ctx, ppu.Form.Method, ppu.Form.URL, s.Reader())
 	if err != nil {
-		return "", fmt.Errorf("creating %s request: %v", ppu.Form.Method, err)
+		return "", fmt.Errorf("creating %s request: %w", ppu.Form.Method, err)
 	}
 
 	req.Header.Set("Content-Type", s.ContentType)
@@ -173,13 +173,13 @@ func (ppu *PackagePresignedUpload) Perform(ctx context.Context, file *os.File) (
 
 	resp, err := ppu.bkClient.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("executing %s request: %v", ppu.Form.Method, err)
+		return "", fmt.Errorf("executing %s request: %w", ppu.Form.Method, err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return "", fmt.Errorf("S3 rejected upload with unexpected status code %d. Error reading response body: %v", resp.StatusCode, err)
+			return "", fmt.Errorf("S3 rejected upload with unexpected status code %d. Error reading response body: %w", resp.StatusCode, err)
 		}
 
 		return "", fmt.Errorf("S3 rejected upload with unexpected status code %d. Response body %s", resp.StatusCode, string(body))
@@ -187,7 +187,7 @@ func (ppu *PackagePresignedUpload) Perform(ctx context.Context, file *os.File) (
 
 	uploadPath, err := url.JoinPath(ppu.Form.URL, strings.ReplaceAll(ppu.Form.Data["key"], "${filename}", baseFilePath))
 	if err != nil {
-		return "", fmt.Errorf("joining URL path: %v", err)
+		return "", fmt.Errorf("joining URL path: %w", err)
 	}
 
 	return uploadPath, nil
@@ -198,13 +198,13 @@ func (ppu *PackagePresignedUpload) Finalize(ctx context.Context, s3URL string) (
 	s := bkmultipart.NewStreamer()
 	err := s.WriteField("package_url", s3URL)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("writing package_url field: %v", err)
+		return Package{}, nil, fmt.Errorf("writing package_url field: %w", err)
 	}
 
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages", ppu.OrganizationSlug, ppu.RegistrySlug)
 	req, err := ppu.bkClient.NewRequest(ctx, "POST", url, s.Reader())
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("creating POST package request: %v", err)
+		return Package{}, nil, fmt.Errorf("creating POST package request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", s.ContentType)
@@ -213,7 +213,7 @@ func (ppu *PackagePresignedUpload) Finalize(ctx context.Context, s3URL string) (
 	var p Package
 	resp, err := ppu.bkClient.Do(req, &p)
 	if err != nil {
-		return Package{}, resp, fmt.Errorf("executing POST package request: %v", err)
+		return Package{}, resp, fmt.Errorf("executing POST package request: %w", err)
 	}
 
 	return p, resp, err

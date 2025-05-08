@@ -26,13 +26,13 @@ func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySl
 	url := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s", organizationSlug, registrySlug, packageID)
 	req, err := ps.client.NewRequest(ctx, "GET", url, nil)
 	if err != nil {
-		return Package{}, nil, fmt.Errorf("creating GET package request: %v", err)
+		return Package{}, nil, fmt.Errorf("creating GET package request: %w", err)
 	}
 
 	var p Package
 	resp, err := ps.client.Do(req, &p)
 	if err != nil {
-		return Package{}, resp, fmt.Errorf("executing GET package request: %v", err)
+		return Package{}, resp, fmt.Errorf("executing GET package request: %w", err)
 	}
 
 	return p, resp, err
