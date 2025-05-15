@@ -66,11 +66,12 @@ type Client struct {
 	httpDebug  bool
 }
 
-type clientOpt func(*Client) error
+// ClientOpt is a function that configures a Client.
+type ClientOpt func(*Client) error
 
 // WithHTTPClient configures the buildkite.Client to use the provided http.Client. This can be used to
 // customise the client's transport (e.g. to use a custom TLS configuration) or to provide a mock client
-func WithHTTPClient(client *http.Client) clientOpt {
+func WithHTTPClient(client *http.Client) ClientOpt {
 	return func(c *Client) error {
 		c.client = client
 		return nil
@@ -78,7 +79,7 @@ func WithHTTPClient(client *http.Client) clientOpt {
 }
 
 // WithBaseURL configures the buildkite.Client to use the provided base URL, instead of the default of https://api.buildkite.com/
-func WithBaseURL(baseURL string) clientOpt {
+func WithBaseURL(baseURL string) ClientOpt {
 	return func(c *Client) error {
 		var err error
 		c.BaseURL, err = url.Parse(baseURL)
@@ -91,7 +92,7 @@ func WithBaseURL(baseURL string) clientOpt {
 }
 
 // WithUserAgent configures the buildkite.Client to use the provided user agent string, instead of the default of "go-buildkite/<version>"
-func WithUserAgent(userAgent string) clientOpt {
+func WithUserAgent(userAgent string) ClientOpt {
 	return func(c *Client) error {
 		c.UserAgent = userAgent
 		return nil
@@ -101,7 +102,7 @@ func WithUserAgent(userAgent string) clientOpt {
 // WithTokenAuth configures the buildkite.Client to use the provided token for authentication.
 // This is the recommended way to authenticate with the buildkite API
 // Note that at least one of [WithTokenAuth] or [WithBasicAuth] must be provided to NewOpts
-func WithTokenAuth(token string) clientOpt {
+func WithTokenAuth(token string) ClientOpt {
 	return func(c *Client) error {
 		c.authHeader = fmt.Sprintf("Bearer %s", token)
 		return nil
@@ -109,7 +110,7 @@ func WithTokenAuth(token string) clientOpt {
 }
 
 // WithHTTPDebug configures the buildkite.Client to print debug information about HTTP requests and responses as it makes them
-func WithHTTPDebug(debug bool) clientOpt {
+func WithHTTPDebug(debug bool) ClientOpt {
 	return func(c *Client) error {
 		c.httpDebug = debug
 		return nil
@@ -119,7 +120,7 @@ func WithHTTPDebug(debug bool) clientOpt {
 // NewClient returns a new buildkite API client with the provided options.
 // Note that at [WithTokenAuth] must be provided for requests to the buildkite API to succeed.
 // Otherwise, sensible defaults are used.
-func NewClient(opts ...clientOpt) (*Client, error) {
+func NewClient(opts ...ClientOpt) (*Client, error) {
 	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
@@ -141,7 +142,7 @@ func NewClient(opts ...clientOpt) (*Client, error) {
 }
 
 // NewOpts is an alias for NewClient
-func NewOpts(opts ...clientOpt) (*Client, error) {
+func NewOpts(opts ...ClientOpt) (*Client, error) {
 	return NewClient(opts...)
 }
 
