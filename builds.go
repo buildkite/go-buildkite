@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"time"
@@ -20,6 +21,20 @@ type Author struct {
 	Username string `json:"username,omitempty"`
 	Name     string `json:"name,omitempty"`
 	Email    string `json:"email,omitempty"`
+}
+
+func (a *Author) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as simple string first
+	var email string
+	if err := json.Unmarshal(data, &email); err == nil {
+		a.Email = email
+		return nil
+	}
+
+	// Otherwise unmarshal as object using an anonymous struct to avoid recursion
+	type authorAlias Author
+	aux := (*authorAlias)(a)
+	return json.Unmarshal(data, aux)
 }
 
 // CreateBuild - Create a build.
