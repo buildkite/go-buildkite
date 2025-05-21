@@ -418,3 +418,86 @@ func TestBuildService_Create(t *testing.T) {
 		t.Fatalf("Builds.Create diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestJSONUnMarshallBuild(t *testing.T) {
+	t.Parallel()
+
+	// a test table of build JSON strings and their expected build struct
+	tests := []struct {
+		name   string
+		json   string
+		expect Build
+	}{
+		{
+			name: "basic build with author info",
+			json: `{
+				"id": "123",
+				"state": "running",
+				"blocked": false,
+				"message": "Hello, world!",
+				"commit": "HEAD",
+				"branch": "main",
+				"source": "ui",
+				"author": {
+					"username": "foojim",
+					"name": "Uhh, Jim",
+					"email": "foojim@example.com"
+				}
+		}`,
+			expect: Build{
+				ID:      "123",
+				State:   "running",
+				Blocked: false,
+				Message: "Hello, world!",
+				Commit:  "HEAD",
+				Branch:  "main",
+				Source:  "ui",
+				Author: Author{
+					Email:    "foojim@example.com",
+					Name:     "Uhh, Jim",
+					Username: "foojim",
+				},
+			},
+		},
+		{
+			name: "basic build with author email string",
+			json: `{
+				"id": "123",
+				"state": "running",
+				"blocked": false,
+				"message": "Hello, world!",
+				"commit": "HEAD",
+				"branch": "main",
+				"source": "ui",
+				"author": "foojim@example.com"
+		}`,
+			expect: Build{
+				ID:      "123",
+				State:   "running",
+				Blocked: false,
+				Message: "Hello, world!",
+				Commit:  "HEAD",
+				Branch:  "main",
+				Source:  "ui",
+				Author: Author{
+					Email: "foojim@example.com",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			var b Build
+			if err := json.Unmarshal([]byte(test.json), &b); err != nil {
+				t.Fatalf("could not unmarshal: %v", err)
+			}
+
+			if diff := cmp.Diff(b, test.expect); diff != "" {
+				t.Fatalf("Build diff: (-got +want)\n%s", diff)
+			}
+		})
+	}
+}
