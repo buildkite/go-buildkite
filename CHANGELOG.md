@@ -1,3 +1,12 @@
+## [v4.1.1](https://github.com/buildkite/go-buildkite/compare/v4.1.0...v4.1.1) (2025-05-21) 
+
+* Fix for build author either being a string or a structure [#218](https://github.com/buildkite/go-buildkite/pull/218) ([wolfeidau](https://github.com/wolfeidau))
+* List registry packages + delete packages [#216](https://github.com/buildkite/go-buildkite/pull/216) ([moskyb](https://github.com/moskyb))
+* Add OIDC policy scopes [#214](https://github.com/buildkite/go-buildkite/pull/214) ([moskyb](https://github.com/moskyb))
+* Upgrade Go to 1.24 [#215](https://github.com/buildkite/go-buildkite/pull/215) ([moskyb](https://github.com/moskyb))
+* fix: fixes gitlab enterprise which appears in webhooks [#213](https://github.com/buildkite/go-buildkite/pull/213) ([mtibben](https://github.com/mtibben))
+* Update golang.org/x/net [#210](https://github.com/buildkite/go-buildkite/pull/210) ([yob](https://github.com/yob))
+* Don't use omitempty for bool fields [#209](https://github.com/buildkite/go-buildkite/pull/209) ([moskyb](https://github.com/moskyb))
 
 ## [v4.1.0](https://github.com/buildkite/go-buildkite/compare/v4.0.1...v4.1.0) (2024-11-06)
 
