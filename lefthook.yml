@@ -1,0 +1,8 @@
+pre-commit:
+  commands:
+    gofmt:
+      glob: "*.go"
+      run: gofmt -s -w .
+    gomodtidy:
+      glob: "*.go"
+      run: go mod tidy
