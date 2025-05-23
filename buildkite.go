@@ -21,9 +21,11 @@ import (
 )
 
 const (
-	DefaultBaseURL   = "https://api.buildkite.com/"
-	DefaultUserAgent = "go-buildkite/" + Version
+	DefaultBaseURL = "https://api.buildkite.com/"
 )
+
+// DefaultUserAgent is the default user agent used for API requests
+var DefaultUserAgent = "go-buildkite/" + Version
 
 // Client - A Client manages communication with the buildkite API.
 type Client struct {
