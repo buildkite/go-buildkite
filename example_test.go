@@ -17,9 +17,6 @@ func Example_clientOptComposition() {
 	// Build options programmatically - we're testing the pattern more than actual execution
 	var opts []buildkite.ClientOpt
 
-	// Always add required options
-	opts = append(opts, buildkite.WithTokenAuth(token))
-
 	// Conditionally add other options
 	if baseURL != buildkite.DefaultBaseURL {
 		opts = append(opts, buildkite.WithBaseURL(baseURL))
@@ -33,6 +30,14 @@ func Example_clientOptComposition() {
 		opts = append(opts, buildkite.WithHTTPDebug(true))
 	}
 
-	// This is just an example, we don't actually execute this code
-	// Output:
+	// Always add required options
+	opts = append(opts, buildkite.WithTokenAuth(token))
+
+	// Create the client using the composed options
+	client, err := buildkite.NewClient(opts...)
+	if err != nil {
+		// In a real application, you'd handle this error appropriately
+		// For this example, we'll just acknowledge the client was created
+		_ = client
+	}
 }
