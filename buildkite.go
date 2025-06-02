@@ -73,6 +73,7 @@ type ClientOpt func(*Client) error
 
 // clientOpt is deprecated and will be removed in a future version.
 // It is an alias for ClientOpt for backward compatibility.
+//
 //nolint:unused // used to ensure no major release needed
 type clientOpt = ClientOpt
 
