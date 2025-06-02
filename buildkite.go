@@ -73,6 +73,7 @@ type ClientOpt func(*Client) error
 
 // clientOpt is deprecated and will be removed in a future version.
 // It is an alias for ClientOpt for backward compatibility.
+//nolint:unused // used to ensure no major release needed
 type clientOpt = ClientOpt
 
 // WithHTTPClient configures the buildkite.Client to use the provided http.Client. This can be used to
@@ -297,7 +298,6 @@ func (r *Response) populatePageValues() {
 				case `rel="last"`:
 					r.LastPage, _ = strconv.Atoi(page)
 				}
-
 			}
 		}
 	}
