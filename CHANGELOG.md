@@ -1,4 +1,9 @@
-## [v4.1.1](https://github.com/buildkite/go-buildkite/compare/v4.1.0...v4.1.1) (2025-05-21) 
+## [v4.2.0](https://github.com/buildkite/go-buildkite/compare/v4.1.1...v4.2.0) (2025-06-03)
+
+* Export ClientOpt type for programmatic option composition [#217](https://github.com/buildkite/go-buildkite/pull/217) ([prateek](https://github.com/prateek))
+* chore(release): CHANGELOG entries for new version [#220](https://github.com/buildkite/go-buildkite/pull/220) ([mcncl](https://github.com/mcncl))
+
+## [v4.1.1](https://github.com/buildkite/go-buildkite/compare/v4.1.0...v4.1.1) (2025-05-21)
 
 * Fix for build author either being a string or a structure [#218](https://github.com/buildkite/go-buildkite/pull/218) ([wolfeidau](https://github.com/wolfeidau))
 * List registry packages + delete packages [#216](https://github.com/buildkite/go-buildkite/pull/216) ([moskyb](https://github.com/moskyb))
