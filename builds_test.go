@@ -540,6 +540,49 @@ func TestJSONUnMarshallBuild(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "build with test engine run ids",
+			json: `{
+				"id": "456",
+				"state": "passed",
+				"blocked": false,
+				"message": "Test run",
+				"commit": "abc123",
+				"branch": "main",
+				"source": "api",
+				"test_engine": {
+					"runs": [
+						{
+							"id": "2fd5c15a-a3a6-45ab-b1b2-6ea59616c1cf",
+							"suite": {
+								"id": "b1c349b6-c7d6-4633-8941-7e615459c03d",
+								"slug": "banana"
+							}
+						}
+					]
+				}
+		}`,
+			expect: Build{
+				ID:      "456",
+				State:   "passed",
+				Blocked: false,
+				Message: "Test run",
+				Commit:  "abc123",
+				Branch:  "main",
+				Source:  "api",
+				TestEngine: &TestEngineProperty{
+					Runs: []TestEngineRun{
+						{
+							ID: "2fd5c15a-a3a6-45ab-b1b2-6ea59616c1cf",
+							Suite: TestEngineSuite{
+								ID:   "b1c349b6-c7d6-4633-8941-7e615459c03d",
+								Slug: "banana",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
