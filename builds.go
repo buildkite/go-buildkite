@@ -168,6 +168,12 @@ type BuildsListOptions struct {
 	// Filters results by metadata.
 	MetaData MetaDataFilters `url:"meta_data,omitempty"`
 
+	// Exclude jobs from the API response
+	ExcludeJobs bool `url:"exclude_jobs,omitempty"`
+
+	// Exclude pipeline data from the API response
+	ExcludePipeline bool `url:"exclude_pipeline,omitempty"`
+
 	ListOptions
 }
 
