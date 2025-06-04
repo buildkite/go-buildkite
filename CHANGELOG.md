@@ -1,3 +1,7 @@
+## [v4.3.0](https://github.com/buildkite/go-buildkite/compare/v4.2.0...v4.3.0) (2025-06-04)
+
+* Add support for excluding jobs and pipeline data from List Builds [#225](https://github.com/buildkite/go-buildkite/pull/225) ([blaknite](https://github.com/blaknite))
+
 ## [v4.2.0](https://github.com/buildkite/go-buildkite/compare/v4.1.1...v4.2.0) (2025-06-03)
 
 * Export ClientOpt type for programmatic option composition [#217](https://github.com/buildkite/go-buildkite/pull/217) ([prateek](https://github.com/prateek))
