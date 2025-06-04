@@ -27,7 +27,9 @@ func TestTestRunsService_List(t *testing.T) {
 					"web_url": "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4",
 					"branch": "main",
 					"commit_sha": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
-					"created_at": "2023-05-20T10:25:50.264Z"
+					"created_at": "2023-05-20T10:25:50.264Z",
+					"state": "finished",
+					"result": "passed"
 				},
 				{
 					"id": "70fe7e45-c9e4-446b-95e3-c50d61519b87",
@@ -35,13 +37,14 @@ func TestTestRunsService_List(t *testing.T) {
 					"web_url": "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/70fe7e45-c9e4-446b-95e3-c50d61519b87",
 					"branch": "main",
 					"commit_sha": "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
-					"created_at": "2023-05-20T10:52:22.254Z"
+					"created_at": "2023-05-20T10:52:22.254Z",
+					"state": "running",
+					"result": "pending"
 				}
 			]`)
 	})
 
 	runs, _, err := client.TestRuns.List(context.Background(), "my-great-org", "suite-example", nil)
-
 	if err != nil {
 		t.Errorf("TestSuites.List returned error: %v", err)
 	}
@@ -62,6 +65,8 @@ func TestTestRunsService_List(t *testing.T) {
 			Branch:    "main",
 			CommitSHA: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
 			CreatedAt: NewTimestamp(parsedTime1),
+			State:     "finished",
+			Result:    "passed",
 		},
 		{
 			ID:        "70fe7e45-c9e4-446b-95e3-c50d61519b87",
@@ -70,6 +75,8 @@ func TestTestRunsService_List(t *testing.T) {
 			Branch:    "main",
 			CommitSHA: "109f4b3c50d7b0df729d299bc6f8e9ef9066971f",
 			CreatedAt: NewTimestamp(parsedTime2),
+			State:     "running",
+			Result:    "pending",
 		},
 	}
 
@@ -94,7 +101,9 @@ func TestTestRunsService_Get(t *testing.T) {
 				"web_url": "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4",
 				"branch": "main",
 				"commit_sha": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
-				"created_at": "2023-05-20T10:25:50.264Z"
+				"created_at": "2023-05-20T10:25:50.264Z",
+				"state": "finished",
+				"result": "failed"
 			}`)
 	})
 
@@ -116,6 +125,8 @@ func TestTestRunsService_Get(t *testing.T) {
 		Branch:    "main",
 		CommitSHA: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
 		CreatedAt: NewTimestamp(parsedTime),
+		State:     "finished",
+		Result:    "failed",
 	}
 
 	if diff := cmp.Diff(run, want); diff != "" {
