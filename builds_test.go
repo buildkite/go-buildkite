@@ -326,6 +326,62 @@ func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 	}
 }
 
+func TestBuildsService_List_with_exclude_jobs(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"exclude_jobs": "true",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+	})
+
+	opt := &BuildsListOptions{
+		ExcludeJobs: true,
+	}
+	builds, _, err := client.Builds.List(context.Background(), opt)
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: "123"}, {ID: "1234"}}
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestBuildsService_List_with_exclude_pipeline(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"exclude_pipeline": "true",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+	})
+
+	opt := &BuildsListOptions{
+		ExcludePipeline: true,
+	}
+	builds, _, err := client.Builds.List(context.Background(), opt)
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: "123"}, {ID: "1234"}}
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestBuildsService_ListByPipeline(t *testing.T) {
 	t.Parallel()
 
