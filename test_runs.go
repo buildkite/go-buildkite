@@ -20,6 +20,8 @@ type TestRun struct {
 	Branch    string     `json:"branch,omitempty"`
 	CommitSHA string     `json:"commit_sha,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
+	State     string     `json:"state,omitempty"`
+	Result    string     `json:"result,omitempty"`
 }
 
 type FailureExpanded struct {
