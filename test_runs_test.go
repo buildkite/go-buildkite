@@ -122,3 +122,69 @@ func TestTestRunsService_Get(t *testing.T) {
 		t.Errorf("TestRuns.Get diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestTestRunsService_GetFailedExecutions(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/runs/3c90a8ad-8e86-4e78-87b4-acae5e808de4/failed_executions", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		_, _ = fmt.Fprint(w,
+			`
+			[
+				{
+					"execution_id": "60f0e64c-ae4b-870e-b41f-5431205caf06",
+					"run_id": "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+					"test_id": "f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
+					"run_name": "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+					"commit_sha": "1c3214fcceb2c14579a2c3c50cd78f1442fd8936",
+					"created_at": "2025-02-03T05:32:53.228Z",
+					"branch": "main",
+					"failure_reason": "it didn't work",
+					"duration": 3.79073,
+					"location": "./spec/models/user.rb:23",
+					"test_name": "Deploy should be available",
+					"run_url": "https://buildkite.com/organizations/buildkite/analytics/suites/my-test-suite/runs/075bbcd9-662c-86f5-9d40-adfa6549eff1",
+					"test_url": "https://buildkite.com/organizations/buildkite/analytics/suites/my-test-suite/tests/f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
+					"test_execution_url": "https://buildkite.com/organizations/buildkite/analytics/suites/my-test-suite/tests/f6cb6c43-df94-8b60-81ed-14f9db7bbfd8?execution_id=60f0e64c-ae4b-870e-b41f-5431205caf06"
+				}
+			]`)
+	})
+
+	failedExecutions, _, err := client.TestRuns.GetFailedExecutions(context.Background(), "my-great-org", "suite-example", "3c90a8ad-8e86-4e78-87b4-acae5e808de4")
+
+	if err != nil {
+		t.Errorf("TestRuns.GetFailedExecutions returned error: %v", err)
+	}
+
+	// Create Time instance from string in BuildKiteDateFormat friendly format
+	parsedTime, err := time.Parse(BuildKiteDateFormat, "2025-02-03T05:32:53.228Z")
+	if err != nil {
+		t.Errorf("TestRuns.GetFailedExecutions time.Parse error: %v", err)
+	}
+
+	want := []FailedExecution{
+		{
+			ExecutionID:      "60f0e64c-ae4b-870e-b41f-5431205caf06",
+			RunID:            "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			TestID:           "f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
+			RunName:          "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			CommitSHA:        "1c3214fcceb2c14579a2c3c50cd78f1442fd8936",
+			CreatedAt:        NewTimestamp(parsedTime),
+			Branch:           "main",
+			FailureReason:    "it didn't work",
+			Duration:         3.79073,
+			Location:         "./spec/models/user.rb:23",
+			TestName:         "Deploy should be available",
+			RunURL:           "https://buildkite.com/organizations/buildkite/analytics/suites/my-test-suite/runs/075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			TestURL:          "https://buildkite.com/organizations/buildkite/analytics/suites/my-test-suite/tests/f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
+			TestExecutionURL: "https://buildkite.com/organizations/buildkite/analytics/suites/my-test-suite/tests/f6cb6c43-df94-8b60-81ed-14f9db7bbfd8?execution_id=60f0e64c-ae4b-870e-b41f-5431205caf06",
+		},
+	}
+
+	if diff := cmp.Diff(failedExecutions, want); diff != "" {
+		t.Errorf("TestRuns.GetFailedExecutions diff: (-got +want)\n%s", diff)
+	}
+}
