@@ -143,17 +143,6 @@ func TestTestRunsService_GetFailedExecutions(t *testing.T) {
 					"created_at": "2025-02-03T05:32:53.228Z",
 					"branch": "main",
 					"failure_reason": "it didn't work",
-					"failure_expanded": [
-						{
-							"backtrace": [
-								"./spec/models/user.rb:23:in 'block (2 levels) in <top (required)>'"
-							],
-							"expanded": [
-								"RuntimeError:",
-								"it didn't work"
-							]
-						}
-					],
 					"duration": 3.79073,
 					"location": "./spec/models/user.rb:23",
 					"test_name": "Deploy should be available",
@@ -178,20 +167,14 @@ func TestTestRunsService_GetFailedExecutions(t *testing.T) {
 
 	want := []FailedExecution{
 		{
-			ExecutionID:   "60f0e64c-ae4b-870e-b41f-5431205caf06",
-			RunID:         "075bbcd9-662c-86f5-9d40-adfa6549eff1",
-			TestID:        "f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
-			RunName:       "075bbcd9-662c-86f5-9d40-adfa6549eff1",
-			CommitSHA:     "1c3214fcceb2c14579a2c3c50cd78f1442fd8936",
-			CreatedAt:     NewTimestamp(parsedTime),
-			Branch:        "main",
-			FailureReason: "it didn't work",
-			FailureExpanded: []FailureExpanded{
-				{
-					Backtrace: []string{"./spec/models/user.rb:23:in 'block (2 levels) in <top (required)>'"},
-					Expanded:  []string{"RuntimeError:", "it didn't work"},
-				},
-			},
+			ExecutionID:      "60f0e64c-ae4b-870e-b41f-5431205caf06",
+			RunID:            "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			TestID:           "f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
+			RunName:          "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			CommitSHA:        "1c3214fcceb2c14579a2c3c50cd78f1442fd8936",
+			CreatedAt:        NewTimestamp(parsedTime),
+			Branch:           "main",
+			FailureReason:    "it didn't work",
 			Duration:         3.79073,
 			Location:         "./spec/models/user.rb:23",
 			TestName:         "Deploy should be available",
@@ -232,6 +215,17 @@ func TestTestRunsService_GetFailedExecutions_WithFailureExpanded(t *testing.T) {
 					"created_at": "2025-02-03T05:32:53.228Z",
 					"branch": "main",
 					"failure_reason": "it didn't work",
+					"failure_expanded": [
+						{
+							"backtrace": [
+								"./spec/models/user.rb:23:in 'block (2 levels) in <top (required)>'"
+							],
+							"expanded": [
+								"RuntimeError:",
+								"it didn't work"
+							]
+						}
+					],
 					"duration": 3.79073,
 					"location": "./spec/models/user.rb:23",
 					"test_name": "Deploy should be available",
@@ -260,14 +254,20 @@ func TestTestRunsService_GetFailedExecutions_WithFailureExpanded(t *testing.T) {
 
 	want := []FailedExecution{
 		{
-			ExecutionID:      "60f0e64c-ae4b-870e-b41f-5431205caf06",
-			RunID:            "075bbcd9-662c-86f5-9d40-adfa6549eff1",
-			TestID:           "f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
-			RunName:          "075bbcd9-662c-86f5-9d40-adfa6549eff1",
-			CommitSHA:        "1c3214fcceb2c14579a2c3c50cd78f1442fd8936",
-			CreatedAt:        NewTimestamp(parsedTime),
-			Branch:           "main",
-			FailureReason:    "it didn't work",
+			ExecutionID:   "60f0e64c-ae4b-870e-b41f-5431205caf06",
+			RunID:         "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			TestID:        "f6cb6c43-df94-8b60-81ed-14f9db7bbfd8",
+			RunName:       "075bbcd9-662c-86f5-9d40-adfa6549eff1",
+			CommitSHA:     "1c3214fcceb2c14579a2c3c50cd78f1442fd8936",
+			CreatedAt:     NewTimestamp(parsedTime),
+			Branch:        "main",
+			FailureReason: "it didn't work",
+			FailureExpanded: []FailureExpanded{
+				{
+					Backtrace: []string{"./spec/models/user.rb:23:in 'block (2 levels) in <top (required)>'"},
+					Expanded:  []string{"RuntimeError:", "it didn't work"},
+				},
+			},
 			Duration:         3.79073,
 			Location:         "./spec/models/user.rb:23",
 			TestName:         "Deploy should be available",
