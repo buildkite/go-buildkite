@@ -1,3 +1,12 @@
+## [v4.4.0](https://github.com/buildkite/go-buildkite/compare/v4.3.0...v4.4.0) (2025-06-05)
+
+* Fix tests being backwards [#233](https://github.com/buildkite/go-buildkite/pull/233) ([blaknite](https://github.com/blaknite))
+* feat: add run result to test runs [#228](https://github.com/buildkite/go-buildkite/pull/228) ([mcncl](https://github.com/mcncl))
+* Allow fetching optional failure_expanded from failed_executions API [#232](https://github.com/buildkite/go-buildkite/pull/232) ([blaknite](https://github.com/blaknite))
+* Account for fetching test engine data with an optional param [#231](https://github.com/buildkite/go-buildkite/pull/231) ([blaknite](https://github.com/blaknite))
+* Add support for test engine run ids [#229](https://github.com/buildkite/go-buildkite/pull/229) ([blaknite](https://github.com/blaknite))
+* Add support for getting failed executions [#230](https://github.com/buildkite/go-buildkite/pull/230) ([blaknite](https://github.com/blaknite))
+
 ## [v4.3.0](https://github.com/buildkite/go-buildkite/compare/v4.2.0...v4.3.0) (2025-06-04)
 
 * Add support for excluding jobs and pipeline data from List Builds [#225](https://github.com/buildkite/go-buildkite/pull/225) ([blaknite](https://github.com/blaknite))
