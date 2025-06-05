@@ -171,6 +171,13 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
+type BuildGetOptions struct {
+	BuildsListOptions
+
+	// Include Test Engine data
+	IncludeTestEngine bool `url:"include_test_engine,omitempty"`
+}
+
 // Cancel - Trigger a cancel for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#cancel-a-build
@@ -212,7 +219,7 @@ func (bs *BuildsService) Create(ctx context.Context, org string, pipeline string
 // Get fetches a build.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
-func (bs *BuildsService) Get(ctx context.Context, org string, pipeline string, id string, opt *BuildsListOptions) (Build, *Response, error) {
+func (bs *BuildsService) Get(ctx context.Context, org string, pipeline string, id string, opt *BuildGetOptions) (Build, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
 
 	u, err := addOptions(u, opt)
