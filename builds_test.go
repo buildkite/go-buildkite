@@ -146,6 +146,65 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (manual job) diff: (-got +want)\n%s", diff)
 		}
 	})
+
+	t.Run("includes test engine data when option is set", func(t *testing.T) {
+		t.Parallel()
+
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+
+		server.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, values{
+					"include_test_engine": "true",
+				})
+				_, _ = fmt.Fprintf(w, `{"id":"%s"}`, buildNumber)
+			})
+
+		opt := &BuildGetOptions{
+			IncludeTestEngine: true,
+		}
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, opt)
+		if err != nil {
+			t.Errorf("Builds.Get (include test engine) returned error: %v", err)
+		}
+
+		want := Build{ID: buildNumber}
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (include test engine) diff: (-got +want)\n%s", diff)
+		}
+	})
+
+	t.Run("does not include test engine parameter when option is false", func(t *testing.T) {
+		t.Parallel()
+
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+
+		server.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				// Verify that include_test_engine is not in the query parameters
+				if r.URL.Query().Get("include_test_engine") != "" {
+					t.Errorf("Expected include_test_engine to not be present when false, but got: %s", r.URL.Query().Get("include_test_engine"))
+				}
+				_, _ = fmt.Fprintf(w, `{"id":"%s"}`, buildNumber)
+			})
+
+		opt := &BuildGetOptions{
+			IncludeTestEngine: false,
+		}
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, opt)
+		if err != nil {
+			t.Errorf("Builds.Get (exclude test engine) returned error: %v", err)
+		}
+
+		want := Build{ID: buildNumber}
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (exclude test engine) diff: (-got +want)\n%s", diff)
+		}
+	})
 }
 
 func TestBuildsService_List_by_status(t *testing.T) {
