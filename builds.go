@@ -83,6 +83,20 @@ type TriggeredFrom struct {
 	BuildPipelineSlug string `json:"build_pipeline_slug,omitempty"`
 }
 
+type TestEngineSuite struct {
+	ID   string `json:"id,omitempty"`
+	Slug string `json:"slug,omitempty"`
+}
+
+type TestEngineRun struct {
+	ID    string          `json:"id,omitempty"`
+	Suite TestEngineSuite `json:"suite"`
+}
+
+type TestEngineProperty struct {
+	Runs []TestEngineRun `json:"runs,omitempty"`
+}
+
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          string                 `json:"id,omitempty"`
@@ -120,6 +134,8 @@ type Build struct {
 	// the build that this build is triggered from
 	// https://buildkite.com/docs/pipelines/trigger-step
 	TriggeredFrom *TriggeredFrom `json:"triggered_from,omitempty"`
+
+	TestEngine *TestEngineProperty `json:"test_engine,omitempty"`
 }
 
 type MetaDataFilters struct {
