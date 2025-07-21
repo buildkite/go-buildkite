@@ -9,8 +9,14 @@ type AccessTokensService struct {
 }
 
 type AccessToken struct {
-	UUID   string   `json:"uuid,omitempty"`
-	Scopes []string `json:"scopes,omitempty"`
+	UUID        string     `json:"uuid"`        // The token's UUID
+	Scopes      []string   `json:"scopes"`      // The scopes the token has access to
+	Description string     `json:"description"` // A description for the access token
+	CreatedAt   *Timestamp `json:"created_at"`  // The date and time the access token was created
+	User        struct {
+		Name  string `json:"name"`  // The name of the user who the access token belongs to
+		Email string `json:"email"` // The email of the user who the access token belongs to
+	} `json:"user"` // The user who created the access token
 }
 
 // Get gets the current token which was used to authenticate the request
