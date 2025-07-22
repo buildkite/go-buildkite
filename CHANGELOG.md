@@ -1,3 +1,7 @@
+## [v4.5.0](https://github.com/buildkite/go-buildkite/compare/v4.4.0...v4.5.0) (2025-07-22)
+
+* Update access-tokens response type with new data [#235](https://github.com/buildkite/go-buildkite/pull/235) ([moskyb](https://github.com/moskyb))
+
 ## [v4.4.0](https://github.com/buildkite/go-buildkite/compare/v4.3.0...v4.4.0) (2025-06-05)
 
 * Fix tests being backwards [#233](https://github.com/buildkite/go-buildkite/pull/233) ([blaknite](https://github.com/blaknite))
