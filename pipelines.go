@@ -146,7 +146,15 @@ type Plugin map[string]interface{}
 
 // PipelineListOptions specifies the optional parameters to the
 // PipelinesService.List method.
-type PipelineListOptions struct{ ListOptions }
+type PipelineListOptions struct {
+	// Filters the results by the pipeline name.
+	Name string `url:"name,omitempty"`
+
+	// filters the results by the name of the source repository.
+	Repository string `url:"repository,omitempty"`
+
+	ListOptions
+}
 
 // Create - Creates a pipeline for a given organisation.
 //
