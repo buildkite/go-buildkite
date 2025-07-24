@@ -32,6 +32,92 @@ func TestPipelinesService_List(t *testing.T) {
 	}
 }
 
+func TestPipelinesService_List_by_name(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"name": "my-pipeline",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"123","name":"my-pipeline"}]`)
+	})
+
+	opt := &PipelineListOptions{
+		Name: "my-pipeline",
+	}
+	pipelines, _, err := client.Pipelines.List(context.Background(), "my-great-org", opt)
+	if err != nil {
+		t.Errorf("Pipelines.List returned error: %v", err)
+	}
+
+	want := []Pipeline{{ID: "123", Name: "my-pipeline"}}
+	if diff := cmp.Diff(pipelines, want); diff != "" {
+		t.Errorf("Pipelines.List diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestPipelinesService_List_by_repository(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"repository": "https://github.com/buildkite/test-repo",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"456","repository":"https://github.com/buildkite/test-repo"}]`)
+	})
+
+	opt := &PipelineListOptions{
+		Repository: "https://github.com/buildkite/test-repo",
+	}
+	pipelines, _, err := client.Pipelines.List(context.Background(), "my-great-org", opt)
+	if err != nil {
+		t.Errorf("Pipelines.List returned error: %v", err)
+	}
+
+	want := []Pipeline{{ID: "456", Repository: "https://github.com/buildkite/test-repo"}}
+	if diff := cmp.Diff(pipelines, want); diff != "" {
+		t.Errorf("Pipelines.List diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestPipelinesService_List_by_name_and_repository(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"name":       "my-pipeline",
+			"repository": "https://github.com/buildkite/test-repo",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"789","name":"my-pipeline","repository":"https://github.com/buildkite/test-repo"}]`)
+	})
+
+	opt := &PipelineListOptions{
+		Name:       "my-pipeline",
+		Repository: "https://github.com/buildkite/test-repo",
+	}
+	pipelines, _, err := client.Pipelines.List(context.Background(), "my-great-org", opt)
+	if err != nil {
+		t.Errorf("Pipelines.List returned error: %v", err)
+	}
+
+	want := []Pipeline{{ID: "789", Name: "my-pipeline", Repository: "https://github.com/buildkite/test-repo"}}
+	if diff := cmp.Diff(pipelines, want); diff != "" {
+		t.Errorf("Pipelines.List diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestPipelinesService_Create(t *testing.T) {
 	t.Parallel()
 
