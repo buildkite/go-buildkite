@@ -1,3 +1,8 @@
+## [v4.5.1](https://github.com/buildkite/go-buildkite/tree/v4.5.1) (2025-07-24)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.5.0...v4.5.1)
+
+* feat: we are adding filters to the list pipelines REST call [#237](https://github.com/buildkite/go-buildkite/pull/237) (@wolfeidau)
+
 ## [v4.5.0](https://github.com/buildkite/go-buildkite/compare/v4.4.0...v4.5.0) (2025-07-22)
 
 * Update access-tokens response type with new data [#235](https://github.com/buildkite/go-buildkite/pull/235) ([moskyb](https://github.com/moskyb))
