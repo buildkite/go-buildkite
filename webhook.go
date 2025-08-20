@@ -17,27 +17,27 @@ const (
 	EventTypeHeader = "X-Buildkite-Event"
 	// SignatureHeader is the Buildkite header key used to pass the HMAC hexdigest.
 	SignatureHeader = "X-Buildkite-Signature"
+	// TokenHeader is the Buildkite header key used to pass the webhook token.
+	TokenHeader = "X-Buildkite-Token"
 )
 
-var (
-	// eventTypeMapping maps webhook types to their corresponding Buildkite structs
-	eventTypeMapping = map[string]string{
-		"agent.connected":    "AgentConnectedEvent",
-		"agent.disconnected": "AgentDisconnectedEvent",
-		"agent.lost":         "AgentLostEvent",
-		"agent.stopped":      "AgentStoppedEvent",
-		"agent.stopping":     "AgentStoppingEvent",
-		"build.failing":      "BuildFailingEvent",
-		"build.finished":     "BuildFinishedEvent",
-		"build.running":      "BuildRunningEvent",
-		"build.scheduled":    "BuildScheduledEvent",
-		"job.activated":      "JobActivatedEvent",
-		"job.finished":       "JobFinishedEvent",
-		"job.scheduled":      "JobScheduledEvent",
-		"job.started":        "JobStartedEvent",
-		"ping":               "PingEvent",
-	}
-)
+// eventTypeMapping maps webhook types to their corresponding Buildkite structs
+var eventTypeMapping = map[string]string{
+	"agent.connected":    "AgentConnectedEvent",
+	"agent.disconnected": "AgentDisconnectedEvent",
+	"agent.lost":         "AgentLostEvent",
+	"agent.stopped":      "AgentStoppedEvent",
+	"agent.stopping":     "AgentStoppingEvent",
+	"build.failing":      "BuildFailingEvent",
+	"build.finished":     "BuildFinishedEvent",
+	"build.running":      "BuildRunningEvent",
+	"build.scheduled":    "BuildScheduledEvent",
+	"job.activated":      "JobActivatedEvent",
+	"job.finished":       "JobFinishedEvent",
+	"job.scheduled":      "JobScheduledEvent",
+	"job.started":        "JobStartedEvent",
+	"ping":               "PingEvent",
+}
 
 // WebHookType returns the event type of webhook request r.
 //
@@ -123,22 +123,35 @@ func getTimestampAndSignature(sig string) (timestamp string, signature []byte, e
 // and returns the (JSON) payload.
 // secretKey is the Buildkite Webhook token.
 //
+// This function supports two validation methods:
+// 1. HMAC signature validation using X-Buildkite-Signature header
+// 2. Simple token validation using X-Buildkite-Token header
+//
 // Example usage:
 func ValidatePayload(r *http.Request, secretKey []byte) (payload []byte, err error) {
 	if payload, err = io.ReadAll(r.Body); err != nil {
 		return nil, err
 	}
 
+	// Check for HMAC signature validation first
 	sig := r.Header.Get(SignatureHeader)
-	if sig == "" {
-		return nil, fmt.Errorf("no %s header present on request", SignatureHeader)
+	if sig != "" {
+		if err = validateSignature(sig, payload, secretKey); err != nil {
+			return nil, err
+		}
+		return payload, nil
 	}
 
-	if err = validateSignature(sig, payload, secretKey); err != nil {
-		return nil, err
+	// Check for simple token validation
+	token := r.Header.Get(TokenHeader)
+	if token != "" {
+		if token != string(secretKey) {
+			return nil, fmt.Errorf("webhook token validation failed")
+		}
+		return payload, nil
 	}
 
-	return payload, nil
+	return nil, fmt.Errorf("no %s or %s header present on request", SignatureHeader, TokenHeader)
 }
 
 // Event represents a Buildkite webhook event
