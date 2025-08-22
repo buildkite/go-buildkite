@@ -66,7 +66,6 @@ func TestClustersService_List(t *testing.T) {
 	})
 
 	clusters, _, err := client.Clusters.List(context.Background(), "my-great-org", nil)
-
 	if err != nil {
 		t.Errorf("TestClusters.List returned error: %v", err)
 	}
@@ -151,7 +150,6 @@ func TestClustersService_Get(t *testing.T) {
 	})
 
 	cluster, _, err := client.Clusters.Get(context.Background(), "my-great-org", "528000d8-4ee1-4479-8af1-032b143185f0")
-
 	if err != nil {
 		t.Errorf("TestClusters.Get returned error: %v", err)
 	}
@@ -190,53 +188,117 @@ func TestClustersService_Get(t *testing.T) {
 func TestClustersService_Create(t *testing.T) {
 	t.Parallel()
 
-	server, client, teardown := newMockServerAndClient(t)
-	t.Cleanup(teardown)
-
-	input := ClusterCreate{
-		Name:        "Testing Cluster",
-		Description: "A cluster for testing",
-		Emoji:       ":construction:",
-		Color:       "E5F185",
+	type test struct {
+		name        string
+		input       ClusterCreate
+		want        Cluster
+		wantErr     bool
+		wantErrText string
 	}
 
-	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterCreate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("$3 diff: (-got +want)\n%s", diff)
-		}
-
-		_, _ = fmt.Fprint(w,
-			`
-			{
-				"name" : "Testing Cluster",
-				"description": "A cluster for testing",
-				"emoji": ":construction:",
-				"color": "E5F185"
-			}`)
-	})
-
-	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", input)
-	if err != nil {
-		t.Errorf("TestClusters.Create returned error: %v", err)
+	tests := []test{
+		{
+			name: "happy path",
+			input: ClusterCreate{
+				Name:        "Testing Cluster",
+				Description: "A cluster for testing",
+				Emoji:       ":construction:",
+				Color:       "E5F185",
+			},
+			want: Cluster{
+				Name:        "Testing Cluster",
+				Description: "A cluster for testing",
+				Emoji:       ":construction:",
+				Color:       "E5F185",
+			},
+		},
+		{
+			name: "with maintainer",
+			input: ClusterCreate{
+				Name:        "Testing Cluster",
+				Description: "A cluster for testing",
+				Emoji:       ":construction:",
+				Color:       "E5F185",
+				Maintainers: []ClusterMaintainer{
+					{
+						UserID: "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+					},
+				},
+			},
+			want: Cluster{
+				Name:        "Testing Cluster",
+				Description: "A cluster for testing",
+				Emoji:       ":construction:",
+				Color:       "E5F185",
+				Maintainers: []ClusterMaintainer{
+					{
+						UserID: "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+					},
+				},
+			},
+		},
+		{
+			name: "bad request",
+			input: ClusterCreate{
+				Name:        "Testing Cluster",
+				Description: "A cluster for testing",
+				Emoji:       ":construction:",
+				Color:       "E5F185",
+			},
+			wantErr:     true,
+			wantErrText: "bad request",
+		},
 	}
 
-	want := Cluster{
-		Name:        "Testing Cluster",
-		Description: "A cluster for testing",
-		Emoji:       ":construction:",
-		Color:       "E5F185",
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
 
-	if diff := cmp.Diff(cluster, want); diff != "" {
-		t.Errorf("TestClusters.Create diff: (-got +want)\n%s", diff)
+			server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
+				var v ClusterCreate
+				err := json.NewDecoder(r.Body).Decode(&v)
+				if err != nil {
+					t.Fatalf("Error parsing json body: %v", err)
+				}
+
+				testMethod(t, r, "POST")
+
+				if diff := cmp.Diff(v, tt.input); diff != "" {
+					t.Errorf("Request body diff: (-got +want)\n%s", diff)
+				}
+
+				if tt.wantErr {
+					w.WriteHeader(http.StatusBadRequest)
+					_, _ = fmt.Fprint(w, `{"error": "bad request"}`)
+					return
+				}
+
+				maintainersJSON := "null"
+				if len(tt.input.Maintainers) > 0 {
+					maintainersBytes, _ := json.Marshal(tt.input.Maintainers)
+					maintainersJSON = string(maintainersBytes)
+				}
+
+				_, _ = fmt.Fprintf(w,
+					`{
+						"name": "Testing Cluster",
+						"description": "A cluster for testing",
+						"emoji": ":construction:",
+						"color": "E5F185",
+						"maintainers": %s
+					}`, maintainersJSON)
+			})
+
+			cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TestClusters.Create returned error: %v", err)
+			}
+
+			if diff := cmp.Diff(cluster, tt.want); diff != "" {
+				t.Errorf("TestClusters.Create diff: (-got +want)\n%s", diff)
+			}
+		})
 	}
 }
 
