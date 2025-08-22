@@ -1,5 +1,11 @@
+## [v4.6.0](https://github.com/buildkite/go-buildkite/compare/v4.5.1...v4.6.0) (2025-08-22)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.5.1...v4.6.0)
+
+* Support Cluster maintainers on create [#240](https://github.com/buildkite/go-buildkite/pull/240) ([mcncl](https://github.com/mcncl))
+* support X-Buildkite-Token in headers [#239](https://github.com/buildkite/go-buildkite/pull/239) ([mcncl](https://github.com/mcncl))
+
+
 ## [v4.5.1](https://github.com/buildkite/go-buildkite/tree/v4.5.1) (2025-07-24)
-[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.5.0...v4.5.1)
 
 * feat: we are adding filters to the list pipelines REST call [#237](https://github.com/buildkite/go-buildkite/pull/237) (@wolfeidau)
 
