@@ -14,10 +14,11 @@ type ClustersService struct {
 }
 
 type ClusterCreate struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	Emoji       string `json:"emoji,omitempty"`
-	Color       string `json:"color,omitempty"`
+	Name        string              `json:"name,omitempty"`
+	Description string              `json:"description,omitempty"`
+	Emoji       string              `json:"emoji,omitempty"`
+	Color       string              `json:"color,omitempty"`
+	Maintainers []ClusterMaintainer `json:"maintainers,omitempty"`
 }
 
 type ClusterUpdate struct {
@@ -29,19 +30,20 @@ type ClusterUpdate struct {
 }
 
 type Cluster struct {
-	ID              string         `json:"id,omitempty"`
-	GraphQLID       string         `json:"graphql_id,omitempty"`
-	DefaultQueueID  string         `json:"default_queue_id,omitempty"`
-	Name            string         `json:"name,omitempty"`
-	Description     string         `json:"description,omitempty"`
-	Emoji           string         `json:"emoji,omitempty"`
-	Color           string         `json:"color,omitempty"`
-	URL             string         `json:"url,omitempty"`
-	WebURL          string         `json:"web_url,omitempty"`
-	QueuesURL       string         `json:"queues_url,omitempty"`
-	DefaultQueueURL string         `json:"default_queue_url,omitempty"`
-	CreatedAt       *Timestamp     `json:"created_at,omitempty"`
-	CreatedBy       ClusterCreator `json:"created_by,omitempty"`
+	ID              string              `json:"id,omitempty"`
+	GraphQLID       string              `json:"graphql_id,omitempty"`
+	DefaultQueueID  string              `json:"default_queue_id,omitempty"`
+	Name            string              `json:"name,omitempty"`
+	Description     string              `json:"description,omitempty"`
+	Emoji           string              `json:"emoji,omitempty"`
+	Color           string              `json:"color,omitempty"`
+	URL             string              `json:"url,omitempty"`
+	WebURL          string              `json:"web_url,omitempty"`
+	QueuesURL       string              `json:"queues_url,omitempty"`
+	DefaultQueueURL string              `json:"default_queue_url,omitempty"`
+	CreatedAt       *Timestamp          `json:"created_at,omitempty"`
+	CreatedBy       ClusterCreator      `json:"created_by,omitempty"`
+	Maintainers     []ClusterMaintainer `json:"maintainers,omitempty"`
 }
 
 type ClusterCreator struct {
@@ -51,6 +53,11 @@ type ClusterCreator struct {
 	Email     string     `json:"email,omitempty"`
 	AvatarURL string     `json:"avatar_url,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
+}
+
+type ClusterMaintainer struct {
+	UserID string `json:"user,omitempty"`
+	TeamID string `json:"team,omitempty"`
 }
 
 type ClustersListOptions struct{ ListOptions }
@@ -85,7 +92,6 @@ func (cs *ClustersService) Get(ctx context.Context, org, id string) (Cluster, *R
 
 	var cluster Cluster
 	resp, err := cs.client.Do(req, &cluster)
-
 	if err != nil {
 		return Cluster{}, resp, err
 	}
