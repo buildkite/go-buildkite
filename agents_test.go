@@ -135,65 +135,65 @@ func TestAgentsService_Stop(t *testing.T) {
 func TestAgentsService_Pause(t *testing.T) {
 	t.Parallel()
 
-	server, client, teardown := newMockServerAndClient(t)
-	t.Cleanup(teardown)
+	t.Run("without options", func(t *testing.T) {
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
 
-	server.HandleFunc("/v2/organizations/my-great-org/agents/123/pause", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "PUT")
-		body, err := io.ReadAll(r.Body)
+		server.HandleFunc("/v2/organizations/my-great-org/agents/123/pause", func(w http.ResponseWriter, r *http.Request) {
+			testMethod(t, r, "PUT")
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Errorf("could not read request body: %v", err)
+			}
+			expectedBody := "{}"
+			actualBody := strings.TrimSpace(string(body))
+			if actualBody != expectedBody {
+				t.Errorf("Expected request body %q, got %q", expectedBody, actualBody)
+			}
+		})
+
+		_, err := client.Agents.Pause(context.Background(), "my-great-org", "123", nil)
 		if err != nil {
-			t.Errorf("could not read request body: %v", err)
-		}
-		expectedBody := "{}"
-		actualBody := strings.TrimSpace(string(body))
-		if actualBody != expectedBody {
-			t.Errorf("Expected request body %q, got %q", expectedBody, actualBody)
+			t.Errorf("Agents.Pause returned error: %v", err)
 		}
 	})
 
-	_, err := client.Agents.Pause(context.Background(), "my-great-org", "123")
-	if err != nil {
-		t.Errorf("Agents.Pause returned error: %v", err)
-	}
-}
+	t.Run("with options", func(t *testing.T) {
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
 
-func TestAgentsService_PauseWithOptions(t *testing.T) {
-	t.Parallel()
+		server.HandleFunc("/v2/organizations/my-great-org/agents/123/pause", func(w http.ResponseWriter, r *http.Request) {
+			testMethod(t, r, "PUT")
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Errorf("could not read request body: %v", err)
+			}
 
-	server, client, teardown := newMockServerAndClient(t)
-	t.Cleanup(teardown)
+			var requestBody AgentPauseOptions
+			err = json.Unmarshal(body, &requestBody)
+			if err != nil {
+				t.Errorf("could not unmarshal request body: %v", err)
+			}
 
-	server.HandleFunc("/v2/organizations/my-great-org/agents/123/pause", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "PUT")
-		body, err := io.ReadAll(r.Body)
+			if requestBody.Note != "Maintenance scheduled" {
+				t.Errorf("Expected note %q, got %q", "Maintenance scheduled", requestBody.Note)
+			}
+
+			if requestBody.TimeoutInMinutes != 60 {
+				t.Errorf("Expected timeout %d, got %d", 60, requestBody.TimeoutInMinutes)
+			}
+		})
+
+		opts := &AgentPauseOptions{
+			Note:             "Maintenance scheduled",
+			TimeoutInMinutes: 60,
+		}
+
+		_, err := client.Agents.Pause(context.Background(), "my-great-org", "123", opts)
 		if err != nil {
-			t.Errorf("could not read request body: %v", err)
-		}
-
-		var requestBody AgentPauseOptions
-		err = json.Unmarshal(body, &requestBody)
-		if err != nil {
-			t.Errorf("could not unmarshal request body: %v", err)
-		}
-
-		if requestBody.Note != "Maintenance scheduled" {
-			t.Errorf("Expected note %q, got %q", "Maintenance scheduled", requestBody.Note)
-		}
-
-		if requestBody.TimeoutInMinutes != 60 {
-			t.Errorf("Expected timeout %d, got %d", 60, requestBody.TimeoutInMinutes)
+			t.Errorf("Agents.Pause returned error: %v", err)
 		}
 	})
-
-	opts := &AgentPauseOptions{
-		Note:             "Maintenance scheduled",
-		TimeoutInMinutes: 60,
-	}
-
-	_, err := client.Agents.PauseWithOptions(context.Background(), "my-great-org", "123", opts)
-	if err != nil {
-		t.Errorf("Agents.PauseWithOptions returned error: %v", err)
-	}
 }
 
 func TestAgentsService_Resume(t *testing.T) {

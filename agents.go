@@ -150,23 +150,14 @@ type AgentPauseOptions struct {
 	TimeoutInMinutes int    `json:"timeout_in_minutes,omitempty"`
 }
 
-// Pause an agent.
+// Pause an agent with optional note and timeout.
 //
 // buildkite API docs: https://buildkite.com/docs/api/agents#pause-an-agent
-func (as *AgentsService) Pause(ctx context.Context, org string, id string) (*Response, error) {
+func (as *AgentsService) Pause(ctx context.Context, org string, id string, opts *AgentPauseOptions) (*Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/agents/%s/pause", org, id)
-	req, err := as.client.NewRequest(ctx, "PUT", u, struct{}{})
-	if err != nil {
-		return nil, err
+	if opts == nil {
+		opts = &AgentPauseOptions{}
 	}
-	return as.client.Do(req, nil)
-}
-
-// PauseWithOptions pauses an agent with optional note and timeout.
-//
-// buildkite API docs: https://buildkite.com/docs/api/agents#pause-an-agent
-func (as *AgentsService) PauseWithOptions(ctx context.Context, org string, id string, opts *AgentPauseOptions) (*Response, error) {
-	u := fmt.Sprintf("v2/organizations/%s/agents/%s/pause", org, id)
 	req, err := as.client.NewRequest(ctx, "PUT", u, opts)
 	if err != nil {
 		return nil, err
