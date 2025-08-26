@@ -27,13 +27,11 @@ func main() {
 	}
 
 	pipelineTemplate, _, err := client.PipelineTemplates.Get(context.Background(), *org, *templateUUID)
-
 	if err != nil {
 		log.Fatalf("Getting pipeline template %s failed: %s", *templateUUID, err)
 	}
 
 	data, err := json.MarshalIndent(pipelineTemplate, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

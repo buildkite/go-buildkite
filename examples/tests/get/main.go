@@ -28,13 +28,11 @@ func main() {
 	}
 
 	test, _, err := client.Tests.Get(context.Background(), *org, *slug, *testID)
-
 	if err != nil {
 		log.Fatalf("Getting test %s failed: %s", *testID, err)
 	}
 
 	data, err := json.MarshalIndent(test, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

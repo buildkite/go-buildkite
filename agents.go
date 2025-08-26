@@ -131,7 +131,7 @@ func (as *AgentsService) Delete(ctx context.Context, org string, id string) (*Re
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/agents#stop-an-agent
 func (as *AgentsService) Stop(ctx context.Context, org string, id string, force bool) (*Response, error) {
-	var body = struct {
+	body := struct {
 		Force bool `json:"force"`
 	}{force}
 

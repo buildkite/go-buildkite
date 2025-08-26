@@ -200,9 +200,7 @@ func TestTeamSuitesService_Delete(t *testing.T) {
 	})
 
 	_, err := client.TeamSuites.Delete(context.Background(), "testorg", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", "1239d7f9-394a-4d99-badf-7c3d8577a8ff")
-
 	if err != nil {
 		t.Errorf("TeamSuitesService.Delete returned error: %v", err)
 	}
-
 }

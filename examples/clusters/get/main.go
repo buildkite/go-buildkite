@@ -27,13 +27,11 @@ func main() {
 	}
 
 	cluster, _, err := client.Clusters.Get(context.Background(), *org, *clusterID)
-
 	if err != nil {
 		log.Fatalf("Getting cluster %s failed: %s", *clusterID, err)
 	}
 
 	data, err := json.MarshalIndent(cluster, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

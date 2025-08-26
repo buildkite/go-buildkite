@@ -60,8 +60,10 @@ func testMethod(t *testing.T, r *http.Request, want string) {
 	}
 }
 
-type values map[string]string
-type valuesList []struct{ key, val string }
+type (
+	values     map[string]string
+	valuesList []struct{ key, val string }
+)
 
 func testFormValues(t *testing.T, r *http.Request, values values) {
 	want := url.Values{}
@@ -158,10 +160,11 @@ func TestNewRequest_WhenTokenAuthIsConfigured_AddsBearerTokenToHeaders(t *testin
 func TestResponse_populatePageValues(t *testing.T) {
 	r := http.Response{
 		Header: http.Header{
-			"Link": {`<https://api.buildkite.com/?page=1>; rel="first",` +
-				` <https://api.buildkite.com/?page=2>; rel="prev",` +
-				` <https://api.buildkite.com/?page=4>; rel="next",` +
-				` <https://api.buildkite.com/?page=5>; rel="last"`,
+			"Link": {
+				`<https://api.buildkite.com/?page=1>; rel="first",` +
+					` <https://api.buildkite.com/?page=2>; rel="prev",` +
+					` <https://api.buildkite.com/?page=4>; rel="next",` +
+					` <https://api.buildkite.com/?page=5>; rel="last"`,
 			},
 		},
 	}

@@ -27,13 +27,11 @@ func main() {
 	}
 
 	suite, _, err := client.TestSuites.Get(context.Background(), *org, *slug)
-
 	if err != nil {
 		log.Fatalf("Getting test suite failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(suite, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

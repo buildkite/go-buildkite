@@ -92,7 +92,6 @@ func (cqs *ClusterQueuesService) Create(ctx context.Context, org, clusterID stri
 
 	var queue ClusterQueue
 	resp, err := cqs.client.Do(req, &queue)
-
 	if err != nil {
 		return ClusterQueue{}, resp, err
 	}

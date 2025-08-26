@@ -59,7 +59,6 @@ func TestClusterTokensService_List(t *testing.T) {
 	})
 
 	tokens, _, err := client.ClusterTokens.List(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", nil)
-
 	if err != nil {
 		t.Errorf("TestClusterTokens.List returned error: %v", err)
 	}
@@ -195,7 +194,6 @@ func TestClusterTokensService_Create(t *testing.T) {
 	})
 
 	token, _, err := client.ClusterTokens.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", input)
-
 	if err != nil {
 		t.Errorf("TestClusterTokens.Create returned error: %v", err)
 	}

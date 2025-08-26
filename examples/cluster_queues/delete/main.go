@@ -26,7 +26,6 @@ func main() {
 	}
 
 	resp, err := client.ClusterQueues.Delete(context.Background(), *org, *clusterID, *queueID)
-
 	if err != nil {
 		log.Fatalf("Deleting cluster queue %s failed: %s", *queueID, err)
 	}

@@ -82,7 +82,6 @@ func TestPipelineTemplatesService_List(t *testing.T) {
 	})
 
 	pipelineTemplates, _, err := client.PipelineTemplates.List(context.Background(), "my-great-org", nil)
-
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.List returned error: %v", err)
 	}
@@ -177,7 +176,6 @@ func TestPipelineTemplatesService_Get(t *testing.T) {
 	})
 
 	pipelineTemplate, _, err := client.PipelineTemplates.Get(context.Background(), "my-great-org", "90333dc7-b86a-4485-98c3-9419a5dbc52e")
-
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Get returned error: %v", err)
 	}
@@ -253,7 +251,6 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 	})
 
 	pipelineTemplate, _, err := client.PipelineTemplates.Create(context.Background(), "my-great-org", input)
-
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Create returned error: %v", err)
 	}
@@ -333,7 +330,6 @@ func TestPipelineTemplatesService_Delete(t *testing.T) {
 	})
 
 	_, err := client.PipelineTemplates.Delete(context.Background(), "my-great-org", "19dbd05a-96d7-430f-bac0-14b791558562")
-
 	if err != nil {
 		t.Errorf("TestPipelineTemplates.Delete returned error: %v", err)
 	}

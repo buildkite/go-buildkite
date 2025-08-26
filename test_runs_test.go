@@ -165,7 +165,6 @@ func TestTestRunsService_GetFailedExecutions(t *testing.T) {
 	})
 
 	failedExecutions, _, err := client.TestRuns.GetFailedExecutions(context.Background(), "my-great-org", "suite-example", "3c90a8ad-8e86-4e78-87b4-acae5e808de4", nil)
-
 	if err != nil {
 		t.Errorf("TestRuns.GetFailedExecutions returned error: %v", err)
 	}
@@ -252,7 +251,6 @@ func TestTestRunsService_GetFailedExecutions_WithFailureExpanded(t *testing.T) {
 	}
 
 	failedExecutions, _, err := client.TestRuns.GetFailedExecutions(context.Background(), "my-great-org", "suite-example", "3c90a8ad-8e86-4e78-87b4-acae5e808de4", options)
-
 	if err != nil {
 		t.Errorf("TestRuns.GetFailedExecutions returned error: %v", err)
 	}

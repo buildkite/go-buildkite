@@ -25,7 +25,6 @@ func main() {
 	}
 
 	resp, err := client.PipelineTemplates.Delete(context.Background(), *org, *templateUUID)
-
 	if err != nil {
 		log.Fatalf("Deleting pipeline template %s failed: %s", *templateUUID, err)
 	}

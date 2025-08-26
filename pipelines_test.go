@@ -124,7 +124,8 @@ func TestPipelinesService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := CreatePipeline{Name: "my-great-pipeline",
+	input := CreatePipeline{
+		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
 		Steps: []Step{
 			{
@@ -213,7 +214,6 @@ func TestPipelinesService_Create(t *testing.T) {
 	if diff := cmp.Diff(pipeline, want); diff != "" {
 		t.Errorf("Pipelines.Create diff: (-got +want)\n%s", diff)
 	}
-
 }
 
 func TestPipelinesService_CreateByConfiguration(t *testing.T) {
@@ -222,7 +222,8 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := CreatePipeline{Name: "my-great-pipeline",
+	input := CreatePipeline{
+		Name:          "my-great-pipeline",
 		Repository:    "my-great-repo",
 		Configuration: "steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
 	}
@@ -286,7 +287,6 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	if diff := cmp.Diff(pipeline, want); diff != "" {
 		t.Errorf("Pipelines.Create diff: (-got +want)\n%s", diff)
 	}
-
 }
 
 func TestPipelinesService_Get(t *testing.T) {
@@ -339,7 +339,8 @@ func TestPipelinesService_Update(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := CreatePipeline{Name: "my-great-pipeline",
+	input := CreatePipeline{
+		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
 		Steps: []Step{
 			{

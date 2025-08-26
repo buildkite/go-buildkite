@@ -26,13 +26,11 @@ func main() {
 	}
 
 	clusters, _, err := client.Clusters.List(context.Background(), *org, nil)
-
 	if err != nil {
 		log.Fatalf("listing clusters failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(clusters, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

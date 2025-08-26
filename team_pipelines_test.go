@@ -98,7 +98,6 @@ func TestTeamPipelinesService_Get(t *testing.T) {
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TeamPipelinesService.Get diff: (-got +want)\n%s", diff)
 	}
-
 }
 
 func TestTeamPipelinesService_Create(t *testing.T) {
@@ -204,9 +203,7 @@ func TestTeamPipelinesService_Delete(t *testing.T) {
 	})
 
 	_, err := client.TeamPipelines.Delete(context.Background(), "my-org", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", "1239d7f9-394a-4d99-badf-7c3d8577a8ff")
-
 	if err != nil {
 		t.Errorf("TeamPipelinesService.Delete returned error: %v", err)
 	}
-
 }

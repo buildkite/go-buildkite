@@ -28,7 +28,6 @@ func main() {
 	}
 
 	artifacts, _, err := client.Artifacts.ListByBuild(context.Background(), *org, *pipeline, *build, nil)
-
 	if err != nil {
 		log.Fatalf("list artifacts failed: %s", err)
 	}
@@ -36,7 +35,6 @@ func main() {
 	for _, artifact := range artifacts {
 		if *artifactName == "" {
 			data, err := json.MarshalIndent(artifact, "", "\t")
-
 			if err != nil {
 				log.Fatalf("json encode failed: %s", err)
 			}

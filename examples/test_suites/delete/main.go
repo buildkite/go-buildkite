@@ -25,7 +25,6 @@ func main() {
 	}
 
 	resp, err := client.TestSuites.Delete(context.Background(), *org, *slug)
-
 	if err != nil {
 		log.Fatalf("Deleting test suite failed: %s", err)
 	}

@@ -28,13 +28,11 @@ func main() {
 	}
 
 	token, _, err := client.ClusterTokens.Get(context.Background(), *org, *clusterID, *tokenID)
-
 	if err != nil {
 		log.Fatalf("Getting cluster token failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(token, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

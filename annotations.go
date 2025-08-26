@@ -68,7 +68,6 @@ func (as *AnnotationsService) Create(ctx context.Context, org, pipeline, build s
 
 	var annotation Annotation
 	resp, err := as.client.Do(req, &annotation)
-
 	if err != nil {
 		return Annotation{}, resp, err
 	}

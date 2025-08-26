@@ -155,7 +155,6 @@ func (mo MetaDataFilters) EncodeValues(parent_key string, v *url.Values) error {
 // BuildsListOptions specifies the optional parameters to the
 // BuildsService.List method.
 type BuildsListOptions struct {
-
 	// Filters the results by the user who created the build
 	Creator string `url:"creator,omitempty"`
 

@@ -28,13 +28,11 @@ func main() {
 	}
 
 	annotations, _, err := client.Annotations.ListByBuild(context.Background(), *org, *slug, *number, nil)
-
 	if err != nil {
 		log.Fatalf("Listing annotations for build %s in pipeline %s failed: %s", *number, *slug, err)
 	}
 
 	data, err := json.MarshalIndent(annotations, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

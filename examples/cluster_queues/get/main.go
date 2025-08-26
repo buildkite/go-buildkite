@@ -28,13 +28,11 @@ func main() {
 	}
 
 	queue, _, err := client.ClusterQueues.Get(context.Background(), *org, *clusterID, *queueID)
-
 	if err != nil {
 		log.Fatalf("Getting cluster queue failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(queue, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

@@ -32,7 +32,6 @@ func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (Test
 
 	var t Test
 	resp, err := ts.client.Do(req, &t)
-
 	if err != nil {
 		return Test{}, resp, err
 	}
