@@ -25,7 +25,6 @@ func main() {
 	}
 
 	resp, err := client.Clusters.Delete(context.Background(), *org, *clusterID)
-
 	if err != nil {
 		log.Fatalf("Deleting cluster %s failed: %s", *clusterID, err)
 	}

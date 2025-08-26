@@ -27,13 +27,11 @@ func main() {
 	}
 
 	testRuns, _, err := client.TestRuns.List(context.Background(), *org, *slug, nil)
-
 	if err != nil {
 		log.Fatalf("listing test runs for suite %s failed: %s", *slug, err)
 	}
 
 	data, err := json.MarshalIndent(testRuns, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

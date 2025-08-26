@@ -28,13 +28,11 @@ func main() {
 	}
 
 	build, _, err := client.Builds.Get(context.Background(), *org, *slug, *number, nil)
-
 	if err != nil {
 		log.Fatalf("Getting build %s of pipeline %s failed: %s", *number, *slug, err)
 	}
 
 	data, err := json.MarshalIndent(build, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

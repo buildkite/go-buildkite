@@ -26,13 +26,11 @@ func main() {
 	}
 
 	suites, _, err := client.TestSuites.List(context.Background(), *org, nil)
-
 	if err != nil {
 		log.Fatalf("listing test suites failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(suites, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

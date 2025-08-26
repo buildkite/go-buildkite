@@ -11,19 +11,17 @@ import (
 	"github.com/google/uuid"
 )
 
-var (
-	pkg = Package{
-		ID:       uuid.NewString(),
-		URL:      "https://example.com/my-package",
-		WebURL:   "https://buildkite.com/my-org/my-registry/my-package",
-		Registry: registry,
-		Organization: Organization{
-			ID:   "my-org",
-			Slug: "my-org",
-			Name: "My Org",
-		},
-	}
-)
+var pkg = Package{
+	ID:       uuid.NewString(),
+	URL:      "https://example.com/my-package",
+	WebURL:   "https://buildkite.com/my-org/my-registry/my-package",
+	Registry: registry,
+	Organization: Organization{
+		ID:   "my-org",
+		Slug: "my-org",
+		Name: "My Org",
+	},
+}
 
 func TestGetPackage(t *testing.T) {
 	t.Parallel()

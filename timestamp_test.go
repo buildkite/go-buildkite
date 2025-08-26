@@ -10,9 +10,7 @@ const (
 	referenceTimeStr = `"2015-03-04T02:26:54Z"`
 )
 
-var (
-	referenceTime = time.Date(2015, time.March, 4, 2, 26, 54, 0, time.UTC)
-)
+var referenceTime = time.Date(2015, time.March, 4, 2, 26, 54, 0, time.UTC)
 
 func TestTimestamp_Marshal(t *testing.T) {
 	testCases := []struct {
@@ -39,7 +37,6 @@ func TestTimestamp_Marshal(t *testing.T) {
 }
 
 func TestTimestamp_Unmarshal(t *testing.T) {
-
 	testCases := []struct {
 		desc    string
 		data    string

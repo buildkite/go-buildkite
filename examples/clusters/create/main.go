@@ -33,13 +33,11 @@ func main() {
 	}
 
 	cluster, _, err := client.Clusters.Create(context.Background(), *org, clusterCreate)
-
 	if err != nil {
 		log.Fatalf("Creating cluster failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(cluster, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}
