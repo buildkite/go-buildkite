@@ -64,7 +64,6 @@ func (pts *PipelineTemplatesService) List(ctx context.Context, org string, opt *
 
 	var templates []PipelineTemplate
 	resp, err := pts.client.Do(req, &templates)
-
 	if err != nil {
 		return nil, resp, err
 	}

@@ -27,13 +27,11 @@ func main() {
 	}
 
 	flakyTests, _, err := client.FlakyTests.List(context.Background(), *org, *slug, nil)
-
 	if err != nil {
 		log.Fatalf("Listing Flaky tests failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(flakyTests, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

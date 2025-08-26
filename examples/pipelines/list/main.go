@@ -26,13 +26,11 @@ func main() {
 	}
 
 	pipelines, _, err := client.Pipelines.List(context.Background(), *org, nil)
-
 	if err != nil {
 		log.Fatalf("list pipelines failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(pipelines, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

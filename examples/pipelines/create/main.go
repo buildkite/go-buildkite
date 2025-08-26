@@ -37,13 +37,11 @@ func main() {
 	}
 
 	pipeline, _, err := client.Pipelines.Create(context.Background(), *org, createPipeline)
-
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)
 	}
 
 	data, err := json.MarshalIndent(pipeline, "", "\t")
-
 	if err != nil {
 		log.Fatalf("json encode failed: %s", err)
 	}

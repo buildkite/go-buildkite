@@ -26,7 +26,6 @@ func main() {
 	}
 
 	resp, err := client.ClusterQueues.Resume(context.Background(), *org, *clusterID, *queueID)
-
 	if err != nil {
 		log.Fatalf("Resuming dispatch on cluster queue %s failed: %s", *queueID, err)
 	}
