@@ -143,3 +143,36 @@ func (as *AgentsService) Stop(ctx context.Context, org string, id string, force 
 
 	return as.client.Do(req, nil)
 }
+
+// AgentPauseOptions specifies the optional parameters to pause an agent
+type AgentPauseOptions struct {
+	Note             string `json:"note,omitempty"`
+	TimeoutInMinutes int    `json:"timeout_in_minutes,omitempty"`
+}
+
+// Pause an agent with optional note and timeout.
+//
+// buildkite API docs: https://buildkite.com/docs/api/agents#pause-an-agent
+func (as *AgentsService) Pause(ctx context.Context, org string, id string, opts *AgentPauseOptions) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/agents/%s/pause", org, id)
+	if opts == nil {
+		opts = &AgentPauseOptions{}
+	}
+	req, err := as.client.NewRequest(ctx, "PUT", u, opts)
+	if err != nil {
+		return nil, err
+	}
+	return as.client.Do(req, nil)
+}
+
+// Resume an agent.
+//
+// buildkite API docs: https://buildkite.com/docs/api/agents#resume-an-agent
+func (as *AgentsService) Resume(ctx context.Context, org string, id string) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/agents/%s/resume", org, id)
+	req, err := as.client.NewRequest(ctx, "PUT", u, struct{}{})
+	if err != nil {
+		return nil, err
+	}
+	return as.client.Do(req, nil)
+}
