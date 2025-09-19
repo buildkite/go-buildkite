@@ -1,8 +1,8 @@
 module github.com/buildkite/go-buildkite/v4
 
-go 1.23.0
+go 1.23
 
-toolchain go1.24.0
+toolchain go1.24
 
 require (
 	github.com/cenkalti/backoff v1.1.1-0.20171020064038-309aa717adbf
