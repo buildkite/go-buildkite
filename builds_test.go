@@ -642,6 +642,55 @@ func TestJSONUnMarshallBuild(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "build with jobs containing step data",
+			json: `{
+				"id": "789",
+				"state": "running",
+				"blocked": false,
+				"message": "Build with step data",
+				"commit": "def456",
+				"branch": "main",
+				"source": "api",
+				"jobs": [
+					{
+						"id": "b63254c0-3271-4a98-8270-7cfbd6c2f14e",
+						"name": "📦",
+						"step": {
+							"id": "018c0f56-c87c-47e9-95ee-aa47397b4496",
+							"signature": {
+								"value": "eyJhbGciOiJFUzI1NiIsImtpZCI6InlvdSBzbHkgZG9nISB5b3UgY2F1Z2h0IG1lIG1vbm9sb2d1aW5nISJ9..m9LBvNgbzmO5JuZ4Bwoheyn7uqLf3TN1EdFwv_l_nMT2qh0_2EVs30SAEc-Ajjkq18MQk3cgU36AodLPl3_hBg",
+								"algorithm": "EdDSA",
+								"signed_fields": ["command", "env", "matrix", "plugins", "repository_url"]
+							}
+						}
+					}
+				]
+		}`,
+			expect: Build{
+				ID:      "789",
+				State:   "running",
+				Blocked: false,
+				Message: "Build with step data",
+				Commit:  "def456",
+				Branch:  "main",
+				Source:  "api",
+				Jobs: []Job{
+					{
+						ID:   "b63254c0-3271-4a98-8270-7cfbd6c2f14e",
+						Name: "📦",
+						Step: &StepInfo{
+							ID: "018c0f56-c87c-47e9-95ee-aa47397b4496",
+							Signature: &StepSignature{
+								Value:        "eyJhbGciOiJFUzI1NiIsImtpZCI6InlvdSBzbHkgZG9nISB5b3UgY2F1Z2h0IG1lIG1vbm9sb2d1aW5nISJ9..m9LBvNgbzmO5JuZ4Bwoheyn7uqLf3TN1EdFwv_l_nMT2qh0_2EVs30SAEc-Ajjkq18MQk3cgU36AodLPl3_hBg",
+								Algorithm:    "EdDSA",
+								SignedFields: []string{"command", "env", "matrix", "plugins", "repository_url"},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
