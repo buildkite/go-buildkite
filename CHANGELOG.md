@@ -1,4 +1,5 @@
 ## [v4.8.0](https://github.com/buildkite/go-buildkite/compare/v4.7.1...v4.8.0) (2025-09-22)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.7.1...v4.8.0)
 
 * feat: unmarshall step data when present in api responses [#245](https://github.com/buildkite/go-buildkite/pull/245) ([mtibben](https://github.com/mtibben))
 
@@ -6,8 +7,12 @@
 
 * Setting min go version to 1.23 with toolchain version to 1.24 [#244](https://github.com/buildkite/go-buildkite/pull/244) ([PriyaSudip](https://github.com/PriyaSudip))
 
+## [v4.7.0](https://github.com/buildkite/go-buildkite/compare/v4.6.0...v4.7.0) (2025-08-27)
+
+* chore: code formatting via gofumpt [#242](https://github.com/buildkite/go-buildkite/pull/242) ([mcncl](https://github.com/mcncl))
+* Add agent pause and resume functionality [#243](https://github.com/buildkite/go-buildkite/pull/243) ([JoeColeman95](https://github.com/JoeColeman95))
+
 ## [v4.6.0](https://github.com/buildkite/go-buildkite/compare/v4.5.1...v4.6.0) (2025-08-22)
-[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.5.1...v4.6.0)
 
 * Support Cluster maintainers on create [#240](https://github.com/buildkite/go-buildkite/pull/240) ([mcncl](https://github.com/mcncl))
 * support X-Buildkite-Token in headers [#239](https://github.com/buildkite/go-buildkite/pull/239) ([mcncl](https://github.com/mcncl))
