@@ -1,3 +1,7 @@
+## [v4.8.0](https://github.com/buildkite/go-buildkite/compare/v4.7.1...v4.8.0) (2025-09-22)
+
+* feat: unmarshall step data when present in api responses [#245](https://github.com/buildkite/go-buildkite/pull/245) ([mtibben](https://github.com/mtibben))
+
 ## [v4.6.0](https://github.com/buildkite/go-buildkite/compare/v4.5.1...v4.6.0) (2025-08-22)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.5.1...v4.6.0)
 
