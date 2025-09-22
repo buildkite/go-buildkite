@@ -53,6 +53,7 @@ type Job struct {
 	ClusterQueueID     string          `json:"cluster_queue_id,omitempty"`
 	TriggeredBuild     *TriggeredBuild `json:"triggered_build,omitempty"`
 	Priority           *JobPriority    `json:"priority"`
+	Step               *StepInfo       `json:"step,omitempty"`
 }
 
 // JobRetrySource represents what triggered this retry.
@@ -98,6 +99,19 @@ type TriggeredBuild struct {
 // JobPriority represents the priority of the job
 type JobPriority struct {
 	Number int `json:"number,omitempty"`
+}
+
+// StepSignature represents the signature of a step
+type StepSignature struct {
+	Value        string   `json:"value,omitempty"`
+	Algorithm    string   `json:"algorithm,omitempty"`
+	SignedFields []string `json:"signed_fields,omitempty"`
+}
+
+// StepInfo contains information about a step
+type StepInfo struct {
+	ID        string         `json:"id,omitempty"`
+	Signature *StepSignature `json:"signature,omitempty"`
 }
 
 // UnblockJob - unblock a job
