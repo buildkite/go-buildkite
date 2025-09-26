@@ -157,6 +157,168 @@ func TestNewRequest_WhenTokenAuthIsConfigured_AddsBearerTokenToHeaders(t *testin
 	}
 }
 
+func TestClient_resolveURL(t *testing.T) {
+	tests := []struct {
+		name        string
+		baseURL     string
+		relPath     string
+		expectedURL string
+		expectError bool
+	}{
+		// Backward compatibility - no path prefix
+		{
+			name:        "standard base URL without path",
+			baseURL:     "https://api.buildkite.com/",
+			relPath:     "v2/organizations/myorg/pipelines",
+			expectedURL: "https://api.buildkite.com/v2/organizations/myorg/pipelines",
+		},
+		{
+			name:        "standard base URL without trailing slash",
+			baseURL:     "https://api.buildkite.com",
+			relPath:     "v2/organizations/myorg/pipelines",
+			expectedURL: "https://api.buildkite.com/v2/organizations/myorg/pipelines",
+		},
+		// New functionality - with path prefix
+		{
+			name:        "base URL with path prefix",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "v2/organizations/myorg/pipelines",
+			expectedURL: "https://proxy.example.com/api/v2/organizations/myorg/pipelines",
+		},
+		{
+			name:        "base URL with path prefix no trailing slash",
+			baseURL:     "https://proxy.example.com/api",
+			relPath:     "v2/organizations/myorg/pipelines",
+			expectedURL: "https://proxy.example.com/api/v2/organizations/myorg/pipelines",
+		},
+		{
+			name:        "base URL with deep path prefix",
+			baseURL:     "https://gateway.example.com/internal/buildkite/",
+			relPath:     "v2/organizations/myorg/builds",
+			expectedURL: "https://gateway.example.com/internal/buildkite/v2/organizations/myorg/builds",
+		},
+		// Edge cases
+		{
+			name:        "relative path with leading slash",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "/v2/organizations/myorg/pipelines",
+			expectedURL: "https://proxy.example.com/api/v2/organizations/myorg/pipelines",
+		},
+		{
+			name:        "base URL with root path only",
+			baseURL:     "https://proxy.example.com/",
+			relPath:     "v2/organizations/myorg/pipelines",
+			expectedURL: "https://proxy.example.com/v2/organizations/myorg/pipelines",
+		},
+		{
+			name:        "empty relative path",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "",
+			expectedURL: "https://proxy.example.com/api/",
+		},
+		// Query parameters and fragments
+		{
+			name:        "relative path with query parameters",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "v2/organizations/myorg/pipelines?page=2&per_page=50",
+			expectedURL: "https://proxy.example.com/api/v2/organizations/myorg/pipelines?page=2&per_page=50",
+		},
+		{
+			name:        "relative path with fragment",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "v2/organizations/myorg/pipelines#section",
+			expectedURL: "https://proxy.example.com/api/v2/organizations/myorg/pipelines#section",
+		},
+		// Absolute URLs should be used as-is
+		{
+			name:        "absolute URL should be preserved",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "https://other.example.com/v2/test",
+			expectedURL: "https://other.example.com/v2/test",
+		},
+		// Error cases
+		{
+			name:        "invalid relative path",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "://invalid-url",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client, err := NewOpts(WithBaseURL(tt.baseURL))
+			if err != nil {
+				t.Fatalf("NewOpts() error = %v", err)
+			}
+
+			result, err := client.resolveURL(tt.relPath)
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("resolveURL() expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("resolveURL() error = %v", err)
+				return
+			}
+
+			if got := result.String(); got != tt.expectedURL {
+				t.Errorf("resolveURL() = %v, want %v", got, tt.expectedURL)
+			}
+		})
+	}
+}
+
+func TestNewRequest_WithPathPrefix(t *testing.T) {
+	tests := []struct {
+		name        string
+		baseURL     string
+		relPath     string
+		expectedURL string
+	}{
+		{
+			name:        "standard base URL maintains compatibility",
+			baseURL:     DefaultBaseURL,
+			relPath:     "v2/organizations/testorg/pipelines",
+			expectedURL: DefaultBaseURL + "v2/organizations/testorg/pipelines",
+		},
+		{
+			name:        "base URL with path prefix includes prefix",
+			baseURL:     "https://proxy.example.com/api/",
+			relPath:     "v2/organizations/testorg/pipelines",
+			expectedURL: "https://proxy.example.com/api/v2/organizations/testorg/pipelines",
+		},
+		{
+			name:        "base URL with deep path prefix",
+			baseURL:     "https://gateway.example.com/internal/buildkite/",
+			relPath:     "v2/organizations/testorg/builds/123",
+			expectedURL: "https://gateway.example.com/internal/buildkite/v2/organizations/testorg/builds/123",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client, err := NewOpts(WithBaseURL(tt.baseURL))
+			if err != nil {
+				t.Fatalf("NewOpts() error = %v", err)
+			}
+
+			req, err := client.NewRequest(context.Background(), "GET", tt.relPath, nil)
+			if err != nil {
+				t.Fatalf("NewRequest() error = %v", err)
+			}
+
+			if got := req.URL.String(); got != tt.expectedURL {
+				t.Errorf("NewRequest() URL = %v, want %v", got, tt.expectedURL)
+			}
+		})
+	}
+}
+
 func TestResponse_populatePageValues(t *testing.T) {
 	r := http.Response{
 		Header: http.Header{
