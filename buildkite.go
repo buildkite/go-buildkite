@@ -180,18 +180,54 @@ func (c *Client) populateDefaultServices() {
 	c.TestSuites = &TestSuitesService{c}
 }
 
+// resolveURL properly handles base URLs with path prefixes by combining the base URL
+// path with the relative path, unlike url.URL.ResolveReference which treats relative
+// paths as starting from the host root.
+func (c *Client) resolveURL(relPath string) (*url.URL, error) {
+	rel, err := url.Parse(relPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the relative path is absolute, use it as-is
+	if rel.IsAbs() {
+		return rel, nil
+	}
+
+	// Create a copy of the base URL
+	result := *c.BaseURL
+
+	// Extract just the path part from the relative URL for path combination
+	basePath := strings.TrimSuffix(c.BaseURL.Path, "/")
+	cleanRelPath := strings.TrimPrefix(rel.Path, "/")
+
+	if basePath == "" {
+		result.Path = "/" + cleanRelPath
+	} else {
+		result.Path = basePath + "/" + cleanRelPath
+	}
+
+	// Preserve query parameters and fragment from the relative URL
+	if rel.RawQuery != "" {
+		result.RawQuery = rel.RawQuery
+	}
+	if rel.Fragment != "" {
+		result.Fragment = rel.Fragment
+	}
+
+	return &result, nil
+}
+
 // NewRequest creates an API request. A relative URL can be provided in urlStr,
 // in which case it is resolved relative to the BaseURL of the Client.
 // Relative URLs should always be specified without a preceding slash.  If
 // specified, the value pointed to by body is JSON encoded and included as the
 // request body.
 func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+	u, err := c.resolveURL(urlStr)
 	if err != nil {
 		return nil, err
 	}
-
-	u := c.BaseURL.ResolveReference(rel)
 
 	headers := map[string]string{}
 
