@@ -29,6 +29,10 @@ func TestClustersService_List(t *testing.T) {
 					"description": "A cluster for development pipelines",
 					"emoji": ":toolbox:",
 					"color": "#A9CCE3",
+					"maintainers": {
+						"users": [],
+						"teams": []
+					},
 					"url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
 					"web_url": "https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
 					"queues_url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues",
@@ -49,6 +53,10 @@ func TestClustersService_List(t *testing.T) {
 					"description": "A cluster for production pipelines",
 					"emoji": ":toolbox:",
 					"color": "#B9E3A9",
+					"maintainers": {
+						"users": [],
+						"teams": []
+					},
 					"url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
 					"web_url": "https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
 					"queues_url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues",
@@ -91,11 +99,15 @@ func TestClustersService_List(t *testing.T) {
 			Description: "A cluster for development pipelines",
 			Emoji:       ":toolbox:",
 			Color:       "#A9CCE3",
-			URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
-			WebURL:      "https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
-			QueuesURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues",
-			CreatedAt:   NewTimestamp(devClusterCreatedAt),
-			CreatedBy:   clusterCreator,
+			Maintainers: ClusterMaintainersList{
+				Users: []ClusterMaintainerEntry{},
+				Teams: []ClusterMaintainerEntry{},
+			},
+			URL:       "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+			WebURL:    "https://buildkite.com/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0",
+			QueuesURL: "https://api.buildkite.com/v2/organizations/my-great-org/clusters/528000d8-4ee1-4479-8af1-032b143185f0/queues",
+			CreatedAt: NewTimestamp(devClusterCreatedAt),
+			CreatedBy: clusterCreator,
 		},
 		{
 			ID:          "3edcecdb-5191-44f1-a5ae-370083c8f92e",
@@ -104,11 +116,15 @@ func TestClustersService_List(t *testing.T) {
 			Description: "A cluster for production pipelines",
 			Emoji:       ":toolbox:",
 			Color:       "#B9E3A9",
-			URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
-			WebURL:      "https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
-			QueuesURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues",
-			CreatedAt:   NewTimestamp(prodClusterCreatedAt),
-			CreatedBy:   clusterCreator,
+			Maintainers: ClusterMaintainersList{
+				Users: []ClusterMaintainerEntry{},
+				Teams: []ClusterMaintainerEntry{},
+			},
+			URL:       "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
+			WebURL:    "https://buildkite.com/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e",
+			QueuesURL: "https://api.buildkite.com/v2/organizations/my-great-org/clusters/3edcecdb-5191-44f1-a5ae-370083c8f92e/queues",
+			CreatedAt: NewTimestamp(prodClusterCreatedAt),
+			CreatedBy: clusterCreator,
 		},
 	}
 
@@ -185,6 +201,90 @@ func TestClustersService_Get(t *testing.T) {
 	}
 }
 
+func TestClustersService_CreateWithMaintainers(t *testing.T) {
+
+	clusterCreate := ClusterCreate{
+		Name:        "Testing Cluster",
+		Description: "A cluster for testing",
+		Emoji:       ":construction:",
+		Color:       "E5F185",
+		Maintainers: []ClusterMaintainer{
+			{
+				UserID: "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+			},
+		},
+	}
+
+	clusterExpect := Cluster{
+		Name:        "Testing Cluster",
+		Description: "A cluster for testing",
+		Emoji:       ":construction:",
+		Color:       "E5F185",
+		Maintainers: ClusterMaintainersList{
+			Users: []ClusterMaintainerEntry{
+				{
+					ID: "a51e41d4-7f60-4305-b6ba-c1c5a9611470",
+					Actor: ClusterMaintainerActor{
+						ID:    "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+						Name:  "Barry White",
+						Email: "barry.white@example.com",
+						Type:  "user",
+					},
+				},
+			},
+			Teams: []ClusterMaintainerEntry{},
+		},
+	}
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/clusters", func(w http.ResponseWriter, r *http.Request) {
+		var v ClusterCreate
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
+
+		testMethod(t, r, "POST")
+
+		if diff := cmp.Diff(v, clusterCreate); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
+		}
+
+		_, _ = fmt.Fprint(w,
+			`{
+						"name": "Testing Cluster",
+						"description": "A cluster for testing",
+						"emoji": ":construction:",
+						"color": "E5F185",
+						"maintainers": {
+							"users": [
+								{ 
+									"id": "a51e41d4-7f60-4305-b6ba-c1c5a9611470",
+									"actor": {
+										"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+										"name": "Barry White",
+										"email": "barry.white@example.com",
+										"type": "user"
+									}
+								}
+							],
+							"teams": []
+						}
+					}`)
+	})
+
+	cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", clusterCreate)
+	if err != nil {
+		t.Errorf("TestClusters.CreateWithMaintainers returned error: %v", err)
+	}
+
+	if diff := cmp.Diff(cluster, clusterExpect); diff != "" {
+		t.Errorf("TestClusters.Create diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestClustersService_Create(t *testing.T) {
 	t.Parallel()
 
@@ -210,6 +310,10 @@ func TestClustersService_Create(t *testing.T) {
 				Description: "A cluster for testing",
 				Emoji:       ":construction:",
 				Color:       "E5F185",
+				Maintainers: ClusterMaintainersList{
+					Users: []ClusterMaintainerEntry{},
+					Teams: []ClusterMaintainerEntry{},
+				},
 			},
 		},
 		{
@@ -219,21 +323,15 @@ func TestClustersService_Create(t *testing.T) {
 				Description: "A cluster for testing",
 				Emoji:       ":construction:",
 				Color:       "E5F185",
-				Maintainers: []ClusterMaintainer{
-					{
-						UserID: "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-					},
-				},
 			},
 			want: Cluster{
 				Name:        "Testing Cluster",
 				Description: "A cluster for testing",
 				Emoji:       ":construction:",
 				Color:       "E5F185",
-				Maintainers: []ClusterMaintainer{
-					{
-						UserID: "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-					},
+				Maintainers: ClusterMaintainersList{
+					Users: []ClusterMaintainerEntry{},
+					Teams: []ClusterMaintainerEntry{},
 				},
 			},
 		},
@@ -274,20 +372,17 @@ func TestClustersService_Create(t *testing.T) {
 					return
 				}
 
-				maintainersJSON := "null"
-				if len(tt.input.Maintainers) > 0 {
-					maintainersBytes, _ := json.Marshal(tt.input.Maintainers)
-					maintainersJSON = string(maintainersBytes)
-				}
-
-				_, _ = fmt.Fprintf(w,
+				_, _ = fmt.Fprint(w,
 					`{
 						"name": "Testing Cluster",
 						"description": "A cluster for testing",
 						"emoji": ":construction:",
 						"color": "E5F185",
-						"maintainers": %s
-					}`, maintainersJSON)
+						"maintainers": {
+							"users": [],
+							"teams": []
+						}
+					}`)
 			})
 
 			cluster, _, err := client.Clusters.Create(context.Background(), "my-great-org", tt.input)
