@@ -30,20 +30,20 @@ type ClusterUpdate struct {
 }
 
 type Cluster struct {
-	ID              string              `json:"id,omitempty"`
-	GraphQLID       string              `json:"graphql_id,omitempty"`
-	DefaultQueueID  string              `json:"default_queue_id,omitempty"`
-	Name            string              `json:"name,omitempty"`
-	Description     string              `json:"description,omitempty"`
-	Emoji           string              `json:"emoji,omitempty"`
-	Color           string              `json:"color,omitempty"`
-	URL             string              `json:"url,omitempty"`
-	WebURL          string              `json:"web_url,omitempty"`
-	QueuesURL       string              `json:"queues_url,omitempty"`
-	DefaultQueueURL string              `json:"default_queue_url,omitempty"`
-	CreatedAt       *Timestamp          `json:"created_at,omitempty"`
-	CreatedBy       ClusterCreator      `json:"created_by,omitempty"`
-	Maintainers     []ClusterMaintainer `json:"maintainers,omitempty"`
+	ID              string                 `json:"id,omitempty"`
+	GraphQLID       string                 `json:"graphql_id,omitempty"`
+	DefaultQueueID  string                 `json:"default_queue_id,omitempty"`
+	Name            string                 `json:"name,omitempty"`
+	Description     string                 `json:"description,omitempty"`
+	Emoji           string                 `json:"emoji,omitempty"`
+	Color           string                 `json:"color,omitempty"`
+	URL             string                 `json:"url,omitempty"`
+	WebURL          string                 `json:"web_url,omitempty"`
+	QueuesURL       string                 `json:"queues_url,omitempty"`
+	DefaultQueueURL string                 `json:"default_queue_url,omitempty"`
+	CreatedAt       *Timestamp             `json:"created_at,omitempty"`
+	CreatedBy       ClusterCreator         `json:"created_by,omitempty"`
+	Maintainers     ClusterMaintainersList `json:"maintainers,omitempty"`
 }
 
 type ClusterCreator struct {
@@ -60,6 +60,26 @@ type ClusterMaintainer struct {
 	TeamID string `json:"team,omitempty"`
 }
 
+// ClusterMaintainersList represents the maintainers of a cluster with separate lists for users and teams.
+type ClusterMaintainersList struct {
+	Users []ClusterMaintainerEntry `json:"users,omitempty"`
+	Teams []ClusterMaintainerEntry `json:"teams,omitempty"`
+}
+
+// ClusterMaintainerEntry represents either a user or a team which is indicated by the Type field in the Actor.
+type ClusterMaintainerEntry struct {
+	ID    string                 `json:"id,omitempty"`
+	Actor ClusterMaintainerActor `json:"actor,omitempty"`
+}
+
+type ClusterMaintainerActor struct {
+	ID        string `json:"id,omitempty"`
+	GraphQLID string `json:"graphql_id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Type      string `json:"type,omitempty"` // "user" or "team"
+	Slug      string `json:"slug,omitempty"`
+}
 type ClustersListOptions struct{ ListOptions }
 
 func (cs *ClustersService) List(ctx context.Context, org string, opt *ClustersListOptions) ([]Cluster, *Response, error) {
