@@ -4,7 +4,7 @@
 
 ## [v4.9.0](https://github.com/buildkite/go-buildkite/compare/v4.8.0...v4.9.0) (2025-10-14)
 
-* Fix URL resolution to preserve base URL path prefixes [#250](https://github.com/buildkite/go-buildkite/pull/250)[bearcage-dayjob](https://github.com/bearcage-dayjob)
+* Fix URL resolution to preserve base URL path prefixes [#250](https://github.com/buildkite/go-buildkite/pull/250) ([bearcage-dayjob](https://github.com/bearcage-dayjob))
 
 ## [v4.8.0](https://github.com/buildkite/go-buildkite/compare/v4.7.1...v4.8.0) (2025-09-22)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v4.7.1...v4.8.0)
