@@ -35,6 +35,12 @@ type Agent struct {
 	Creator *User `json:"creator,omitempty"`
 
 	Job *Job `json:"job,omitempty"`
+
+	Paused                 *bool      `json:"paused,omitempty"`
+	PausedAt               *Timestamp `json:"paused_at,omitempty"`
+	PausedBy               *User      `json:"paused_by,omitempty"`
+	PausedNote             *string    `json:"paused_note,omitempty"`
+	PausedTimeoutInMinutes *int       `json:"paused_timeout_in_minutes,omitempty"`
 }
 
 // AgentListOptions specifies the optional parameters to the
