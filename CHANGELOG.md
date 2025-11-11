@@ -1,3 +1,7 @@
+## [v4.10.0](https://github.com/buildkite/go-buildkite/compare/v4.9.1...v4.10.0) (2025-11-11)
+
+* Add paused state fields to Agent struct [#253](https://github.com/buildkite/go-buildkite/pull/253) ([JoeColeman95](https://github.com/JoeColeman95))
+
 ## [v4.9.1](https://github.com/buildkite/go-buildkite/compare/v4.9.0...v4.9.1) (2025-10-20)
 
 * fix: update cluster maintainers to match REST api for create and list [#251](https://github.com/buildkite/go-buildkite/pull/251) ([wolfeidau](https://github.com/wolfeidau))
