@@ -16,6 +16,10 @@ var (
 	apiToken  = kingpin.Flag("token", "API token").Required().String()
 	org       = kingpin.Flag("org", "Orginization slug").Required().String()
 	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
+
+	key                = kingpin.Flag("key", "Cluster queue key").Required().String()
+	description        = kingpin.Flag("description", "Cluster queue description").Required().String()
+	retryAgentAffinity = kingpin.Flag("retry-agent-affinity", "Retry agent affinity").String()
 )
 
 func main() {
@@ -27,8 +31,9 @@ func main() {
 	}
 
 	clusterQueueCreate := buildkite.ClusterQueueCreate{
-		Key:         "dev1",
-		Description: "Development 1 Cluster queue",
+		Key:                *key,
+		Description:        *description,
+		RetryAgentAffinity: buildkite.RetryAgentAffinity(*retryAgentAffinity),
 	}
 
 	queue, _, err := client.ClusterQueues.Create(context.Background(), *org, *clusterID, clusterQueueCreate)
