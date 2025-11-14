@@ -13,29 +13,39 @@ type ClusterQueuesService struct {
 	client *Client
 }
 
+type RetryAgentAffinity string
+
+const (
+	RetryAgentAffinityPreferWarmest   RetryAgentAffinity = "prefer-warmest"
+	RetryAgentAffinityPreferDifferent RetryAgentAffinity = "prefer-different"
+)
+
 type ClusterQueue struct {
-	ID                 string          `json:"id,omitempty"`
-	GraphQLID          string          `json:"graphql_id,omitempty"`
-	Key                string          `json:"key,omitempty"`
-	Description        string          `json:"description,omitempty"`
-	URL                string          `json:"url,omitempty"`
-	WebURL             string          `json:"web_url,omitempty"`
-	ClusterURL         string          `json:"cluster_url,omitempty"`
-	DispatchPaused     bool            `json:"dispatch_paused"`
-	DispatchPausedBy   *ClusterCreator `json:"dispatch_paused_by,omitempty"`
-	DispatchPausedAt   *Timestamp      `json:"dispatch_paused_at,omitempty"`
-	DispatchPausedNote string          `json:"dispatch_paused_note,omitempty"`
-	CreatedAt          *Timestamp      `json:"created_at,omitempty"`
-	CreatedBy          ClusterCreator  `json:"created_by,omitempty"`
+	ID                 string             `json:"id,omitempty"`
+	GraphQLID          string             `json:"graphql_id,omitempty"`
+	Key                string             `json:"key,omitempty"`
+	Description        string             `json:"description,omitempty"`
+	URL                string             `json:"url,omitempty"`
+	WebURL             string             `json:"web_url,omitempty"`
+	ClusterURL         string             `json:"cluster_url,omitempty"`
+	RetryAgentAffinity RetryAgentAffinity `json:"retry_agent_affinity,omitempty"`
+	DispatchPaused     bool               `json:"dispatch_paused"`
+	DispatchPausedBy   *ClusterCreator    `json:"dispatch_paused_by,omitempty"`
+	DispatchPausedAt   *Timestamp         `json:"dispatch_paused_at,omitempty"`
+	DispatchPausedNote string             `json:"dispatch_paused_note,omitempty"`
+	CreatedAt          *Timestamp         `json:"created_at,omitempty"`
+	CreatedBy          ClusterCreator     `json:"created_by,omitempty"`
 }
 
 type ClusterQueueCreate struct {
-	Key         string `json:"key,omitempty"`
-	Description string `json:"description,omitempty"`
+	Key                string             `json:"key,omitempty"`
+	Description        string             `json:"description,omitempty"`
+	RetryAgentAffinity RetryAgentAffinity `json:"retry_agent_affinity,omitempty"`
 }
 
 type ClusterQueueUpdate struct {
-	Description string `json:"description,omitempty"`
+	Description        string             `json:"description,omitempty"`
+	RetryAgentAffinity RetryAgentAffinity `json:"retry_agent_affinity,omitempty"`
 }
 
 type ClusterQueuePause struct {

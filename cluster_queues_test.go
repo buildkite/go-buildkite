@@ -154,6 +154,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 					"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
 					"created_at": "2023-02-20T03:00:05.824Z"
 				},
+				"retry_agent_affinity": "prefer-warmest",
 				"dispatch_paused_at": "2023-08-25T08:53:05.824Z",
 				"dispatch_paused_note": "Weekend queue pause",
 				"created_at": "2023-06-07T11:30:17.941Z",
@@ -195,6 +196,7 @@ func TestClusterQueuesService_Get(t *testing.T) {
 		WebURL:             "https://buildkite.com/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/46718bb6-3b2a-48da-9dcb-922c6b7ba140",
 		ClusterURL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
 		DispatchPaused:     true,
+		RetryAgentAffinity: RetryAgentAffinityPreferWarmest,
 		DispatchPausedBy:   &clusterCreator,
 		DispatchPausedAt:   NewTimestamp(devQueuePausedAt),
 		DispatchPausedNote: "Weekend queue pause",
@@ -214,8 +216,9 @@ func TestClusterQueuesService_Create(t *testing.T) {
 	t.Cleanup(teardown)
 
 	input := ClusterQueueCreate{
-		Key:         "development1",
-		Description: "Development 1 queue",
+		Key:                "development1",
+		Description:        "Development 1 queue",
+		RetryAgentAffinity: RetryAgentAffinityPreferDifferent,
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues", func(w http.ResponseWriter, r *http.Request) {
@@ -235,7 +238,8 @@ func TestClusterQueuesService_Create(t *testing.T) {
 			`
 			{
 				"key" : "development1",
-				"description": "Development 1 queue"
+				"description": "Development 1 queue",
+				"retry_agent_affinity": "prefer-different"
 			}`)
 	})
 
@@ -245,8 +249,9 @@ func TestClusterQueuesService_Create(t *testing.T) {
 	}
 
 	want := ClusterQueue{
-		Key:         "development1",
-		Description: "Development 1 queue",
+		Key:                "development1",
+		Description:        "Development 1 queue",
+		RetryAgentAffinity: RetryAgentAffinityPreferDifferent,
 	}
 
 	if diff := cmp.Diff(queue, want); diff != "" {
@@ -274,7 +279,8 @@ func TestClusterQueuesService_Update(t *testing.T) {
 			{
 				"id" : "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
 				"key" : "development1",
-				"description": "Development 1 Team queue"
+				"description": "Development 1 Team queue",
+				"retry_agent_affinity": "prefer-different"
 			}`)
 	})
 
@@ -286,9 +292,10 @@ func TestClusterQueuesService_Update(t *testing.T) {
 	}
 
 	want := ClusterQueue{
-		ID:          "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
-		Key:         "development1",
-		Description: "Development 1 Team queue",
+		ID:                 "1374ffd0-c5ed-49a5-aebe-67ce906e68ca",
+		Key:                "development1",
+		Description:        "Development 1 Team queue",
+		RetryAgentAffinity: RetryAgentAffinityPreferDifferent,
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {

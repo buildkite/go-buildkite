@@ -10,11 +10,13 @@ import (
 )
 
 var (
-	apiToken       = kingpin.Flag("token", "API token").Required().String()
-	org            = kingpin.Flag("org", "Orginization slug").Required().String()
-	clusterID      = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
-	queueID        = kingpin.Flag("queueID", "Cluster queue UUID").Required().String()
-	newDescription = kingpin.Flag("description", "New description for the cluster queue").Required().String()
+	apiToken  = kingpin.Flag("token", "API token").Required().String()
+	org       = kingpin.Flag("org", "Orginization slug").Required().String()
+	clusterID = kingpin.Flag("clusterID", "Cluster UUID").Required().String()
+	queueID   = kingpin.Flag("queueID", "Cluster queue UUID").Required().String()
+
+	newDescription        = kingpin.Flag("description", "New description for the cluster queue").Required().String()
+	newRetryAgentAffinity = kingpin.Flag("retry-agent-affinity", "New retry agent affinity").Required().String()
 )
 
 func main() {
@@ -25,7 +27,10 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusterQueueUpdate := buildkite.ClusterQueueUpdate{Description: *newDescription}
+	clusterQueueUpdate := buildkite.ClusterQueueUpdate{
+		Description:        *newDescription,
+		RetryAgentAffinity: buildkite.RetryAgentAffinity(*newRetryAgentAffinity),
+	}
 
 	cq, _, err := client.ClusterQueues.Update(context.Background(), *org, *clusterID, *queueID, clusterQueueUpdate)
 	if err != nil {
