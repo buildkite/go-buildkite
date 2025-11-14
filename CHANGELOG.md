@@ -1,3 +1,9 @@
+## [v4.11.0](https://github.com/buildkite/go-buildkite/compare/v4.10.0...v4.11.0) (2025-11-14)
+
+* Add retry_agent_affinity option to create and update cluster queues [#255](https://github.com/buildkite/go-buildkite/pull/255) ([moskyb](https://github.com/moskyb))
+* Update changelog for v4.10.0 [#254](https://github.com/buildkite/go-buildkite/pull/254) ([JoeColeman95](https://github.com/JoeColeman95))
+
+
 ## [v4.10.0](https://github.com/buildkite/go-buildkite/compare/v4.9.1...v4.10.0) (2025-11-11)
 
 * Add paused state fields to Agent struct [#253](https://github.com/buildkite/go-buildkite/pull/253) ([JoeColeman95](https://github.com/JoeColeman95))
