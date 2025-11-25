@@ -192,6 +192,7 @@ func TestPipelinesService_Create(t *testing.T) {
 	want := Pipeline{
 		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",
@@ -271,6 +272,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	want := Pipeline{
 		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",
