@@ -35,9 +35,8 @@ type CreatePipeline struct {
 	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds"`
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty"`
-
-	Visibility string   `json:"visibility,omitempty"`
-	Tags       []string `json:"tags,omitempty"`
+	Visibility                      string            `json:"visibility,omitempty"`
+	Tags                            []string          `json:"tags,omitempty"`
 }
 
 type UpdatePipeline struct {
