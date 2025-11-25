@@ -25,9 +25,22 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
+	clusters, _, err := client.Clusters.List(context.Background(), *org, nil)
+	if err != nil {
+		log.Fatalf("listing clusters failed: %s", err)
+	}
+	if len(clusters) == 0 {
+		log.Fatalf("no clusters found, please create one before creating a pipeline")
+	}
+
+	cluster := clusters[0]
+
+	fmt.Printf("Using cluster: %s (%s)\n", cluster.Name, cluster.ID)
+
 	createPipeline := buildkite.CreatePipeline{
 		Name:          "my-great-pipeline",
 		Repository:    "git@github.com:my_great_org/my_great_repo2.git",
+		ClusterID:     cluster.ID,
 		Configuration: "env:\n \"FOO\": \"bar\"\nsteps:\n - command: \"script/release.sh\"\n   \"name\": \"Build 📦\"",
 		Tags:          []string{"great", "pipeline"},
 		Description:   "This ia a great pipeline!",
