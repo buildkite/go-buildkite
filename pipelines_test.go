@@ -127,6 +127,7 @@ func TestPipelinesService_Create(t *testing.T) {
 	input := CreatePipeline{
 		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",
@@ -163,6 +164,7 @@ func TestPipelinesService_Create(t *testing.T) {
 		_, _ = fmt.Fprint(w, `{
 						"name":"my-great-pipeline",
 						"repository":"my-great-repo",
+						"cluster_id":"528000d8-4ee1-4479-8af1-032b143185f0",
 						"steps": [
 							{
 								"type": "script",
@@ -192,6 +194,7 @@ func TestPipelinesService_Create(t *testing.T) {
 	want := Pipeline{
 		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",
@@ -225,6 +228,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	input := CreatePipeline{
 		Name:          "my-great-pipeline",
 		Repository:    "my-great-repo",
+		ClusterID:     "528000d8-4ee1-4479-8af1-032b143185f0",
 		Configuration: "steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
 	}
 
@@ -244,6 +248,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 		_, _ = fmt.Fprint(w, `{
 						"name":"my-great-pipeline",
 						"repository":"my-great-repo",
+						"cluster_id":"528000d8-4ee1-4479-8af1-032b143185f0",
 						"configuration":"steps:\n  - command: \"script/release.sh\"\n    label: \"Build :package:\"",
 						"steps": [
 							{
@@ -269,6 +274,7 @@ func TestPipelinesService_CreateByConfiguration(t *testing.T) {
 	want := Pipeline{
 		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",
@@ -342,6 +348,7 @@ func TestPipelinesService_Update(t *testing.T) {
 	input := CreatePipeline{
 		Name:       "my-great-pipeline",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",
@@ -373,6 +380,7 @@ func TestPipelinesService_Update(t *testing.T) {
 		_, _ = fmt.Fprint(w, `{
 						"name":"my-great-pipeline",
 						"repository":"my-great-repo",
+						"cluster_id":"528000d8-4ee1-4479-8af1-032b143185f0",
 						"steps": [
 							{
 								"type": "script",
@@ -411,6 +419,7 @@ func TestPipelinesService_Update(t *testing.T) {
 		_, _ = fmt.Fprint(w, `{
 						"name":"derp",
 						"repository":"my-great-repo",
+						"cluster_id":"528000d8-4ee1-4479-8af1-032b143185f0",
 						"steps": [
 							{
 								"type": "script",
@@ -438,6 +447,7 @@ func TestPipelinesService_Update(t *testing.T) {
 	want := Pipeline{
 		Name:       "derp",
 		Repository: "my-great-repo",
+		ClusterID:  "528000d8-4ee1-4479-8af1-032b143185f0",
 		Steps: []Step{
 			{
 				Type:    "script",

@@ -18,6 +18,7 @@ type PipelinesService struct {
 type CreatePipeline struct {
 	Name       string `json:"name"`
 	Repository string `json:"repository"`
+	ClusterID  string `json:"cluster_id"`
 
 	// Either configuration needs to be specified as a yaml string or steps.
 	Configuration string `json:"configuration,omitempty"`
@@ -34,7 +35,6 @@ type CreatePipeline struct {
 	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds"`
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty"`
-	ClusterID                       string            `json:"cluster_id,omitempty"`
 	Visibility                      string            `json:"visibility,omitempty"`
 	Tags                            []string          `json:"tags,omitempty"`
 }
