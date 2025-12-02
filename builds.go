@@ -202,8 +202,8 @@ type BuildGetOptions struct {
 // Cancel - Trigger a cancel for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#cancel-a-build
-func (bs *BuildsService) Cancel(ctx context.Context, org, pipeline, build string) (Build, error) {
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/cancel", org, pipeline, build)
+func (bs *BuildsService) Cancel(ctx context.Context, org, pipeline, buildNumber string) (Build, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/cancel", org, pipeline, buildNumber)
 	req, err := bs.client.NewRequest(ctx, "PUT", u, nil)
 	if err != nil {
 		return Build{}, err
@@ -240,8 +240,8 @@ func (bs *BuildsService) Create(ctx context.Context, org string, pipeline string
 // Get fetches a build.
 //
 // buildkite API docs: https://buildkite.com/docs/api/builds#get-a-build
-func (bs *BuildsService) Get(ctx context.Context, org string, pipeline string, id string, opt *BuildGetOptions) (Build, *Response, error) {
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, id)
+func (bs *BuildsService) Get(ctx context.Context, org, pipeline, buildNumber string, opt *BuildGetOptions) (Build, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s", org, pipeline, buildNumber)
 
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -337,8 +337,8 @@ func (bs *BuildsService) ListByPipeline(ctx context.Context, org string, pipelin
 // Rebuild triggers a rebuild for the target build
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/builds#rebuild-a-build
-func (bs *BuildsService) Rebuild(ctx context.Context, org, pipeline, build string) (Build, error) {
-	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/rebuild", org, pipeline, build)
+func (bs *BuildsService) Rebuild(ctx context.Context, org, pipeline, buildNumber string) (Build, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/rebuild", org, pipeline, buildNumber)
 	req, err := bs.client.NewRequest(ctx, "PUT", u, nil)
 	if err != nil {
 		return Build{}, err
