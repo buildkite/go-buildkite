@@ -26,8 +26,10 @@ type CreatePipeline struct {
 
 	// Optional fields
 	DefaultBranch                   string            `json:"default_branch,omitempty"`
+	DefaultCommandStepTimeout       int               `json:"default_command_step_timeout,omitempty"`
 	Description                     string            `json:"description,omitempty"`
 	Env                             map[string]string `json:"env,omitempty"`
+	MaximumCommandStepTimeout       int               `json:"maximum_command_step_timeout,omitempty"`
 	ProviderSettings                ProviderSettings  `json:"provider_settings,omitempty"`
 	BranchConfiguration             string            `json:"branch_configuration,omitempty"`
 	SkipQueuedBranchBuilds          bool              `json:"skip_queued_branch_builds"`
@@ -47,7 +49,9 @@ type UpdatePipeline struct {
 	Name                            string           `json:"name,omitempty"`
 	Repository                      string           `json:"repository,omitempty"`
 	DefaultBranch                   string           `json:"default_branch,omitempty"`
+	DefaultCommandStepTimeout       int              `json:"default_command_step_timeout,omitempty"`
 	Description                     string           `json:"description,omitempty"`
+	MaximumCommandStepTimeout       int              `json:"maximum_command_step_timeout,omitempty"`
 	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty"`
 	BranchConfiguration             string           `json:"branch_configuration,omitempty"`
 	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds"`
@@ -96,6 +100,10 @@ type Pipeline struct {
 	Steps         []Step         `json:"steps,omitempty"`
 	Configuration string         `json:"configuration,omitempty"`
 	Env           map[string]any `json:"env,omitempty"`
+
+	// timeouts
+	DefaultCommandStepTimeout int `json:"default_command_step_timeout,omitempty"`
+	MaximumCommandStepTimeout int `json:"maximum_command_step_timeout,omitempty"`
 }
 
 // Step represents a build step in buildkites build pipeline
