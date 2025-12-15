@@ -4,7 +4,6 @@
 * feat: add rate_limit endpoint support [#259](https://github.com/buildkite/go-buildkite/pull/259) ([mcncl](https://github.com/mcncl))
 * Cancel, Get, Rebuild build requires build number, not ID [#258](https://github.com/buildkite/go-buildkite/pull/258) ([DrJosh9000](https://github.com/DrJosh9000))
 * Update examples for creating pipelines via API with the required ClusterID [#257](https://github.com/buildkite/go-buildkite/pull/257) ([lizrabuya](https://github.com/lizrabuya))
-* release: changelog for v4.11.0 [#256](https://github.com/buildkite/go-buildkite/pull/256) ([mcncl](https://github.com/mcncl))
 
 ## [v4.11.0](https://github.com/buildkite/go-buildkite/compare/v4.10.0...v4.11.0) (2025-11-14)
 
