@@ -3,9 +3,7 @@ package buildkite
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
 )
 
 // PipelinesService handles communication with the pipeline related
@@ -171,24 +169,6 @@ func (ps *PipelinesService) Create(ctx context.Context, org string, p CreatePipe
 	var pipeline Pipeline
 	resp, err := ps.client.Do(req, &pipeline)
 	if err != nil {
-		if resp != nil && resp.StatusCode == http.StatusUnprocessableEntity {
-			var errResp *ErrorResponse
-			if errors.As(err, &errResp) {
-				var vErr struct {
-					Errors []struct {
-						Field string `json:"field"`
-						Code  string `json:"code"`
-					} `json:"errors"`
-				}
-				if json.Unmarshal(errResp.RawBody, &vErr) == nil {
-					for _, e := range vErr.Errors {
-						if e.Field == "cluster_id" && e.Code == "missing" {
-							return Pipeline{}, resp, fmt.Errorf("%w: cluster_id is required", err)
-						}
-					}
-				}
-			}
-		}
 		return Pipeline{}, resp, err
 	}
 
