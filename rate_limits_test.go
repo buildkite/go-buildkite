@@ -61,6 +61,6 @@ func TestRateLimitService_Get(t *testing.T) {
 		},
 	}}
 	if diff := cmp.Diff(limit, want); diff != "" {
-		t.Errorf("RateLImit.Get diff: (-got +want)\n%s", diff)
+		t.Errorf("RateLimit.Get diff: (-got +want)\n%s", diff)
 	}
 }
