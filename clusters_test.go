@@ -202,7 +202,6 @@ func TestClustersService_Get(t *testing.T) {
 }
 
 func TestClustersService_CreateWithMaintainers(t *testing.T) {
-
 	clusterCreate := ClusterCreate{
 		Name:        "Testing Cluster",
 		Description: "A cluster for testing",
