@@ -1,3 +1,10 @@
+## [v4.12.0](https://github.com/buildkite/go-buildkite/compare/v4.11.0...v4.12.0) (2025-12-15)
+
+* feat: command timeouts on pipeline create/update [#260](https://github.com/buildkite/go-buildkite/pull/260) ([mcncl](https://github.com/mcncl))
+* feat: add rate_limit endpoint support [#259](https://github.com/buildkite/go-buildkite/pull/259) ([mcncl](https://github.com/mcncl))
+* Cancel, Get, Rebuild build requires build number, not ID [#258](https://github.com/buildkite/go-buildkite/pull/258) ([DrJosh9000](https://github.com/DrJosh9000))
+* Update examples for creating pipelines via API with the required ClusterID [#257](https://github.com/buildkite/go-buildkite/pull/257) ([lizrabuya](https://github.com/lizrabuya))
+
 ## [v4.11.0](https://github.com/buildkite/go-buildkite/compare/v4.10.0...v4.11.0) (2025-11-14)
 
 * Add retry_agent_affinity option to create and update cluster queues [#255](https://github.com/buildkite/go-buildkite/pull/255) ([moskyb](https://github.com/moskyb))
