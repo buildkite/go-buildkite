@@ -83,7 +83,7 @@ func (as *ArtifactsService) ListByJob(ctx context.Context, org string, pipeline 
 	return artifacts, resp, err
 }
 
-func (as *ArtifactsService) GetArtifact(ctx context.Context, org, pipeline, build, job, id string) (Artifact, *Response, error) {
+func (as *ArtifactsService) Get(ctx context.Context, org, pipeline, build, job, id string) (Artifact, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts/%s", org, pipeline, build, job, id)
 	req, err := as.client.NewRequest(ctx, "GET", u, nil)
 	if err != nil {

@@ -114,7 +114,7 @@ func TestArtifactsService_ListByJob_WithPagination(t *testing.T) {
 	}
 }
 
-func TestArtifactsService_GetArtifact(t *testing.T) {
+func TestArtifactsService_Get(t *testing.T) {
 	t.Parallel()
 
 	server, client, teardown := newMockServerAndClient(t)
@@ -137,9 +137,9 @@ func TestArtifactsService_GetArtifact(t *testing.T) {
 		}`)
 	})
 
-	artifact, _, err := client.Artifacts.GetArtifact(context.Background(), "my-great-org", "sup-keith", "123", "job-456", "art-789")
+	artifact, _, err := client.Artifacts.Get(context.Background(), "my-great-org", "sup-keith", "123", "job-456", "art-789")
 	if err != nil {
-		t.Errorf("GetArtifact returned error: %v", err)
+		t.Errorf("Get returned error: %v", err)
 	}
 
 	want := Artifact{
@@ -156,7 +156,7 @@ func TestArtifactsService_GetArtifact(t *testing.T) {
 		SHA1:        "abc123def456",
 	}
 	if diff := cmp.Diff(artifact, want); diff != "" {
-		t.Errorf("GetArtifact diff: (-got +want)\n%s", diff)
+		t.Errorf("Get diff: (-got +want)\n%s", diff)
 	}
 }
 
