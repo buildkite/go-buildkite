@@ -1,3 +1,7 @@
+## [v4.13.0](https://github.com/buildkite/go-buildkite/compare/v4.12.0...v4.13.0) (2025-12-18)
+
+* bm/artifact get [#262](https://github.com/buildkite/go-buildkite/pull/262) ([mcncl](https://github.com/mcncl))
+
 ## [v4.12.0](https://github.com/buildkite/go-buildkite/compare/v4.11.0...v4.12.0) (2025-12-15)
 
 * feat: command timeouts on pipeline create/update [#260](https://github.com/buildkite/go-buildkite/pull/260) ([mcncl](https://github.com/mcncl))
