@@ -83,6 +83,22 @@ func (as *ArtifactsService) ListByJob(ctx context.Context, org string, pipeline 
 	return artifacts, resp, err
 }
 
+func (as *ArtifactsService) Get(ctx context.Context, org, pipeline, build, job, id string) (Artifact, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts/%s", org, pipeline, build, job, id)
+	req, err := as.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return Artifact{}, nil, err
+	}
+
+	var artifact Artifact
+	resp, err := as.client.Do(req, &artifact)
+	if err != nil {
+		return Artifact{}, resp, err
+	}
+
+	return artifact, resp, err
+}
+
 // DownloadArtifactByURL gets artifacts for a specific build
 //
 // buildkite API docs: https://buildkite.com/docs/api/artifacts#list-artifacts-for-a-build
