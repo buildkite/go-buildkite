@@ -1,3 +1,7 @@
+## [v4.13.1](https://github.com/buildkite/go-buildkite/compare/v4.13.0...v4.13.1) (2025-12-19)
+
+* Add build id to test runs [#264](https://github.com/buildkite/go-buildkite/pull/264) ([niceking](https://github.com/niceking))
+
 ## [v4.13.0](https://github.com/buildkite/go-buildkite/compare/v4.12.0...v4.13.0) (2025-12-18)
 
 * bm/artifact get [#262](https://github.com/buildkite/go-buildkite/pull/262) ([mcncl](https://github.com/mcncl))
