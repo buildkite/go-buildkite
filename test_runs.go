@@ -22,6 +22,7 @@ type TestRun struct {
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	State     string     `json:"state,omitempty"`
 	Result    string     `json:"result,omitempty"`
+	BuildID   string     `json:"build_id,omitempty"`
 }
 
 type FailureExpanded struct {
