@@ -103,7 +103,8 @@ func TestTestRunsService_Get(t *testing.T) {
 				"commit_sha": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
 				"created_at": "2023-05-20T10:25:50.264Z",
 				"state": "finished",
-				"result": "failed"
+				"result": "failed",
+				"build_id": "0191bd22-3c60-7a96-aa84-e173e79bb7f5"
 			}`)
 	})
 
@@ -127,6 +128,7 @@ func TestTestRunsService_Get(t *testing.T) {
 		CreatedAt: NewTimestamp(parsedTime),
 		State:     "finished",
 		Result:    "failed",
+		BuildID:   "0191bd22-3c60-7a96-aa84-e173e79bb7f5",
 	}
 
 	if diff := cmp.Diff(run, want); diff != "" {
