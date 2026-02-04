@@ -146,3 +146,42 @@ func TestJobsService_GetJobEnvironmentVariables(t *testing.T) {
 		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestJobsService_ReprioritizeJob(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	input := JobReprioritizationOptions{Priority: 10}
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/reprioritize", func(w http.ResponseWriter, r *http.Request) {
+		var v JobReprioritizationOptions
+		err := json.NewDecoder(r.Body).Decode(&v)
+		if err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
+
+		testMethod(t, r, "PUT")
+
+		if diff := cmp.Diff(v, input); diff != "" {
+			t.Errorf("Request body diff: (-got +want)\n%s", diff)
+		}
+
+		_, _ = fmt.Fprint(w, `{
+  "id": "awesome-job-id",
+  "state": "scheduled",
+  "priority": {"number": 10}
+}`)
+	})
+
+	job, _, err := client.Jobs.ReprioritizeJob(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", &input)
+	if err != nil {
+		t.Errorf("ReprioritizeJob returned error: %v", err)
+	}
+
+	want := Job{ID: "awesome-job-id", State: "scheduled", Priority: &JobPriority{Number: 10}}
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("ReprioritizeJob diff: (-got +want)\n%s", diff)
+	}
+}

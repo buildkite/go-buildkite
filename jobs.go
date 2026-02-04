@@ -101,6 +101,11 @@ type JobPriority struct {
 	Number int `json:"number,omitempty"`
 }
 
+// JobReprioritizationOptions represent the new priority of a job
+type JobReprioritizationOptions struct {
+	Priority int `json:"priority"`
+}
+
 // StepSignature represents the signature of a step
 type StepSignature struct {
 	Value        string   `json:"value,omitempty"`
@@ -201,4 +206,23 @@ func (js *JobsService) GetJobEnvironmentVariables(ctx context.Context, org strin
 	}
 
 	return jobEnvs, resp, err
+}
+
+// ReprioritizeJob - reprioritize a job
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#reprioritize-a-job
+func (js *JobsService) ReprioritizeJob(ctx context.Context, org, pipeline, buildNumber, jobID string, opt *JobReprioritizationOptions) (Job, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/reprioritize", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, "PUT", u, opt)
+	if err != nil {
+		return Job{}, nil, err
+	}
+
+	var job Job
+	resp, err := js.client.Do(req, &job)
+	if err != nil {
+		return Job{}, resp, err
+	}
+
+	return job, resp, err
 }
