@@ -1,3 +1,8 @@
+## [v4.14](https://github.com/buildkite/go-buildkite/compare/v4.13.1...v4.14) (2026-02-04)
+
+* Support job reprioritization [#266](https://github.com/buildkite/go-buildkite/pull/266) ([mcncl](https://github.com/mcncl))
+* Support cluster secrets [#267](https://github.com/buildkite/go-buildkite/pull/268) ([mcncl](https://github.com/mcncl))
+
 ## [v4.13.1](https://github.com/buildkite/go-buildkite/compare/v4.13.0...v4.13.1) (2025-12-19)
 
 * Add build id to test runs [#264](https://github.com/buildkite/go-buildkite/pull/264) ([niceking](https://github.com/niceking))
