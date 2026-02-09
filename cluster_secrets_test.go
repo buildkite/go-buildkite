@@ -33,11 +33,17 @@ func TestClusterSecretsService_List(t *testing.T) {
 					"created_at": "2023-06-07T08:01:02.951Z",
 					"created_by": {
 						"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-						"graphql_id": "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
 						"name": "Joe Smith",
-						"email": "jsmith@example.com",
-						"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
-						"created_at": "2023-02-20T03:00:05.824Z"
+						"email": "jsmith@example.com"
+					},
+					"updated_at": "2023-06-07T08:01:02.951Z",
+					"updated_by": null,
+					"last_read_at": null,
+					"organization": {
+						"id": "0198e45b-c0d5-4a0b-8e37-e140af750d2d",
+						"slug": "my-great-org",
+						"url": "https://api.buildkite.com/v2/organizations/my-great-org",
+						"web_url": "https://buildkite.com/my-great-org"
 					}
 				},
 				{
@@ -51,11 +57,17 @@ func TestClusterSecretsService_List(t *testing.T) {
 					"created_at": "2023-06-07T08:05:00.755Z",
 					"created_by": {
 						"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-						"graphql_id": "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
 						"name": "Joe Smith",
-						"email": "jsmith@example.com",
-						"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
-						"created_at": "2023-02-20T03:00:05.824Z"
+						"email": "jsmith@example.com"
+					},
+					"updated_at": "2023-06-07T08:05:00.755Z",
+					"updated_by": null,
+					"last_read_at": null,
+					"organization": {
+						"id": "0198e45b-c0d5-4a0b-8e37-e140af750d2d",
+						"slug": "my-great-org",
+						"url": "https://api.buildkite.com/v2/organizations/my-great-org",
+						"web_url": "https://buildkite.com/my-great-org"
 					}
 				}
 			]`)
@@ -68,39 +80,46 @@ func TestClusterSecretsService_List(t *testing.T) {
 
 	sshKeyCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z"))
 	deployTokenCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T08:05:00.755Z"))
-	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
 
-	clusterCreator := ClusterCreator{
-		ID:        "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-		GraphQLID: "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
-		Name:      "Joe Smith",
-		Email:     "jsmith@example.com",
-		AvatarURL: "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
-		CreatedAt: NewTimestamp(userCreatedAt),
+	secretCreator := SecretCreator{
+		ID:    "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+		Name:  "Joe Smith",
+		Email: "jsmith@example.com",
+	}
+
+	org := ClusterSecretOrganization{
+		ID:     "0198e45b-c0d5-4a0b-8e37-e140af750d2d",
+		Slug:   "my-great-org",
+		URL:    "https://api.buildkite.com/v2/organizations/my-great-org",
+		WebURL: "https://buildkite.com/my-great-org",
 	}
 
 	want := []ClusterSecret{
 		{
-			ID:          "a1e2d345-6789-0abc-def1-234567890abc",
-			GraphQLID:   "Q2x1c3RlclNlY3JldC0tLWExZTJkMzQ1LTY3ODktMGFiYy1kZWYxLTIzNDU2Nzg5MGFiYw==",
-			Key:         "SSH_PRIVATE_KEY",
-			Description: "SSH key for deployment",
-			Policy:      "any",
-			URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/secrets/a1e2d345-6789-0abc-def1-234567890abc",
-			ClusterURL:  "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
-			CreatedAt:   NewTimestamp(sshKeyCreatedAt),
-			CreatedBy:   clusterCreator,
+			ID:           "a1e2d345-6789-0abc-def1-234567890abc",
+			GraphQLID:    "Q2x1c3RlclNlY3JldC0tLWExZTJkMzQ1LTY3ODktMGFiYy1kZWYxLTIzNDU2Nzg5MGFiYw==",
+			Key:          "SSH_PRIVATE_KEY",
+			Description:  "SSH key for deployment",
+			Policy:       "any",
+			URL:          "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/secrets/a1e2d345-6789-0abc-def1-234567890abc",
+			ClusterURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
+			CreatedAt:    NewTimestamp(sshKeyCreatedAt),
+			CreatedBy:    secretCreator,
+			UpdatedAt:    NewTimestamp(sshKeyCreatedAt),
+			Organization: org,
 		},
 		{
-			ID:          "b2f3e456-7890-1bcd-ef12-345678901bcd",
-			GraphQLID:   "Q2x1c3RlclNlY3JldC0tLWIyZjNlNDU2LTc4OTAtMWJjZC1lZjEyLTM0NTY3ODkwMWJjZA==",
-			Key:         "DEPLOY_TOKEN",
-			Description: "Deployment access token",
-			Policy:      "block",
-			URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/secrets/b2f3e456-7890-1bcd-ef12-345678901bcd",
-			ClusterURL:  "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
-			CreatedAt:   NewTimestamp(deployTokenCreatedAt),
-			CreatedBy:   clusterCreator,
+			ID:           "b2f3e456-7890-1bcd-ef12-345678901bcd",
+			GraphQLID:    "Q2x1c3RlclNlY3JldC0tLWIyZjNlNDU2LTc4OTAtMWJjZC1lZjEyLTM0NTY3ODkwMWJjZA==",
+			Key:          "DEPLOY_TOKEN",
+			Description:  "Deployment access token",
+			Policy:       "block",
+			URL:          "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/secrets/b2f3e456-7890-1bcd-ef12-345678901bcd",
+			ClusterURL:   "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
+			CreatedAt:    NewTimestamp(deployTokenCreatedAt),
+			CreatedBy:    secretCreator,
+			UpdatedAt:    NewTimestamp(deployTokenCreatedAt),
+			Organization: org,
 		},
 	}
 
@@ -130,11 +149,17 @@ func TestClusterSecretsService_Get(t *testing.T) {
 				"created_at": "2023-06-07T08:01:02.951Z",
 				"created_by": {
 					"id": "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-					"graphql_id": "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
 					"name": "Joe Smith",
-					"email": "jsmith@example.com",
-					"avatar_url": "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
-					"created_at": "2023-02-20T03:00:05.824Z"
+					"email": "jsmith@example.com"
+				},
+				"updated_at": "2023-06-07T08:01:02.951Z",
+				"updated_by": null,
+				"last_read_at": null,
+				"organization": {
+					"id": "0198e45b-c0d5-4a0b-8e37-e140af750d2d",
+					"slug": "my-great-org",
+					"url": "https://api.buildkite.com/v2/organizations/my-great-org",
+					"web_url": "https://buildkite.com/my-great-org"
 				}
 			}`)
 	})
@@ -145,16 +170,6 @@ func TestClusterSecretsService_Get(t *testing.T) {
 	}
 
 	secretCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-06-07T08:01:02.951Z"))
-	userCreatedAt := must(time.Parse(BuildKiteDateFormat, "2023-02-20T03:00:05.824Z"))
-
-	clusterCreator := ClusterCreator{
-		ID:        "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
-		GraphQLID: "VXNlci0tLTdkYTA3ZTI1LTAzODMtNGFmZi1hN2NmLTE0ZDFhOWFhMDk4Zg==",
-		Name:      "Joe Smith",
-		Email:     "jsmith@example.com",
-		AvatarURL: "https://www.gravatar.com/avatar/593nf93m405mf744n3kg9456jjph9grt4",
-		CreatedAt: NewTimestamp(userCreatedAt),
-	}
 
 	want := ClusterSecret{
 		ID:          "a1e2d345-6789-0abc-def1-234567890abc",
@@ -165,7 +180,18 @@ func TestClusterSecretsService_Get(t *testing.T) {
 		URL:         "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/secrets/a1e2d345-6789-0abc-def1-234567890abc",
 		ClusterURL:  "https://api.buildkite.com/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57",
 		CreatedAt:   NewTimestamp(secretCreatedAt),
-		CreatedBy:   clusterCreator,
+		CreatedBy: SecretCreator{
+			ID:    "7da07e25-0383-4aff-a7cf-14d1a9aa098f",
+			Name:  "Joe Smith",
+			Email: "jsmith@example.com",
+		},
+		UpdatedAt: NewTimestamp(secretCreatedAt),
+		Organization: ClusterSecretOrganization{
+			ID:     "0198e45b-c0d5-4a0b-8e37-e140af750d2d",
+			Slug:   "my-great-org",
+			URL:    "https://api.buildkite.com/v2/organizations/my-great-org",
+			WebURL: "https://buildkite.com/my-great-org",
+		},
 	}
 
 	if diff := cmp.Diff(secret, want); diff != "" {
