@@ -1,3 +1,7 @@
+## [v4.14.1](https://github.com/buildkite/go-buildkite/compare/v4.14.0...v4.14.1) (2026-02-09)
+
+* Fix the structs in a cluster secret [#269](https://github.com/buildkite/go-buildkite/pull/269) ([mcncl](https://github.com/mcncl))
+
 ## [v4.14](https://github.com/buildkite/go-buildkite/compare/v4.13.1...v4.14) (2026-02-04)
 
 * Support job reprioritization [#266](https://github.com/buildkite/go-buildkite/pull/266) ([mcncl](https://github.com/mcncl))
