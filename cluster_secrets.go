@@ -14,19 +14,32 @@ type ClusterSecretsService struct {
 }
 
 type ClusterSecret struct {
-	ID           string         `json:"id,omitempty"`
-	GraphQLID    string         `json:"graphql_id,omitempty"`
-	Key          string         `json:"key,omitempty"`
-	Description  string         `json:"description,omitempty"`
-	Policy       string         `json:"policy,omitempty"`
-	URL          string         `json:"url,omitempty"`
-	ClusterURL   string         `json:"cluster_url,omitempty"`
-	CreatedAt    *Timestamp     `json:"created_at,omitempty"`
-	CreatedBy    ClusterCreator `json:"created_by"`
-	UpdatedAt    *Timestamp     `json:"updated_at,omitempty"`
-	UpdatedBy    ClusterCreator `json:"updated_by"`
-	LastReadAt   *Timestamp     `json:"last_read_at,omitempty"`
-	Organization string         `json:"organization,omitempty"`
+	ID           string                    `json:"id,omitempty"`
+	GraphQLID    string                    `json:"graphql_id,omitempty"`
+	Key          string                    `json:"key,omitempty"`
+	Description  string                    `json:"description,omitempty"`
+	Policy       string                    `json:"policy,omitempty"`
+	URL          string                    `json:"url,omitempty"`
+	ClusterURL   string                    `json:"cluster_url,omitempty"`
+	CreatedAt    *Timestamp                `json:"created_at,omitempty"`
+	CreatedBy    SecretCreator             `json:"created_by,omitempty"`
+	UpdatedAt    *Timestamp                `json:"updated_at,omitempty"`
+	UpdatedBy    *SecretCreator            `json:"updated_by,omitempty"`
+	LastReadAt   *Timestamp                `json:"last_read_at,omitempty"`
+	Organization ClusterSecretOrganization `json:"organization,omitempty"`
+}
+
+type SecretCreator struct {
+	ID    string `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Email string `json:"email,omitempty"`
+}
+
+type ClusterSecretOrganization struct {
+	ID     string `json:"id,omitempty"`
+	Slug   string `json:"slug,omitempty"`
+	URL    string `json:"url,omitempty"`
+	WebURL string `json:"web_url,omitempty"`
 }
 
 type ClusterSecretCreate struct {
