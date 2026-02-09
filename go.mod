@@ -1,8 +1,6 @@
 module github.com/buildkite/go-buildkite/v4
 
-go 1.23.0
-
-toolchain go1.24.0
+go 1.25
 
 require (
 	github.com/cenkalti/backoff v1.1.1-0.20171020064038-309aa717adbf
@@ -15,5 +13,6 @@ require (
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	golang.org/x/net v0.38.0 // indirect
 )
