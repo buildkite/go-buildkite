@@ -22,5 +22,5 @@ steps:
     depends_on: test
     allow_dependency_failure: true
     plugins:
-      - junit-annotate#v1.9.0:
+      - junit-annotate#v2.7.0:
           artifacts: junit-*.xml
