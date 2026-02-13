@@ -14,7 +14,7 @@ steps:
       - docker#v5.13.0:
           image: "golang:1.25"
           propagate-environment: true
-      - artifacts#v1.9.0:
+      - artifacts#v1.9.4:
           upload: "cover.{html,out}"
 
   - label: ":writing_hand: Annotate with Test Failures"
