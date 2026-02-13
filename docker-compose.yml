@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   app:
-    image: golang:1.22
+    image: golang:1.26
     volumes:
       - .:/work
     working_dir: /work
