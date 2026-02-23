@@ -1,3 +1,14 @@
+## [v4.15.0](https://github.com/buildkite/go-buildkite/compare/v4.14.1...v4.15.0) (2026-02-24)
+
+* Add CancelDeletedBranchBuilds to GitHubEnterpriseSettings [#283](https://github.com/buildkite/go-buildkite/pull/283) ([bearcage-dayjob](https://github.com/bearcage-dayjob))
+* chore(deps): update buildkite plugin junit-annotate to v2 [#280](https://github.com/buildkite/go-buildkite/pull/280) ([renovate[bot]](https://github.com/apps/renovate))
+* chore(deps): update golang docker tag to v1.26 [#276](https://github.com/buildkite/go-buildkite/pull/276) ([renovate[bot]](https://github.com/apps/renovate))
+* chore(deps): update buildkite plugin junit-annotate to v1.9.0 [#275](https://github.com/buildkite/go-buildkite/pull/275) ([renovate[bot]](https://github.com/apps/renovate))
+* chore(deps): update buildkite plugin artifacts to v1.9.4 [#272](https://github.com/buildkite/go-buildkite/pull/272) ([renovate[bot]](https://github.com/apps/renovate))
+* chore(deps): update buildkite plugin docker to v5.13.0 [#273](https://github.com/buildkite/go-buildkite/pull/273) ([renovate[bot]](https://github.com/apps/renovate))
+* chore: Configure Renovate [#271](https://github.com/buildkite/go-buildkite/pull/271) ([renovate[bot]](https://github.com/apps/renovate))
+* Changelog for v4.14.1 [#270](https://github.com/buildkite/go-buildkite/pull/270) ([mcncl](https://github.com/mcncl))
+
 ## [v4.14.1](https://github.com/buildkite/go-buildkite/compare/v4.14.0...v4.14.1) (2026-02-09)
 
 * Fix the structs in a cluster secret [#269](https://github.com/buildkite/go-buildkite/pull/269) ([mcncl](https://github.com/mcncl))
