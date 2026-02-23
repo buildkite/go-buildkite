@@ -103,6 +103,7 @@ type GitHubEnterpriseSettings struct {
 	BuildTags                               bool   `json:"build_tags"`
 	PublishCommitStatus                     bool   `json:"publish_commit_status"`
 	PublishCommitStatusPerStep              bool   `json:"publish_commit_status_per_step"`
+	CancelDeletedBranchBuilds               bool   `json:"cancel_deleted_branch_builds"`
 
 	// Read-only
 	Repository string `json:"repository,omitempty"`
