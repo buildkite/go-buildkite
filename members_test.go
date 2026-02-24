@@ -86,6 +86,6 @@ func TestMemberService_Get(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(member, want); diff != "" {
-		t.Errorf("TestClusters.Get diff: (-got +want)\n%s", diff)
+	        t.Errorf("TestMembers.Get diff: (-got +want)\n%s", diff)
 	}
 }
