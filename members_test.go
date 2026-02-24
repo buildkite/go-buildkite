@@ -52,7 +52,7 @@ func TestMemberService_List(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(members, want); diff != "" {
-		t.Errorf("TestClusters.List diff: (-got +want)\n%s", diff)
+	        t.Errorf("TestMembers.List diff: (-got +want)\n%s", diff)
 	}
 }
 
