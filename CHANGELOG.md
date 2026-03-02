@@ -1,3 +1,9 @@
+## [v4.16.0](https://github.com/buildkite/go-buildkite/compare/v4.15.0...v4.16.0) (2026-02-26)
+
+* fix(deps): update module github.com/google/go-cmp to v0.7.0 [#277](https://github.com/buildkite/go-buildkite/pull/277) ([renovate[bot]](https://github.com/apps/renovate))
+* fix(deps): update module github.com/google/go-querystring to v1.2.0 [#278](https://github.com/buildkite/go-buildkite/pull/278) ([renovate[bot]](https://github.com/apps/renovate))
+* Add functions for listing/getting members [#282](https://github.com/buildkite/go-buildkite/pull/282) ([mcncl](https://github.com/mcncl))
+
 ## [v4.15.0](https://github.com/buildkite/go-buildkite/compare/v4.14.1...v4.15.0) (2026-02-24)
 
 * Add CancelDeletedBranchBuilds to GitHubEnterpriseSettings [#283](https://github.com/buildkite/go-buildkite/pull/283) ([bearcage-dayjob](https://github.com/bearcage-dayjob))
