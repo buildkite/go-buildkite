@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"net/http"
 )
 
 // AnnotationsService handles communication with the annotation related
@@ -73,4 +74,14 @@ func (as *AnnotationsService) Create(ctx context.Context, org, pipeline, build s
 	}
 
 	return annotation, resp, err
+}
+
+func (as *AnnotationsService) Delete(ctx context.Context, org, pipeline, build, annotationUUID string) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/annotations/%s", org, pipeline, build, annotationUUID)
+	req, err := as.client.NewRequest(ctx, http.MethodDelete, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return as.client.Do(req, nil)
 }

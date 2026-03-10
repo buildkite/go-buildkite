@@ -124,3 +124,19 @@ func TestAnnotationsService_Create(t *testing.T) {
 		t.Errorf("TestAnnotations.Create diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestAnnotationsService_Delete(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline/builds/10/annotations/68aef727-f754-48e1-aad8-5f5da8a9960c", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Annotations.Delete(context.Background(), "my-great-org", "my-great-pipeline", "10", "68aef727-f754-48e1-aad8-5f5da8a9960c")
+	if err != nil {
+		t.Errorf("TestAnnotations.Delete returned error: %v", err)
+	}
+}
