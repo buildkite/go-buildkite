@@ -1,3 +1,4 @@
+// Package buildkite provides a client for the Buildkite API.
 package buildkite
 
 import (
@@ -58,6 +59,7 @@ type Client struct {
 	Pipelines                *PipelinesService
 	PipelineTemplates        *PipelineTemplatesService
 	RateLimit                *RateLimitService
+	Rules                    *RulesService
 	User                     *UserService
 	Teams                    *TeamsService
 	TeamMember               *TeamMemberService
@@ -176,6 +178,7 @@ func (c *Client) populateDefaultServices() {
 	c.Pipelines = &PipelinesService{c}
 	c.PipelineTemplates = &PipelineTemplatesService{c}
 	c.RateLimit = &RateLimitService{c}
+	c.Rules = &RulesService{c}
 	c.User = &UserService{c}
 	c.Teams = &TeamsService{c}
 	c.TeamMember = &TeamMemberService{c}
