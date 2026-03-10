@@ -52,6 +52,7 @@ type Client struct {
 	FlakyTests               *FlakyTestsService
 	Jobs                     *JobsService
 	Members                  *MembersService
+	Meta                     *MetaService
 	Organizations            *OrganizationsService
 	PackagesService          *PackagesService
 	PackageRegistriesService *PackageRegistriesService
@@ -170,6 +171,7 @@ func (c *Client) populateDefaultServices() {
 	c.FlakyTests = &FlakyTestsService{c}
 	c.Jobs = &JobsService{c}
 	c.Members = &MembersService{c}
+	c.Meta = &MetaService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.PackagesService = &PackagesService{c}
 	c.PackageRegistriesService = &PackageRegistriesService{c}
