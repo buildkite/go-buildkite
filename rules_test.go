@@ -88,7 +88,7 @@ func TestRulesService_List(t *testing.T) {
 
 	want := []Rule{
 		{
-			UUID:             "a]8e-4f87-a462-95b0dac9a681",
+			UUID:             "a8e-4f87-a462-95b0dac9a681",
 			GraphqlID:        "UnVsZS0tLWE4ZS00Zjg3LWE0NjItOTViMGRhYzlhNjgx",
 			Action:           "trigger_build",
 			Type:             "pipeline.trigger_build.pipeline",
