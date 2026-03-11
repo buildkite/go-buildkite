@@ -22,7 +22,7 @@ func TestRulesService_List(t *testing.T) {
 		_, _ = fmt.Fprint(w,
 			`[
 				{
-					"uuid": "a]8e-4f87-a462-95b0dac9a681",
+					"uuid": "a8e-4f87-a462-95b0dac9a681",
 					"graphql_id": "UnVsZS0tLWE4ZS00Zjg3LWE0NjItOTViMGRhYzlhNjgx",
 					"action": "trigger_build",
 					"type": "pipeline.trigger_build.pipeline",
