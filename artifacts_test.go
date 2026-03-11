@@ -160,6 +160,22 @@ func TestArtifactsService_Get(t *testing.T) {
 	}
 }
 
+func TestArtifactsService_Delete(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline/builds/10/jobs/job-123/artifacts/art-456", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Artifacts.Delete(context.Background(), "my-great-org", "my-great-pipeline", "10", "job-123", "art-456")
+	if err != nil {
+		t.Errorf("TestArtifacts.Delete returned error: %v", err)
+	}
+}
+
 func TestArtifactsService_DownloadArtifactByURL(t *testing.T) {
 	t.Parallel()
 
