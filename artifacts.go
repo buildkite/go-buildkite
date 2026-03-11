@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 )
 
 // ArtifactsService handles communication with the artifact related
@@ -97,6 +98,16 @@ func (as *ArtifactsService) Get(ctx context.Context, org, pipeline, build, job, 
 	}
 
 	return artifact, resp, err
+}
+
+func (as *ArtifactsService) Delete(ctx context.Context, org, pipeline, build, job, id string) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/artifacts/%s", org, pipeline, build, job, id)
+	req, err := as.client.NewRequest(ctx, http.MethodDelete, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return as.client.Do(req, nil)
 }
 
 // DownloadArtifactByURL gets artifacts for a specific build
