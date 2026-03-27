@@ -197,6 +197,10 @@ type BuildGetOptions struct {
 
 	// Include Test Engine data
 	IncludeTestEngine bool `url:"include_test_engine,omitempty"`
+
+	// Filters jobs in the response by state. Possible values are: running, scheduled, passed,
+	// failed, canceled, skipped, not_run, broken. Default is "".
+	JobStates []string `url:"job_states,brackets,omitempty"`
 }
 
 // Cancel - Trigger a cancel for the target build

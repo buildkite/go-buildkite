@@ -205,6 +205,65 @@ func TestBuildsService_Get(t *testing.T) {
 			t.Errorf("Builds.Get (exclude test engine) diff: (-got +want)\n%s", diff)
 		}
 	})
+
+	t.Run("filters jobs by single state", func(t *testing.T) {
+		t.Parallel()
+
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+
+		server.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, values{
+					"job_states[]": "failed",
+				})
+				_, _ = fmt.Fprintf(w, `{"id":"%s", "jobs": [{"id": "job-1", "state": "failed"}]}`, buildNumber)
+			})
+
+		opt := &BuildGetOptions{
+			JobStates: []string{"failed"},
+		}
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, opt)
+		if err != nil {
+			t.Errorf("Builds.Get (job_states single) returned error: %v", err)
+		}
+
+		want := Build{ID: buildNumber, Jobs: []Job{{ID: "job-1", State: "failed"}}}
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (job_states single) diff: (-got +want)\n%s", diff)
+		}
+	})
+
+	t.Run("filters jobs by multiple states", func(t *testing.T) {
+		t.Parallel()
+
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+
+		server.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValuesList(t, r, valuesList{
+					{"job_states[]", "failed"},
+					{"job_states[]", "broken"},
+				})
+				_, _ = fmt.Fprintf(w, `{"id":"%s", "jobs": [{"id": "job-1", "state": "failed"}, {"id": "job-2", "state": "broken"}]}`, buildNumber)
+			})
+
+		opt := &BuildGetOptions{
+			JobStates: []string{"failed", "broken"},
+		}
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, opt)
+		if err != nil {
+			t.Errorf("Builds.Get (job_states multiple) returned error: %v", err)
+		}
+
+		want := Build{ID: buildNumber, Jobs: []Job{{ID: "job-1", State: "failed"}, {ID: "job-2", State: "broken"}}}
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (job_states multiple) diff: (-got +want)\n%s", diff)
+		}
+	})
 }
 
 func TestBuildsService_List_by_status(t *testing.T) {
