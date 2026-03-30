@@ -1,3 +1,11 @@
+## [v4.17.0](https://github.com/buildkite/go-buildkite/compare/v4.16.0...v4.17.0)
+
+* Implement a meta service [#286](https://github.com/buildkite/go-buildkite/pull/286) ([mcncl](https://github.com/mcncl))
+* Adds a Delete to the annotations service [#288](https://github.com/buildkite/go-buildkite/pull/288) ([mcncl](https://github.com/mcncl))
+* Adds a rules service [#287](https://github.com/buildkite/go-buildkite/pull/287) ([mcncl](https://github.com/mcncl))
+* Add `Delete` method to ArtifactService [#289](https://github.com/buildkite/go-buildkite/pull/289) ([mcncl](https://github.com/mcncl))
+* feat(builds): add JobStates filter to BuildGetOptions [#290](https://github.com/buildkite/go-buildkite/pull/290) ([wolfeidau](https://github.com/wolfeidau))
+
 ## [v4.16.0](https://github.com/buildkite/go-buildkite/compare/v4.15.0...v4.16.0) (2026-02-26)
 
 * fix(deps): update module github.com/google/go-cmp to v0.7.0 [#277](https://github.com/buildkite/go-buildkite/pull/277) ([renovate[bot]](https://github.com/apps/renovate))
