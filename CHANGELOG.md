@@ -1,3 +1,7 @@
+## [v4.18.0](https://github.com/buildkite/go-buildkite/compare/v4.17.0...v4.18.0) (2026-04-01)
+
+* Test Engine Build Tests API (tests across suites for a build) [#292](https://github.com/buildkite/go-buildkite/pull/292) ([pda](https://github.com/pda))
+
 ## [v4.17.0](https://github.com/buildkite/go-buildkite/compare/v4.16.0...v4.17.0)
 
 * Implement a meta service [#286](https://github.com/buildkite/go-buildkite/pull/286) ([mcncl](https://github.com/mcncl))
