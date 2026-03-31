@@ -45,6 +45,7 @@ type Client struct {
 	Agents                   *AgentsService
 	Annotations              *AnnotationsService
 	Artifacts                *ArtifactsService
+	BuildTests               *BuildTestsService
 	Builds                   *BuildsService
 	Clusters                 *ClustersService
 	ClusterQueues            *ClusterQueuesService
@@ -165,6 +166,7 @@ func (c *Client) populateDefaultServices() {
 	c.Agents = &AgentsService{c}
 	c.Annotations = &AnnotationsService{c}
 	c.Artifacts = &ArtifactsService{c}
+	c.BuildTests = &BuildTestsService{c}
 	c.Builds = &BuildsService{c}
 	c.Clusters = &ClustersService{c}
 	c.ClusterQueues = &ClusterQueuesService{c}
