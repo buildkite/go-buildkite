@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"net/http"
 )
 
 // JobsService handles communication with the job related
@@ -225,4 +226,14 @@ func (js *JobsService) ReprioritizeJob(ctx context.Context, org, pipeline, build
 	}
 
 	return job, resp, err
+}
+
+func (js *JobsService) DeleteJobLog(ctx context.Context, org, pipeline, buildNumber, jobID string) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/log", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, http.MethodDelete, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return js.client.Do(req, nil)
 }

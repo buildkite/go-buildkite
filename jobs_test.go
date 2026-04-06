@@ -185,3 +185,19 @@ func TestJobsService_ReprioritizeJob(t *testing.T) {
 		t.Errorf("ReprioritizeJob diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestJobsService_Delete(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-pipeline-slug/builds/69/jobs/420/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Jobs.DeleteJobLog(context.Background(), "my-great-org", "my-great-pipeline-slug", "69", "420")
+	if err != nil {
+		t.Errorf("Jobs.DeleteJobLog returned error: %v", err)
+	}
+}
