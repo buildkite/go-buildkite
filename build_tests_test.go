@@ -18,6 +18,9 @@ func TestBuildTestsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/builds/abc123/tests", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		if got := r.URL.Query().Get("include"); got != "" {
+			t.Errorf("query param include = %q, want empty", got)
+		}
 		_, _ = fmt.Fprint(w,
 			`
 			[
@@ -115,7 +118,7 @@ func TestBuildTestsService_List(t *testing.T) {
 	}
 }
 
-func TestBuildTestsService_List_WithOptions(t *testing.T) {
+func TestBuildTestsService_List_WithExecutionsIncluded(t *testing.T) {
 	t.Parallel()
 
 	server, client, teardown := newMockServerAndClient(t)
@@ -130,25 +133,85 @@ func TestBuildTestsService_List_WithOptions(t *testing.T) {
 		if got, want := r.URL.Query().Get("state"), "enabled"; got != want {
 			t.Errorf("query param state = %q, want %q", got, want)
 		}
-		if got, want := r.URL.Query().Get("include"), "latest_fail"; got != want {
+		if got, want := r.URL.Query().Get("include"), "executions"; got != want {
 			t.Errorf("query param include = %q, want %q", got, want)
 		}
 
-		_, _ = fmt.Fprint(w, `[]`)
+		_, _ = fmt.Fprint(w, `[
+			{
+				"id": "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+				"scope": "User#email",
+				"name": "TestExample1_Create",
+				"location": "./spec/models/text_example.rb:55",
+				"state": "enabled",
+				"executions_count": 1,
+				"executions_count_by_result": {
+					"passed": 0,
+					"failed": 1
+				},
+				"reliability": 0.0,
+				"executions": [
+					{
+						"id": "exec-001",
+						"status": "failed",
+						"timestamp": "2023-07-10T13:14:03.214Z",
+						"duration": 1.234,
+						"location": "./spec/models/text_example.rb:55",
+						"failure_reason": "Expected true got false",
+						"failure_expanded": [
+							{
+								"expanded": ["line 1", "line 2"]
+							}
+						]
+					}
+				]
+			}
+		]`)
 	})
 
 	opts := &BuildTestsListOptions{
 		Result:  "^failed",
 		State:   "enabled",
-		Include: "latest_fail",
+		Include: "executions",
 	}
+
+	parsedTime := must(time.Parse(BuildKiteDateFormat, "2023-07-10T13:14:03.214Z"))
 
 	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", "abc123", opts)
 	if err != nil {
 		t.Errorf("BuildTests.List returned error: %v", err)
 	}
 
-	if len(buildTests) != 0 {
-		t.Errorf("BuildTests.List returned %d tests, want 0", len(buildTests))
+	want := []BuildTest{
+		{
+			ID:              "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+			Scope:           "User#email",
+			Name:            "TestExample1_Create",
+			Location:        "./spec/models/text_example.rb:55",
+			State:           "enabled",
+			ExecutionsCount: 1,
+			ExecutionsCountByResult: BuildTestExecutionsCount{
+				Passed: 0,
+				Failed: 1,
+			},
+			Reliability: 0.0,
+			Executions: []BuildTestExecution{
+				{
+					ID:            "exec-001",
+					Status:        "failed",
+					Timestamp:     NewTimestamp(parsedTime),
+					Duration:      1.234,
+					Location:      "./spec/models/text_example.rb:55",
+					FailureReason: "Expected true got false",
+					FailureExpanded: []FailureExpanded{
+						{Expanded: []string{"line 1", "line 2"}},
+					},
+				},
+			},
+		},
+	}
+
+	if diff := cmp.Diff(buildTests, want); diff != "" {
+		t.Errorf("BuildTests.List diff: (-got +want)\n%s", diff)
 	}
 }
