@@ -8,7 +8,7 @@ import (
 // BuildTestsService handles communication with the build test related
 // methods of the Buildkite Test Analytics API.
 //
-// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/analytics/build-tests
+// List expects a Buildkite build UUID, not a pipeline build number.
 type BuildTestsService struct {
 	client *Client
 }
@@ -75,8 +75,8 @@ type BuildTestsListOptions struct {
 	Include string `url:"include,omitempty"`
 }
 
-func (bts *BuildTestsService) List(ctx context.Context, org, buildID string, opt *BuildTestsListOptions) ([]BuildTest, *Response, error) {
-	u := fmt.Sprintf("v2/analytics/organizations/%s/builds/%s/tests", org, buildID)
+func (bts *BuildTestsService) List(ctx context.Context, org, buildUUID string, opt *BuildTestsListOptions) ([]BuildTest, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/builds/%s/tests", org, buildUUID)
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err

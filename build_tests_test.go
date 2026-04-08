@@ -10,13 +10,15 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+const testBuildUUID = "019d66fb-e8db-47eb-866c-94b85d42b9a1"
+
 func TestBuildTestsService_List(t *testing.T) {
 	t.Parallel()
 
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	server.HandleFunc("/v2/analytics/organizations/my-great-org/builds/abc123/tests", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/tests", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		if got := r.URL.Query().Get("include"); got != "" {
 			t.Errorf("query param include = %q, want empty", got)
@@ -66,7 +68,7 @@ func TestBuildTestsService_List(t *testing.T) {
 			]`)
 	})
 
-	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", "abc123", nil)
+	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", testBuildUUID, nil)
 	if err != nil {
 		t.Errorf("BuildTests.List returned error: %v", err)
 	}
@@ -124,7 +126,7 @@ func TestBuildTestsService_List_WithExecutionsIncluded(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	server.HandleFunc("/v2/analytics/organizations/my-great-org/builds/abc123/tests", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/tests", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 
 		if got, want := r.URL.Query().Get("result"), "^failed"; got != want {
@@ -177,7 +179,7 @@ func TestBuildTestsService_List_WithExecutionsIncluded(t *testing.T) {
 
 	parsedTime := must(time.Parse(BuildKiteDateFormat, "2023-07-10T13:14:03.214Z"))
 
-	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", "abc123", opts)
+	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", testBuildUUID, opts)
 	if err != nil {
 		t.Errorf("BuildTests.List returned error: %v", err)
 	}
