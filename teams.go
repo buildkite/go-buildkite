@@ -18,14 +18,21 @@ type TeamsService struct {
 
 // Team represents a buildkite team.
 type Team struct {
-	ID          string     `json:"id,omitempty"`
-	Name        string     `json:"name,omitempty"`
-	Slug        string     `json:"slug,omitempty"`
-	Description string     `json:"description,omitempty"`
-	Privacy     string     `json:"privacy,omitempty"`
-	Default     bool       `json:"default"`
-	CreatedAt   *Timestamp `json:"created_at,omitempty"`
-	CreatedBy   *User      `json:"created_by,omitempty"`
+	ID                          string     `json:"id,omitempty"`
+	GraphQLID                   string     `json:"graphql_id,omitempty"`
+	Name                        string     `json:"name,omitempty"`
+	Slug                        string     `json:"slug,omitempty"`
+	Description                 string     `json:"description,omitempty"`
+	Privacy                     string     `json:"privacy,omitempty"`
+	Default                     bool       `json:"default"`
+	DefaultMemberRole           string     `json:"default_member_role,omitempty"`
+	MembersCanCreatePipelines   bool       `json:"members_can_create_pipelines"`
+	MembersCanCreateSuites      bool       `json:"members_can_create_suites"`
+	MembersCanCreateRegistries  bool       `json:"members_can_create_registries"`
+	MembersCanDestroyRegistries bool       `json:"members_can_destroy_registries"`
+	MembersCanDestroyPackages   bool       `json:"members_can_destroy_packages"`
+	CreatedAt                   *Timestamp `json:"created_at,omitempty"`
+	CreatedBy                   *User      `json:"created_by,omitempty"`
 }
 
 // TeamsListOptions specifies the optional parameters to the
@@ -35,14 +42,18 @@ type TeamsListOptions struct {
 	UserID string `url:"user_id,omitempty"`
 }
 
-// CreateTeam represents a request to create a team.
+// CreateTeam represents a request to create or update a team.
 type CreateTeam struct {
-	Name                      string `json:"name,omitempty"`
-	Description               string `json:"description,omitempty"`
-	Privacy                   string `json:"privacy,omitempty"`
-	IsDefaultTeam             bool   `json:"is_default_team"`
-	DefaultMemberRole         string `json:"default_member_role,omitempty"`
-	MembersCanCreatePipelines bool   `json:"members_can_create_pipelines"`
+	Name                        string `json:"name,omitempty"`
+	Description                 string `json:"description,omitempty"`
+	Privacy                     string `json:"privacy,omitempty"`
+	IsDefaultTeam               bool   `json:"is_default_team"`
+	DefaultMemberRole           string `json:"default_member_role,omitempty"`
+	MembersCanCreatePipelines   bool   `json:"members_can_create_pipelines"`
+	MembersCanCreateSuites      bool   `json:"members_can_create_suites"`
+	MembersCanCreateRegistries  bool   `json:"members_can_create_registries"`
+	MembersCanDestroyRegistries bool   `json:"members_can_destroy_registries"`
+	MembersCanDestroyPackages   bool   `json:"members_can_destroy_packages"`
 }
 
 // Get the teams for an org.
