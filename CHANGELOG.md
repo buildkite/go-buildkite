@@ -1,3 +1,8 @@
+## [v4.19.0](https://github.com/buildkite/go-buildkite/compare/v4.18.0...v4.19.0) (2026-04-08)
+
+* Support include=executions for BuildTests.List [#296](https://github.com/buildkite/go-buildkite/pull/296) ([matthewborden](https://github.com/matthewborden))
+* Add DeleteJobLog function to jobs service [#294](https://github.com/buildkite/go-buildkite/pull/294) ([mcncl](https://github.com/mcncl))
+
 ## [v4.18.0](https://github.com/buildkite/go-buildkite/compare/v4.17.0...v4.18.0) (2026-04-01)
 
 * Test Engine Build Tests API (tests across suites for a build) [#292](https://github.com/buildkite/go-buildkite/pull/292) ([pda](https://github.com/pda))
