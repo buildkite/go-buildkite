@@ -8,7 +8,7 @@ import (
 
 	"github.com/buildkite/go-buildkite/v4"
 
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 var (
