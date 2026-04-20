@@ -1,3 +1,9 @@
+## [v4.21.0](https://github.com/buildkite/go-buildkite/compare/v4.20.0...v4.21.0) (2026-04-17)
+
+* feat: Add job-level annotations API support [#302](https://github.com/buildkite/go-buildkite/pull/302) ([jeremybumsted](https://github.com/jeremybumsted))
+* fix the import path for kingpin/v2 [#301](https://github.com/buildkite/go-buildkite/pull/301) ([mcncl](https://github.com/mcncl))
+* Updates the CHANGELOG for v4.20.0 [#300](https://github.com/buildkite/go-buildkite/pull/300) ([mcncl](https://github.com/mcncl))
+
 ## [v4.20.0](https://github.com/buildkite/go-buildkite/compare/v4.19.0...v4.20.0) (2026-04-16)
 
 * Add `ClusterMaintainersService` to manage cluster maintainer assignments [#299](https://github.com/buildkite/go-buildkite/pull/299) ([JoeColeman95](https://github.com/JoeColeman95))
