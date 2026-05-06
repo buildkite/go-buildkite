@@ -12,7 +12,7 @@ import (
 
 var (
 	apiToken         = kingpin.Flag("token", "API token").Required().String()
-	org              = kingpin.Flag("org", "Orginization slug").Required().String()
+	org              = kingpin.Flag("org", "Organization slug").Required().String()
 	suite            = kingpin.Flag("suite", "Test suite slug").Required().String()
 	newDefaultBranch = kingpin.Flag("new-default-branch", "New default branch").String()
 )

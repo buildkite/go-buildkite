@@ -13,7 +13,7 @@ import (
 
 var (
 	apiToken     = kingpin.Flag("token", "API token").Required().String()
-	org          = kingpin.Flag("org", "Orginization slug").Required().String()
+	org          = kingpin.Flag("org", "Organization slug").Required().String()
 	registrySlug = kingpin.Flag("registry", "Registry Slug").Required().String()
 	filePath     = kingpin.Flag("file-path", "File path").Required().String()
 )

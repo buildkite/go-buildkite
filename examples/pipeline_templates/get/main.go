@@ -14,7 +14,7 @@ import (
 
 var (
 	apiToken     = kingpin.Flag("token", "API token").Required().String()
-	org          = kingpin.Flag("org", "Orginization slug").Required().String()
+	org          = kingpin.Flag("org", "Organization slug").Required().String()
 	templateUUID = kingpin.Flag("templateUUID", "Cluster UUID").Required().String()
 )
 

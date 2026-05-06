@@ -13,7 +13,7 @@ import (
 
 var (
 	apiToken     = kingpin.Flag("token", "API token").Required().String()
-	org          = kingpin.Flag("org", "Orginization slug").Required().String()
+	org          = kingpin.Flag("org", "Organization slug").Required().String()
 	pipeline     = kingpin.Flag("pipeline", "Pipeline slug").Required().String()
 	build        = kingpin.Flag("build", "Build Number slug").Required().String()
 	artifactName = kingpin.Flag("artifact", "Artifact to download").String()

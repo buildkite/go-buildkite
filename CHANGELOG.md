@@ -1,3 +1,7 @@
+## [v4.22.0](https://github.com/buildkite/go-buildkite/compare/v4.21.0...v4.22.0) (2026-05-06)
+
+* feat: add support for pipeline schedules [#304](https://github.com/buildkite/go-buildkite/pull/304) ([wolfeidau](https://github.com/wolfeidau))
+
 ## [v4.21.0](https://github.com/buildkite/go-buildkite/compare/v4.20.0...v4.21.0) (2026-04-17)
 
 * feat: Add job-level annotations API support [#302](https://github.com/buildkite/go-buildkite/pull/302) ([jeremybumsted](https://github.com/jeremybumsted))
