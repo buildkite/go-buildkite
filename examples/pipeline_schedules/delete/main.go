@@ -12,7 +12,7 @@ import (
 
 var (
 	apiToken   = kingpin.Flag("token", "API token").Required().String()
-	org        = kingpin.Flag("org", "Orginization slug").Required().String()
+	org        = kingpin.Flag("org", "Organization slug").Required().String()
 	pipeline   = kingpin.Flag("pipeline", "Pipeline slug").Required().String()
 	scheduleID = kingpin.Flag("scheduleID", "Pipeline schedule UUID").Required().String()
 )

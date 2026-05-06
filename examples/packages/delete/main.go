@@ -11,7 +11,7 @@ import (
 
 var (
 	apiToken     = kingpin.Flag("token", "API token").Required().String()
-	org          = kingpin.Flag("org", "Orginization slug").Required().String()
+	org          = kingpin.Flag("org", "Organization slug").Required().String()
 	registrySlug = kingpin.Flag("registry", "Registry Slug").Required().String()
 	packageID    = kingpin.Flag("package-id", "Package ID").Required().String()
 )

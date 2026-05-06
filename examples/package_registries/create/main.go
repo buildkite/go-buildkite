@@ -12,7 +12,7 @@ import (
 
 var (
 	apiToken            = kingpin.Flag("token", "API token").Required().String()
-	org                 = kingpin.Flag("org", "Orginization slug").Required().String()
+	org                 = kingpin.Flag("org", "Organization slug").Required().String()
 	registryName        = kingpin.Flag("registry-name", "Registry Name").Required().String()
 	registryEcosystem   = kingpin.Flag("registry-ecosystem", "Registry Ecosystem").Required().String()
 	registryDescription = kingpin.Flag("registry-description", "Registry Description").String()
