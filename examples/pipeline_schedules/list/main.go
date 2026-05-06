@@ -1,0 +1,40 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/buildkite/go-buildkite/v4"
+
+	"github.com/alecthomas/kingpin/v2"
+)
+
+var (
+	apiToken = kingpin.Flag("token", "API token").Required().String()
+	org      = kingpin.Flag("org", "Orginization slug").Required().String()
+	pipeline = kingpin.Flag("pipeline", "Pipeline slug").Required().String()
+)
+
+func main() {
+	kingpin.Parse()
+
+	client, err := buildkite.NewOpts(buildkite.WithTokenAuth(*apiToken))
+	if err != nil {
+		log.Fatalf("creating buildkite API client failed: %v", err)
+	}
+
+	schedules, _, err := client.PipelineSchedules.List(context.Background(), *org, *pipeline, nil)
+	if err != nil {
+		log.Fatalf("listing pipeline schedules failed: %s", err)
+	}
+
+	data, err := json.MarshalIndent(schedules, "", "\t")
+	if err != nil {
+		log.Fatalf("json encode failed: %s", err)
+	}
+
+	_, _ = fmt.Fprintf(os.Stdout, "%s", string(data))
+}
