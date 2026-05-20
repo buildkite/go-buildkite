@@ -32,6 +32,48 @@ if err != nil {
 pipelines, _, err := client.Pipelines.List(*org, nil)
 ```
 
+## Migrating to v5 update payloads
+
+Version 5 changes update request structs so PATCH requests can distinguish
+"leave this field unchanged" from "send this field with an empty value".
+
+Update fields that can be cleared now use `buildkite.Optional[T]`. The zero
+value omits the field. Wrap values with `buildkite.Some(...)` when the field
+should be sent, including empty strings, empty maps, empty slices, `0`, or
+`false`.
+
+```go
+_, _, err := client.Pipelines.Update(ctx, org, pipelineSlug, buildkite.UpdatePipeline{
+    Description:              buildkite.Some(""),
+    Tags:                     buildkite.Some([]string{}),
+    SkipQueuedBranchBuilds:   buildkite.Some(false),
+})
+```
+
+```go
+_, _, err := client.PipelineSchedules.Update(ctx, org, pipelineSlug, scheduleID, buildkite.UpdatePipelineSchedule{
+    Env:     buildkite.Some(map[string]string{}),
+    Enabled: buildkite.Some(false),
+})
+```
+
+Leaving an `Optional[T]` unset omits that field from the PATCH body:
+
+```go
+_, _, err := client.Clusters.Update(ctx, org, clusterID, buildkite.ClusterUpdate{
+    Name: buildkite.Some("macOS builders"),
+    // Description is unchanged.
+})
+```
+
+Some create/update request types were split so create calls keep plain required
+values while update calls use presence-aware fields:
+
+- `ClusterTokenCreateUpdate` is now `ClusterTokenCreate` and `ClusterTokenUpdate`.
+- `PipelineTemplateCreateUpdate` is now `PipelineTemplateCreate` and `PipelineTemplateUpdate`.
+- `CreateTeam` is still used for team creation; `UpdateTeam` is now used for team updates.
+- `TestSuitesService.Update` now takes `TestSuiteUpdate`.
+
 See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
 
 Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.

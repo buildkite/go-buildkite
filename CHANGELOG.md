@@ -1,3 +1,10 @@
+## [v5.0.0](https://github.com/buildkite/go-buildkite/compare/v4.23.0...v5.0.0) (2026-05-26)
+
+* breaking: move the module path to `github.com/buildkite/go-buildkite/v5`
+* breaking: make update request payloads presence-aware with `Optional[T]` and `Some`
+* breaking: split shared create/update request types for cluster tokens, pipeline templates, teams, and test suites
+* fix: allow update requests to clear fields by sending empty strings, empty maps, empty slices, `0`, or `false`
+
 ## [v4.23.0](https://github.com/buildkite/go-buildkite/compare/v4.22.0...v4.23.0) (2026-05-26)
 
 * Fix: expose expires_at on AccessToken (SUP-7112) [#307](https://github.com/buildkite/go-buildkite/pull/307) ([stephanieatte](https://github.com/stephanieatte))
