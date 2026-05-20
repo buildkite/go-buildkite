@@ -12,3 +12,4 @@
 - Split shared create/update structs for cluster tokens, pipeline templates, teams, and test suites. Create structs keep plain values; update structs use `Optional[T]`.
 - Fixed `TestSuitesService.Update` to return the request construction error instead of `nil`.
 - Added raw request-body coverage for shared-type updates, including explicit false for pipeline template availability and team permission booleans.
+- Updated the module path and examples from `/v4` to `/v5` because the exported request structs are intentionally breaking.

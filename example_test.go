@@ -1,7 +1,7 @@
 package buildkite_test
 
 import (
-	"github.com/buildkite/go-buildkite/v4"
+	"github.com/buildkite/go-buildkite/v5"
 )
 
 // Example_clientOptComposition demonstrates how to programmatically compose client options

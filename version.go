@@ -14,14 +14,14 @@ var Version = func() string {
 	}
 
 	// For the main module
-	if info.Main.Path == "github.com/buildkite/go-buildkite/v4" && info.Main.Version != "(devel)" {
+	if info.Main.Path == "github.com/buildkite/go-buildkite/v5" && info.Main.Version != "(devel)" {
 		// Remove the 'v' prefix if present
 		return strings.TrimPrefix(info.Main.Version, "v")
 	}
 
 	// Try to find this module in the dependency list
 	for _, dep := range info.Deps {
-		if dep.Path == "github.com/buildkite/go-buildkite/v4" && dep.Version != "(devel)" {
+		if dep.Path == "github.com/buildkite/go-buildkite/v5" && dep.Version != "(devel)" {
 			return strings.TrimPrefix(dep.Version, "v")
 		}
 	}

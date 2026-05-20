@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/buildkite/go-buildkite/v4/internal/bkmultipart"
+	"github.com/buildkite/go-buildkite/v5/internal/bkmultipart"
 )
 
 func TestEncodingFormFields(t *testing.T) {
