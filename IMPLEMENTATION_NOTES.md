@@ -13,3 +13,4 @@
 - Fixed `TestSuitesService.Update` to return the request construction error instead of `nil`.
 - Added raw request-body coverage for shared-type updates, including explicit false for pipeline template availability and team permission booleans.
 - Updated the module path and examples from `/v4` to `/v5` because the exported request structs are intentionally breaking.
+- Moved `buildkite-mcp-server` onto the local `/v5` module so its update tools preserve clear intent. The MCP branch keeps a temporary `replace github.com/buildkite/go-buildkite/v5 => ../go-buildkite` until v5 is tagged or otherwise consumable, and keeps a v4 client only for `buildkite-logs`, which has not migrated yet.
