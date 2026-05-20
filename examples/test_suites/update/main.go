@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	suiteUpdate := buildkite.TestSuite{DefaultBranch: *newDefaultBranch}
+	suiteUpdate := buildkite.TestSuiteUpdate{DefaultBranch: buildkite.Some(*newDefaultBranch)}
 
 	_, _, err = client.TestSuites.Update(context.Background(), *org, *suite, suiteUpdate)
 	if err != nil {

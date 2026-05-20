@@ -204,6 +204,14 @@ func TestTeamsService_UpdateTeam(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/teams/123", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{
+			"name": "updated-team",
+			"description": "Updated description",
+			"privacy": "secret",
+			"default_member_role": "maintainer",
+			"members_can_create_pipelines": true,
+			"members_can_create_registries": false
+		}`)
 		_, _ = fmt.Fprint(w, `{
 			"id": "123",
 			"graphql_id": "VGVhbS0tLTEyMw==",
@@ -221,12 +229,13 @@ func TestTeamsService_UpdateTeam(t *testing.T) {
 		}`)
 	})
 
-	team, _, err := client.Teams.UpdateTeam(context.Background(), "my-great-org", "123", CreateTeam{
-		Name:                      "updated-team",
-		Description:               "Updated description",
-		Privacy:                   "secret",
-		DefaultMemberRole:         "maintainer",
-		MembersCanCreatePipelines: true,
+	team, _, err := client.Teams.UpdateTeam(context.Background(), "my-great-org", "123", UpdateTeam{
+		Name:                       Some("updated-team"),
+		Description:                Some("Updated description"),
+		Privacy:                    Some("secret"),
+		DefaultMemberRole:          Some("maintainer"),
+		MembersCanCreatePipelines:  Some(true),
+		MembersCanCreateRegistries: Some(false),
 	})
 	if err != nil {
 		t.Errorf("Teams.UpdateTeam returned error: %v", err)

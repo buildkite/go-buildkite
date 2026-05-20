@@ -218,7 +218,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := PipelineTemplateCreateUpdate{
+	input := PipelineTemplateCreate{
 		Name:          "Production Pipeline uploader",
 		Description:   "Production pipeline upload template",
 		Configuration: "steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n",
@@ -226,7 +226,7 @@ func TestPipelineTemplatesService_Create(t *testing.T) {
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates", func(w http.ResponseWriter, r *http.Request) {
-		var v PipelineTemplateCreateUpdate
+		var v PipelineTemplateCreate
 		err := json.NewDecoder(r.Body).Decode(&v)
 		if err != nil {
 			t.Fatalf("Error parsing json body: %v", err)
@@ -276,13 +276,8 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 	t.Cleanup(teardown)
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", func(w http.ResponseWriter, r *http.Request) {
-		var v PipelineTemplateCreateUpdate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"description":"A pipeline template for uploading a production pipeline YAML (pipeline-production.yml"}`)
 
 		_, _ = fmt.Fprint(w,
 			`
@@ -296,8 +291,8 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 			}`)
 	})
 
-	pipelineTemplateUpdate := PipelineTemplateCreateUpdate{
-		Description: "A pipeline template for uploading a production pipeline YAML (pipeline-production.yml",
+	pipelineTemplateUpdate := PipelineTemplateUpdate{
+		Description: Some("A pipeline template for uploading a production pipeline YAML (pipeline-production.yml"),
 	}
 
 	got, _, err := client.PipelineTemplates.Update(context.Background(), "my-great-org", "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", pipelineTemplateUpdate)
@@ -316,6 +311,37 @@ func TestPipelineTemplatesService_Update(t *testing.T) {
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestPipelineTemplates.Update diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestPipelineTemplatesService_UpdateSetsAvailableFalse(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipeline-templates/b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"available":false}`)
+
+		_, _ = fmt.Fprint(w,
+			`
+			{
+				"uuid": "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0",
+				"name" : "Production Pipeline template",
+				"available": false
+			}`)
+	})
+
+	got, _, err := client.PipelineTemplates.Update(context.Background(), "my-great-org", "b8c2e171-1c7d-47a4-a4d1-a20d691f51d0", PipelineTemplateUpdate{
+		Available: Some(false),
+	})
+	if err != nil {
+		t.Errorf("TestPipelineTemplates.Update returned error: %v", err)
+	}
+
+	if got.Available {
+		t.Error("Available = true, want false")
 	}
 }
 

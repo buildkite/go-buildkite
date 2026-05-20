@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pipelineTemplateUpdate := buildkite.PipelineTemplateCreateUpdate{Description: "Production pipeline template uploader"}
+	pipelineTemplateUpdate := buildkite.PipelineTemplateUpdate{Description: buildkite.Some("Production pipeline template uploader")}
 
 	cluster, _, err := client.PipelineTemplates.Update(context.Background(), *org, *templateUUID, pipelineTemplateUpdate)
 	if err != nil {

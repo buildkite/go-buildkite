@@ -30,11 +30,18 @@ type PipelineTemplate struct {
 	UpdatedBy PipelineTemplateCreator `json:"updated_by,omitempty"`
 }
 
-type PipelineTemplateCreateUpdate struct {
+type PipelineTemplateCreate struct {
 	Name          string `json:"name,omitempty"`
 	Configuration string `json:"configuration,omitempty"`
 	Description   string `json:"description,omitempty"`
 	Available     bool   `json:"available"`
+}
+
+type PipelineTemplateUpdate struct {
+	Name          Optional[string] `json:"name,omitzero"`
+	Configuration Optional[string] `json:"configuration,omitzero"`
+	Description   Optional[string] `json:"description,omitzero"`
+	Available     Optional[bool]   `json:"available,omitzero"`
 }
 
 type PipelineTemplateCreator struct {
@@ -87,7 +94,7 @@ func (pts *PipelineTemplatesService) Get(ctx context.Context, org, templateUUID 
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc PipelineTemplateCreateUpdate) (PipelineTemplate, *Response, error) {
+func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc PipelineTemplateCreate) (PipelineTemplate, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates", org)
 	req, err := pts.client.NewRequest(ctx, "POST", u, ptc)
 	if err != nil {
@@ -103,7 +110,7 @@ func (pts *PipelineTemplatesService) Create(ctx context.Context, org string, ptc
 	return template, resp, err
 }
 
-func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu PipelineTemplateCreateUpdate) (PipelineTemplate, *Response, error) {
+func (pts *PipelineTemplatesService) Update(ctx context.Context, org, templateUUID string, ptu PipelineTemplateUpdate) (PipelineTemplate, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipeline-templates/%s", org, templateUUID)
 	req, err := pts.client.NewRequest(ctx, "PATCH", u, ptu)
 	if err != nil {

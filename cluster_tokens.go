@@ -25,9 +25,14 @@ type ClusterToken struct {
 	Token              string         `json:"token,omitempty"`
 }
 
-type ClusterTokenCreateUpdate struct {
+type ClusterTokenCreate struct {
 	Description        string `json:"description,omitempty"`
 	AllowedIPAddresses string `json:"allowed_ip_addresses,omitempty"`
+}
+
+type ClusterTokenUpdate struct {
+	Description        Optional[string] `json:"description,omitzero"`
+	AllowedIPAddresses Optional[string] `json:"allowed_ip_addresses,omitzero"`
 }
 
 type ClusterTokensListOptions struct {
@@ -71,7 +76,7 @@ func (cts *ClusterTokensService) Get(ctx context.Context, org, clusterID, tokenI
 	return token, resp, err
 }
 
-func (cts *ClusterTokensService) Create(ctx context.Context, org, clusterID string, ctc ClusterTokenCreateUpdate) (ClusterToken, *Response, error) {
+func (cts *ClusterTokensService) Create(ctx context.Context, org, clusterID string, ctc ClusterTokenCreate) (ClusterToken, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens", org, clusterID)
 	req, err := cts.client.NewRequest(ctx, "POST", u, ctc)
 	if err != nil {
@@ -87,7 +92,7 @@ func (cts *ClusterTokensService) Create(ctx context.Context, org, clusterID stri
 	return token, resp, err
 }
 
-func (cts *ClusterTokensService) Update(ctx context.Context, org, clusterID, tokenID string, ctc ClusterTokenCreateUpdate) (ClusterToken, *Response, error) {
+func (cts *ClusterTokensService) Update(ctx context.Context, org, clusterID, tokenID string, ctc ClusterTokenUpdate) (ClusterToken, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/clusters/%s/tokens/%s", org, clusterID, tokenID)
 	req, err := cts.client.NewRequest(ctx, "PATCH", u, ctc)
 	if err != nil {

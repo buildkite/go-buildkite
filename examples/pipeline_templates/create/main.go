@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pipelineTemplateCreate := buildkite.PipelineTemplateCreateUpdate{
+	pipelineTemplateCreate := buildkite.PipelineTemplateCreate{
 		Name:          "Production Pipeline uploader",
 		Description:   "Production pipeline upload template",
 		Configuration: "steps:\n  - label: \":pipeline:\"\n    command: \"buildkite-agent pipeline upload .buildkite/pipeline-production.yml\"\n",

@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusterTokenUpdate := buildkite.ClusterTokenCreateUpdate{Description: *newDescription}
+	clusterTokenUpdate := buildkite.ClusterTokenUpdate{Description: buildkite.Some(*newDescription)}
 
 	token, _, err := client.ClusterTokens.Update(context.Background(), *org, *clusterID, *tokenID, clusterTokenUpdate)
 	if err != nil {

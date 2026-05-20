@@ -30,6 +30,11 @@ type TestSuite struct {
 	DefaultBranch string `json:"default_branch,omitempty"`
 }
 
+type TestSuiteUpdate struct {
+	Name          Optional[string] `json:"name,omitzero"`
+	DefaultBranch Optional[string] `json:"default_branch,omitzero"`
+}
+
 type TestSuiteListOptions struct{ ListOptions }
 
 func (tss *TestSuitesService) List(ctx context.Context, org string, opt *TestSuiteListOptions) ([]TestSuite, *Response, error) {
@@ -85,11 +90,11 @@ func (tss *TestSuitesService) Create(ctx context.Context, org string, ts TestSui
 	return testSuite, resp, err
 }
 
-func (tss *TestSuitesService) Update(ctx context.Context, org, slug string, ts TestSuite) (TestSuite, *Response, error) {
+func (tss *TestSuitesService) Update(ctx context.Context, org, slug string, ts TestSuiteUpdate) (TestSuite, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
 	req, err := tss.client.NewRequest(ctx, "PATCH", u, ts)
 	if err != nil {
-		return TestSuite{}, nil, nil
+		return TestSuite{}, nil, err
 	}
 
 	var out TestSuite
