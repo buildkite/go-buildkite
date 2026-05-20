@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	_, _, err = client.Pipelines.Update(context.Background(), *org, *pipelineSlug, buildkite.UpdatePipeline{Description: *newDescription})
+	_, _, err = client.Pipelines.Update(context.Background(), *org, *pipelineSlug, buildkite.UpdatePipeline{Description: buildkite.Some(*newDescription)})
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)
 	}

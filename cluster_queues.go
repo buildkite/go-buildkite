@@ -44,8 +44,8 @@ type ClusterQueueCreate struct {
 }
 
 type ClusterQueueUpdate struct {
-	Description        string             `json:"description,omitempty"`
-	RetryAgentAffinity RetryAgentAffinity `json:"retry_agent_affinity,omitempty"`
+	Description        Optional[string]             `json:"description,omitzero"`
+	RetryAgentAffinity Optional[RetryAgentAffinity] `json:"retry_agent_affinity,omitzero"`
 }
 
 type ClusterQueuePause struct {

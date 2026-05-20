@@ -71,11 +71,11 @@ func (rs *PackageRegistriesService) Create(ctx context.Context, organizationSlug
 }
 
 type UpdatePackageRegistryInput struct {
-	Name        string                    `json:"name,omitempty"`        // The name of the package registry
-	Description string                    `json:"description,omitempty"` // A description for the package registry
-	Emoji       string                    `json:"emoji,omitempty"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
-	Color       string                    `json:"color,omitempty"`       // A color for the package registry, in hex format (eg "#FF0000")
-	OIDCPolicy  PackageRegistryOIDCPolicy `json:"oidc_policy,omitempty"` // The OIDC policy for the package registry, as a YAML or JSON string
+	Name        Optional[string]                    `json:"name,omitzero"`        // The name of the package registry
+	Description Optional[string]                    `json:"description,omitzero"` // A description for the package registry
+	Emoji       Optional[string]                    `json:"emoji,omitzero"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
+	Color       Optional[string]                    `json:"color,omitzero"`       // A color for the package registry, in hex format (eg "#FF0000")
+	OIDCPolicy  Optional[PackageRegistryOIDCPolicy] `json:"oidc_policy,omitzero"` // The OIDC policy for the package registry, as a YAML or JSON string
 }
 
 // Update updates a package registry for an organization

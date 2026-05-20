@@ -404,17 +404,8 @@ func TestPipelinesService_Update(t *testing.T) {
 	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
-		var v UpdatePipeline
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
-		if diff := cmp.Diff(v, UpdatePipeline{Name: "derp"}); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
-		}
-
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"name":"derp"}`)
 
 		_, _ = fmt.Fprint(w, `{
 						"name":"derp",
@@ -439,7 +430,7 @@ func TestPipelinesService_Update(t *testing.T) {
 					}`)
 	})
 
-	got, _, err := client.Pipelines.Update(context.Background(), "my-great-org", "my-great-repo", UpdatePipeline{Name: "derp"})
+	got, _, err := client.Pipelines.Update(context.Background(), "my-great-org", "my-great-repo", UpdatePipeline{Name: Some("derp")})
 	if err != nil {
 		t.Errorf("Pipelines.Update returned error: %v", err)
 	}
@@ -468,6 +459,44 @@ func TestPipelinesService_Update(t *testing.T) {
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("Pipelines.Update diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestPipelinesService_UpdateClearsTagsAndSendsFalse(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/my-great-repo", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{
+			"tags": [],
+			"skip_queued_branch_builds": false
+		}`)
+
+		_, _ = fmt.Fprint(w, `{
+			"name": "my-great-repo",
+			"repository": "git@github.com:buildkite/my-great-repo.git",
+			"skip_queued_branch_builds": false,
+			"cancel_running_branch_builds": true,
+			"tags": []
+		}`)
+	})
+
+	got, _, err := client.Pipelines.Update(context.Background(), "my-great-org", "my-great-repo", UpdatePipeline{
+		Tags:                   Some([]string{}),
+		SkipQueuedBranchBuilds: Some(false),
+	})
+	if err != nil {
+		t.Errorf("Pipelines.Update returned error: %v", err)
+	}
+
+	if len(got.Tags) != 0 {
+		t.Errorf("Update tags length = %d, want 0", len(got.Tags))
+	}
+	if got.SkipQueuedBranchBuilds {
+		t.Error("Update skip_queued_branch_builds = true, want false")
 	}
 }
 

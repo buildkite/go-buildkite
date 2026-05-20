@@ -160,6 +160,7 @@ func TestTeamPipelinesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/pipelines/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"access_level":"build_and_read"}`)
 		_, _ = fmt.Fprint(w,
 			`
 			{
@@ -171,7 +172,7 @@ func TestTeamPipelinesService_Update(t *testing.T) {
 	})
 
 	wantUpdate := UpdateTeamPipelines{
-		AccessLevel: "build_and_read",
+		AccessLevel: Some("build_and_read"),
 	}
 
 	got, _, err := client.TeamPipelines.Update(context.Background(), "my-org", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", "1239d7f9-394a-4d99-badf-7c3d8577a8ff", wantUpdate)

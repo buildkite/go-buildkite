@@ -50,8 +50,8 @@ type ClusterSecretCreate struct {
 }
 
 type ClusterSecretUpdate struct {
-	Description string `json:"description,omitempty"`
-	Policy      string `json:"policy,omitempty"`
+	Description Optional[string] `json:"description,omitzero"`
+	Policy      Optional[string] `json:"policy,omitzero"`
 }
 
 type ClusterSecretValueUpdate struct {

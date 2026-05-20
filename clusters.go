@@ -22,11 +22,11 @@ type ClusterCreate struct {
 }
 
 type ClusterUpdate struct {
-	Name           string `json:"name,omitempty"`
-	Description    string `json:"description,omitempty"`
-	Emoji          string `json:"emoji,omitempty"`
-	Color          string `json:"color,omitempty"`
-	DefaultQueueID string `json:"default_queue_id,omitempty"`
+	Name           Optional[string] `json:"name,omitzero"`
+	Description    Optional[string] `json:"description,omitzero"`
+	Emoji          Optional[string] `json:"emoji,omitzero"`
+	Color          Optional[string] `json:"color,omitzero"`
+	DefaultQueueID Optional[string] `json:"default_queue_id,omitzero"`
 }
 
 type Cluster struct {

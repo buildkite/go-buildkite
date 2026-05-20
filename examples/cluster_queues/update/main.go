@@ -28,8 +28,8 @@ func main() {
 	}
 
 	clusterQueueUpdate := buildkite.ClusterQueueUpdate{
-		Description:        *newDescription,
-		RetryAgentAffinity: buildkite.RetryAgentAffinity(*newRetryAgentAffinity),
+		Description:        buildkite.Some(*newDescription),
+		RetryAgentAffinity: buildkite.Some(buildkite.RetryAgentAffinity(*newRetryAgentAffinity)),
 	}
 
 	cq, _, err := client.ClusterQueues.Update(context.Background(), *org, *clusterID, *queueID, clusterQueueUpdate)

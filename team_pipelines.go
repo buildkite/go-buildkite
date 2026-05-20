@@ -27,7 +27,7 @@ type CreateTeamPipelines struct {
 }
 
 type UpdateTeamPipelines struct {
-	AccessLevel string `json:"access_level,omitempty"`
+	AccessLevel Optional[string] `json:"access_level,omitzero"`
 }
 
 type TeamPipelinesListOptions struct {

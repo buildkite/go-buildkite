@@ -407,13 +407,8 @@ func TestClustersService_Update(t *testing.T) {
 
 	clustersPutEndpoint := fmt.Sprintf("/v2/organizations/%s/clusters/%s", orgSlug, clusterID)
 	server.HandleFunc(clustersPutEndpoint, func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterUpdate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"description":"A test cluster"}`)
 
 		_, _ = fmt.Fprint(w,
 			`
@@ -426,7 +421,7 @@ func TestClustersService_Update(t *testing.T) {
 			}`)
 	})
 
-	clusterUpdate := ClusterUpdate{Description: "A test cluster"}
+	clusterUpdate := ClusterUpdate{Description: Some("A test cluster")}
 	cluster, _, err := client.Clusters.Update(context.Background(), orgSlug, clusterID, clusterUpdate)
 	if err != nil {
 		t.Errorf("TestClusters.Update returned error: %v", err)

@@ -46,13 +46,13 @@ type CreatePipelineSchedule struct {
 
 // UpdatePipelineSchedule represents the request body for updating a pipeline schedule.
 type UpdatePipelineSchedule struct {
-	Cronline string            `json:"cronline,omitempty"`
-	Label    string            `json:"label,omitempty"`
-	Message  string            `json:"message,omitempty"`
-	Commit   string            `json:"commit,omitempty"`
-	Branch   string            `json:"branch,omitempty"`
-	Env      map[string]string `json:"env,omitempty"`
-	Enabled  *bool             `json:"enabled,omitempty"`
+	Cronline Optional[string]            `json:"cronline,omitzero"`
+	Label    Optional[string]            `json:"label,omitzero"`
+	Message  Optional[string]            `json:"message,omitzero"`
+	Commit   Optional[string]            `json:"commit,omitzero"`
+	Branch   Optional[string]            `json:"branch,omitzero"`
+	Env      Optional[map[string]string] `json:"env,omitzero"`
+	Enabled  Optional[bool]              `json:"enabled,omitzero"`
 }
 
 // PipelineScheduleListOptions specifies the optional parameters to the

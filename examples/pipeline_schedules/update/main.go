@@ -25,10 +25,9 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	enabled := false
 	scheduleUpdate := buildkite.UpdatePipelineSchedule{
-		Label:   "Nightly build (paused)",
-		Enabled: &enabled,
+		Label:   buildkite.Some("Nightly build (paused)"),
+		Enabled: buildkite.Some(false),
 	}
 
 	schedule, _, err := client.PipelineSchedules.Update(context.Background(), *org, *pipeline, *scheduleID, scheduleUpdate)

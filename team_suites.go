@@ -27,7 +27,7 @@ type CreateTeamSuites struct {
 }
 
 type UpdateTeamSuites struct {
-	AccessLevel []string `json:"access_level,omitempty"`
+	AccessLevel Optional[[]string] `json:"access_level,omitzero"`
 }
 
 type TeamSuitesListOptions struct {
