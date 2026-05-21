@@ -17,6 +17,7 @@ type AccessToken struct {
 		Name  string `json:"name"`  // The name of the user who the access token belongs to
 		Email string `json:"email"` // The email of the user who the access token belongs to
 	} `json:"user"` // The user who created the access token
+	ExpiresAt *Timestamp `json:"expires_at"` // The date and time the access token expires
 }
 
 // Get gets the current token which was used to authenticate the request
