@@ -4,8 +4,10 @@ import "encoding/json"
 
 // Optional marks whether a request field should be sent in JSON.
 //
-// The zero value is omitted when the field uses json:",omitzero". Use Some to
-// send a value, including the zero value for T.
+// Use Optional on struct fields tagged with json:",omitzero". The zero value is
+// omitted from the encoded object, and Some sends a value, including the zero
+// value for T. If an Optional field is not tagged with omitzero, an unset value
+// marshals as the zero value of T instead of being omitted.
 type Optional[T any] struct {
 	value T
 	set   bool
