@@ -1,21 +1,28 @@
+agents:
+  queue: hosted
+
+cache: ".buildkite/cache-volume"
+
 steps:
   - name: ":go::robot_face: Lint"
     key: lint
     command: .buildkite/steps/lint.sh
+    secrets:
+      - MISE_GITHUB_TOKEN
     plugins:
-      - docker#v5.13.0:
-          image: "golangci/golangci-lint:v2.8-alpine"
+      - setup-go#daa7af945245588f85b76ba7fe0a9af3d87dbf91: ~
+      - mise#v1.1.2: ~
 
   - name: ":go::test_tube: Test"
     key: test
     command: ".buildkite/steps/test.sh"
     artifact_paths: junit-*.xml
+    secrets:
+      - MISE_GITHUB_TOKEN
     plugins:
-      - docker#v5.13.0:
-          image: "golang:1.25"
-          propagate-environment: true
       - artifacts#v1.9.4:
           upload: "cover.{html,out}"
+      - setup-go#daa7af945245588f85b76ba7fe0a9af3d87dbf91: ~
 
   - label: ":writing_hand: Annotate with Test Failures"
     key: annotate
