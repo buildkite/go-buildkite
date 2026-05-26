@@ -1,4 +1,4 @@
-module github.com/buildkite/go-buildkite/v4
+module github.com/buildkite/go-buildkite/v5
 
 go 1.25
 

@@ -21,13 +21,15 @@ type TeamSuites struct {
 	CreatedAt   *Timestamp `json:"created_at,omitempty"`
 }
 
+// CreateTeamSuites represents the request body for adding a suite to a team.
 type CreateTeamSuites struct {
 	SuiteID     string   `json:"suite_id,omitempty"`
 	AccessLevel []string `json:"access_level,omitempty"`
 }
 
+// UpdateTeamSuites represents the request body for updating a team's suite access.
 type UpdateTeamSuites struct {
-	AccessLevel []string `json:"access_level,omitempty"`
+	AccessLevel Optional[[]string] `json:"access_level,omitzero"`
 }
 
 type TeamSuitesListOptions struct {

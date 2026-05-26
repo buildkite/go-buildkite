@@ -21,13 +21,15 @@ type TeamPipeline struct {
 	CreatedAt   *Timestamp `json:"created_at,omitempty"`
 }
 
+// CreateTeamPipelines represents the request body for adding a pipeline to a team.
 type CreateTeamPipelines struct {
 	PipelineID  string `json:"pipeline_id,omitempty"`
 	AccessLevel string `json:"access_level,omitempty"`
 }
 
+// UpdateTeamPipelines represents the request body for updating a team's pipeline access.
 type UpdateTeamPipelines struct {
-	AccessLevel string `json:"access_level,omitempty"`
+	AccessLevel Optional[string] `json:"access_level,omitzero"`
 }
 
 type TeamPipelinesListOptions struct {

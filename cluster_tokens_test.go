@@ -171,10 +171,10 @@ func TestClusterTokensService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := ClusterTokenCreateUpdate{Description: "Development 2 cluster token"}
+	input := ClusterTokenCreate{Description: "Development 2 cluster token"}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterTokenCreateUpdate
+		var v ClusterTokenCreate
 		err := json.NewDecoder(r.Body).Decode(&v)
 		if err != nil {
 			t.Fatalf("Error parsing json body: %v", err)
@@ -211,13 +211,8 @@ func TestClusterTokensService_Update(t *testing.T) {
 	t.Cleanup(teardown)
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterTokenCreateUpdate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"description":"Development 1 agent token"}`)
 
 		_, _ = fmt.Fprint(w,
 			`
@@ -227,7 +222,7 @@ func TestClusterTokensService_Update(t *testing.T) {
 			}`)
 	})
 
-	tokenUpdate := ClusterTokenCreateUpdate{Description: "Development 1 agent token"}
+	tokenUpdate := ClusterTokenUpdate{Description: Some("Development 1 agent token")}
 
 	got, _, err := client.ClusterTokens.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "9cb33339-1c4a-4020-9aeb-3319b2e1f054", tokenUpdate)
 	if err != nil {
@@ -241,6 +236,36 @@ func TestClusterTokensService_Update(t *testing.T) {
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestClusterTokens.Update diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestClusterTokensService_UpdateClearsAllowedIPAddresses(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens/9cb33339-1c4a-4020-9aeb-3319b2e1f054", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"allowed_ip_addresses":""}`)
+
+		_, _ = fmt.Fprint(w,
+			`
+			{
+				"id": "9cb33339-1c4a-4020-9aeb-3319b2e1f054",
+				"allowed_ip_addresses" : ""
+			}`)
+	})
+
+	got, _, err := client.ClusterTokens.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "9cb33339-1c4a-4020-9aeb-3319b2e1f054", ClusterTokenUpdate{
+		AllowedIPAddresses: Some(""),
+	})
+	if err != nil {
+		t.Errorf("TestClusterTokens.Update returned error: %v", err)
+	}
+
+	if got.AllowedIPAddresses != "" {
+		t.Errorf("AllowedIPAddresses = %q, want empty string", got.AllowedIPAddresses)
 	}
 }
 

@@ -42,6 +42,7 @@ type ClusterSecretOrganization struct {
 	WebURL string `json:"web_url,omitempty"`
 }
 
+// ClusterSecretCreate represents the request body for creating a cluster secret.
 type ClusterSecretCreate struct {
 	Key         string `json:"key"`
 	Value       string `json:"value,omitempty"`
@@ -49,11 +50,13 @@ type ClusterSecretCreate struct {
 	Policy      string `json:"policy,omitempty"`
 }
 
+// ClusterSecretUpdate represents the request body for updating a cluster secret.
 type ClusterSecretUpdate struct {
-	Description string `json:"description,omitempty"`
-	Policy      string `json:"policy,omitempty"`
+	Description Optional[string] `json:"description,omitzero"`
+	Policy      Optional[string] `json:"policy,omitzero"`
 }
 
+// ClusterSecretValueUpdate represents the request body for updating a cluster secret value.
 type ClusterSecretValueUpdate struct {
 	Value string `json:"value"`
 }

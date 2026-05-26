@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/buildkite/go-buildkite/v4"
+	"github.com/buildkite/go-buildkite/v5"
 
 	"github.com/alecthomas/kingpin/v2"
 )
@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	pipelineTemplateUpdate := buildkite.PipelineTemplateCreateUpdate{Description: "Production pipeline template uploader"}
+	pipelineTemplateUpdate := buildkite.PipelineTemplateUpdate{Description: buildkite.Some("Production pipeline template uploader")}
 
 	cluster, _, err := client.PipelineTemplates.Update(context.Background(), *org, *templateUUID, pipelineTemplateUpdate)
 	if err != nil {

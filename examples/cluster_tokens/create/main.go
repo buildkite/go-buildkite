@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/buildkite/go-buildkite/v4"
+	"github.com/buildkite/go-buildkite/v5"
 
 	"github.com/alecthomas/kingpin/v2"
 )
@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusterTokenCreate := buildkite.ClusterTokenCreateUpdate{Description: "Dev squad agent fleet token"}
+	clusterTokenCreate := buildkite.ClusterTokenCreate{Description: "Dev squad agent fleet token"}
 
 	token, _, err := client.ClusterTokens.Create(context.Background(), *org, *clusterID, clusterTokenCreate)
 	if err != nil {

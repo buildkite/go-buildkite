@@ -266,13 +266,8 @@ func TestClusterQueuesService_Update(t *testing.T) {
 	t.Cleanup(teardown)
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/queues/1374ffd0-c5ed-49a5-aebe-67ce906e68ca", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterQueueUpdate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"description":"Development 1 Team queue"}`)
 
 		_, _ = fmt.Fprint(w,
 			`
@@ -284,7 +279,7 @@ func TestClusterQueuesService_Update(t *testing.T) {
 			}`)
 	})
 
-	queueUpdate := ClusterQueueUpdate{Description: "Development 1 Team queue"}
+	queueUpdate := ClusterQueueUpdate{Description: Some("Development 1 Team queue")}
 
 	got, _, err := client.ClusterQueues.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "1374ffd0-c5ed-49a5-aebe-67ce906e68ca", queueUpdate)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/buildkite/go-buildkite/v4"
+	"github.com/buildkite/go-buildkite/v5"
 
 	"github.com/alecthomas/kingpin/v2"
 )
@@ -25,10 +25,9 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	enabled := false
 	scheduleUpdate := buildkite.UpdatePipelineSchedule{
-		Label:   "Nightly build (paused)",
-		Enabled: &enabled,
+		Label:   buildkite.Some("Nightly build (paused)"),
+		Enabled: buildkite.Some(false),
 	}
 
 	schedule, _, err := client.PipelineSchedules.Update(context.Background(), *org, *pipeline, *scheduleID, scheduleUpdate)

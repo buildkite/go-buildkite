@@ -42,7 +42,7 @@ type TeamsListOptions struct {
 	UserID string `url:"user_id,omitempty"`
 }
 
-// CreateTeam represents a request to create or update a team.
+// CreateTeam represents a request to create a team.
 type CreateTeam struct {
 	Name                        string `json:"name,omitempty"`
 	Description                 string `json:"description,omitempty"`
@@ -54,6 +54,20 @@ type CreateTeam struct {
 	MembersCanCreateRegistries  bool   `json:"members_can_create_registries"`
 	MembersCanDestroyRegistries bool   `json:"members_can_destroy_registries"`
 	MembersCanDestroyPackages   bool   `json:"members_can_destroy_packages"`
+}
+
+// UpdateTeam represents a request to update a team.
+type UpdateTeam struct {
+	Name                        Optional[string] `json:"name,omitzero"`
+	Description                 Optional[string] `json:"description,omitzero"`
+	Privacy                     Optional[string] `json:"privacy,omitzero"`
+	IsDefaultTeam               Optional[bool]   `json:"is_default_team,omitzero"`
+	DefaultMemberRole           Optional[string] `json:"default_member_role,omitzero"`
+	MembersCanCreatePipelines   Optional[bool]   `json:"members_can_create_pipelines,omitzero"`
+	MembersCanCreateSuites      Optional[bool]   `json:"members_can_create_suites,omitzero"`
+	MembersCanCreateRegistries  Optional[bool]   `json:"members_can_create_registries,omitzero"`
+	MembersCanDestroyRegistries Optional[bool]   `json:"members_can_destroy_registries,omitzero"`
+	MembersCanDestroyPackages   Optional[bool]   `json:"members_can_destroy_packages,omitzero"`
 }
 
 // Get the teams for an org.
@@ -117,7 +131,7 @@ func (ts *TeamsService) CreateTeam(ctx context.Context, org string, t CreateTeam
 }
 
 // UpdateTeam updates a team.
-func (ts *TeamsService) UpdateTeam(ctx context.Context, org string, id string, t CreateTeam) (Team, *Response, error) {
+func (ts *TeamsService) UpdateTeam(ctx context.Context, org string, id string, t UpdateTeam) (Team, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/teams/%s", org, id)
 
 	req, err := ts.client.NewRequest(ctx, "PATCH", u, t)

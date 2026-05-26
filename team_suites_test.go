@@ -157,6 +157,7 @@ func TestTeamSuitesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/testorg/teams/c6fa9b07-efeb-4aea-b5ad-c4aa01e91038/suites/1239d7f9-394a-4d99-badf-7c3d8577a8ff", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"access_level":["read","edit"]}`)
 		_, _ = fmt.Fprint(w,
 			`
 			{
@@ -168,7 +169,7 @@ func TestTeamSuitesService_Update(t *testing.T) {
 	})
 
 	wantUpdate := UpdateTeamSuites{
-		AccessLevel: []string{"read", "edit"},
+		AccessLevel: Some([]string{"read", "edit"}),
 	}
 
 	got, _, err := client.TeamSuites.Update(context.Background(), "testorg", "c6fa9b07-efeb-4aea-b5ad-c4aa01e91038", "1239d7f9-394a-4d99-badf-7c3d8577a8ff", wantUpdate)

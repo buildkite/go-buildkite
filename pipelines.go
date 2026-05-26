@@ -41,26 +41,27 @@ type CreatePipeline struct {
 	Tags                            []string          `json:"tags,omitempty"`
 }
 
+// UpdatePipeline represents the request body for updating a pipeline.
 type UpdatePipeline struct {
 	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
-	Configuration string `json:"configuration,omitempty"`
-	Steps         []Step `json:"steps,omitempty"`
+	Configuration Optional[string] `json:"configuration,omitzero"`
+	Steps         Optional[[]Step] `json:"steps,omitzero"`
 
-	Name                            string           `json:"name,omitempty"`
-	Repository                      string           `json:"repository,omitempty"`
-	DefaultBranch                   string           `json:"default_branch,omitempty"`
-	DefaultCommandStepTimeout       int              `json:"default_command_step_timeout,omitempty"`
-	Description                     string           `json:"description,omitempty"`
-	MaximumCommandStepTimeout       int              `json:"maximum_command_step_timeout,omitempty"`
-	ProviderSettings                ProviderSettings `json:"provider_settings,omitempty"`
-	BranchConfiguration             string           `json:"branch_configuration,omitempty"`
-	SkipQueuedBranchBuilds          bool             `json:"skip_queued_branch_builds"`
-	SkipQueuedBranchBuildsFilter    string           `json:"skip_queued_branch_builds_filter,omitempty"`
-	CancelRunningBranchBuilds       bool             `json:"cancel_running_branch_builds"`
-	CancelRunningBranchBuildsFilter string           `json:"cancel_running_branch_builds_filter,omitempty"`
-	ClusterID                       string           `json:"cluster_id,omitempty"`
-	Visibility                      string           `json:"visibility,omitempty"`
-	Tags                            []string         `json:"tags,omitempty"`
+	Name                            Optional[string]           `json:"name,omitzero"`
+	Repository                      Optional[string]           `json:"repository,omitzero"`
+	DefaultBranch                   Optional[string]           `json:"default_branch,omitzero"`
+	DefaultCommandStepTimeout       Optional[int]              `json:"default_command_step_timeout,omitzero"`
+	Description                     Optional[string]           `json:"description,omitzero"`
+	MaximumCommandStepTimeout       Optional[int]              `json:"maximum_command_step_timeout,omitzero"`
+	ProviderSettings                Optional[ProviderSettings] `json:"provider_settings,omitzero"`
+	BranchConfiguration             Optional[string]           `json:"branch_configuration,omitzero"`
+	SkipQueuedBranchBuilds          Optional[bool]             `json:"skip_queued_branch_builds,omitzero"`
+	SkipQueuedBranchBuildsFilter    Optional[string]           `json:"skip_queued_branch_builds_filter,omitzero"`
+	CancelRunningBranchBuilds       Optional[bool]             `json:"cancel_running_branch_builds,omitzero"`
+	CancelRunningBranchBuildsFilter Optional[string]           `json:"cancel_running_branch_builds_filter,omitzero"`
+	ClusterID                       Optional[string]           `json:"cluster_id,omitzero"`
+	Visibility                      Optional[string]           `json:"visibility,omitzero"`
+	Tags                            Optional[[]string]         `json:"tags,omitzero"`
 }
 
 // Pipeline represents a buildkite pipeline.

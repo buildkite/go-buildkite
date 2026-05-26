@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/buildkite/go-buildkite/v4"
+	"github.com/buildkite/go-buildkite/v5"
 
 	"github.com/alecthomas/kingpin/v2"
 )
@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	clusterUpdate := buildkite.ClusterUpdate{Description: *newDescription}
+	clusterUpdate := buildkite.ClusterUpdate{Description: buildkite.Some(*newDescription)}
 
 	cluster, _, err := client.Clusters.Update(context.Background(), *org, *clusterID, clusterUpdate)
 	if err != nil {

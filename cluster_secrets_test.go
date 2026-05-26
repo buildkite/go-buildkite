@@ -258,13 +258,11 @@ func TestClusterSecretsService_Update(t *testing.T) {
 	t.Cleanup(teardown)
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/secrets/a1e2d345-6789-0abc-def1-234567890abc", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterSecretUpdate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
 		testMethod(t, r, "PUT")
+		assertRequestJSON(t, r, `{
+			"description": "Updated SSH key description",
+			"policy": "block"
+		}`)
 
 		_, _ = fmt.Fprint(w,
 			`
@@ -277,8 +275,8 @@ func TestClusterSecretsService_Update(t *testing.T) {
 	})
 
 	update := ClusterSecretUpdate{
-		Description: "Updated SSH key description",
-		Policy:      "block",
+		Description: Some("Updated SSH key description"),
+		Policy:      Some("block"),
 	}
 
 	got, _, err := client.ClusterSecrets.Update(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", "a1e2d345-6789-0abc-def1-234567890abc", update)

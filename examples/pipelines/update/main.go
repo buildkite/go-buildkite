@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/buildkite/go-buildkite/v4"
+	"github.com/buildkite/go-buildkite/v5"
 
 	"github.com/alecthomas/kingpin/v2"
 )
@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	_, _, err = client.Pipelines.Update(context.Background(), *org, *pipelineSlug, buildkite.UpdatePipeline{Description: *newDescription})
+	_, _, err = client.Pipelines.Update(context.Background(), *org, *pipelineSlug, buildkite.UpdatePipeline{Description: buildkite.Some(*newDescription)})
 	if err != nil {
 		log.Fatalf("Updating pipeline failed: %s", err)
 	}

@@ -147,32 +147,25 @@ func TestPackageRegistryUpdate(t *testing.T) {
 	t.Cleanup(teardown)
 
 	wantInput := UpdatePackageRegistryInput{
-		Name:        "My Even Cooler Registry",
-		Description: "A registry so cool we had to rename it",
+		Name:        Some("My Even Cooler Registry"),
+		Description: Some("A registry so cool we had to rename it"),
 	}
 
 	want := registry
-	want.Name = wantInput.Name
-	want.Description = wantInput.Description
+	want.Name = "My Even Cooler Registry"
+	want.Description = "A registry so cool we had to rename it"
 
 	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
 		defer func() { _ = r.Body.Close() }()
 
 		testMethod(t, r, "PATCH")
-
-		var gotInput UpdatePackageRegistryInput
-		err := json.NewDecoder(r.Body).Decode(&gotInput)
-		if err != nil {
-			t.Fatalf("parsing Update Package body: %v", err)
-		}
-
-		// ensure that the input survives a roundtrip through JSON
-		if diff := cmp.Diff(gotInput, wantInput); diff != "" {
-			t.Fatalf("update registry input diff: (-got +want)\n%s", diff)
-		}
+		assertRequestJSON(t, r, `{
+			"name": "My Even Cooler Registry",
+			"description": "A registry so cool we had to rename it"
+		}`)
 
 		// send back the registry
-		err = json.NewEncoder(w).Encode(want)
+		err := json.NewEncoder(w).Encode(want)
 		if err != nil {
 			t.Fatalf("encoding json response body: %v", err)
 		}

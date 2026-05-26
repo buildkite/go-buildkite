@@ -37,14 +37,17 @@ type CreatePackageRegistryInput struct {
 	OIDCPolicy  PackageRegistryOIDCPolicy `json:"oidc_policy,omitempty"` // The OIDC policy for the package registry, as a YAML or JSON string
 }
 
+// PackageRegistryOIDCPolicy represents the OIDC policy statements for a package registry.
 type PackageRegistryOIDCPolicy []OIDCPolicyStatement
 
+// OIDCPolicyStatement represents one OIDC policy statement for a package registry.
 type OIDCPolicyStatement struct {
 	Issuer string               `json:"iss"`
 	Scopes []string             `json:"scopes,omitzero"`
 	Claims map[string]ClaimRule `json:"claims"`
 }
 
+// ClaimRule represents matching rules for an OIDC claim.
 type ClaimRule struct {
 	Equals    any      `json:"equals,omitempty"`
 	NotEquals any      `json:"not_equals,omitempty"`
@@ -70,12 +73,13 @@ func (rs *PackageRegistriesService) Create(ctx context.Context, organizationSlug
 	return pr, resp, err
 }
 
+// UpdatePackageRegistryInput represents the request body for updating a package registry.
 type UpdatePackageRegistryInput struct {
-	Name        string                    `json:"name,omitempty"`        // The name of the package registry
-	Description string                    `json:"description,omitempty"` // A description for the package registry
-	Emoji       string                    `json:"emoji,omitempty"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
-	Color       string                    `json:"color,omitempty"`       // A color for the package registry, in hex format (eg "#FF0000")
-	OIDCPolicy  PackageRegistryOIDCPolicy `json:"oidc_policy,omitempty"` // The OIDC policy for the package registry, as a YAML or JSON string
+	Name        Optional[string]                    `json:"name,omitzero"`        // The name of the package registry
+	Description Optional[string]                    `json:"description,omitzero"` // A description for the package registry
+	Emoji       Optional[string]                    `json:"emoji,omitzero"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
+	Color       Optional[string]                    `json:"color,omitzero"`       // A color for the package registry, in hex format (eg "#FF0000")
+	OIDCPolicy  Optional[PackageRegistryOIDCPolicy] `json:"oidc_policy,omitzero"` // The OIDC policy for the package registry, as a YAML or JSON string
 }
 
 // Update updates a package registry for an organization

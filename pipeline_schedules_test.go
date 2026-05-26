@@ -162,8 +162,8 @@ func TestPipelineSchedulesService_Update(t *testing.T) {
 	t.Parallel()
 
 	in := UpdatePipelineSchedule{
-		Label:   "Updated label",
-		Enabled: boolPtr(true),
+		Label:   Some("Updated label"),
+		Enabled: Some(true),
 	}
 
 	server, client, teardown := newMockServerAndClient(t)
@@ -171,14 +171,10 @@ func TestPipelineSchedulesService_Update(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-org/pipelines/my-pipeline/schedules/abc", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-
-		var got UpdatePipelineSchedule
-		if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
-			t.Fatalf("decoding request body: %v", err)
-		}
-		if diff := cmp.Diff(in, got); diff != "" {
-			t.Errorf("Update request body mismatch (-want +got):\n%s", diff)
-		}
+		assertRequestJSON(t, r, `{
+			"label": "Updated label",
+			"enabled": true
+		}`)
 
 		_, _ = fmt.Fprint(w, `{
 			"id": "abc",
@@ -197,6 +193,37 @@ func TestPipelineSchedulesService_Update(t *testing.T) {
 	}
 	if !got.Enabled {
 		t.Errorf("Update enabled = false, want true")
+	}
+}
+
+func TestPipelineSchedulesService_UpdateClearsEnv(t *testing.T) {
+	t.Parallel()
+
+	in := UpdatePipelineSchedule{
+		Env: Some(map[string]string{}),
+	}
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-org/pipelines/my-pipeline/schedules/abc", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, `{"env":{}}`)
+
+		_, _ = fmt.Fprint(w, `{
+			"id": "abc",
+			"env": {},
+			"enabled": true
+		}`)
+	})
+
+	got, _, err := client.PipelineSchedules.Update(context.Background(), "my-org", "my-pipeline", "abc", in)
+	if err != nil {
+		t.Fatalf("Update returned error: %v", err)
+	}
+
+	if len(got.Env) != 0 {
+		t.Errorf("Update env length = %d, want 0", len(got.Env))
 	}
 }
 
