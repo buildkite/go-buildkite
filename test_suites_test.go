@@ -218,7 +218,7 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 	got, _, err := client.TestSuites.Update(context.Background(), "my-great-org", suite.Slug, TestSuiteUpdate{DefaultBranch: Some("default")})
 	if err != nil {
-		t.Errorf("Pipelines.Update returned error: %v", err)
+		t.Errorf("TestSuites.Update returned error: %v", err)
 	}
 
 	want := TestSuite{
