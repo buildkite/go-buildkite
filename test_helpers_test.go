@@ -22,12 +22,14 @@ func assertJSONEqual(t *testing.T, got, want string) {
 
 	var gotJSON any
 	if err := json.Unmarshal([]byte(got), &gotJSON); err != nil {
-		t.Fatalf("got invalid JSON %q: %v", got, err)
+		t.Errorf("got invalid JSON %q: %v", got, err)
+		return
 	}
 
 	var wantJSON any
 	if err := json.Unmarshal([]byte(want), &wantJSON); err != nil {
-		t.Fatalf("want invalid JSON %q: %v", want, err)
+		t.Errorf("want invalid JSON %q: %v", want, err)
+		return
 	}
 
 	if diff := cmp.Diff(wantJSON, gotJSON); diff != "" {
@@ -40,7 +42,8 @@ func assertRequestJSON(t *testing.T, r *http.Request, want string) {
 
 	got, err := io.ReadAll(r.Body)
 	if err != nil {
-		t.Fatalf("reading request body: %v", err)
+		t.Errorf("reading request body: %v", err)
+		return
 	}
 
 	assertJSONEqual(t, string(got), want)
