@@ -1,3 +1,5 @@
+image: "buildkite/hosted-agent-base-images:ubuntu-jammy"
+
 agents:
   queue: hosted
 
@@ -10,7 +12,6 @@ steps:
     secrets:
       - MISE_GITHUB_TOKEN
     plugins:
-      - setup-go#daa7af945245588f85b76ba7fe0a9af3d87dbf91: ~
       - mise#v1.1.2: ~
 
   - name: ":go::test_tube: Test"
@@ -22,12 +23,15 @@ steps:
     plugins:
       - artifacts#v1.9.4:
           upload: "cover.{html,out}"
-      - setup-go#daa7af945245588f85b76ba7fe0a9af3d87dbf91: ~
+      - mise#v1.1.2: ~
 
   - label: ":writing_hand: Annotate with Test Failures"
     key: annotate
     depends_on: test
     allow_dependency_failure: true
+    secrets:
+      - MISE_GITHUB_TOKEN
     plugins:
       - junit-annotate#v2.7.0:
           artifacts: junit-*.xml
+      - mise#v1.1.2: ~
