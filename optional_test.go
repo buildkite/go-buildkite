@@ -88,19 +88,11 @@ func TestOptionalUnmarshalJSON(t *testing.T) {
 		t.Fatalf("Unmarshal returned error: %v", err)
 	}
 
-	name, nameOK := got.Name.Value()
-	if !nameOK {
-		t.Fatal("Name was not marked set")
+	want := payload{
+		// Name should be unset
+		Tags: Some([]string{}),
 	}
-	if name != "" {
-		t.Errorf("Name = %q, want empty string", name)
-	}
-
-	tags, tagsOK := got.Tags.Value()
-	if !tagsOK {
-		t.Fatal("Tags was not marked set")
-	}
-	if len(tags) != 0 {
-		t.Errorf("Tags length = %d, want 0", len(tags))
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Unmarshaled payload diff (-want +got):\n%s", diff)
 	}
 }
