@@ -1,0 +1,34 @@
+# Pinned local toolchain for contributors. The Go version matches the
+# CI toolchain; the module minimum stays in go.mod.
+[settings]
+experimental = true
+lockfile = true
+
+[tools]
+go = "1.25.10"
+golangci-lint = "2.8.0"
+lefthook = "2.1.6"
+
+[tasks.format]
+description = "Format Go files"
+run = "go fmt ./..."
+
+[tasks.lint]
+description = "Run the repository lint checks"
+run = ".buildkite/steps/lint.sh"
+
+[tasks.test]
+description = "Run the Go test suite"
+run = "go test -timeout=3s -v ./..."
+
+[tasks.generate]
+description = "Regenerate generated files"
+run = "go generate ./..."
+
+[tasks.hooks]
+description = "Install the repository git hooks"
+run = "lefthook install"
+
+[tasks.ci]
+description = "Run the main local CI checks"
+depends = ["lint", "test"]
