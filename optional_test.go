@@ -60,6 +60,13 @@ func TestOptionalMarshalJSON(t *testing.T) {
 			},
 			want: `{"tags":null}`,
 		},
+		{
+			name: "nil map is sent as null when set",
+			in: payload{
+				Env: Some(map[string]string(nil)),
+			},
+			want: `{"env":null}`,
+		},
 	}
 
 	for _, tt := range tests {
@@ -72,27 +79,5 @@ func TestOptionalMarshalJSON(t *testing.T) {
 			}
 			assertJSONEqual(t, string(got), tt.want)
 		})
-	}
-}
-
-func TestOptionalUnmarshalJSON(t *testing.T) {
-	t.Parallel()
-
-	type payload struct {
-		Name Optional[string]   `json:"name,omitzero"`
-		Tags Optional[[]string] `json:"tags,omitzero"`
-	}
-
-	var got payload
-	if err := json.Unmarshal([]byte(`{"name":null,"tags":[]}`), &got); err != nil {
-		t.Fatalf("Unmarshal returned error: %v", err)
-	}
-
-	want := payload{
-		// Name should be unset
-		Tags: Some([]string{}),
-	}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("Unmarshaled payload diff (-want +got):\n%s", diff)
 	}
 }

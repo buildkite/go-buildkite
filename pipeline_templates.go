@@ -13,6 +13,7 @@ type PipelineTemplatesService struct {
 	client *Client
 }
 
+// PipelineTemplate represents a reusable pipeline template.
 type PipelineTemplate struct {
 	UUID          string `json:"uuid,omitempty"`
 	GraphQLID     string `json:"graphql_id,omitempty"`
@@ -30,6 +31,7 @@ type PipelineTemplate struct {
 	UpdatedBy PipelineTemplateCreator `json:"updated_by,omitempty"`
 }
 
+// PipelineTemplateCreate represents the request body for creating a pipeline template.
 type PipelineTemplateCreate struct {
 	Name          string `json:"name,omitempty"`
 	Configuration string `json:"configuration,omitempty"`
@@ -37,6 +39,7 @@ type PipelineTemplateCreate struct {
 	Available     bool   `json:"available"`
 }
 
+// PipelineTemplateUpdate represents the request body for updating a pipeline template.
 type PipelineTemplateUpdate struct {
 	Name          Optional[string] `json:"name,omitzero"`
 	Configuration Optional[string] `json:"configuration,omitzero"`

@@ -41,6 +41,7 @@ type CreatePipeline struct {
 	Tags                            []string          `json:"tags,omitempty"`
 }
 
+// UpdatePipeline represents the request body for updating a pipeline.
 type UpdatePipeline struct {
 	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
 	Configuration Optional[string] `json:"configuration,omitzero"`

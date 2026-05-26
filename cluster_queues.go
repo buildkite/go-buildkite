@@ -37,12 +37,14 @@ type ClusterQueue struct {
 	CreatedBy          ClusterCreator     `json:"created_by,omitempty"`
 }
 
+// ClusterQueueCreate represents the request body for creating a cluster queue.
 type ClusterQueueCreate struct {
 	Key                string             `json:"key,omitempty"`
 	Description        string             `json:"description,omitempty"`
 	RetryAgentAffinity RetryAgentAffinity `json:"retry_agent_affinity,omitempty"`
 }
 
+// ClusterQueueUpdate represents the request body for updating a cluster queue.
 type ClusterQueueUpdate struct {
 	Description        Optional[string]             `json:"description,omitzero"`
 	RetryAgentAffinity Optional[RetryAgentAffinity] `json:"retry_agent_affinity,omitzero"`

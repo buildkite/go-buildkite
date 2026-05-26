@@ -13,6 +13,7 @@ type ClusterTokensService struct {
 	client *Client
 }
 
+// ClusterToken represents a token scoped to a cluster.
 type ClusterToken struct {
 	ID                 string         `json:"id,omitempty"`
 	GraphQLID          string         `json:"graphql_id,omitempty"`
@@ -25,11 +26,13 @@ type ClusterToken struct {
 	Token              string         `json:"token,omitempty"`
 }
 
+// ClusterTokenCreate represents the request body for creating a cluster token.
 type ClusterTokenCreate struct {
 	Description        string `json:"description,omitempty"`
 	AllowedIPAddresses string `json:"allowed_ip_addresses,omitempty"`
 }
 
+// ClusterTokenUpdate represents the request body for updating a cluster token.
 type ClusterTokenUpdate struct {
 	Description        Optional[string] `json:"description,omitzero"`
 	AllowedIPAddresses Optional[string] `json:"allowed_ip_addresses,omitzero"`

@@ -14,6 +14,9 @@ type Optional[T any] struct {
 }
 
 // Some returns an Optional that sends value in JSON.
+//
+// Nil slices and maps are encoded as null. Use an initialized empty slice or
+// map when the API expects [] or {}.
 func Some[T any](value T) Optional[T] {
 	return Optional[T]{
 		value: value,
@@ -34,10 +37,4 @@ func (o Optional[T]) Value() (T, bool) {
 // MarshalJSON encodes the wrapped value.
 func (o Optional[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(o.value)
-}
-
-// UnmarshalJSON records that the field was present and decodes its value.
-func (o *Optional[T]) UnmarshalJSON(data []byte) error {
-	o.set = true
-	return json.Unmarshal(data, &o.value)
 }

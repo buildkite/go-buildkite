@@ -13,6 +13,7 @@ type ClustersService struct {
 	client *Client
 }
 
+// ClusterCreate represents the request body for creating a cluster.
 type ClusterCreate struct {
 	Name        string              `json:"name,omitempty"`
 	Description string              `json:"description,omitempty"`
@@ -21,6 +22,7 @@ type ClusterCreate struct {
 	Maintainers []ClusterMaintainer `json:"maintainers,omitempty"`
 }
 
+// ClusterUpdate represents the request body for updating a cluster.
 type ClusterUpdate struct {
 	Name           Optional[string] `json:"name,omitzero"`
 	Description    Optional[string] `json:"description,omitzero"`

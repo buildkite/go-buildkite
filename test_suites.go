@@ -13,6 +13,7 @@ type TestSuitesService struct {
 	client *Client
 }
 
+// TestSuiteCreate represents the request body for creating a test suite.
 type TestSuiteCreate struct {
 	Name          string   `json:"name"`
 	DefaultBranch string   `json:"default_branch,omitempty"`
@@ -20,6 +21,7 @@ type TestSuiteCreate struct {
 	TeamUUIDs     []string `json:"team_ids,omitempty"`
 }
 
+// TestSuite represents a Buildkite Test Analytics suite.
 type TestSuite struct {
 	ID            string `json:"id,omitempty"`
 	GraphQLID     string `json:"graphql_id,omitempty"`
@@ -30,6 +32,7 @@ type TestSuite struct {
 	DefaultBranch string `json:"default_branch,omitempty"`
 }
 
+// TestSuiteUpdate represents the request body for updating a test suite.
 type TestSuiteUpdate struct {
 	Name          Optional[string] `json:"name,omitzero"`
 	DefaultBranch Optional[string] `json:"default_branch,omitzero"`

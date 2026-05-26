@@ -42,6 +42,9 @@ value omits the field. Wrap values with `buildkite.Some(...)` when the field
 should be sent, including empty strings, empty maps, empty slices, `0`, or
 `false`.
 
+Use initialized empty slices and maps when the API expects `[]` or `{}`. Nil
+slices and maps wrapped with `buildkite.Some(...)` are encoded as `null`.
+
 ```go
 _, _, err := client.Pipelines.Update(ctx, org, pipelineSlug, buildkite.UpdatePipeline{
     Description:              buildkite.Some(""),
