@@ -1,3 +1,8 @@
+## [v4.23.0](https://github.com/buildkite/go-buildkite/compare/v4.22.0...v4.23.0) (2026-05-26)
+
+* Fix: expose expires_at on AccessToken (SUP-7112) [#307](https://github.com/buildkite/go-buildkite/pull/307) ([stephanieatte](https://github.com/stephanieatte))
+* release: changelog and typo fixes [#305](https://github.com/buildkite/go-buildkite/pull/305) ([mcncl](https://github.com/mcncl))
+
 ## [v4.22.0](https://github.com/buildkite/go-buildkite/compare/v4.21.0...v4.22.0) (2026-05-06)
 
 * feat: add support for pipeline schedules [#304](https://github.com/buildkite/go-buildkite/pull/304) ([wolfeidau](https://github.com/wolfeidau))
