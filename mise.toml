@@ -5,7 +5,7 @@ experimental = true
 lockfile = true
 
 [tools]
-go = "1.25.10"
+go = "1.26.4"
 golangci-lint = "2.8.0"
 lefthook = "2.1.8"
 
