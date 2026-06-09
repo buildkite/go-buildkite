@@ -189,6 +189,13 @@ type BuildsListOptions struct {
 	// Exclude pipeline data from the API response
 	ExcludePipeline bool `url:"exclude_pipeline,omitempty"`
 
+	// Controls whether builds with jobs on paused queues are returned. When set
+	// to false, builds whose jobs are all on paused queues are excluded, and a
+	// build with jobs on both paused and active queues omits its paused jobs from
+	// the jobs list. Defaults to true on the API, so this is a pointer to allow
+	// sending include_paused=false while leaving it unset by default.
+	IncludePaused *bool `url:"include_paused,omitempty"`
+
 	ListOptions
 }
 
