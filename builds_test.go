@@ -415,6 +415,61 @@ func TestBuildsService_ListByOrg_branch_commit(t *testing.T) {
 	}
 }
 
+func TestBuildsService_ListByOrg_include_paused(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"include_paused": "false",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+	})
+
+	includePaused := false
+	opt := &BuildsListOptions{
+		IncludePaused: &includePaused,
+	}
+
+	builds, _, err := client.Builds.ListByOrg(context.Background(), "my-great-org", opt)
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: "123"}, {ID: "1234"}}
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestBuildsService_ListByOrg_include_paused_unset(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		if _, ok := r.URL.Query()["include_paused"]; ok {
+			t.Errorf("expected include_paused to be omitted when unset, got %q", r.URL.RawQuery)
+		}
+		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+	})
+
+	builds, _, err := client.Builds.ListByOrg(context.Background(), "my-great-org", &BuildsListOptions{})
+	if err != nil {
+		t.Errorf("Builds.List returned error: %v", err)
+	}
+
+	want := []Build{{ID: "123"}, {ID: "1234"}}
+	if diff := cmp.Diff(builds, want); diff != "" {
+		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestBuildsService_List_by_multiple_branches(t *testing.T) {
 	t.Parallel()
 
