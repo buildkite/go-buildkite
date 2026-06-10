@@ -1,3 +1,8 @@
+## [v5.0.1](https://github.com/buildkite/go-buildkite/compare/v5.0.0...v5.0.1) (2026-06-10)
+
+* chore: Add the include_paused param to builds list options [#317](https://github.com/buildkite/go-buildkite/pull/317) ([CerealBoy](https://github.com/CerealBoy))
+* chore(deps): update buildkite plugin mise to v1.1.3 [#315](https://github.com/buildkite/go-buildkite/pull/315) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [v5.0.0](https://github.com/buildkite/go-buildkite/compare/v4.23.0...v5.0.0) (2026-05-26)
 
 * breaking: move the module path to `github.com/buildkite/go-buildkite/v5`
