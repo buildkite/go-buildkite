@@ -5,9 +5,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -17,12 +17,12 @@ import (
 	"time"
 
 	"github.com/buildkite/go-buildkite/v5/internal/bkmultipart"
-	"github.com/cenkalti/backoff"
 	"github.com/google/go-querystring/query"
 )
 
 const (
-	DefaultBaseURL = "https://api.buildkite.com/"
+	DefaultBaseURL    = "https://api.buildkite.com/"
+	DefaultMaxRetries = 3
 )
 
 // DefaultUserAgent is the default user agent used for API requests
@@ -73,9 +73,15 @@ type Client struct {
 	TestRuns                 *TestRunsService
 	TestSuites               *TestSuitesService
 
-	authHeader string
-	httpDebug  bool
+	authHeader      string
+	httpDebug       bool
+	rateLimitNotify RateLimitNotify
+	maxRetries      int
 }
+
+// RateLimitNotify is called each time a request is retried due to a 429 response.
+// attempt is 1-based; delay is how long the client will wait before the next attempt.
+type RateLimitNotify func(attempt int, delay time.Duration)
 
 // ClientOpt is a function that configures a Client.
 type ClientOpt func(*Client) error
@@ -134,6 +140,28 @@ func WithHTTPDebug(debug bool) ClientOpt {
 	}
 }
 
+// WithRateLimitNotify registers a callback invoked each time a request is retried
+// due to a 429 response. Use it to log, display a message, or emit metrics.
+// Passing nil clears any previously registered callback.
+func WithRateLimitNotify(fn RateLimitNotify) ClientOpt {
+	return func(c *Client) error {
+		c.rateLimitNotify = fn
+		return nil
+	}
+}
+
+// WithMaxRetries sets the maximum number of retry attempts on rate-limited requests.
+// Defaults to DefaultMaxRetries (3). Use 0 to disable retries entirely.
+func WithMaxRetries(n int) ClientOpt {
+	return func(c *Client) error {
+		if n < 0 {
+			return fmt.Errorf("max retries must be >= 0, got %d", n)
+		}
+		c.maxRetries = n
+		return nil
+	}
+}
+
 // NewClient returns a new buildkite API client with the provided options.
 // Note that at [WithTokenAuth] must be provided for requests to the buildkite API to succeed.
 // Otherwise, sensible defaults are used.
@@ -141,9 +169,10 @@ func NewClient(opts ...ClientOpt) (*Client, error) {
 	baseURL, _ := url.Parse(DefaultBaseURL)
 
 	c := &Client{
-		client:    http.DefaultClient,
-		BaseURL:   baseURL,
-		UserAgent: DefaultUserAgent,
+		client:     http.DefaultClient,
+		BaseURL:    baseURL,
+		UserAgent:  DefaultUserAgent,
+		maxRetries: DefaultMaxRetries,
 	}
 
 	for _, opt := range opts {
@@ -357,24 +386,64 @@ func (r *Response) populatePageValues() {
 	}
 }
 
+// retryDelay returns how long to wait before the next attempt after a 429.
+// It checks RateLimit-Reset first, then Retry-After, then falls back to capped
+// exponential backoff. Both headers are interpreted as delta-seconds (time until
+// reset) per the Buildkite API spec — not Unix timestamps.
+// A random jitter of up to 1 second is added on all paths to spread out
+// concurrent clients that receive the same reset time.
+func retryDelay(resp *http.Response, attempt int) time.Duration {
+	for _, header := range []string{"RateLimit-Reset", "Retry-After"} {
+		if s := resp.Header.Get(header); s != "" {
+			if secs, err := strconv.Atoi(s); err == nil && secs >= 0 {
+				if secs > 120 {
+					secs = 120
+				}
+				return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
+			}
+		}
+	}
+	// Cap the shift to prevent int64 overflow at high attempt counts.
+	shift := attempt
+	if shift > 5 {
+		shift = 5
+	}
+	d := time.Duration(1<<uint(shift)) * time.Second
+	if d > 30*time.Second {
+		d = 30 * time.Second
+	}
+	return d + time.Duration(rand.N(time.Second))
+}
+
 // Do sends an API request and returns the API response.  The API response is
 // JSON decoded and stored in the value pointed to by v, or returned as an
 // error if an API error has occurred.  If v implements the io.Writer
 // interface, the raw response body will be written to v, without attempting to
 // first decode it.
 func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
-	respCh := make(chan *http.Response, 1)
+	var resp *http.Response
 
-	op := func() error {
+	for attempt := 0; ; attempt++ {
+		// Rewind body for retries. GetBody is set automatically by
+		// http.NewRequestWithContext for bytes.Buffer/bytes.Reader bodies.
+		if attempt > 0 && req.GetBody != nil {
+			body, err := req.GetBody()
+			if err != nil {
+				return nil, fmt.Errorf("rewinding request body for retry: %w", err)
+			}
+			req.Body = body
+		}
+
 		if c.httpDebug {
 			if dump, err := httputil.DumpRequest(req, true); err == nil {
 				fmt.Printf("DEBUG request uri=%s\n%s\n", req.URL, dump)
 			}
 		}
 
-		resp, err := c.client.Do(req)
+		var err error
+		resp, err = c.client.Do(req)
 		if err != nil {
-			return backoff.Permanent(err)
+			return nil, err
 		}
 
 		if c.httpDebug {
@@ -383,33 +452,38 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 			}
 		}
 
-		// Check for rate limiting response on idempotent requests
-		if req.Method == http.MethodGet && resp.StatusCode == http.StatusTooManyRequests {
-			errMsg := resp.Header.Get("Rate-Limit-Warning")
-			if errMsg == "" {
-				errMsg = "Too many requests, retry"
-			}
-			return errors.New(errMsg)
+		// canRewind is false for raw io.Reader bodies where GetBody is not set;
+		// those requests are not retried since the body cannot be replayed.
+		canRewind := req.Body == nil || req.GetBody != nil
+		if resp.StatusCode != http.StatusTooManyRequests || attempt >= c.maxRetries || !canRewind {
+			break
 		}
 
-		respCh <- resp
-		return nil
-	}
+		delay := retryDelay(resp, attempt)
 
-	notify := func(err error, delay time.Duration) {
+		// Drain and close before retrying so the connection can be reused.
+		_, _ = io.Copy(io.Discard, resp.Body)
+		_ = resp.Body.Close()
+
+		// delay is the intended wait duration; actual wait may be shorter if the context is cancelled.
+		if c.rateLimitNotify != nil {
+			c.rateLimitNotify(attempt+1, delay)
+		}
 		if c.httpDebug {
-			fmt.Printf("DEBUG error %v, retry in %v\n", err, delay)
+			fmt.Printf("DEBUG rate limited, retry %d in %v\n", attempt+1, delay)
+		}
+
+		select {
+		case <-req.Context().Done():
+			return nil, req.Context().Err()
+		case <-time.After(delay):
 		}
 	}
 
-	if err := backoff.RetryNotify(op, backoff.NewExponentialBackOff(), notify); err != nil {
-		return nil, err
-	}
-
-	resp := <-respCh
-
-	defer func() { _ = resp.Body.Close() }()
-	defer func() { _, _ = io.Copy(io.Discard, resp.Body) }()
+	defer func() {
+		_, _ = io.Copy(io.Discard, resp.Body)
+		_ = resp.Body.Close()
+	}()
 
 	response := newResponse(resp)
 
