@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 const fileFormKey = "file"
@@ -36,6 +37,28 @@ func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySl
 	resp, err := ps.client.Do(req, &p)
 	if err != nil {
 		return Package{}, resp, fmt.Errorf("executing GET package request: %w", err)
+	}
+
+	return p, resp, err
+}
+
+// Copy copies a package from a source registry to a destination registry within
+// the same organization. Only some package ecosystems support copying.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/package-registries/packages#copy-a-package
+func (ps *PackagesService) Copy(ctx context.Context, organizationSlug, sourceRegistrySlug, packageID, destinationRegistrySlug string) (Package, *Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s/copy", organizationSlug, sourceRegistrySlug, packageID)
+	u += "?" + url.Values{"to": {destinationRegistrySlug}}.Encode()
+
+	req, err := ps.client.NewRequest(ctx, "POST", u, nil)
+	if err != nil {
+		return Package{}, nil, fmt.Errorf("creating POST copy package request: %w", err)
+	}
+
+	var p Package
+	resp, err := ps.client.Do(req, &p)
+	if err != nil {
+		return Package{}, resp, fmt.Errorf("executing POST copy package request: %w", err)
 	}
 
 	return p, resp, err
