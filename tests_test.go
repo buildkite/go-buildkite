@@ -58,11 +58,11 @@ func TestTestsService_Find(t *testing.T) {
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests/find", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 
-		var body FindTest
+		var body FindTestOptions
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Errorf("TestsService.Find failed to decode request body: %v", err)
 		}
-		want := FindTest{Scope: "User#email", Name: "TestExample1_Create"}
+		want := FindTestOptions{Scope: "User#email", Name: "TestExample1_Create"}
 		if diff := cmp.Diff(body, want); diff != "" {
 			t.Errorf("TestsService.Find request body diff: (-got +want)\n%s", diff)
 		}
@@ -81,7 +81,7 @@ func TestTestsService_Find(t *testing.T) {
 	})
 
 	got, _, err := client.Tests.Find(context.Background(), "my-great-org", "suite-example",
-		FindTest{Scope: "User#email", Name: "TestExample1_Create"})
+		FindTestOptions{Scope: "User#email", Name: "TestExample1_Create"})
 	if err != nil {
 		t.Errorf("TestsService.Find returned error: %v", err)
 	}

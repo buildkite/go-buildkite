@@ -23,7 +23,7 @@ type Test struct {
 	FileName string `json:"file_name,omitempty"`
 }
 
-type FindTest struct {
+type FindTestOptions struct {
 	Scope string `json:"scope"`
 	Name  string `json:"name"`
 }
@@ -44,7 +44,7 @@ func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (Test
 	return t, resp, err
 }
 
-func (ts *TestsService) Find(ctx context.Context, org, slug string, find FindTest) (Test, *Response, error) {
+func (ts *TestsService) Find(ctx context.Context, org, slug string, find FindTestOptions) (Test, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/find", org, slug)
 	req, err := ts.client.NewRequest(ctx, "POST", u, find)
 	if err != nil {
