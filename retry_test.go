@@ -20,6 +20,7 @@ func TestDo_POST_IsRetriedOn429(t *testing.T) {
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		if callCount == 1 {
+			w.Header().Set("RateLimit-Reset", "0")
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
@@ -37,6 +38,16 @@ func TestDo_POST_IsRetriedOn429(t *testing.T) {
 	}
 	if callCount != 2 {
 		t.Errorf("expected 2 server calls (initial + 1 retry), got %d", callCount)
+	}
+}
+
+// TestWithMaxRetries_Negative verifies that WithMaxRetries rejects negative values.
+func TestWithMaxRetries_Negative(t *testing.T) {
+	_, client, teardown := newMockServerAndClient(t)
+	defer teardown()
+
+	if err := WithMaxRetries(-1)(client); err == nil {
+		t.Error("expected error for negative maxRetries, got nil")
 	}
 }
 
