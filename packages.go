@@ -42,10 +42,6 @@ func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySl
 	return p, resp, err
 }
 
-// Copy copies a package from a source registry to a destination registry within
-// the same organization. Only some package ecosystems support copying.
-//
-// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/package-registries/packages#copy-a-package
 func (ps *PackagesService) Copy(ctx context.Context, organizationSlug, sourceRegistrySlug, packageID, destinationRegistrySlug string) (Package, *Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s/copy", organizationSlug, sourceRegistrySlug, packageID)
 	u += "?" + url.Values{"to": {destinationRegistrySlug}}.Encode()
