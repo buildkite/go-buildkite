@@ -3,7 +3,6 @@ package buildkite
 import (
 	"context"
 	"fmt"
-	"net/url"
 )
 
 const fileFormKey = "file"
@@ -43,9 +42,7 @@ func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySl
 }
 
 func (ps *PackagesService) Copy(ctx context.Context, organizationSlug, sourceRegistrySlug, packageID, destinationRegistrySlug string) (Package, *Response, error) {
-	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s/copy", organizationSlug, sourceRegistrySlug, packageID)
-	u += "?" + url.Values{"to": {destinationRegistrySlug}}.Encode()
-
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s/copy?to=%s", organizationSlug, sourceRegistrySlug, packageID, destinationRegistrySlug)
 	req, err := ps.client.NewRequest(ctx, "POST", u, nil)
 	if err != nil {
 		return Package{}, nil, fmt.Errorf("creating POST copy package request: %w", err)
