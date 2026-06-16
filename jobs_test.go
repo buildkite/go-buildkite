@@ -201,3 +201,38 @@ func TestJobsService_Delete(t *testing.T) {
 		t.Errorf("Jobs.DeleteJobLog returned error: %v", err)
 	}
 }
+
+func TestJob_PromisedExitStatusJSON(t *testing.T) {
+	t.Parallel()
+
+	const payload = `{
+  "id": "awesome-job-id",
+  "state": "running",
+  "promised_exit_status": 1,
+  "promised_exit_status_at": "2026-06-03T04:15:41.618Z"
+}`
+
+	var job Job
+	if err := json.Unmarshal([]byte(payload), &job); err != nil {
+		t.Fatalf("Unmarshal returned error: %v", err)
+	}
+
+	if job.PromisedExitStatus == nil || *job.PromisedExitStatus != 1 {
+		t.Errorf("PromisedExitStatus = %v, want 1", job.PromisedExitStatus)
+	}
+	if job.PromisedExitStatusAt == nil {
+		t.Fatal("PromisedExitStatusAt = nil, want a timestamp")
+	}
+	if got := job.PromisedExitStatusAt.UTC().Format("2006-01-02T15:04:05Z"); got != "2026-06-03T04:15:41Z" {
+		t.Errorf("PromisedExitStatusAt = %s, want 2026-06-03T04:15:41Z", got)
+	}
+
+	// Absent fields must stay nil (omitempty round-trip).
+	var empty Job
+	if err := json.Unmarshal([]byte(`{"id":"x","state":"passed"}`), &empty); err != nil {
+		t.Fatalf("Unmarshal returned error: %v", err)
+	}
+	if empty.PromisedExitStatus != nil || empty.PromisedExitStatusAt != nil {
+		t.Errorf("expected nil promised fields, got %v / %v", empty.PromisedExitStatus, empty.PromisedExitStatusAt)
+	}
+}
