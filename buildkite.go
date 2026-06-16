@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/rand/v2"
@@ -16,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/buildkite/roko"
 	"github.com/buildkite/go-buildkite/v5/internal/bkmultipart"
 	"github.com/google/go-querystring/query"
 )
@@ -423,13 +425,21 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	var resp *http.Response
 
-	for attempt := 0; ; attempt++ {
+	// Constant(0) is used as the base strategy; the actual delay is always
+	// overridden via rt.SetNextInterval inside the callback.
+	retrier := roko.NewRetrier(
+		roko.WithMaxAttempts(c.maxRetries+1),
+		roko.WithStrategy(roko.Constant(0)),
+	)
+
+	rokoErr := retrier.DoWithContext(req.Context(), func(rt *roko.Retrier) error {
 		// Rewind body for retries. GetBody is set automatically by
 		// http.NewRequestWithContext for bytes.Buffer/bytes.Reader bodies.
-		if attempt > 0 && req.GetBody != nil {
+		if rt.AttemptCount() > 0 && req.GetBody != nil {
 			body, err := req.GetBody()
 			if err != nil {
-				return nil, fmt.Errorf("rewinding request body for retry: %w", err)
+				rt.Break()
+				return fmt.Errorf("rewinding request body for retry: %w", err)
 			}
 			req.Body = body
 		}
@@ -443,7 +453,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		var err error
 		resp, err = c.client.Do(req)
 		if err != nil {
-			return nil, err
+			rt.Break()
+			return err
 		}
 
 		if c.httpDebug {
@@ -455,29 +466,34 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		// canRewind is false for raw io.Reader bodies where GetBody is not set;
 		// those requests are not retried since the body cannot be replayed.
 		canRewind := req.Body == nil || req.GetBody != nil
-		if resp.StatusCode != http.StatusTooManyRequests || attempt >= c.maxRetries || !canRewind {
-			break
+		if resp.StatusCode != http.StatusTooManyRequests || !canRewind {
+			return nil
 		}
 
-		delay := retryDelay(resp, attempt)
+		delay := retryDelay(resp, rt.AttemptCount())
+		rt.SetNextInterval(delay)
 
-		// Drain and close before retrying so the connection can be reused.
-		_, _ = io.Copy(io.Discard, resp.Body)
-		_ = resp.Body.Close()
+		if rt.AttemptCount() < c.maxRetries {
+			// More retries remaining — drain and close so the connection can be reused.
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+			resp = nil
 
-		// delay is the intended wait duration; actual wait may be shorter if the context is cancelled.
-		if c.rateLimitNotify != nil {
-			c.rateLimitNotify(attempt+1, delay)
+			if c.rateLimitNotify != nil {
+				c.rateLimitNotify(rt.AttemptCount()+1, delay)
+			}
+			if c.httpDebug {
+				fmt.Printf("DEBUG rate limited, retry %d in %v\n", rt.AttemptCount()+1, delay)
+			}
 		}
-		if c.httpDebug {
-			fmt.Printf("DEBUG rate limited, retry %d in %v\n", attempt+1, delay)
-		}
+		// On the final attempt, resp is kept intact so checkResponse can produce
+		// a proper *ErrorResponse from the 429 body.
 
-		select {
-		case <-req.Context().Done():
-			return nil, req.Context().Err()
-		case <-time.After(delay):
-		}
+		return errors.New("rate limited")
+	})
+
+	if resp == nil {
+		return nil, rokoErr
 	}
 
 	defer func() {
