@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 // JobsService handles communication with the job related
@@ -24,6 +26,8 @@ type Job struct {
 	StepKey            string          `json:"step_key,omitempty"`
 	GroupKey           string          `json:"group_key,omitempty"`
 	State              string          `json:"state,omitempty"`
+	BuildURL           string          `json:"build_url,omitempty"`
+	LogURL             string          `json:"log_url,omitempty"`
 	LogsURL            string          `json:"logs_url,omitempty"`
 	RawLogsURL         string          `json:"raw_log_url,omitempty"`
 	Command            string          `json:"command,omitempty"`
@@ -35,6 +39,7 @@ type Job struct {
 	RunnableAt         *Timestamp      `json:"runnable_at,omitempty"`
 	StartedAt          *Timestamp      `json:"started_at,omitempty"`
 	FinishedAt         *Timestamp      `json:"finished_at,omitempty"`
+	ExpiredAt          *Timestamp      `json:"expired_at,omitempty"`
 	UnblockedAt        *Timestamp      `json:"unblocked_at,omitempty"`
 	Agent              Agent           `json:"agent,omitempty"`
 	AgentQueryRules    []string        `json:"agent_query_rules,omitempty"`
@@ -44,14 +49,18 @@ type Job struct {
 	RetriesCount       int             `json:"retries_count,omitempty"`
 	RetrySource        *JobRetrySource `json:"retry_source,omitempty"`
 	RetryType          string          `json:"retry_type,omitempty"`
+	RetriedBy          *User           `json:"retried_by,omitempty"`
 	SoftFailed         bool            `json:"soft_failed"`
 	UnblockedBy        *UnblockedBy    `json:"unblocked_by,omitempty"`
 	Unblockable        bool            `json:"unblockable"`
 	UnblockURL         string          `json:"unblock_url,omitempty"`
 	ParallelGroupIndex *int            `json:"parallel_group_index,omitempty"`
 	ParallelGroupTotal *int            `json:"parallel_group_total,omitempty"`
+	Matrix             any             `json:"matrix,omitempty"`
 	ClusterID          string          `json:"cluster_id,omitempty"`
+	ClusterURL         string          `json:"cluster_url,omitempty"`
 	ClusterQueueID     string          `json:"cluster_queue_id,omitempty"`
+	ClusterQueueURL    string          `json:"cluster_queue_url,omitempty"`
 	TriggeredBuild     *TriggeredBuild `json:"triggered_build,omitempty"`
 	Priority           *JobPriority    `json:"priority"`
 	Step               *StepInfo       `json:"step,omitempty"`
@@ -126,6 +135,104 @@ type StepSignature struct {
 type StepInfo struct {
 	ID        string         `json:"id,omitempty"`
 	Signature *StepSignature `json:"signature,omitempty"`
+}
+
+// JobsListOptions specifies the optional parameters to the JobsService.ListByBuild method.
+type JobsListOptions struct {
+	State              []string `url:"state,brackets,omitempty"`
+	IncludeRetriedJobs *bool    `url:"include_retried_jobs,omitempty"`
+	PerPage            int      `url:"per_page,omitempty"`
+	After              string   `url:"after,omitempty"`
+	Before             string   `url:"before,omitempty"`
+}
+
+type JobsListLink string
+
+func (l JobsListLink) ToOptions() (*JobsListOptions, error) {
+	u, err := url.Parse(string(l))
+	if err != nil {
+		return nil, fmt.Errorf("parsing link: %w", err)
+	}
+
+	q := u.Query()
+
+	opts := &JobsListOptions{
+		State:  q["state[]"],
+		After:  q.Get("after"),
+		Before: q.Get("before"),
+	}
+
+	if perPage := q.Get("per_page"); perPage != "" {
+		opts.PerPage, err = strconv.Atoi(perPage)
+		if err != nil {
+			return nil, fmt.Errorf("parsing per_page: %w", err)
+		}
+	}
+
+	if includeRetriedJobs := q.Get("include_retried_jobs"); includeRetriedJobs != "" {
+		parsed, err := strconv.ParseBool(includeRetriedJobs)
+		if err != nil {
+			return nil, fmt.Errorf("parsing include_retried_jobs: %w", err)
+		}
+		opts.IncludeRetriedJobs = &parsed
+	}
+
+	return opts, nil
+}
+
+type JobsListLinks struct {
+	First    JobsListLink `json:"first,omitempty"`
+	Previous JobsListLink `json:"prev,omitempty"`
+	Self     JobsListLink `json:"self,omitempty"`
+	Next     JobsListLink `json:"next,omitempty"`
+}
+
+type JobsList struct {
+	Items []Job         `json:"items"`
+	Links JobsListLinks `json:"links"`
+}
+
+// ListByBuild gets jobs for a specific build.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#list-jobs
+func (js *JobsService) ListByBuild(ctx context.Context, org string, pipeline string, buildNumber string, opt *JobsListOptions) (JobsList, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs", org, pipeline, buildNumber)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return JobsList{}, nil, err
+	}
+
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return JobsList{}, nil, err
+	}
+
+	var jobs JobsList
+	resp, err := js.client.Do(req, &jobs)
+	if err != nil {
+		return JobsList{}, resp, err
+	}
+
+	return jobs, resp, err
+}
+
+// GetJob returns a single job for a specific build.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-job
+func (js *JobsService) GetJob(ctx context.Context, org string, pipeline string, buildNumber string, jobID string) (Job, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return Job{}, nil, err
+	}
+
+	var job Job
+	resp, err := js.client.Do(req, &job)
+	if err != nil {
+		return Job{}, resp, err
+	}
+
+	return job, resp, err
 }
 
 // UnblockJob - unblock a job
