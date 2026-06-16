@@ -55,6 +55,14 @@ type Job struct {
 	TriggeredBuild     *TriggeredBuild `json:"triggered_build,omitempty"`
 	Priority           *JobPriority    `json:"priority"`
 	Step               *StepInfo       `json:"step,omitempty"`
+
+	// PromisedExitStatus is the exit status a running job has declared it will
+	// finish with, as part of an early failure declaration. Nil until the job
+	// promises a final exit status.
+	PromisedExitStatus *int `json:"promised_exit_status,omitempty"`
+	// PromisedExitStatusAt is the time the job declared its PromisedExitStatus.
+	// Nil until the job promises a final exit status.
+	PromisedExitStatusAt *Timestamp `json:"promised_exit_status_at,omitempty"`
 }
 
 // JobRetrySource represents what triggered this retry.
