@@ -210,6 +210,51 @@ func TestJobsService_GetJob(t *testing.T) {
 	}
 }
 
+func TestJobsService_GetJobByOrg(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/jobs/job-1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		_, _ = fmt.Fprint(w, `{
+  "id": "job-1",
+  "type": "script",
+  "name": ":package: Build",
+  "state": "passed",
+  "build_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+  "web_url": "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+  "log_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+  "command": "scripts/build.sh",
+  "soft_failed": false,
+  "exit_status": 0
+}`)
+	})
+
+	job, _, err := client.Jobs.GetJobByOrg(context.Background(), "my-great-org", "job-1")
+	if err != nil {
+		t.Errorf("GetJobByOrg returned error: %v", err)
+	}
+
+	exitStatus := 0
+	want := Job{
+		ID:         "job-1",
+		Type:       "script",
+		Name:       ":package: Build",
+		State:      "passed",
+		BuildURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+		WebURL:     "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+		LogURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+		Command:    "scripts/build.sh",
+		SoftFailed: false,
+		ExitStatus: &exitStatus,
+	}
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("GetJobByOrg diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestJobsService_UnblockJob(t *testing.T) {
 	t.Parallel()
 

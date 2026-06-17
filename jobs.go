@@ -235,6 +235,25 @@ func (js *JobsService) GetJob(ctx context.Context, org string, pipeline string, 
 	return job, resp, err
 }
 
+// GetJobByOrg returns a single job by organization and job ID.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-job
+func (js *JobsService) GetJobByOrg(ctx context.Context, org string, jobID string) (Job, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/jobs/%s", org, jobID)
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return Job{}, nil, err
+	}
+
+	var job Job
+	resp, err := js.client.Do(req, &job)
+	if err != nil {
+		return Job{}, resp, err
+	}
+
+	return job, resp, err
+}
+
 // UnblockJob - unblock a job
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#unblock-a-job
