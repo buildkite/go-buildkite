@@ -245,3 +245,40 @@ func (js *JobsService) DeleteJobLog(ctx context.Context, org, pipeline, buildNum
 
 	return js.client.Do(req, nil)
 }
+
+// JobsListOptions specifies optional parameters for listing the jobs of a build.
+type JobsListOptions struct {
+	// State filters jobs by state, e.g. "failed", "running", "passed". A job is
+	// returned if it matches any of the supplied states. Default is "".
+	State []string `url:"state,brackets,omitempty"`
+
+	// IncludeRetriedJobs includes retried (superseded) jobs in the results.
+	IncludeRetriedJobs bool `url:"include_retried_jobs,omitempty"`
+
+	ListOptions
+}
+
+// ListByBuild lists the jobs of a build.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs
+func (js *JobsService) ListByBuild(ctx context.Context, org, pipeline, buildNumber string, opt *JobsListOptions) ([]Job, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs", org, pipeline, buildNumber)
+
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var jobs []Job
+	resp, err := js.client.Do(req, &jobs)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return jobs, resp, err
+}

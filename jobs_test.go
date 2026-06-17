@@ -236,3 +236,35 @@ func TestJob_PromisedExitStatusJSON(t *testing.T) {
 		t.Errorf("expected nil promised fields, got %v / %v", empty.PromisedExitStatus, empty.PromisedExitStatusAt)
 	}
 }
+
+func TestJobsService_ListByBuild(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValuesList(t, r, valuesList{
+			{"state[]", "failed"},
+		})
+		_, _ = fmt.Fprint(w, `[
+  {"id": "job-1", "type": "script", "state": "failed"},
+  {"id": "job-2", "type": "script", "state": "running", "promised_exit_status": 1}
+]`)
+	})
+
+	jobs, _, err := client.Jobs.ListByBuild(context.Background(), "my-great-org", "sup-keith", "123", &JobsListOptions{
+		State: []string{"failed"},
+	})
+	if err != nil {
+		t.Fatalf("Jobs.ListByBuild returned error: %v", err)
+	}
+
+	if len(jobs) != 2 {
+		t.Fatalf("expected 2 jobs, got %d", len(jobs))
+	}
+	if jobs[1].PromisedExitStatus == nil || *jobs[1].PromisedExitStatus != 1 {
+		t.Errorf("expected job-2 PromisedExitStatus 1, got %v", jobs[1].PromisedExitStatus)
+	}
+}
