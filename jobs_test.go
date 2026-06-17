@@ -6,9 +6,254 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
+
+func TestJobsService_ListByBuild(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		_, _ = fmt.Fprint(w, `{
+  "items": [
+    {
+      "id": "job-1",
+      "graphql_id": "Sm9iLS0tam9iLTE=",
+      "type": "script",
+      "name": ":package: Build",
+      "step_key": "build",
+      "state": "passed",
+      "build_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+      "web_url": "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+      "log_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+      "raw_log_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
+      "command": "scripts/build.sh",
+      "soft_failed": false,
+      "exit_status": 0,
+      "artifact_paths": "logs/**/*",
+      "agent_query_rules": ["queue=default"],
+      "retried": false,
+      "retries_count": 0,
+      "priority": { "number": 0 },
+      "cluster_id": "cluster-1",
+      "cluster_url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/cluster-1",
+      "cluster_queue_id": "queue-1",
+      "cluster_queue_url": "https://api.buildkite.com/v2/organizations/my-great-org/clusters/cluster-1/queues/queue-1"
+    }
+  ],
+  "links": {
+    "self": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?per_page=30",
+    "next": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?after=cursor-1&per_page=30"
+  }
+}`)
+	})
+
+	jobs, _, err := client.Jobs.ListByBuild(context.Background(), "my-great-org", "sup-keith", "123", nil)
+	if err != nil {
+		t.Errorf("ListByBuild returned error: %v", err)
+	}
+
+	exitStatus := 0
+	want := JobsList{
+		Items: []Job{{
+			ID:              "job-1",
+			GraphQLID:       "Sm9iLS0tam9iLTE=",
+			Type:            "script",
+			Name:            ":package: Build",
+			StepKey:         "build",
+			State:           "passed",
+			BuildURL:        "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+			WebURL:          "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+			LogURL:          "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+			RawLogsURL:      "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
+			Command:         "scripts/build.sh",
+			SoftFailed:      false,
+			ExitStatus:      &exitStatus,
+			ArtifactPaths:   "logs/**/*",
+			AgentQueryRules: []string{"queue=default"},
+			Retried:         false,
+			RetriesCount:    0,
+			Priority:        &JobPriority{Number: 0},
+			ClusterID:       "cluster-1",
+			ClusterURL:      "https://api.buildkite.com/v2/organizations/my-great-org/clusters/cluster-1",
+			ClusterQueueID:  "queue-1",
+			ClusterQueueURL: "https://api.buildkite.com/v2/organizations/my-great-org/clusters/cluster-1/queues/queue-1",
+		}},
+		Links: JobsListLinks{
+			Self: "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?per_page=30",
+			Next: "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?after=cursor-1&per_page=30",
+		},
+	}
+	if diff := cmp.Diff(jobs, want); diff != "" {
+		t.Errorf("ListByBuild diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_ListByBuild_WithOptions(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValuesList(t, r, valuesList{
+			{"state[]", "passed"},
+			{"state[]", "failed"},
+			{"include_retried_jobs", "false"},
+			{"per_page", "100"},
+			{"after", "cursor-1"},
+		})
+		_, _ = fmt.Fprint(w, `{"items":[],"links":{}}`)
+	})
+
+	includeRetriedJobs := false
+	opt := &JobsListOptions{
+		State:              []string{"passed", "failed"},
+		IncludeRetriedJobs: &includeRetriedJobs,
+		PerPage:            100,
+		After:              "cursor-1",
+	}
+	_, _, err := client.Jobs.ListByBuild(context.Background(), "my-great-org", "sup-keith", "123", opt)
+	if err != nil {
+		t.Errorf("ListByBuild returned error: %v", err)
+	}
+}
+
+func TestJobsListLink_ToOptions(t *testing.T) {
+	t.Parallel()
+
+	link := JobsListLink("https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?state[]=passed&state[]=failed&include_retried_jobs=false&after=cursor-1&per_page=100")
+	opt, err := link.ToOptions()
+	if err != nil {
+		t.Fatalf("ToOptions returned error: %v", err)
+	}
+
+	includeRetriedJobs := false
+	want := &JobsListOptions{
+		State:              []string{"passed", "failed"},
+		IncludeRetriedJobs: &includeRetriedJobs,
+		PerPage:            100,
+		After:              "cursor-1",
+	}
+	if diff := cmp.Diff(opt, want); diff != "" {
+		t.Errorf("ToOptions diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_GetJob(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		_, _ = fmt.Fprint(w, `{
+  "id": "job-1",
+  "graphql_id": "Sm9iLS0tam9iLTE=",
+  "type": "script",
+  "name": ":package: Build",
+  "step_key": "build",
+  "state": "passed",
+  "build_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+  "web_url": "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+  "log_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+  "raw_log_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
+  "command": "scripts/build.sh",
+  "soft_failed": false,
+  "exit_status": 0,
+  "expired_at": "2026-06-03T04:15:41.618Z",
+  "matrix": {
+    "os": "linux",
+    "go": "1.25"
+  },
+  "retried_by": {
+    "id": "user-1",
+    "name": "Keith Pitt",
+    "email": "keith@buildkite.com"
+  }
+}`)
+	})
+
+	job, _, err := client.Jobs.GetJob(context.Background(), "my-great-org", "sup-keith", "123", "job-1")
+	if err != nil {
+		t.Errorf("GetJob returned error: %v", err)
+	}
+
+	exitStatus := 0
+	want := Job{
+		ID:         "job-1",
+		GraphQLID:  "Sm9iLS0tam9iLTE=",
+		Type:       "script",
+		Name:       ":package: Build",
+		StepKey:    "build",
+		State:      "passed",
+		BuildURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+		WebURL:     "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+		LogURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+		RawLogsURL: "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
+		Command:    "scripts/build.sh",
+		SoftFailed: false,
+		ExitStatus: &exitStatus,
+		ExpiredAt:  NewTimestamp(must(time.Parse(BuildKiteDateFormat, "2026-06-03T04:15:41.618Z"))),
+		Matrix:     map[string]any{"os": "linux", "go": "1.25"},
+		RetriedBy:  &User{ID: "user-1", Name: "Keith Pitt", Email: "keith@buildkite.com"},
+	}
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("GetJob diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_GetJobByOrg(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/jobs/job-1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		_, _ = fmt.Fprint(w, `{
+  "id": "job-1",
+  "type": "script",
+  "name": ":package: Build",
+  "state": "passed",
+  "build_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+  "web_url": "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+  "log_url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+  "command": "scripts/build.sh",
+  "soft_failed": false,
+  "exit_status": 0
+}`)
+	})
+
+	job, _, err := client.Jobs.GetJobByOrg(context.Background(), "my-great-org", "job-1")
+	if err != nil {
+		t.Errorf("GetJobByOrg returned error: %v", err)
+	}
+
+	exitStatus := 0
+	want := Job{
+		ID:         "job-1",
+		Type:       "script",
+		Name:       ":package: Build",
+		State:      "passed",
+		BuildURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+		WebURL:     "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+		LogURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+		Command:    "scripts/build.sh",
+		SoftFailed: false,
+		ExitStatus: &exitStatus,
+	}
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("GetJobByOrg diff: (-got +want)\n%s", diff)
+	}
+}
 
 func TestJobsService_UnblockJob(t *testing.T) {
 	t.Parallel()
