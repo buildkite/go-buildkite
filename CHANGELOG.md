@@ -1,3 +1,11 @@
+## [v5.1.0](https://github.com/buildkite/go-buildkite/compare/v5.0.1...v5.1.0) (2026-06-16)
+
+* PB-1933 Add promised exit status fields to Job [#323](https://github.com/buildkite/go-buildkite/pull/323) ([123sarahj123](https://github.com/123sarahj123))
+* SUP-6269: Add Copy capability to PackagesService [#321](https://github.com/buildkite/go-buildkite/pull/321) ([dahtey-bk](https://github.com/dahtey-bk))
+* chore(deps): update buildkite plugin mise to v1.1.4 [#322](https://github.com/buildkite/go-buildkite/pull/322) ([renovate[bot]](https://github.com/apps/renovate))
+* SUP-6268: Add Find test capability to TestsService [#320](https://github.com/buildkite/go-buildkite/pull/320) ([dahtey-bk](https://github.com/dahtey-bk))
+* chore(release): update changelog for v5.0.1 [#318](https://github.com/buildkite/go-buildkite/pull/318) ([mcncl](https://github.com/mcncl))
+
 ## [v5.0.1](https://github.com/buildkite/go-buildkite/compare/v5.0.0...v5.0.1) (2026-06-10)
 
 * chore: Add the include_paused param to builds list options [#317](https://github.com/buildkite/go-buildkite/pull/317) ([CerealBoy](https://github.com/CerealBoy))
