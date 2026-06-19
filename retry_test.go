@@ -92,9 +92,11 @@ func TestWithRateLimitNotify_NilClears(t *testing.T) {
 	}
 }
 
-// TestWithMaxRetries_Zero verifies that WithMaxRetries(0) disables retries entirely.
+// TestWithMaxRetries_Zero verifies that WithMaxRetries(0) disables retries entirely
+// and that the notify callback still fires once (attempt=1) even though no retry follows.
 func TestWithMaxRetries_Zero(t *testing.T) {
 	callCount := 0
+	var notifyAttempts []int
 
 	ms, client, teardown := newMockServerAndClient(t)
 	defer teardown()
@@ -108,6 +110,11 @@ func TestWithMaxRetries_Zero(t *testing.T) {
 	if err := WithMaxRetries(0)(client); err != nil {
 		t.Fatalf("WithMaxRetries(0): %v", err)
 	}
+	if err := WithRateLimitNotify(func(attempt int, _ time.Duration) {
+		notifyAttempts = append(notifyAttempts, attempt)
+	})(client); err != nil {
+		t.Fatalf("WithRateLimitNotify: %v", err)
+	}
 
 	req, err := client.NewRequest(context.Background(), http.MethodGet, "/test", nil)
 	if err != nil {
@@ -117,7 +124,10 @@ func TestWithMaxRetries_Zero(t *testing.T) {
 	_, _ = client.Do(req, nil)
 
 	if callCount != 1 {
-		t.Errorf("expected exactly 1 call (no retries when maxRetries=0), got %d", callCount)
+		t.Errorf("expected exactly 1 HTTP call (no retries when maxRetries=0), got %d", callCount)
+	}
+	if len(notifyAttempts) != 1 || notifyAttempts[0] != 1 {
+		t.Errorf("expected notify called once with attempt=1, got %v", notifyAttempts)
 	}
 }
 

@@ -85,8 +85,10 @@ type Client struct {
 	maxRetries      int
 }
 
-// RateLimitNotify is called each time a request is retried due to a 429 response.
-// attempt is 1-based; delay is how long the client will wait before the next attempt.
+// RateLimitNotify is called each time a 429 response is received, including on
+// the final exhausted attempt where no retry follows and when maxRetries is 0.
+// attempt is 1-based; delay is the computed back-off duration, which is not
+// slept on the final attempt.
 type RateLimitNotify func(attempt int, delay time.Duration)
 
 // ClientOpt is a function that configures a Client.
