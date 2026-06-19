@@ -83,12 +83,13 @@ type Client struct {
 	httpDebug       bool
 	rateLimitNotify RateLimitNotify
 	maxRetries      int
+	sleepFunc       func(time.Duration) // test-only override for retry backoff; nil uses roko's default
 }
 
 // RateLimitNotify is called each time a 429 response is received, including on
 // the final exhausted attempt where no retry follows and when maxRetries is 0.
-// attempt is 1-based; delay is the computed back-off duration, which is not
-// slept on the final attempt.
+// attempt is 1-based; delay is the back-off before the next retry, or 0 if
+// this is the final attempt and no sleep will follow.
 type RateLimitNotify func(attempt int, delay time.Duration)
 
 // ClientOpt is a function that configures a Client.
@@ -408,22 +409,19 @@ func (r *Response) populatePageValues() {
 }
 
 // retryDelay returns how long to wait before the next attempt after a 429.
-// It checks RateLimit-Reset first, then Retry-After, then falls back to capped
-// exponential backoff. Both headers are interpreted as delta-seconds (time until
-// reset) per the Buildkite API spec — not Unix timestamps.
+// RateLimit-Reset is interpreted as delta-seconds per the Buildkite API spec.
+// Falls back to capped exponential backoff when the header is absent or invalid.
 // A random jitter of up to 1 second is added on all paths to spread out
 // concurrent clients that receive the same reset time.
 func retryDelay(resp *http.Response, attempt int) time.Duration {
-	for _, header := range []string{"RateLimit-Reset", "Retry-After"} {
-		if s := resp.Header.Get(header); s != "" {
-			if secs, err := strconv.Atoi(s); err == nil && secs >= 0 {
-				if secs > 120 {
-					secs = 120
-				}
-				// 500ms buffer ensures we don't hit the API again in the same window
-				// when the server sends RateLimit-Reset: 0.
-				return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
+	if s := resp.Header.Get("RateLimit-Reset"); s != "" {
+		if secs, err := strconv.Atoi(s); err == nil && secs >= 0 {
+			if secs > 120 {
+				secs = 120
 			}
+			// 500ms buffer ensures we don't hit the API again in the same window
+			// when the server sends RateLimit-Reset: 0.
+			return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
 		}
 	}
 	// Cap the shift to prevent int64 overflow at high attempt counts.
@@ -449,10 +447,14 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	// roko requires a strategy, but the real delay is always driven by the
 	// server response (RateLimit-Reset header or exponential fallback), so
 	// Constant(0) is a required placeholder that is always overridden.
-	retrier := roko.NewRetrier(
-		roko.WithMaxAttempts(c.maxRetries+1),
+	retrierOpts := []roko.RetrierOpt{
+		roko.WithMaxAttempts(c.maxRetries + 1),
 		roko.WithStrategy(roko.Constant(0)),
-	)
+	}
+	if c.sleepFunc != nil {
+		retrierOpts = append(retrierOpts, roko.WithSleepFunc(c.sleepFunc))
+	}
+	retrier := roko.NewRetrier(retrierOpts...)
 
 	rokoErr := retrier.DoWithContext(req.Context(), func(rt *roko.Retrier) error {
 		// GetBody is set automatically by http.NewRequestWithContext for
@@ -498,24 +500,25 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 			return nil
 		}
 
-		delay := retryDelay(resp, rt.AttemptCount())
-		rt.SetNextInterval(delay)
-
+		// roko calls MarkAttempt() after this callback returns, so AttemptCount()
+		// here is still the 0-based index of the current attempt. The last allowed
+		// attempt is index c.maxRetries (= WithMaxAttempts(c.maxRetries+1) - 1).
+		var delay time.Duration
+		if rt.AttemptCount() < c.maxRetries {
+			delay = retryDelay(resp, rt.AttemptCount())
+			rt.SetNextInterval(delay)
+			// More retries remaining — drain and close so the connection can be reused.
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+			resp = nil
+		}
+		// delay is 0 on the final attempt; the callback can use this to distinguish
+		// "rate limited and will retry" from "rate limited and giving up".
 		if c.rateLimitNotify != nil {
 			c.rateLimitNotify(rt.AttemptCount()+1, delay)
 		}
 		if c.httpDebug {
 			fmt.Printf("DEBUG rate limited, retry %d in %v\n", rt.AttemptCount()+1, delay)
-		}
-
-		// roko calls MarkAttempt() after this callback returns, so AttemptCount()
-		// here is still the 0-based index of the current attempt. The last allowed
-		// attempt is index c.maxRetries (= WithMaxAttempts(c.maxRetries+1) - 1).
-		if rt.AttemptCount() < c.maxRetries {
-			// More retries remaining — drain and close so the connection can be reused.
-			_, _ = io.Copy(io.Discard, resp.Body)
-			_ = resp.Body.Close()
-			resp = nil
 		}
 
 		return errRateLimited

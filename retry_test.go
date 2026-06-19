@@ -11,13 +11,23 @@ import (
 	"time"
 )
 
+// newRetryTestClient is like newMockServerAndClient but stubs the retry backoff
+// sleep to a no-op so retry tests run instantly. Use it for all retry tests
+// except TestDo_ContextCancelledDuringRetryWait, which needs a real sleep.
+func newRetryTestClient(t *testing.T) (*mockServer, *Client, func()) {
+	t.Helper()
+	ms, client, teardown := newMockServerAndClient(t)
+	client.sleepFunc = func(time.Duration) {}
+	return ms, client, teardown
+}
+
 // TestDo_POST_IsRetriedOn429 verifies that POST requests are retried on 429.
 // The old Do() only retried GET requests; this confirms all methods are retried.
 // Intentionally omits RateLimit-Reset to exercise the exponential fallback path.
 func TestDo_POST_IsRetriedOn429(t *testing.T) {
 	callCount := 0
 
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +68,7 @@ func TestWithMaxRetries_Negative(t *testing.T) {
 func TestWithRateLimitNotify_NilClears(t *testing.T) {
 	callCount := 0
 
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +108,7 @@ func TestWithMaxRetries_Zero(t *testing.T) {
 	callCount := 0
 	var notifyAttempts []int
 
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +145,7 @@ func TestWithMaxRetries_Zero(t *testing.T) {
 func TestWithMaxRetries_LimitsRetries(t *testing.T) {
 	callCount := 0
 
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -172,7 +182,7 @@ func TestDo_POST_BodyIntactOnRetry(t *testing.T) {
 	callCount := 0
 	var receivedBodies []string
 
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -212,7 +222,7 @@ func TestDo_POST_BodyIntactOnRetry(t *testing.T) {
 // TestDo_GetBodyError verifies that if GetBody returns an error on a retry attempt,
 // the client stops immediately and surfaces that error rather than panicking or retrying.
 func TestDo_GetBodyError(t *testing.T) {
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -282,7 +292,7 @@ func TestDo_ContextCancelledDuringRetryWait(t *testing.T) {
 // TestDo_ExhaustedRetries_ReturnsFinal429AsErrorResponse verifies the final 429
 // flows through as a proper *ErrorResponse, not a generic string error.
 func TestDo_ExhaustedRetries_ReturnsFinal429AsErrorResponse(t *testing.T) {
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -322,7 +332,7 @@ func TestDo_ExhaustedRetries_ReturnsFinal429AsErrorResponse(t *testing.T) {
 func TestWithRateLimitNotify_AttemptNumbers(t *testing.T) {
 	callCount := 0
 
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -364,7 +374,7 @@ func TestWithRateLimitNotify_AttemptNumbers(t *testing.T) {
 // TestWithRateLimitNotify_FiresOnExhaustedAttempt verifies the callback fires on
 // the final exhausted 429, not just on attempts that result in a retry sleep.
 func TestWithRateLimitNotify_FiresOnExhaustedAttempt(t *testing.T) {
-	ms, client, teardown := newMockServerAndClient(t)
+	ms, client, teardown := newRetryTestClient(t)
 	defer teardown()
 
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -439,18 +449,11 @@ func TestRetryDelay(t *testing.T) {
 			wantMax: 2 * time.Second,
 		},
 		{
-			name:    "Retry-After used when RateLimit-Reset absent",
+			name:    "Retry-After alone falls back to exponential (not a Buildkite header)",
 			headers: map[string]string{"Retry-After": "0"},
 			attempt: 0,
-			wantMin: 500 * time.Millisecond,
-			wantMax: 1500 * time.Millisecond,
-		},
-		{
-			name:    "RateLimit-Reset takes precedence over Retry-After",
-			headers: map[string]string{"RateLimit-Reset": "0", "Retry-After": "60"},
-			attempt: 0,
-			wantMin: 500 * time.Millisecond,
-			wantMax: 1500 * time.Millisecond,
+			wantMin: 1 * time.Second,
+			wantMax: 2 * time.Second,
 		},
 		{
 			name:    "exponential backoff at attempt 0 (no header)",
