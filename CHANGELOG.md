@@ -1,3 +1,7 @@
+## [Unreleased]
+
+* feat: improve rate-limit retry handling — retry all HTTP methods on 429 (not just GET), parse `RateLimit-Reset` header as delta-seconds, add `WithRateLimitNotify` callback, add `WithMaxRetries` option, use `github.com/buildkite/roko` for retry loop management [#319](https://github.com/buildkite/go-buildkite/pull/319) ([Megh03](https://github.com/Megh03))
+
 ## [v5.0.1](https://github.com/buildkite/go-buildkite/compare/v5.0.0...v5.0.1) (2026-06-10)
 
 * chore: Add the include_paused param to builds list options [#317](https://github.com/buildkite/go-buildkite/pull/317) ([CerealBoy](https://github.com/CerealBoy))

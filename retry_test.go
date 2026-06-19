@@ -9,8 +9,9 @@ import (
 	"time"
 )
 
-// TestDo_POST_IsRetriedOn429 reproduces Bug #1: the GET-only guard in the
-// current Do() means POST requests that hit 429 fail immediately.
+// TestDo_POST_IsRetriedOn429 verifies that POST requests are retried on 429.
+// The old Do() only retried GET requests; this confirms all methods are retried.
+// Intentionally omits RateLimit-Reset to exercise the exponential fallback path.
 func TestDo_POST_IsRetriedOn429(t *testing.T) {
 	callCount := 0
 
@@ -20,7 +21,6 @@ func TestDo_POST_IsRetriedOn429(t *testing.T) {
 	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		if callCount == 1 {
-			w.Header().Set("RateLimit-Reset", "0")
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
@@ -48,6 +48,45 @@ func TestWithMaxRetries_Negative(t *testing.T) {
 
 	if err := WithMaxRetries(-1)(client); err == nil {
 		t.Error("expected error for negative maxRetries, got nil")
+	}
+}
+
+// TestWithRateLimitNotify_NilClears verifies that passing nil to WithRateLimitNotify
+// clears any previously registered callback and does not panic on a retried request.
+func TestWithRateLimitNotify_NilClears(t *testing.T) {
+	callCount := 0
+
+	ms, client, teardown := newMockServerAndClient(t)
+	defer teardown()
+
+	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		if callCount == 1 {
+			w.Header().Set("RateLimit-Reset", "0")
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
+	// Register a callback, then clear it with nil.
+	if err := WithRateLimitNotify(func(_ int, _ time.Duration) {
+		t.Error("notify should not fire after being cleared with nil")
+	})(client); err != nil {
+		t.Fatalf("WithRateLimitNotify: %v", err)
+	}
+	if err := WithRateLimitNotify(nil)(client); err != nil {
+		t.Fatalf("WithRateLimitNotify(nil): %v", err)
+	}
+
+	req, err := client.NewRequest(context.Background(), http.MethodGet, "/test", nil)
+	if err != nil {
+		t.Fatalf("NewRequest: %v", err)
+	}
+
+	// Should retry and succeed without panicking.
+	if _, err = client.Do(req, nil); err != nil {
+		t.Errorf("unexpected error: %v", err)
 	}
 }
 

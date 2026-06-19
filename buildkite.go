@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/buildkite/roko"
 	"github.com/buildkite/go-buildkite/v5/internal/bkmultipart"
+	"github.com/buildkite/roko"
 	"github.com/google/go-querystring/query"
 )
 
@@ -29,6 +29,10 @@ const (
 
 // DefaultUserAgent is the default user agent used for API requests
 var DefaultUserAgent = "go-buildkite/" + Version
+
+// errRateLimited is returned from the roko callback to signal a retryable 429.
+// It is never surfaced to callers — checkResponse produces the real *ErrorResponse.
+var errRateLimited = errors.New("rate limited")
 
 // Client - A Client manages communication with the buildkite API.
 type Client struct {
@@ -473,6 +477,9 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		delay := retryDelay(resp, rt.AttemptCount())
 		rt.SetNextInterval(delay)
 
+		// roko calls MarkAttempt() after this callback returns, so AttemptCount()
+		// here is still the 0-based index of the current attempt. The last allowed
+		// attempt is index c.maxRetries (= WithMaxAttempts(c.maxRetries+1) - 1).
 		if rt.AttemptCount() < c.maxRetries {
 			// More retries remaining — drain and close so the connection can be reused.
 			_, _ = io.Copy(io.Discard, resp.Body)
@@ -486,12 +493,15 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 				fmt.Printf("DEBUG rate limited, retry %d in %v\n", rt.AttemptCount()+1, delay)
 			}
 		}
-		// On the final attempt, resp is kept intact so checkResponse can produce
-		// a proper *ErrorResponse from the 429 body.
+		// On the final attempt resp is kept intact so checkResponse can produce
+		// a proper *ErrorResponse from the 429 body rather than returning errRateLimited.
 
-		return errors.New("rate limited")
+		return errRateLimited
 	})
 
+	// resp is nil only when a network error or body-rewind error caused an early
+	// exit via rt.Break(). For exhausted 429s, resp is kept so checkResponse below
+	// can return a proper *ErrorResponse.
 	if resp == nil {
 		return nil, rokoErr
 	}
