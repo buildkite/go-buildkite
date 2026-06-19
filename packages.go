@@ -41,6 +41,22 @@ func (ps *PackagesService) Get(ctx context.Context, organizationSlug, registrySl
 	return p, resp, err
 }
 
+func (ps *PackagesService) Copy(ctx context.Context, organizationSlug, sourceRegistrySlug, packageID, destinationRegistrySlug string) (Package, *Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s/copy?to=%s", organizationSlug, sourceRegistrySlug, packageID, destinationRegistrySlug)
+	req, err := ps.client.NewRequest(ctx, "POST", u, nil)
+	if err != nil {
+		return Package{}, nil, fmt.Errorf("creating POST copy package request: %w", err)
+	}
+
+	var p Package
+	resp, err := ps.client.Do(req, &p)
+	if err != nil {
+		return Package{}, resp, fmt.Errorf("executing POST copy package request: %w", err)
+	}
+
+	return p, resp, err
+}
+
 func (ps *PackagesService) Delete(ctx context.Context, organizationSlug, registrySlug, packageID string) (*Response, error) {
 	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/packages/%s", organizationSlug, registrySlug, packageID)
 	req, err := ps.client.NewRequest(ctx, "DELETE", u, nil)
