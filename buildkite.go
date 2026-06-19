@@ -146,8 +146,11 @@ func WithHTTPDebug(debug bool) ClientOpt {
 	}
 }
 
-// WithRateLimitNotify registers a callback invoked each time a request is retried
-// due to a 429 response. Use it to log, display a message, or emit metrics.
+// WithRateLimitNotify registers a callback invoked on every 429 response,
+// including when retries are exhausted or disabled (maxRetries=0). Use it to
+// log, emit metrics, or display progress. The callback is not invoked when the
+// request body is a raw io.Reader without GetBody set, since those requests
+// cannot be retried and the 429 is surfaced directly as an *ErrorResponse.
 // Passing nil clears any previously registered callback.
 func WithRateLimitNotify(fn RateLimitNotify) ClientOpt {
 	return func(c *Client) error {
@@ -441,16 +444,17 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	var resp *http.Response
 
-	// Constant(0) is used as the base strategy; the actual delay is always
-	// overridden via rt.SetNextInterval inside the callback.
+	// roko requires a strategy, but the real delay is always driven by the
+	// server response (RateLimit-Reset header or exponential fallback), so
+	// Constant(0) is a required placeholder that is always overridden.
 	retrier := roko.NewRetrier(
 		roko.WithMaxAttempts(c.maxRetries+1),
 		roko.WithStrategy(roko.Constant(0)),
 	)
 
 	rokoErr := retrier.DoWithContext(req.Context(), func(rt *roko.Retrier) error {
-		// Rewind body for retries. GetBody is set automatically by
-		// http.NewRequestWithContext for bytes.Buffer/bytes.Reader bodies.
+		// GetBody is set automatically by http.NewRequestWithContext for
+		// bytes.Buffer/bytes.Reader bodies, enabling body replay on retry.
 		if rt.AttemptCount() > 0 && req.GetBody != nil {
 			body, err := req.GetBody()
 			if err != nil {
