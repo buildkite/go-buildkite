@@ -158,6 +158,12 @@ func WithRateLimitNotify(fn RateLimitNotify) ClientOpt {
 
 // WithMaxRetries sets the maximum number of retry attempts on rate-limited requests.
 // Defaults to DefaultMaxRetries (3). Use 0 to disable retries entirely.
+//
+// All HTTP methods are retried, including POST, PUT, and DELETE, provided the
+// request body is rewindable (i.e. created via NewRequest with a struct or
+// bytes.Buffer body). Callers that cannot tolerate duplicate side-effects on
+// non-idempotent requests should pass a context with an appropriate deadline
+// or set WithMaxRetries(0) for those specific calls.
 func WithMaxRetries(n int) ClientOpt {
 	return func(c *Client) error {
 		if n < 0 {
@@ -459,6 +465,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		var err error
 		resp, err = c.client.Do(req)
 		if err != nil {
+			resp = nil
 			rt.Break()
 			return err
 		}
@@ -482,6 +489,13 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		delay := retryDelay(resp, rt.AttemptCount())
 		rt.SetNextInterval(delay)
 
+		if c.rateLimitNotify != nil {
+			c.rateLimitNotify(rt.AttemptCount()+1, delay)
+		}
+		if c.httpDebug {
+			fmt.Printf("DEBUG rate limited, retry %d in %v\n", rt.AttemptCount()+1, delay)
+		}
+
 		// roko calls MarkAttempt() after this callback returns, so AttemptCount()
 		// here is still the 0-based index of the current attempt. The last allowed
 		// attempt is index c.maxRetries (= WithMaxAttempts(c.maxRetries+1) - 1).
@@ -490,23 +504,11 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 			_, _ = io.Copy(io.Discard, resp.Body)
 			_ = resp.Body.Close()
 			resp = nil
-
-			if c.rateLimitNotify != nil {
-				c.rateLimitNotify(rt.AttemptCount()+1, delay)
-			}
-			if c.httpDebug {
-				fmt.Printf("DEBUG rate limited, retry %d in %v\n", rt.AttemptCount()+1, delay)
-			}
 		}
-		// On the final attempt resp is kept intact so checkResponse can produce
-		// a proper *ErrorResponse from the 429 body rather than returning errRateLimited.
 
 		return errRateLimited
 	})
 
-	// resp is nil only when a network error or body-rewind error caused an early
-	// exit via rt.Break(). For exhausted 429s, resp is kept so checkResponse below
-	// can return a proper *ErrorResponse.
 	if resp == nil {
 		return nil, rokoErr
 	}
