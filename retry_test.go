@@ -2,9 +2,11 @@ package buildkite
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
@@ -194,6 +196,41 @@ func TestDo_POST_BodyIntactOnRetry(t *testing.T) {
 		if receivedBodies[0] != body {
 			t.Errorf("call %d body %q differs from call 1 body %q", i+1, body, receivedBodies[0])
 		}
+	}
+}
+
+// TestDo_GetBodyError verifies that if GetBody returns an error on a retry attempt,
+// the client stops immediately and surfaces that error rather than panicking or retrying.
+func TestDo_GetBodyError(t *testing.T) {
+	ms, client, teardown := newMockServerAndClient(t)
+	defer teardown()
+
+	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("RateLimit-Reset", "0")
+		w.WriteHeader(http.StatusTooManyRequests)
+	})
+
+	req, err := client.NewRequest(context.Background(), http.MethodPost, "/test", strings.NewReader("body"))
+	if err != nil {
+		t.Fatalf("NewRequest: %v", err)
+	}
+
+	// Override GetBody to fail on the second call (i.e. the first retry).
+	calls := 0
+	req.GetBody = func() (io.ReadCloser, error) {
+		calls++
+		if calls > 1 {
+			return nil, errors.New("simulated GetBody failure")
+		}
+		return io.NopCloser(strings.NewReader("body")), nil
+	}
+
+	_, err = client.Do(req, nil)
+	if err == nil {
+		t.Fatal("expected error from GetBody failure, got nil")
+	}
+	if !strings.Contains(err.Error(), "rewinding request body for retry") {
+		t.Errorf("expected rewind error, got: %v", err)
 	}
 }
 

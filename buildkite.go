@@ -405,7 +405,9 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 				if secs > 120 {
 					secs = 120
 				}
-				return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
+				// 500ms buffer ensures we don't hit the API again in the same window
+			// when the server sends RateLimit-Reset: 0.
+			return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
 			}
 		}
 	}
@@ -469,6 +471,9 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 
 		// canRewind is false for raw io.Reader bodies where GetBody is not set;
 		// those requests are not retried since the body cannot be replayed.
+		// When canRewind is false and the response is 429, returning nil causes
+		// roko to treat the call as successful and exit the loop; execution then
+		// falls through to checkResponse which surfaces a proper *ErrorResponse.
 		canRewind := req.Body == nil || req.GetBody != nil
 		if resp.StatusCode != http.StatusTooManyRequests || !canRewind {
 			return nil
