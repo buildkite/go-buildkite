@@ -406,8 +406,8 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 					secs = 120
 				}
 				// 500ms buffer ensures we don't hit the API again in the same window
-			// when the server sends RateLimit-Reset: 0.
-			return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
+				// when the server sends RateLimit-Reset: 0.
+				return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
 			}
 		}
 	}
