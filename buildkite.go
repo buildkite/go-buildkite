@@ -159,6 +159,10 @@ func WithRateLimitNotify(fn RateLimitNotify) ClientOpt {
 // WithMaxRetries sets the maximum number of retry attempts on rate-limited requests.
 // Defaults to DefaultMaxRetries (3). Use 0 to disable retries entirely.
 //
+// There is no internal wall-clock time limit. With a high retry count and a
+// server consistently returning RateLimit-Reset: 120, Do() can block for many
+// minutes. Callers should set a context deadline to bound total wait time.
+//
 // All HTTP methods are retried, including POST, PUT, and DELETE, provided the
 // request body is rewindable (i.e. created via NewRequest with a struct or
 // bytes.Buffer body). Callers that cannot tolerate duplicate side-effects on
@@ -481,6 +485,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		// When canRewind is false and the response is 429, returning nil causes
 		// roko to treat the call as successful and exit the loop; execution then
 		// falls through to checkResponse which surfaces a proper *ErrorResponse.
+		// The caller receives a 429 *ErrorResponse with no WithRateLimitNotify
+		// signal and no indication that the retry budget was unused.
 		canRewind := req.Body == nil || req.GetBody != nil
 		if resp.StatusCode != http.StatusTooManyRequests || !canRewind {
 			return nil

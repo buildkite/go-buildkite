@@ -351,6 +351,46 @@ func TestWithRateLimitNotify_AttemptNumbers(t *testing.T) {
 	}
 }
 
+// TestWithRateLimitNotify_FiresOnExhaustedAttempt verifies the callback fires on
+// the final exhausted 429, not just on attempts that result in a retry sleep.
+func TestWithRateLimitNotify_FiresOnExhaustedAttempt(t *testing.T) {
+	ms, client, teardown := newMockServerAndClient(t)
+	defer teardown()
+
+	ms.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("RateLimit-Reset", "0")
+		w.WriteHeader(http.StatusTooManyRequests)
+	})
+
+	if err := WithMaxRetries(2)(client); err != nil {
+		t.Fatalf("WithMaxRetries(2): %v", err)
+	}
+
+	var notifyAttempts []int
+	if err := WithRateLimitNotify(func(attempt int, _ time.Duration) {
+		notifyAttempts = append(notifyAttempts, attempt)
+	})(client); err != nil {
+		t.Fatalf("WithRateLimitNotify: %v", err)
+	}
+
+	req, err := client.NewRequest(context.Background(), http.MethodGet, "/test", nil)
+	if err != nil {
+		t.Fatalf("NewRequest: %v", err)
+	}
+
+	_, _ = client.Do(req, nil)
+
+	// 1 initial + 2 retries = 3 total 429s; notify must fire for all 3.
+	if len(notifyAttempts) != 3 {
+		t.Errorf("expected notify called 3 times (including exhausted attempt), got %d", len(notifyAttempts))
+	}
+	for i, attempt := range notifyAttempts {
+		if want := i + 1; attempt != want {
+			t.Errorf("notifyAttempts[%d] = %d, want %d", i, attempt, want)
+		}
+	}
+}
+
 // TestRetryDelay covers all branches of the retryDelay helper.
 func TestRetryDelay(t *testing.T) {
 	tests := []struct {
