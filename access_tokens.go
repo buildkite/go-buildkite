@@ -8,6 +8,12 @@ type AccessTokensService struct {
 	client *Client
 }
 
+// Token an oauth access token for the buildkite service
+type Token struct {
+	AccessToken string `json:"access_token,omitempty"`
+	Type        string `json:"token_type,omitempty"`
+}
+
 type AccessToken struct {
 	UUID        string     `json:"uuid"`        // The token's UUID
 	Scopes      []string   `json:"scopes"`      // The scopes the token has access to
