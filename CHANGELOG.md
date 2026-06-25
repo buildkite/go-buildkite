@@ -1,3 +1,8 @@
+## [Unreleased]
+
+* feat: improve rate-limit retry handling — retry all HTTP methods on 429 (not just GET), parse `RateLimit-Reset` header as delta-seconds, add `WithRateLimitNotify` callback, add `WithMaxRetries` option, use `github.com/buildkite/roko` for retry loop management [#319](https://github.com/buildkite/go-buildkite/pull/319) ([Megh03](https://github.com/Megh03))
+* breaking: the implicit 15-minute wall-clock cap from `cenkalti/backoff` is removed; callers with high `WithMaxRetries` values and no context deadline may block significantly longer than before
+
 ## [v5.1.0](https://github.com/buildkite/go-buildkite/compare/v5.0.1...v5.1.0) (2026-06-16)
 
 * PB-1933 Add promised exit status fields to Job [#323](https://github.com/buildkite/go-buildkite/pull/323) ([123sarahj123](https://github.com/123sarahj123))
