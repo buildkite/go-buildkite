@@ -54,6 +54,8 @@ type TestRunsListOptions struct {
 
 type FailedExecutionsOptions struct {
 	IncludeFailureExpanded bool `url:"include_failure_expanded,omitempty"`
+	Page                   int  `url:"page,omitempty"`
+	PerPage                int  `url:"per_page,omitempty"`
 }
 
 func (trs *TestRunsService) List(ctx context.Context, org, slug string, opt *TestRunsListOptions) ([]TestRun, *Response, error) {
