@@ -1,7 +1,17 @@
 ## [Unreleased]
 
+## [v5.3.0](https://github.com/buildkite/go-buildkite/compare/v5.2.0...v5.3.0) (2026-06-29)
+
+* feat: add failed executions pagination options [#333](https://github.com/buildkite/go-buildkite/pull/333) ([wolfeidau](https://github.com/wolfeidau))
 * feat: improve rate-limit retry handling — retry all HTTP methods on 429 (not just GET), parse `RateLimit-Reset` header as delta-seconds, add `WithRateLimitNotify` callback, add `WithMaxRetries` option, use `github.com/buildkite/roko` for retry loop management [#319](https://github.com/buildkite/go-buildkite/pull/319) ([Megh03](https://github.com/Megh03))
 * breaking: the implicit 15-minute wall-clock cap from `cenkalti/backoff` is removed; callers with high `WithMaxRetries` values and no context deadline may block significantly longer than before
+* SUP-6270: Move ListEmojis from Client to an EmojisService [#330](https://github.com/buildkite/go-buildkite/pull/330) ([dahtey-bk](https://github.com/dahtey-bk))
+
+## [v5.2.0](https://github.com/buildkite/go-buildkite/compare/v5.1.0...v5.2.0) (2026-06-18)
+
+* Add Jobs API list and get support [#327](https://github.com/buildkite/go-buildkite/pull/327) ([wolfeidau](https://github.com/wolfeidau))
+* chore(deps): update dependency lefthook to v2.1.9 [#326](https://github.com/buildkite/go-buildkite/pull/326) ([renovate[bot]](https://github.com/apps/renovate))
+* chore(deps): update dependency lefthook to v2.1.9 [#314](https://github.com/buildkite/go-buildkite/pull/314) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [v5.1.0](https://github.com/buildkite/go-buildkite/compare/v5.0.1...v5.1.0) (2026-06-16)
 
