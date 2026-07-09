@@ -18,6 +18,7 @@ const (
 	// SignatureHeader is the Buildkite header key used to pass the HMAC hexdigest.
 	SignatureHeader = "X-Buildkite-Signature"
 	// TokenHeader is the Buildkite header key used to pass the webhook token.
+	//nolint:gosec // G101: header name, not a credential
 	TokenHeader = "X-Buildkite-Token"
 )
 
@@ -50,7 +51,7 @@ func WebHookType(r *http.Request) string {
 // value of the corresponding struct type will be returned (as returned
 // by Event.ParsePayload()). An error will be returned for unrecognized event
 // types.
-func ParseWebHook(messageType string, payload []byte) (interface{}, error) {
+func ParseWebHook(messageType string, payload []byte) (any, error) {
 	eventType, ok := eventTypeMapping[messageType]
 	if !ok {
 		return nil, fmt.Errorf("unknown X-Buildkite-Event in message: %v", messageType)
@@ -169,7 +170,7 @@ type Event struct {
 // An error will be returned for unrecognized event types.
 //
 // Example usage:
-func (e *Event) ParsePayload() (payload interface{}, err error) {
+func (e *Event) ParsePayload() (payload any, err error) {
 	switch e.Type {
 	case "AgentConnectedEvent":
 		payload = &AgentConnectedEvent{}

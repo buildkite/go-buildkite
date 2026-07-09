@@ -293,7 +293,7 @@ func (c *Client) resolveURL(relPath string) (*url.URL, error) {
 // Relative URLs should always be specified without a preceding slash.  If
 // specified, the value pointed to by body is JSON encoded and included as the
 // request body.
-func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body any) (*http.Request, error) {
 	u, err := c.resolveURL(urlStr)
 	if err != nil {
 		return nil, err
@@ -423,6 +423,7 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 			}
 			// 500ms buffer ensures we don't hit the API again in the same window
 			// when the server sends RateLimit-Reset: 0.
+			//nolint:gosec // G404: jitter for retry backoff, not cryptographic
 			return time.Duration(secs)*time.Second + 500*time.Millisecond + time.Duration(rand.N(time.Second))
 		}
 	}
@@ -435,6 +436,7 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 	if d > 30*time.Second {
 		d = 30 * time.Second
 	}
+	//nolint:gosec // G404: jitter for retry backoff, not cryptographic
 	return d + time.Duration(rand.N(time.Second))
 }
 
@@ -443,7 +445,7 @@ func retryDelay(resp *http.Response, attempt int) time.Duration {
 // error if an API error has occurred.  If v implements the io.Writer
 // interface, the raw response body will be written to v, without attempting to
 // first decode it.
-func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
+func (c *Client) Do(req *http.Request, v any) (*Response, error) {
 	var resp *http.Response
 
 	// roko requires a strategy, but the real delay is always driven by the
@@ -591,9 +593,9 @@ func checkResponse(r *http.Response) error {
 
 // addOptions adds the parameters in opt as URL query parameters to s.  opt
 // must be a struct whose fields may contain "url" tags.
-func addOptions(s string, opt interface{}) (string, error) {
+func addOptions(s string, opt any) (string, error) {
 	v := reflect.ValueOf(opt)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if v.Kind() == reflect.Pointer && v.IsNil() {
 		return s, nil
 	}
 
