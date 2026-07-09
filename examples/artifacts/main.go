@@ -33,21 +33,20 @@ func main() {
 	}
 
 	for _, artifact := range artifacts {
-		if *artifactName == "" {
+		switch *artifactName {
+		case "":
 			data, err := json.MarshalIndent(artifact, "", "\t")
 			if err != nil {
 				log.Fatalf("json encode failed: %s", err)
 			}
 
 			_, _ = fmt.Fprintf(os.Stdout, "%s\n", string(data))
-		} else {
-			if *artifactName == artifact.Filename || *artifactName == artifact.ID {
-				_, err := client.Artifacts.DownloadArtifactByURL(context.Background(), artifact.DownloadURL, os.Stdout)
-				if err != nil {
-					log.Fatalf("DownloadArtifactByURL failed: %s", err)
-				}
-				os.Exit(0)
+		case artifact.Filename, artifact.ID:
+			_, err := client.Artifacts.DownloadArtifactByURL(context.Background(), artifact.DownloadURL, os.Stdout)
+			if err != nil {
+				log.Fatalf("DownloadArtifactByURL failed: %s", err)
 			}
+			os.Exit(0)
 		}
 	}
 }

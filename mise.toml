@@ -6,7 +6,7 @@ lockfile = true
 
 [tools]
 go = "1.25.10"
-golangci-lint = "2.8.0"
+golangci-lint = "2.12.2"
 lefthook = "2.1.10"
 
 [tasks.format]
