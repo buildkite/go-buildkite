@@ -13,6 +13,12 @@ linters:
     gosec:
       excludes:
         - G117
+    testifylint:
+      disable-all: true
+      enable:
+        - require-error
+        - useless-assert
+        - len
   exclusions:
     generated: lax
     presets:
@@ -39,16 +45,9 @@ formatters:
           replacement: "any"
         - pattern: "a[b:len(a)]"
           replacement: "a[b:]"
-    testifylint:
-      disable-all: true
-      enable:
-        - require-error
-        - useless-assert
-        - len
   exclusions:
     generated: lax
     paths:
       - third_party$
       - builtin$
       - examples$
-
