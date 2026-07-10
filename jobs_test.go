@@ -35,6 +35,8 @@ func TestJobsService_ListByBuild(t *testing.T) {
       "command": "scripts/build.sh",
       "soft_failed": false,
       "exit_status": 0,
+      "signal": 15,
+      "signal_reason": "terminated",
       "artifact_paths": "logs/**/*",
       "agent_query_rules": ["queue=default"],
       "retried": false,
@@ -59,6 +61,7 @@ func TestJobsService_ListByBuild(t *testing.T) {
 	}
 
 	exitStatus := 0
+	signal := 15
 	want := JobsList{
 		Items: []Job{{
 			ID:              "job-1",
@@ -74,6 +77,8 @@ func TestJobsService_ListByBuild(t *testing.T) {
 			Command:         "scripts/build.sh",
 			SoftFailed:      false,
 			ExitStatus:      &exitStatus,
+			Signal:          &signal,
+			SignalReason:    "terminated",
 			ArtifactPaths:   "logs/**/*",
 			AgentQueryRules: []string{"queue=default"},
 			Retried:         false,
@@ -168,6 +173,8 @@ func TestJobsService_GetJob(t *testing.T) {
   "command": "scripts/build.sh",
   "soft_failed": false,
   "exit_status": 0,
+  "signal": 15,
+  "signal_reason": "terminated",
   "expired_at": "2026-06-03T04:15:41.618Z",
   "matrix": {
     "os": "linux",
@@ -187,23 +194,26 @@ func TestJobsService_GetJob(t *testing.T) {
 	}
 
 	exitStatus := 0
+	signal := 15
 	want := Job{
-		ID:         "job-1",
-		GraphQLID:  "Sm9iLS0tam9iLTE=",
-		Type:       "script",
-		Name:       ":package: Build",
-		StepKey:    "build",
-		State:      "passed",
-		BuildURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
-		WebURL:     "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
-		LogURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
-		RawLogsURL: "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
-		Command:    "scripts/build.sh",
-		SoftFailed: false,
-		ExitStatus: &exitStatus,
-		ExpiredAt:  NewTimestamp(must(time.Parse(BuildKiteDateFormat, "2026-06-03T04:15:41.618Z"))),
-		Matrix:     map[string]any{"os": "linux", "go": "1.25"},
-		RetriedBy:  &User{ID: "user-1", Name: "Keith Pitt", Email: "keith@buildkite.com"},
+		ID:           "job-1",
+		GraphQLID:    "Sm9iLS0tam9iLTE=",
+		Type:         "script",
+		Name:         ":package: Build",
+		StepKey:      "build",
+		State:        "passed",
+		BuildURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+		WebURL:       "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+		LogURL:       "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+		RawLogsURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
+		Command:      "scripts/build.sh",
+		SoftFailed:   false,
+		ExitStatus:   &exitStatus,
+		Signal:       &signal,
+		SignalReason: "terminated",
+		ExpiredAt:    NewTimestamp(must(time.Parse(BuildKiteDateFormat, "2026-06-03T04:15:41.618Z"))),
+		Matrix:       map[string]any{"os": "linux", "go": "1.25"},
+		RetriedBy:    &User{ID: "user-1", Name: "Keith Pitt", Email: "keith@buildkite.com"},
 	}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("GetJob diff: (-got +want)\n%s", diff)

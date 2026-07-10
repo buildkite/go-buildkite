@@ -32,6 +32,8 @@ type Job struct {
 	RawLogsURL         string          `json:"raw_log_url,omitempty"`
 	Command            string          `json:"command,omitempty"`
 	ExitStatus         *int            `json:"exit_status,omitempty"`
+	Signal             *int            `json:"signal,omitempty"`
+	SignalReason       string          `json:"signal_reason,omitempty"`
 	ArtifactPaths      string          `json:"artifact_paths,omitempty"`
 	ArtifactsURL       string          `json:"artifacts_url,omitempty"`
 	CreatedAt          *Timestamp      `json:"created_at,omitempty"`
