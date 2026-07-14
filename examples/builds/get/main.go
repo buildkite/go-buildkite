@@ -26,7 +26,12 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	build, _, err := client.Builds.Get(context.Background(), *org, *slug, *number, nil)
+	build, _, err := client.Builds.Get(context.Background(), *org, *slug, *number, &buildkite.BuildGetOptions{
+		BuildsListOptions: buildkite.BuildsListOptions{
+			ExcludeJobs:     true,
+			ExcludePipeline: true,
+		},
+	})
 	if err != nil {
 		log.Fatalf("Getting build %s of pipeline %s failed: %s", *number, *slug, err)
 	}

@@ -167,7 +167,7 @@
 
 ## [v4.3.0](https://github.com/buildkite/go-buildkite/compare/v4.2.0...v4.3.0) (2025-06-04)
 
-* Add support for excluding jobs and pipeline data from List Builds [#225](https://github.com/buildkite/go-buildkite/pull/225) ([blaknite](https://github.com/blaknite))
+* Add support for excluding jobs and pipeline data from build list and get operations [#225](https://github.com/buildkite/go-buildkite/pull/225) ([blaknite](https://github.com/blaknite))
 
 ## [v4.2.0](https://github.com/buildkite/go-buildkite/compare/v4.1.1...v4.2.0) (2025-06-03)
 
