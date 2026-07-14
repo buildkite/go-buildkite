@@ -89,6 +89,31 @@ func TestBuildsService_Get(t *testing.T) {
 		}
 	})
 
+	t.Run("excludes jobs when option is set", func(t *testing.T) {
+		t.Parallel()
+
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+
+		server.HandleFunc(requestSlug, func(w http.ResponseWriter, r *http.Request) {
+			testMethod(t, r, "GET")
+			if got, want := r.URL.RawQuery, "exclude_jobs=true"; got != want {
+				t.Errorf("query = %q, want %q", got, want)
+			}
+			_, _ = fmt.Fprintf(w, `{"id":"%s"}`, buildNumber)
+		})
+
+		opt := &BuildGetOptions{
+			BuildsListOptions: BuildsListOptions{
+				ExcludeJobs: true,
+			},
+		}
+		_, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, opt)
+		if err != nil {
+			t.Errorf("Builds.Get (exclude jobs) returned error: %v", err)
+		}
+	})
+
 	t.Run("returns a build struct with expected job containing a group key", func(t *testing.T) {
 		t.Parallel()
 

@@ -199,6 +199,9 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
+// BuildGetOptions specifies the optional parameters to the BuildsService.Get
+// method. Embedded BuildsListOptions that control response expansions, such as
+// ExcludeJobs and ExcludePipeline, also apply to build lookups.
 type BuildGetOptions struct {
 	BuildsListOptions
 
