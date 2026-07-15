@@ -1,4 +1,11 @@
-## [Unreleased]
+## [v5.4.0](https://github.com/buildkite/go-buildkite/compare/v5.3.0...v5.4.0) (2026-07-14)
+
+* Document exclude_jobs support for build lookups [#340](https://github.com/buildkite/go-buildkite/pull/340) ([mitchbne](https://github.com/mitchbne))
+* feat: add signal fields to jobs [#339](https://github.com/buildkite/go-buildkite/pull/339) ([wolfeidau](https://github.com/wolfeidau))
+* chore: uplift golangci-lint to 2.12.2 and clear findings [#338](https://github.com/buildkite/go-buildkite/pull/338) ([wolfeidau](https://github.com/wolfeidau))
+* chore(deps): update dependency lefthook to v2.1.10 [#337](https://github.com/buildkite/go-buildkite/pull/337) ([renovate[bot]](https://github.com/apps/renovate))
+* feat: add missing documented fields to Agent struct [#335](https://github.com/buildkite/go-buildkite/pull/335) ([wolfeidau](https://github.com/wolfeidau))
+* chore(release): update changelog for v5.2.0 and v5.3.0 [#334](https://github.com/buildkite/go-buildkite/pull/334) ([wolfeidau](https://github.com/wolfeidau))
 
 ## [v5.3.0](https://github.com/buildkite/go-buildkite/compare/v5.2.0...v5.3.0) (2026-06-29)
 
