@@ -73,6 +73,57 @@ func TestAnnotationsService_ListByBuild(t *testing.T) {
 	}
 }
 
+func TestAnnotationsService_ListByBuild_WithSummaryOptions(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"scope":     "all",
+			"omit_body": "true",
+			"page":      "2",
+			"per_page":  "100",
+		})
+		_, _ = fmt.Fprint(w, `[{
+			"id": "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
+			"context": "test-results",
+			"style": "error",
+			"scope": "job",
+			"job_id": "a7c5b1d2-4f3e-4a1b-9c8d-6e2f1a3b4c5d",
+			"priority": 5,
+			"created_at": "2024-01-15T10:30:00.000Z",
+			"updated_at": "2024-01-15T10:30:00.000Z"
+		}]`)
+	})
+
+	omitBody := true
+	annotations, _, err := client.Annotations.ListByBuild(context.Background(), "my-great-org", "sup-keith", "awesome-build", &AnnotationListOptions{
+		ListOptions: ListOptions{Page: 2, PerPage: 100},
+		Scope:       "all",
+		OmitBody:    &omitBody,
+	})
+	if err != nil {
+		t.Errorf("ListByBuild returned error: %v", err)
+	}
+
+	want := []Annotation{{
+		ID:        "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
+		Context:   "test-results",
+		Style:     "error",
+		Scope:     "job",
+		JobID:     "a7c5b1d2-4f3e-4a1b-9c8d-6e2f1a3b4c5d",
+		Priority:  5,
+		CreatedAt: NewTimestamp(time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)),
+		UpdatedAt: NewTimestamp(time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)),
+	}}
+	if diff := cmp.Diff(annotations, want); diff != "" {
+		t.Errorf("ListByBuild diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestAnnotationsService_Create(t *testing.T) {
 	t.Parallel()
 
