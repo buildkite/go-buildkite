@@ -20,6 +20,7 @@ type Annotation struct {
 	Context   string     `json:"context,omitempty"`
 	Style     string     `json:"style,omitempty"`
 	Scope     string     `json:"scope,omitempty"`
+	JobID     string     `json:"job_id,omitempty"`
 	Priority  int        `json:"priority,omitempty"`
 	BodyHTML  string     `json:"body_html,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
@@ -35,9 +36,11 @@ type AnnotationCreate struct {
 }
 
 // AnnotationListOptions specifies the optional parameters to the
-// AnnoationsService.List method.
+// AnnotationsService.List method.
 type AnnotationListOptions struct {
 	ListOptions
+	Scope    string `url:"scope,omitempty"`
+	OmitBody *bool  `url:"omit_body,omitempty"`
 }
 
 // ListByBuild gets annotations for a specific build
