@@ -106,3 +106,44 @@ func TestPackageRegistryTokenList(t *testing.T) {
 		t.Fatalf("client.PackageRegistryTokensService.List(...) diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestPackageRegistryTokenCreate(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	wantInput := CreatePackageRegistryTokenInput{
+		Description: "CI deploy token",
+	}
+
+	want := registryToken
+	want.Token = "pkgreg_v1_abcdef0123456789"
+
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry/tokens", func(w http.ResponseWriter, r *http.Request) {
+		defer func() { _ = r.Body.Close() }()
+
+		testMethod(t, r, "POST")
+		assertRequestJSON(t, r, `{
+			"description": "CI deploy token"
+		}`)
+
+		err := json.NewEncoder(w).Encode(want)
+		if err != nil {
+			t.Fatalf("encoding json response body: %v", err)
+		}
+	})
+
+	got, _, err := client.PackageRegistryTokensService.Create(context.Background(), "test-org", "my-cool-registry", wantInput)
+	if err != nil {
+		t.Fatalf("PackageRegistryTokens.Create returned error: %v", err)
+	}
+
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Fatalf("client.PackageRegistryTokensService.Create(...) diff: (-got +want)\n%s", diff)
+	}
+
+	if got.Token == "" {
+		t.Fatalf("client.PackageRegistryTokensService.Create(...) Token = %q, want non-empty secret", got.Token)
+	}
+}

@@ -102,3 +102,20 @@ func (ts *PackageRegistryTokensService) List(ctx context.Context, organizationSl
 
 	return tokens, resp, err
 }
+
+// Create creates a package registry token for an organization's registry.
+func (ts *PackageRegistryTokensService) Create(ctx context.Context, organizationSlug, registrySlug string, input CreatePackageRegistryTokenInput) (PackageRegistryToken, *Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/tokens", organizationSlug, registrySlug)
+	req, err := ts.client.NewRequest(ctx, "POST", u, input)
+	if err != nil {
+		return PackageRegistryToken{}, nil, fmt.Errorf("creating POST package registry token request: %w", err)
+	}
+
+	var t PackageRegistryToken
+	resp, err := ts.client.Do(req, &t)
+	if err != nil {
+		return PackageRegistryToken{}, resp, err
+	}
+
+	return t, resp, err
+}
