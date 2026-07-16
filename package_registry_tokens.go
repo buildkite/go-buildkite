@@ -138,3 +138,19 @@ func (ts *PackageRegistryTokensService) Update(ctx context.Context, organization
 
 	return t, resp, err
 }
+
+// Delete deletes a package registry token for an organization's registry.
+func (ts *PackageRegistryTokensService) Delete(ctx context.Context, organizationSlug, registrySlug, tokenID string) (*Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/tokens/%s", organizationSlug, registrySlug, tokenID)
+	req, err := ts.client.NewRequest(ctx, "DELETE", u, nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating DELETE package registry token request: %w", err)
+	}
+
+	resp, err := ts.client.Do(req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
+}

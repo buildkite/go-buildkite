@@ -184,3 +184,24 @@ func TestPackageRegistryTokenUpdate(t *testing.T) {
 		t.Fatalf("client.PackageRegistryTokensService.Update(...) diff: (-got +want)\n%s", diff)
 	}
 }
+
+func TestPackageRegistryTokenDelete(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry/tokens/0191b6a2-aa51-70d0-8a5f-aabce115b0fd", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	resp, err := client.PackageRegistryTokensService.Delete(context.Background(), "test-org", "my-cool-registry", "0191b6a2-aa51-70d0-8a5f-aabce115b0fd")
+	if err != nil {
+		t.Fatalf("PackageRegistryTokens.Delete returned error: %v", err)
+	}
+
+	if got, want := resp.StatusCode, http.StatusNoContent; got != want {
+		t.Fatalf("client.PackageRegistryTokensService.Delete(...) status: %d, want %d", got, want)
+	}
+}
