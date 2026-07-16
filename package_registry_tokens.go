@@ -85,3 +85,20 @@ func (ts *PackageRegistryTokensService) Get(ctx context.Context, organizationSlu
 
 	return t, resp, err
 }
+
+// List retrieves all package registry tokens for an organization's registry.
+func (ts *PackageRegistryTokensService) List(ctx context.Context, organizationSlug, registrySlug string) ([]PackageRegistryToken, *Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/tokens", organizationSlug, registrySlug)
+	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating GET package registry token request: %w", err)
+	}
+
+	var tokens []PackageRegistryToken
+	resp, err := ts.client.Do(req, &tokens)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return tokens, resp, err
+}

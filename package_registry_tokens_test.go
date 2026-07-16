@@ -43,12 +43,12 @@ var (
 	registryTokens = []PackageRegistryToken{
 		registryToken,
 		{
-			ID:          "0191b6a2-aa51-70d0-8a5f-eeeeeeeeeeee",
-			GraphQLID:   "UmVnaXN0cnlUb2tlbi0tMDE5MWI2YTItYWE1MS03MGQwLThhNWYtZWVlZWVlZWVlZWVl",
-			Description: "Publish token",
-			URL:         "https://api.buildkite-test.com/v2/packages/organizations/test-org/registries/my-cool-registry/tokens/0191b6a2-aa51-70d0-8a5f-eeeeeeeeeeee",
-			CreatedAt:   NewTimestamp(time.Date(2026, 7, 2, 9, 30, 0, 0, time.UTC)),
-			CreatedBy:   registryToken.CreatedBy,
+			ID:           "0191b6a2-aa51-70d0-8a5f-eeeeeeeeeeee",
+			GraphQLID:    "UmVnaXN0cnlUb2tlbi0tMDE5MWI2YTItYWE1MS03MGQwLThhNWYtZWVlZWVlZWVlZWVl",
+			Description:  "Publish token",
+			URL:          "https://api.buildkite-test.com/v2/packages/organizations/test-org/registries/my-cool-registry/tokens/0191b6a2-aa51-70d0-8a5f-eeeeeeeeeeee",
+			CreatedAt:    NewTimestamp(time.Date(2026, 7, 2, 9, 30, 0, 0, time.UTC)),
+			CreatedBy:    registryToken.CreatedBy,
 			Organization: registryToken.Organization,
 			Registry:     registryToken.Registry,
 		},
@@ -78,5 +78,31 @@ func TestPackageRegistryTokenGet(t *testing.T) {
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Fatalf("client.PackageRegistryTokensService.Get(...) diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestPackageRegistryTokenList(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	want := registryTokens
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry/tokens", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+
+		err := json.NewEncoder(w).Encode(want)
+		if err != nil {
+			t.Fatalf("encoding json response body: %v", err)
+		}
+	})
+
+	got, _, err := client.PackageRegistryTokensService.List(context.Background(), "test-org", "my-cool-registry")
+	if err != nil {
+		t.Fatalf("PackageRegistryTokens.List returned error: %v", err)
+	}
+
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Fatalf("client.PackageRegistryTokensService.List(...) diff: (-got +want)\n%s", diff)
 	}
 }
