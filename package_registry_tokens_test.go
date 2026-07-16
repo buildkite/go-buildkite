@@ -147,3 +147,40 @@ func TestPackageRegistryTokenCreate(t *testing.T) {
 		t.Fatalf("client.PackageRegistryTokensService.Create(...) Token = %q, want non-empty secret", got.Token)
 	}
 }
+
+func TestPackageRegistryTokenUpdate(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	wantInput := UpdatePackageRegistryTokenInput{
+		Description: Some("Renamed CI deploy token"),
+	}
+
+	want := registryToken
+	want.Description = "Renamed CI deploy token"
+
+	server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry/tokens/0191b6a2-aa51-70d0-8a5f-aabce115b0fd", func(w http.ResponseWriter, r *http.Request) {
+		defer func() { _ = r.Body.Close() }()
+
+		testMethod(t, r, "POST")
+		assertRequestJSON(t, r, `{
+			"description": "Renamed CI deploy token"
+		}`)
+
+		err := json.NewEncoder(w).Encode(want)
+		if err != nil {
+			t.Fatalf("encoding json response body: %v", err)
+		}
+	})
+
+	got, _, err := client.PackageRegistryTokensService.Update(context.Background(), "test-org", "my-cool-registry", "0191b6a2-aa51-70d0-8a5f-aabce115b0fd", wantInput)
+	if err != nil {
+		t.Fatalf("PackageRegistryTokens.Update returned error: %v", err)
+	}
+
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Fatalf("client.PackageRegistryTokensService.Update(...) diff: (-got +want)\n%s", diff)
+	}
+}

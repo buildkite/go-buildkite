@@ -119,3 +119,22 @@ func (ts *PackageRegistryTokensService) Create(ctx context.Context, organization
 
 	return t, resp, err
 }
+
+// Update updates a package registry token for an organization's registry.
+// Note: unlike most Update methods in this client, this issues a POST, not
+// a PATCH — that is what the Buildkite API route actually expects here.
+func (ts *PackageRegistryTokensService) Update(ctx context.Context, organizationSlug, registrySlug, tokenID string, input UpdatePackageRegistryTokenInput) (PackageRegistryToken, *Response, error) {
+	u := fmt.Sprintf("v2/packages/organizations/%s/registries/%s/tokens/%s", organizationSlug, registrySlug, tokenID)
+	req, err := ts.client.NewRequest(ctx, "POST", u, input)
+	if err != nil {
+		return PackageRegistryToken{}, nil, fmt.Errorf("creating POST package registry token request: %w", err)
+	}
+
+	var t PackageRegistryToken
+	resp, err := ts.client.Do(req, &t)
+	if err != nil {
+		return PackageRegistryToken{}, resp, err
+	}
+
+	return t, resp, err
+}
