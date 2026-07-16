@@ -1,3 +1,7 @@
+## [v5.6.0](https://github.com/buildkite/go-buildkite/compare/v5.5.0...v5.6.0) (2026-07-16)
+
+* feat: add job log existence check [#344](https://github.com/buildkite/go-buildkite/pull/344) ([wolfeidau](https://github.com/wolfeidau))
+
 ## [v5.5.0](https://github.com/buildkite/go-buildkite/compare/v5.4.0...v5.5.0) (2026-07-16)
 
 * feat(api): annotation scope and omit body [#342](https://github.com/buildkite/go-buildkite/pull/342) ([mcncl](https://github.com/mcncl))
