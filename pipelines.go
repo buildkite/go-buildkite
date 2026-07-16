@@ -151,7 +151,7 @@ func (p *Plugins) UnmarshalJSON(bs []byte) error {
 
 // This is kept vague (map of string to whatever) as there are a lot of custom
 // plugins out there.
-type Plugin map[string]interface{}
+type Plugin map[string]any
 
 // PipelineListOptions specifies the optional parameters to the
 // PipelinesService.List method.

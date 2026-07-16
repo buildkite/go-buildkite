@@ -1,3 +1,36 @@
+## [v5.6.0](https://github.com/buildkite/go-buildkite/compare/v5.5.0...v5.6.0) (2026-07-16)
+
+* feat: add job log existence check [#344](https://github.com/buildkite/go-buildkite/pull/344) ([wolfeidau](https://github.com/wolfeidau))
+
+## [v5.5.0](https://github.com/buildkite/go-buildkite/compare/v5.4.0...v5.5.0) (2026-07-16)
+
+* feat(api): annotation scope and omit body [#342](https://github.com/buildkite/go-buildkite/pull/342) ([mcncl](https://github.com/mcncl))
+* chore(deps): update dependency go to v1.26.5 [#336](https://github.com/buildkite/go-buildkite/pull/336) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [v5.4.0](https://github.com/buildkite/go-buildkite/compare/v5.3.1...v5.4.0) (2026-07-14)
+
+* Document exclude_jobs support for build lookups [#340](https://github.com/buildkite/go-buildkite/pull/340) ([mitchbne](https://github.com/mitchbne))
+* feat: add signal fields to jobs [#339](https://github.com/buildkite/go-buildkite/pull/339) ([wolfeidau](https://github.com/wolfeidau))
+* chore: uplift golangci-lint to 2.12.2 and clear findings [#338](https://github.com/buildkite/go-buildkite/pull/338) ([wolfeidau](https://github.com/wolfeidau))
+* chore(deps): update dependency lefthook to v2.1.10 [#337](https://github.com/buildkite/go-buildkite/pull/337) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [v5.3.1](https://github.com/buildkite/go-buildkite/compare/v5.3.0...v5.3.1) (2026-07-06)
+
+* feat: add missing documented fields to Agent struct [#335](https://github.com/buildkite/go-buildkite/pull/335) ([wolfeidau](https://github.com/wolfeidau))
+
+## [v5.3.0](https://github.com/buildkite/go-buildkite/compare/v5.2.0...v5.3.0) (2026-06-29)
+
+* feat: add failed executions pagination options [#333](https://github.com/buildkite/go-buildkite/pull/333) ([wolfeidau](https://github.com/wolfeidau))
+* feat: improve rate-limit retry handling — retry all HTTP methods on 429 (not just GET), parse `RateLimit-Reset` header as delta-seconds, add `WithRateLimitNotify` callback, add `WithMaxRetries` option, use `github.com/buildkite/roko` for retry loop management [#319](https://github.com/buildkite/go-buildkite/pull/319) ([Megh03](https://github.com/Megh03))
+* breaking: the implicit 15-minute wall-clock cap from `cenkalti/backoff` is removed; callers with high `WithMaxRetries` values and no context deadline may block significantly longer than before
+* SUP-6270: Move ListEmojis from Client to an EmojisService [#330](https://github.com/buildkite/go-buildkite/pull/330) ([dahtey-bk](https://github.com/dahtey-bk))
+
+## [v5.2.0](https://github.com/buildkite/go-buildkite/compare/v5.1.0...v5.2.0) (2026-06-18)
+
+* Add Jobs API list and get support [#327](https://github.com/buildkite/go-buildkite/pull/327) ([wolfeidau](https://github.com/wolfeidau))
+* chore(deps): update dependency lefthook to v2.1.9 [#326](https://github.com/buildkite/go-buildkite/pull/326) ([renovate[bot]](https://github.com/apps/renovate))
+* chore(deps): update dependency lefthook to v2.1.9 [#314](https://github.com/buildkite/go-buildkite/pull/314) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [v5.1.0](https://github.com/buildkite/go-buildkite/compare/v5.0.1...v5.1.0) (2026-06-16)
 
 * PB-1933 Add promised exit status fields to Job [#323](https://github.com/buildkite/go-buildkite/pull/323) ([123sarahj123](https://github.com/123sarahj123))
@@ -152,7 +185,7 @@
 
 ## [v4.3.0](https://github.com/buildkite/go-buildkite/compare/v4.2.0...v4.3.0) (2025-06-04)
 
-* Add support for excluding jobs and pipeline data from List Builds [#225](https://github.com/buildkite/go-buildkite/pull/225) ([blaknite](https://github.com/blaknite))
+* Add support for excluding jobs and pipeline data from build list and get operations [#225](https://github.com/buildkite/go-buildkite/pull/225) ([blaknite](https://github.com/blaknite))
 
 ## [v4.2.0](https://github.com/buildkite/go-buildkite/compare/v4.1.1...v4.2.0) (2025-06-03)
 

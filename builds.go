@@ -99,25 +99,25 @@ type TestEngineProperty struct {
 
 // Build represents a build which has run in buildkite
 type Build struct {
-	ID          string                 `json:"id,omitempty"`
-	GraphQLID   string                 `json:"graphql_id,omitempty"`
-	URL         string                 `json:"url,omitempty"`
-	WebURL      string                 `json:"web_url,omitempty"`
-	Number      int                    `json:"number,omitempty"`
-	State       string                 `json:"state,omitempty"`
-	Blocked     bool                   `json:"blocked"`
-	Message     string                 `json:"message,omitempty"`
-	Commit      string                 `json:"commit,omitempty"`
-	Branch      string                 `json:"branch,omitempty"`
-	Author      Author                 `json:"author,omitempty"`
-	Env         map[string]interface{} `json:"env,omitempty"`
-	CreatedAt   *Timestamp             `json:"created_at,omitempty"`
-	ScheduledAt *Timestamp             `json:"scheduled_at,omitempty"`
-	StartedAt   *Timestamp             `json:"started_at,omitempty"`
-	FinishedAt  *Timestamp             `json:"finished_at,omitempty"`
-	MetaData    map[string]string      `json:"meta_data,omitempty"`
-	Creator     Creator                `json:"creator,omitempty"`
-	Source      string                 `json:"source,omitempty"`
+	ID          string            `json:"id,omitempty"`
+	GraphQLID   string            `json:"graphql_id,omitempty"`
+	URL         string            `json:"url,omitempty"`
+	WebURL      string            `json:"web_url,omitempty"`
+	Number      int               `json:"number,omitempty"`
+	State       string            `json:"state,omitempty"`
+	Blocked     bool              `json:"blocked"`
+	Message     string            `json:"message,omitempty"`
+	Commit      string            `json:"commit,omitempty"`
+	Branch      string            `json:"branch,omitempty"`
+	Author      Author            `json:"author,omitempty"`
+	Env         map[string]any    `json:"env,omitempty"`
+	CreatedAt   *Timestamp        `json:"created_at,omitempty"`
+	ScheduledAt *Timestamp        `json:"scheduled_at,omitempty"`
+	StartedAt   *Timestamp        `json:"started_at,omitempty"`
+	FinishedAt  *Timestamp        `json:"finished_at,omitempty"`
+	MetaData    map[string]string `json:"meta_data,omitempty"`
+	Creator     Creator           `json:"creator,omitempty"`
+	Source      string            `json:"source,omitempty"`
 
 	// jobs run during the build
 	Jobs []Job `json:"jobs,omitempty"`
@@ -199,6 +199,9 @@ type BuildsListOptions struct {
 	ListOptions
 }
 
+// BuildGetOptions specifies the optional parameters to the BuildsService.Get
+// method. Embedded BuildsListOptions that control response expansions, such as
+// ExcludeJobs and ExcludePipeline, also apply to build lookups.
 type BuildGetOptions struct {
 	BuildsListOptions
 

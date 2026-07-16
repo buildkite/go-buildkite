@@ -35,6 +35,8 @@ func TestJobsService_ListByBuild(t *testing.T) {
       "command": "scripts/build.sh",
       "soft_failed": false,
       "exit_status": 0,
+      "signal": 15,
+      "signal_reason": "terminated",
       "artifact_paths": "logs/**/*",
       "agent_query_rules": ["queue=default"],
       "retried": false,
@@ -59,6 +61,7 @@ func TestJobsService_ListByBuild(t *testing.T) {
 	}
 
 	exitStatus := 0
+	signal := 15
 	want := JobsList{
 		Items: []Job{{
 			ID:              "job-1",
@@ -74,6 +77,8 @@ func TestJobsService_ListByBuild(t *testing.T) {
 			Command:         "scripts/build.sh",
 			SoftFailed:      false,
 			ExitStatus:      &exitStatus,
+			Signal:          &signal,
+			SignalReason:    "terminated",
 			ArtifactPaths:   "logs/**/*",
 			AgentQueryRules: []string{"queue=default"},
 			Retried:         false,
@@ -168,6 +173,8 @@ func TestJobsService_GetJob(t *testing.T) {
   "command": "scripts/build.sh",
   "soft_failed": false,
   "exit_status": 0,
+  "signal": 15,
+  "signal_reason": "terminated",
   "expired_at": "2026-06-03T04:15:41.618Z",
   "matrix": {
     "os": "linux",
@@ -187,23 +194,26 @@ func TestJobsService_GetJob(t *testing.T) {
 	}
 
 	exitStatus := 0
+	signal := 15
 	want := Job{
-		ID:         "job-1",
-		GraphQLID:  "Sm9iLS0tam9iLTE=",
-		Type:       "script",
-		Name:       ":package: Build",
-		StepKey:    "build",
-		State:      "passed",
-		BuildURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
-		WebURL:     "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
-		LogURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
-		RawLogsURL: "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
-		Command:    "scripts/build.sh",
-		SoftFailed: false,
-		ExitStatus: &exitStatus,
-		ExpiredAt:  NewTimestamp(must(time.Parse(BuildKiteDateFormat, "2026-06-03T04:15:41.618Z"))),
-		Matrix:     map[string]any{"os": "linux", "go": "1.25"},
-		RetriedBy:  &User{ID: "user-1", Name: "Keith Pitt", Email: "keith@buildkite.com"},
+		ID:           "job-1",
+		GraphQLID:    "Sm9iLS0tam9iLTE=",
+		Type:         "script",
+		Name:         ":package: Build",
+		StepKey:      "build",
+		State:        "passed",
+		BuildURL:     "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123",
+		WebURL:       "https://buildkite.com/my-great-org/sup-keith/builds/123#job-1",
+		LogURL:       "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log",
+		RawLogsURL:   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-1/log.txt",
+		Command:      "scripts/build.sh",
+		SoftFailed:   false,
+		ExitStatus:   &exitStatus,
+		Signal:       &signal,
+		SignalReason: "terminated",
+		ExpiredAt:    NewTimestamp(must(time.Parse(BuildKiteDateFormat, "2026-06-03T04:15:41.618Z"))),
+		Matrix:       map[string]any{"os": "linux", "go": "1.25"},
+		RetriedBy:    &User{ID: "user-1", Name: "Keith Pitt", Email: "keith@buildkite.com"},
 	}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("GetJob diff: (-got +want)\n%s", diff)
@@ -336,6 +346,79 @@ func TestJobsService_GetJobLog(t *testing.T) {
 	}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_JobLogExists(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodHead)
+		w.Header().Set("Content-Length", "28")
+		w.Header().Set("Accept-Ranges", "bytes")
+	})
+
+	exists, resp, err := client.Jobs.JobLogExists(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
+	if err != nil {
+		t.Fatalf("JobLogExists returned error: %v", err)
+	}
+	if !exists {
+		t.Error("JobLogExists returned false, want true")
+	}
+	if got := resp.Header.Get("Content-Length"); got != "28" {
+		t.Errorf("Content-Length = %q, want %q", got, "28")
+	}
+	if got := resp.Header.Get("Accept-Ranges"); got != "bytes" {
+		t.Errorf("Accept-Ranges = %q, want %q", got, "bytes")
+	}
+}
+
+func TestJobsService_JobLogExists_NotFound(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/missing-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodHead)
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	exists, resp, err := client.Jobs.JobLogExists(context.Background(), "my-great-org", "sup-keith", "awesome-build", "missing-job-id")
+	if err != nil {
+		t.Fatalf("JobLogExists returned error: %v", err)
+	}
+	if exists {
+		t.Error("JobLogExists returned true, want false")
+	}
+	if resp == nil || resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("response = %#v, want status %d", resp, http.StatusNotFound)
+	}
+}
+
+func TestJobsService_JobLogExists_ServerError(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodHead)
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+
+	exists, resp, err := client.Jobs.JobLogExists(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
+	if err == nil {
+		t.Fatal("JobLogExists returned nil error, want an error")
+	}
+	if exists {
+		t.Error("JobLogExists returned true, want false")
+	}
+	if resp == nil || resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("response = %#v, want status %d", resp, http.StatusInternalServerError)
 	}
 }
 

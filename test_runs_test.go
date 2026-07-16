@@ -214,6 +214,12 @@ func TestTestRunsService_GetFailedExecutions_WithFailureExpanded(t *testing.T) {
 		if r.URL.Query().Get("include_failure_expanded") != "true" {
 			t.Errorf("Expected include_failure_expanded=true in query parameters, got: %s", r.URL.Query().Get("include_failure_expanded"))
 		}
+		if r.URL.Query().Get("page") != "2" {
+			t.Errorf("Expected page=2 in query parameters, got: %s", r.URL.Query().Get("page"))
+		}
+		if r.URL.Query().Get("per_page") != "50" {
+			t.Errorf("Expected per_page=50 in query parameters, got: %s", r.URL.Query().Get("per_page"))
+		}
 
 		_, _ = fmt.Fprint(w,
 			`
@@ -250,6 +256,8 @@ func TestTestRunsService_GetFailedExecutions_WithFailureExpanded(t *testing.T) {
 
 	options := &FailedExecutionsOptions{
 		IncludeFailureExpanded: true,
+		Page:                   2,
+		PerPage:                50,
 	}
 
 	failedExecutions, _, err := client.TestRuns.GetFailedExecutions(context.Background(), "my-great-org", "suite-example", "3c90a8ad-8e86-4e78-87b4-acae5e808de4", options)

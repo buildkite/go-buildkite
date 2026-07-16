@@ -26,7 +26,14 @@ type Agent struct {
 	IPAddress         string     `json:"ip_address,omitempty"`
 	UserAgent         string     `json:"user_agent,omitempty"`
 	Version           string     `json:"version,omitempty"`
+	OSID              string     `json:"os_id,omitempty"`
+	Arch              string     `json:"arch,omitempty"`
+	Queue             string     `json:"queue,omitempty"`
 	CreatedAt         *Timestamp `json:"created_at,omitempty"`
+	ConnectedAt       *Timestamp `json:"connected_at,omitempty"`
+	DisconnectedAt    *Timestamp `json:"disconnected_at,omitempty"`
+	LostAt            *Timestamp `json:"lost_at,omitempty"`
+	StoppedAt         *Timestamp `json:"stopped_at,omitempty"`
 	LastJobFinishedAt *Timestamp `json:"last_job_finished_at,omitempty"`
 	Priority          *int       `json:"priority,omitempty"`
 	Metadata          []string   `json:"meta_data,omitempty"`

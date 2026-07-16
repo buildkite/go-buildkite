@@ -6,9 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/buildkite/go-buildkite/v5"
-
 	"github.com/alecthomas/kingpin/v2"
+	"github.com/buildkite/go-buildkite/v5"
 )
 
 var (

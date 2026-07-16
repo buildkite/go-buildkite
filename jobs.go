@@ -32,6 +32,8 @@ type Job struct {
 	RawLogsURL         string          `json:"raw_log_url,omitempty"`
 	Command            string          `json:"command,omitempty"`
 	ExitStatus         *int            `json:"exit_status,omitempty"`
+	Signal             *int            `json:"signal,omitempty"`
+	SignalReason       string          `json:"signal_reason,omitempty"`
 	ArtifactPaths      string          `json:"artifact_paths,omitempty"`
 	ArtifactsURL       string          `json:"artifacts_url,omitempty"`
 	CreatedAt          *Timestamp      `json:"created_at,omitempty"`
@@ -320,6 +322,29 @@ func (js *JobsService) GetJobLog(ctx context.Context, org string, pipeline strin
 	}
 
 	return jobLog, resp, err
+}
+
+// JobLogExists checks whether a log exists for the given job without fetching
+// its body. The response headers include the log size in Content-Length and
+// range support in Accept-Ranges.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output-get-log-size-without-downloading
+func (js *JobsService) JobLogExists(ctx context.Context, org, pipeline, buildNumber, jobID string) (bool, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/log", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, http.MethodHead, u, nil)
+	if err != nil {
+		return false, nil, err
+	}
+
+	resp, err := js.client.Do(req, nil)
+	if err != nil {
+		if resp != nil && resp.StatusCode == http.StatusNotFound {
+			return false, resp, nil
+		}
+		return false, resp, err
+	}
+
+	return true, resp, nil
 }
 
 // GetJobEnvironmentVariables - get a job’s environment variables

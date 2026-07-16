@@ -30,12 +30,12 @@ func (ts Timestamp) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (ts *Timestamp) UnmarshalJSON(data []byte) (err error) {
-	(*ts).Time, err = time.Parse(`"`+BuildKiteDateFormat+`"`, string(data))
+	ts.Time, err = time.Parse(`"`+BuildKiteDateFormat+`"`, string(data))
 	if err != nil {
 		// try the webhook format too; avoid clobbering the error if both fail
 		t, err2 := time.Parse(`"`+BuildKiteEventDateFormat+`"`, string(data))
 		if err2 == nil {
-			(*ts).Time = t
+			ts.Time = t
 			err = err2
 		}
 	}
