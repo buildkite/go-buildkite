@@ -142,6 +142,8 @@ type StepInfo struct {
 // JobsListOptions specifies the optional parameters to the JobsService.ListByBuild method.
 type JobsListOptions struct {
 	State              []string `url:"state,brackets,omitempty"`
+	StepKey            string   `url:"step_key,omitempty"`
+	GroupKey           string   `url:"group_key,omitempty"`
 	IncludeRetriedJobs *bool    `url:"include_retried_jobs,omitempty"`
 	PerPage            int      `url:"per_page,omitempty"`
 	After              string   `url:"after,omitempty"`
@@ -159,9 +161,11 @@ func (l JobsListLink) ToOptions() (*JobsListOptions, error) {
 	q := u.Query()
 
 	opts := &JobsListOptions{
-		State:  q["state[]"],
-		After:  q.Get("after"),
-		Before: q.Get("before"),
+		State:    q["state[]"],
+		StepKey:  q.Get("step_key"),
+		GroupKey: q.Get("group_key"),
+		After:    q.Get("after"),
+		Before:   q.Get("before"),
 	}
 
 	if perPage := q.Get("per_page"); perPage != "" {

@@ -110,6 +110,8 @@ func TestJobsService_ListByBuild_WithOptions(t *testing.T) {
 		testFormValuesList(t, r, valuesList{
 			{"state[]", "passed"},
 			{"state[]", "failed"},
+			{"step_key", "test"},
+			{"group_key", "tests"},
 			{"include_retried_jobs", "false"},
 			{"per_page", "100"},
 			{"after", "cursor-1"},
@@ -120,6 +122,8 @@ func TestJobsService_ListByBuild_WithOptions(t *testing.T) {
 	includeRetriedJobs := false
 	opt := &JobsListOptions{
 		State:              []string{"passed", "failed"},
+		StepKey:            "test",
+		GroupKey:           "tests",
 		IncludeRetriedJobs: &includeRetriedJobs,
 		PerPage:            100,
 		After:              "cursor-1",
@@ -133,7 +137,7 @@ func TestJobsService_ListByBuild_WithOptions(t *testing.T) {
 func TestJobsListLink_ToOptions(t *testing.T) {
 	t.Parallel()
 
-	link := JobsListLink("https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?state[]=passed&state[]=failed&include_retried_jobs=false&after=cursor-1&per_page=100")
+	link := JobsListLink("https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?state[]=passed&state[]=failed&step_key=test&group_key=tests&include_retried_jobs=false&after=cursor-1&per_page=100")
 	opt, err := link.ToOptions()
 	if err != nil {
 		t.Fatalf("ToOptions returned error: %v", err)
@@ -142,6 +146,8 @@ func TestJobsListLink_ToOptions(t *testing.T) {
 	includeRetriedJobs := false
 	want := &JobsListOptions{
 		State:              []string{"passed", "failed"},
+		StepKey:            "test",
+		GroupKey:           "tests",
 		IncludeRetriedJobs: &includeRetriedJobs,
 		PerPage:            100,
 		After:              "cursor-1",
