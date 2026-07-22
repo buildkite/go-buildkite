@@ -47,38 +47,39 @@ type Client struct {
 	UserAgent string
 
 	// Services used for talking to different parts of the buildkite API.
-	AccessTokens             *AccessTokensService
-	Agents                   *AgentsService
-	Annotations              *AnnotationsService
-	Artifacts                *ArtifactsService
-	BuildTests               *BuildTestsService
-	Builds                   *BuildsService
-	Clusters                 *ClustersService
-	ClusterQueues            *ClusterQueuesService
-	ClusterTokens            *ClusterTokensService
-	ClusterSecrets           *ClusterSecretsService
-	ClusterMaintainers       *ClusterMaintainersService
-	Emojis                   *EmojisService
-	FlakyTests               *FlakyTestsService
-	Jobs                     *JobsService
-	Members                  *MembersService
-	Meta                     *MetaService
-	Organizations            *OrganizationsService
-	PackagesService          *PackagesService
-	PackageRegistriesService *PackageRegistriesService
-	Pipelines                *PipelinesService
-	PipelineSchedules        *PipelineSchedulesService
-	PipelineTemplates        *PipelineTemplatesService
-	RateLimit                *RateLimitService
-	Rules                    *RulesService
-	User                     *UserService
-	Teams                    *TeamsService
-	TeamMember               *TeamMemberService
-	TeamPipelines            *TeamPipelinesService
-	TeamSuites               *TeamSuitesService
-	Tests                    *TestsService
-	TestRuns                 *TestRunsService
-	TestSuites               *TestSuitesService
+	AccessTokens                 *AccessTokensService
+	Agents                       *AgentsService
+	Annotations                  *AnnotationsService
+	Artifacts                    *ArtifactsService
+	BuildTests                   *BuildTestsService
+	Builds                       *BuildsService
+	Clusters                     *ClustersService
+	ClusterQueues                *ClusterQueuesService
+	ClusterTokens                *ClusterTokensService
+	ClusterSecrets               *ClusterSecretsService
+	ClusterMaintainers           *ClusterMaintainersService
+	Emojis                       *EmojisService
+	FlakyTests                   *FlakyTestsService
+	Jobs                         *JobsService
+	Members                      *MembersService
+	Meta                         *MetaService
+	Organizations                *OrganizationsService
+	PackagesService              *PackagesService
+	PackageRegistriesService     *PackageRegistriesService
+	PackageRegistryTokensService *PackageRegistryTokensService
+	Pipelines                    *PipelinesService
+	PipelineSchedules            *PipelineSchedulesService
+	PipelineTemplates            *PipelineTemplatesService
+	RateLimit                    *RateLimitService
+	Rules                        *RulesService
+	User                         *UserService
+	Teams                        *TeamsService
+	TeamMember                   *TeamMemberService
+	TeamPipelines                *TeamPipelinesService
+	TeamSuites                   *TeamSuitesService
+	Tests                        *TestsService
+	TestRuns                     *TestRunsService
+	TestSuites                   *TestSuitesService
 
 	authHeader      string
 	httpDebug       bool
@@ -235,6 +236,7 @@ func (c *Client) populateDefaultServices() {
 	c.Organizations = &OrganizationsService{c}
 	c.PackagesService = &PackagesService{c}
 	c.PackageRegistriesService = &PackageRegistriesService{c}
+	c.PackageRegistryTokensService = &PackageRegistryTokensService{c}
 	c.Pipelines = &PipelinesService{c}
 	c.PipelineSchedules = &PipelineSchedulesService{c}
 	c.PipelineTemplates = &PipelineTemplatesService{c}
