@@ -1,3 +1,18 @@
+## [v5.8.0](https://github.com/buildkite/go-buildkite/tree/v5.8.0) (2026-07-23)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.7.0...v5.8.0)
+
+### Changed
+- test: cover job signals in organization build lists [#351](https://github.com/buildkite/go-buildkite/pull/351) (@scadu)
+- Match Job.Signal type to that of API [#350](https://github.com/buildkite/go-buildkite/pull/350) (@davidenglishmusic)
+- SUP-6263: Add Package Registry Tokens CRUD support [#346](https://github.com/buildkite/go-buildkite/pull/346) (@tomowatt)
+
+## [v5.7.0](https://github.com/buildkite/go-buildkite/tree/v5.7.0) (2026-07-17)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.7.0...v5.7.0)
+
+### Changed
+- docs: update changelog for v5.6.0 by @wolfeidau in https://github.com/buildkite/go-buildkite/pull/345
+- Add job step and group key filters by @mitchbne in https://github.com/buildkite/go-buildkite/pull/347
+
 ## [v5.6.0](https://github.com/buildkite/go-buildkite/compare/v5.5.0...v5.6.0) (2026-07-16)
 
 * feat: add job log existence check [#344](https://github.com/buildkite/go-buildkite/pull/344) ([wolfeidau](https://github.com/wolfeidau))
