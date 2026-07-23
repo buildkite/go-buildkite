@@ -395,7 +395,7 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/my-great-org/builds", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		_, _ = fmt.Fprint(w, `[{"id":"123"},{"id":"1234"}]`)
+		_, _ = fmt.Fprint(w, `[{"id":"123","jobs":[{"id":"job-1","signal":"SIGTERM"},{"id":"job-2","signal":null}]},{"id":"1234"}]`)
 	})
 
 	builds, _, err := client.Builds.ListByOrg(context.Background(), "my-great-org", nil)
@@ -403,7 +403,16 @@ func TestBuildsService_ListByOrg(t *testing.T) {
 		t.Errorf("Builds.List returned error: %v", err)
 	}
 
-	want := []Build{{ID: "123"}, {ID: "1234"}}
+	want := []Build{
+		{
+			ID: "123",
+			Jobs: []Job{
+				{ID: "job-1", Signal: "SIGTERM"},
+				{ID: "job-2"},
+			},
+		},
+		{ID: "1234"},
+	}
 	if diff := cmp.Diff(builds, want); diff != "" {
 		t.Errorf("Builds.List diff: (-got +want)\n%s", diff)
 	}
