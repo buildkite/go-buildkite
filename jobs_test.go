@@ -35,7 +35,7 @@ func TestJobsService_ListByBuild(t *testing.T) {
       "command": "scripts/build.sh",
       "soft_failed": false,
       "exit_status": 0,
-      "signal": 15,
+      "signal": "SIGTERM",
       "signal_reason": "terminated",
       "artifact_paths": "logs/**/*",
       "agent_query_rules": ["queue=default"],
@@ -61,7 +61,6 @@ func TestJobsService_ListByBuild(t *testing.T) {
 	}
 
 	exitStatus := 0
-	signal := 15
 	want := JobsList{
 		Items: []Job{{
 			ID:              "job-1",
@@ -77,7 +76,7 @@ func TestJobsService_ListByBuild(t *testing.T) {
 			Command:         "scripts/build.sh",
 			SoftFailed:      false,
 			ExitStatus:      &exitStatus,
-			Signal:          &signal,
+			Signal:          "SIGTERM",
 			SignalReason:    "terminated",
 			ArtifactPaths:   "logs/**/*",
 			AgentQueryRules: []string{"queue=default"},
@@ -179,7 +178,7 @@ func TestJobsService_GetJob(t *testing.T) {
   "command": "scripts/build.sh",
   "soft_failed": false,
   "exit_status": 0,
-  "signal": 15,
+  "signal": "SIGTERM",
   "signal_reason": "terminated",
   "expired_at": "2026-06-03T04:15:41.618Z",
   "matrix": {
@@ -200,7 +199,6 @@ func TestJobsService_GetJob(t *testing.T) {
 	}
 
 	exitStatus := 0
-	signal := 15
 	want := Job{
 		ID:           "job-1",
 		GraphQLID:    "Sm9iLS0tam9iLTE=",
@@ -215,7 +213,7 @@ func TestJobsService_GetJob(t *testing.T) {
 		Command:      "scripts/build.sh",
 		SoftFailed:   false,
 		ExitStatus:   &exitStatus,
-		Signal:       &signal,
+		Signal:       "SIGTERM",
 		SignalReason: "terminated",
 		ExpiredAt:    NewTimestamp(must(time.Parse(BuildKiteDateFormat, "2026-06-03T04:15:41.618Z"))),
 		Matrix:       map[string]any{"os": "linux", "go": "1.25"},
