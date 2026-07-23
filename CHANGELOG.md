@@ -7,7 +7,7 @@
 - SUP-6263: Add Package Registry Tokens CRUD support [#346](https://github.com/buildkite/go-buildkite/pull/346) (@tomowatt)
 
 ## [v5.7.0](https://github.com/buildkite/go-buildkite/tree/v5.7.0) (2026-07-17)
-[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.7.0...v5.7.0)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.6.0...v5.7.0)
 
 ### Changed
 - docs: update changelog for v5.6.0 by @wolfeidau in https://github.com/buildkite/go-buildkite/pull/345
