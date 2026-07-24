@@ -62,6 +62,9 @@ type AgentListOptions struct {
 	// Filters the results by the given exact version number
 	Version string `url:"version,omitempty"`
 
+	// Filters the results by the given cluster queue id
+	ClusterQueueID string `url:"cluster_queue_id,omitempty"`
+
 	ListOptions
 }
 
