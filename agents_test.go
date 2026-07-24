@@ -34,6 +34,37 @@ func TestAgentsService_List(t *testing.T) {
 	}
 }
 
+func TestAgentsService_List_by_cluster_queue_id(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/agents", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"cluster_queue_id": "0190c5a8-7b3e-7d2a-9f1c-2e4b8a6d5c10",
+			"page":             "2",
+			"per_page":         "50",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"123"}]`)
+	})
+
+	opt := &AgentListOptions{
+		ClusterQueueID: "0190c5a8-7b3e-7d2a-9f1c-2e4b8a6d5c10",
+		ListOptions:    ListOptions{Page: 2, PerPage: 50},
+	}
+	agents, _, err := client.Agents.List(context.Background(), "my-great-org", opt)
+	if err != nil {
+		t.Errorf("Agents.List returned error: %v", err)
+	}
+
+	want := []Agent{{ID: "123"}}
+	if diff := cmp.Diff(agents, want); diff != "" {
+		t.Errorf("Agents.List: diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestAgentsService_Get(t *testing.T) {
 	t.Parallel()
 
