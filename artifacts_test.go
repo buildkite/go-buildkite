@@ -64,6 +64,39 @@ func TestArtifactsService_ListByBuild_WithPagination(t *testing.T) {
 	}
 }
 
+func TestArtifactsService_ListByBuild_WithFilters(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/artifacts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"state":    "finished",
+			"path":     "logs/output.log",
+			"page":     "2",
+			"per_page": "10",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"art-1","state":"finished","path":"logs/output.log"}]`)
+	})
+
+	opt := &ArtifactListOptions{
+		State:       "finished",
+		Path:        "logs/output.log",
+		ListOptions: ListOptions{Page: 2, PerPage: 10},
+	}
+	artifacts, _, err := client.Artifacts.ListByBuild(context.Background(), "my-great-org", "sup-keith", "123", opt)
+	if err != nil {
+		t.Errorf("ListByBuild returned error: %v", err)
+	}
+
+	want := []Artifact{{ID: "art-1", State: "finished", Path: "logs/output.log"}}
+	if diff := cmp.Diff(artifacts, want); diff != "" {
+		t.Errorf("ListByBuild diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestArtifactsService_ListByJob(t *testing.T) {
 	t.Parallel()
 
@@ -109,6 +142,36 @@ func TestArtifactsService_ListByJob_WithPagination(t *testing.T) {
 	}
 
 	want := []Artifact{{ID: "art-1"}}
+	if diff := cmp.Diff(artifacts, want); diff != "" {
+		t.Errorf("ListByJob diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestArtifactsService_ListByJob_WithFilters(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs/job-456/artifacts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"state": "error",
+			"path":  "artifact.txt",
+		})
+		_, _ = fmt.Fprint(w, `[{"id":"art-1","state":"error","path":"artifact.txt"}]`)
+	})
+
+	opt := &ArtifactListOptions{
+		State: "error",
+		Path:  "artifact.txt",
+	}
+	artifacts, _, err := client.Artifacts.ListByJob(context.Background(), "my-great-org", "sup-keith", "123", "job-456", opt)
+	if err != nil {
+		t.Errorf("ListByJob returned error: %v", err)
+	}
+
+	want := []Artifact{{ID: "art-1", State: "error", Path: "artifact.txt"}}
 	if diff := cmp.Diff(artifacts, want); diff != "" {
 		t.Errorf("ListByJob diff: (-got +want)\n%s", diff)
 	}

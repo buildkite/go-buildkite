@@ -35,6 +35,12 @@ type Artifact struct {
 // ArtifactListOptions specifies the optional parameters to the
 // ArtifactsService.List method.
 type ArtifactListOptions struct {
+	// Filters the results by the given artifact state (e.g. "new", "finished", "error", "deleted", "expired")
+	State string `url:"state,omitempty"`
+
+	// Filters the results by the given artifact path
+	Path string `url:"path,omitempty"`
+
 	ListOptions
 }
 
