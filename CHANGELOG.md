@@ -1,3 +1,8 @@
+## [v5.10.0](https://github.com/buildkite/go-buildkite/compare/v5.9.0...v5.10.0) (2026-07-31)
+
+* docs: update changelog for v5.9.0 [#354](https://github.com/buildkite/go-buildkite/pull/354) ([wolfeidau](https://github.com/wolfeidau))
+* Support optional query strings on List Artifacts By Build/Job [#355](https://github.com/buildkite/go-buildkite/pull/355) ([lizrabuya](https://github.com/lizrabuya))
+
 ## [v5.9.0](https://github.com/buildkite/go-buildkite/tree/v5.9.0) (2026-07-24)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.8.0...v5.9.0)
 
