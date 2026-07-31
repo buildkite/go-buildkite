@@ -1,3 +1,10 @@
+## [v5.9.0](https://github.com/buildkite/go-buildkite/tree/v5.9.0) (2026-07-24)
+[Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.8.0...v5.9.0)
+
+### Changed
+- feat: add cluster_queue_id filter to AgentListOptions [#353](https://github.com/buildkite/go-buildkite/pull/353) (@wolfeidau)
+- chore(deps): update buildkite plugin mise to v1.1.5 [#348](https://github.com/buildkite/go-buildkite/pull/348) (@renovate[bot])
+
 ## [v5.8.0](https://github.com/buildkite/go-buildkite/tree/v5.8.0) (2026-07-23)
 [Full Changelog](https://github.com/buildkite/go-buildkite/compare/v5.7.0...v5.8.0)
 
