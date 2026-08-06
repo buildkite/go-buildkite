@@ -1,3 +1,7 @@
+## [v5.11.0](https://github.com/buildkite/go-buildkite/compare/v5.10.0...v5.11.0) (2026-08-06)
+
+* feat(tests): add List Tests support [#357](https://github.com/buildkite/go-buildkite/pull/357) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+
 ## [v5.10.0](https://github.com/buildkite/go-buildkite/compare/v5.9.0...v5.10.0) (2026-07-31)
 
 * docs: update changelog for v5.9.0 [#354](https://github.com/buildkite/go-buildkite/pull/354) ([wolfeidau](https://github.com/wolfeidau))
