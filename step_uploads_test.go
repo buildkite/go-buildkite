@@ -37,8 +37,7 @@ func TestStepUploadsService_ListByBuild(t *testing.T) {
       "message": null,
       "url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
       "created_at": "2026-08-01T04:00:00Z",
-      "processed_at": "2026-08-01T04:00:02Z",
-      "definition_stored_bytes": 1024
+      "processed_at": "2026-08-01T04:00:02Z"
     },
     {
       "uuid": "2e2e2e2e-1234-4b0a-8a51-b1e59a0e5b3a",
@@ -51,8 +50,7 @@ func TestStepUploadsService_ListByBuild(t *testing.T) {
       "message": "The step upload was rejected. Check the pipeline upload command output for details.",
       "url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/2e2e2e2e-1234-4b0a-8a51-b1e59a0e5b3a",
       "created_at": "2026-08-01T04:01:00Z",
-      "processed_at": "2026-08-01T04:01:02Z",
-      "definition_stored_bytes": 2048
+      "processed_at": "2026-08-01T04:01:02Z"
     }
   ],
   "links": {
@@ -78,30 +76,28 @@ func TestStepUploadsService_ListByBuild(t *testing.T) {
 	want := StepUploadsList{
 		Items: []StepUpload{
 			{
-				UUID:                  "1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
-				GraphQLID:             "QnVpbGRTdGVwVXBsb2Fk",
-				State:                 "applied",
-				Source:                "job",
-				SourceJobID:           "48af33d8-2d4f-4f19-9a1c-e358c1e0f5ba",
-				ReplaceExistingSteps:  false,
-				CreatedJobsCount:      &createdJobsCount,
-				URL:                   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
-				CreatedAt:             NewTimestamp(time.Date(2026, 8, 1, 4, 0, 0, 0, time.UTC)),
-				ProcessedAt:           NewTimestamp(time.Date(2026, 8, 1, 4, 0, 2, 0, time.UTC)),
-				DefinitionStoredBytes: 1024,
+				UUID:                 "1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
+				GraphQLID:            "QnVpbGRTdGVwVXBsb2Fk",
+				State:                "applied",
+				Source:               "job",
+				SourceJobID:          "48af33d8-2d4f-4f19-9a1c-e358c1e0f5ba",
+				ReplaceExistingSteps: false,
+				CreatedJobsCount:     &createdJobsCount,
+				URL:                  "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
+				CreatedAt:            NewTimestamp(time.Date(2026, 8, 1, 4, 0, 0, 0, time.UTC)),
+				ProcessedAt:          NewTimestamp(time.Date(2026, 8, 1, 4, 0, 2, 0, time.UTC)),
 			},
 			{
-				UUID:                  "2e2e2e2e-1234-4b0a-8a51-b1e59a0e5b3a",
-				State:                 "rejected",
-				Source:                "job",
-				SourceJobID:           "48af33d8-2d4f-4f19-9a1c-e358c1e0f5ba",
-				ReplaceExistingSteps:  true,
-				RejectionType:         &rejectionType,
-				Message:               &message,
-				URL:                   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/2e2e2e2e-1234-4b0a-8a51-b1e59a0e5b3a",
-				CreatedAt:             NewTimestamp(time.Date(2026, 8, 1, 4, 1, 0, 0, time.UTC)),
-				ProcessedAt:           NewTimestamp(time.Date(2026, 8, 1, 4, 1, 2, 0, time.UTC)),
-				DefinitionStoredBytes: 2048,
+				UUID:                 "2e2e2e2e-1234-4b0a-8a51-b1e59a0e5b3a",
+				State:                "rejected",
+				Source:               "job",
+				SourceJobID:          "48af33d8-2d4f-4f19-9a1c-e358c1e0f5ba",
+				ReplaceExistingSteps: true,
+				RejectionType:        &rejectionType,
+				Message:              &message,
+				URL:                  "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/2e2e2e2e-1234-4b0a-8a51-b1e59a0e5b3a",
+				CreatedAt:            NewTimestamp(time.Date(2026, 8, 1, 4, 1, 0, 0, time.UTC)),
+				ProcessedAt:          NewTimestamp(time.Date(2026, 8, 1, 4, 1, 2, 0, time.UTC)),
 			},
 		},
 		Links: StepUploadsListLinks{
@@ -135,8 +131,6 @@ func TestStepUploadsService_Get(t *testing.T) {
   "url": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
   "created_at": "2026-08-01T04:00:00Z",
   "processed_at": "2026-08-01T04:00:02Z",
-  "definition_stored_bytes": 1024,
-  "created_job_uuids": ["9d9d9d9d-9c3b-4b0a-8a51-b1e59a0e5b3a"],
   "definition_bytes": 4096,
   "definition_yaml": "steps:\n- command: echo hello\n",
   "definition_yaml_omitted": false
@@ -166,8 +160,6 @@ func TestStepUploadsService_Get(t *testing.T) {
 		URL:                   "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/step-uploads/1f1f1f1f-9c3b-4b0a-8a51-b1e59a0e5b3a",
 		CreatedAt:             NewTimestamp(time.Date(2026, 8, 1, 4, 0, 0, 0, time.UTC)),
 		ProcessedAt:           NewTimestamp(time.Date(2026, 8, 1, 4, 0, 2, 0, time.UTC)),
-		DefinitionStoredBytes: 1024,
-		CreatedJobUUIDs:       []string{"9d9d9d9d-9c3b-4b0a-8a51-b1e59a0e5b3a"},
 		DefinitionBytes:       &definitionBytes,
 		DefinitionYAML:        &definitionYAML,
 		DefinitionYAMLOmitted: &definitionYAMLOmitted,

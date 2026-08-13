@@ -27,28 +27,26 @@ type StepUploadsService struct {
 // The 'DefinitionXXXX' fields are only populated by Get: DefinitionYAML carries
 // the uploaded configuration re-rendered as YAML, unless the definition
 // exceeds the API's render limit, in which case DefinitionYAML is nil and
-// DefinitionYAMLOmitted is true. DefinitionStoredBytes is the compressed
-// stored size; DefinitionBytes (Get only) is the exact serialized size.
+// DefinitionYAMLOmitted is true. DefinitionBytes is the exact serialized
+// size of the stored definition.
 type StepUpload struct {
-	UUID                  string     `json:"uuid,omitempty"`
-	GraphQLID             string     `json:"graphql_id,omitempty"`
-	State                 string     `json:"state,omitempty"`
-	Source                string     `json:"source,omitempty"`
-	SourceJobID           string     `json:"source_job_id,omitempty"`
-	ReplaceExistingSteps  bool       `json:"replace_existing_steps"`
-	CreatedJobsCount      *int       `json:"created_jobs_count,omitempty"`
-	RejectionType         *string    `json:"rejection_type,omitempty"`
-	Message               *string    `json:"message,omitempty"`
-	URL                   string     `json:"url,omitempty"`
-	CreatedAt             *Timestamp `json:"created_at,omitempty"`
-	ProcessedAt           *Timestamp `json:"processed_at,omitempty"`
-	DefinitionStoredBytes int        `json:"definition_stored_bytes,omitempty"`
+	UUID                 string     `json:"uuid,omitempty"`
+	GraphQLID            string     `json:"graphql_id,omitempty"`
+	State                string     `json:"state,omitempty"`
+	Source               string     `json:"source,omitempty"`
+	SourceJobID          string     `json:"source_job_id,omitempty"`
+	ReplaceExistingSteps bool       `json:"replace_existing_steps"`
+	CreatedJobsCount     *int       `json:"created_jobs_count,omitempty"`
+	RejectionType        *string    `json:"rejection_type,omitempty"`
+	Message              *string    `json:"message,omitempty"`
+	URL                  string     `json:"url,omitempty"`
+	CreatedAt            *Timestamp `json:"created_at,omitempty"`
+	ProcessedAt          *Timestamp `json:"processed_at,omitempty"`
 
 	// Present on Get only.
-	CreatedJobUUIDs       []string `json:"created_job_uuids,omitempty"`
-	DefinitionBytes       *int     `json:"definition_bytes,omitempty"`
-	DefinitionYAML        *string  `json:"definition_yaml,omitempty"`
-	DefinitionYAMLOmitted *bool    `json:"definition_yaml_omitted,omitempty"`
+	DefinitionBytes       *int    `json:"definition_bytes,omitempty"`
+	DefinitionYAML        *string `json:"definition_yaml,omitempty"`
+	DefinitionYAMLOmitted *bool   `json:"definition_yaml_omitted,omitempty"`
 }
 
 // StepUploadsListOptions specifies the optional parameters to the
