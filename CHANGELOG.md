@@ -1,3 +1,9 @@
+## [v5.12.0](https://github.com/buildkite/go-buildkite/compare/v5.11.0...v5.12.0) (2026-08-17)
+
+* Update dependency go to v1.26.6 [#360](https://github.com/buildkite/go-buildkite/pull/360) ([renovate[bot]](https://github.com/apps/renovate))
+* Add StepUploadsService for a build's dynamic pipeline uploads [#359](https://github.com/buildkite/go-buildkite/pull/359) ([nethsix](https://github.com/nethsix))
+* docs: update changelog for v5.11.0 [#358](https://github.com/buildkite/go-buildkite/pull/358) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+
 ## [v5.11.0](https://github.com/buildkite/go-buildkite/compare/v5.10.0...v5.11.0) (2026-08-06)
 
 * feat(tests): add List Tests support [#357](https://github.com/buildkite/go-buildkite/pull/357) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
