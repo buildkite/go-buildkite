@@ -29,7 +29,7 @@ type Test struct {
 }
 
 // TestWithMetrics represents a test and its execution metrics aggregated over
-// the time window requested from [TestsService.List].
+// the time window used by [TestsService.List] or [BuildTestsService.List].
 type TestWithMetrics struct {
 	Test
 

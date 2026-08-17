@@ -15,7 +15,7 @@ var (
 	apiToken  = kingpin.Flag("token", "Buildkite API token").Envar("BUILDKITE_API_TOKEN").Required().String()
 	org       = kingpin.Flag("org", "Organization slug").Required().String()
 	buildUUID = kingpin.Flag("build-id", "Build UUID").Required().String()
-	result    = kingpin.Flag("result", "Filter by execution result, for example failed, ^failed, passed, or ^passed.").String()
+	tags      = kingpin.Flag("tags", "Filter by execution tags, for example result:~failed or result:^failed.").String()
 	state     = kingpin.Flag("state", "Filter by test state, for example enabled or muted.").String()
 )
 
@@ -28,9 +28,8 @@ func main() {
 	}
 
 	opts := &buildkite.BuildTestsListOptions{
-		Result:  *result,
-		State:   *state,
-		Include: "executions",
+		Tags:  *tags,
+		State: *state,
 	}
 
 	buildTests, _, err := client.BuildTests.List(context.Background(), *org, *buildUUID, opts)

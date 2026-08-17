@@ -13,69 +13,51 @@ type BuildTestsService struct {
 	client *Client
 }
 
-type BuildTest struct {
-	ID                      string                   `json:"id,omitempty"`
-	Scope                   string                   `json:"scope,omitempty"`
-	Name                    string                   `json:"name,omitempty"`
-	Location                string                   `json:"location,omitempty"`
-	State                   string                   `json:"state,omitempty"`
-	Labels                  []TestLabel              `json:"labels,omitempty"`
-	ExecutionsCount         int                      `json:"executions_count,omitempty"`
-	ExecutionsCountByResult BuildTestExecutionsCount `json:"executions_count_by_result"`
-	Reliability             float64                  `json:"reliability"`
-	// Executions is only populated when Include is set to "executions".
-	Executions []BuildTestExecution `json:"executions,omitempty"`
-	LatestFail *BuildTestLatestFail `json:"latest_fail,omitempty"`
-}
-
-type TestLabel struct {
-	Name  string `json:"name,omitempty"`
-	Color string `json:"color,omitempty"`
-}
-
-type BuildTestExecutionsCount struct {
-	Passed  int `json:"passed"`
-	Failed  int `json:"failed"`
-	Skipped int `json:"skipped,omitempty"`
-	Pending int `json:"pending,omitempty"`
-	Unknown int `json:"unknown,omitempty"`
-}
-
-type BuildTestLatestFail struct {
-	ID              string            `json:"id,omitempty"`
-	Timestamp       *Timestamp        `json:"timestamp,omitempty"`
-	Duration        float64           `json:"duration"`
-	FailureReason   string            `json:"failure_reason,omitempty"`
-	FailureExpanded []FailureExpanded `json:"failure_expanded,omitempty"`
-}
-
-type BuildTestExecution struct {
-	ID              string            `json:"id,omitempty"`
-	Status          string            `json:"status,omitempty"`
-	Timestamp       *Timestamp        `json:"timestamp,omitempty"`
-	Duration        float64           `json:"duration"`
-	Location        string            `json:"location,omitempty"`
-	FailureReason   string            `json:"failure_reason,omitempty"`
-	FailureExpanded []FailureExpanded `json:"failure_expanded,omitempty"`
-}
-
+// BuildTestsListOptions specifies optional parameters for
+// [BuildTestsService.List]. Invalid values and incompatible combinations are
+// validated by the API.
 type BuildTestsListOptions struct {
 	ListOptions
 
-	// Result filters by execution result.
-	// "failed" = has any failed execution, "^failed" = all executions failed.
-	// Same for "passed" / "^passed".
-	Result string `url:"result,omitempty"`
+	// Labels filters by comma-separated test labels. Prefix a label with "!" to
+	// exclude it, for example "flaky,!slow".
+	Labels string `url:"labels,omitempty"`
 
-	// State filters by test state: "enabled", "muted", etc.
+	// Branch filters the executions included in the metrics. Prefix the value
+	// with "!" to exclude an exact branch, or suffix it with "*" to match
+	// branches by prefix; for example "!main" or "feature*". Use at most one
+	// operator.
+	Branch string `url:"branch,omitempty"`
+
+	// Owners filters by comma-separated test owner slugs. Prefix an owner with
+	// "!" to exclude it, for example "payments,!platform".
+	Owners string `url:"owners,omitempty"`
+
+	// State filters by test state: "enabled", "muted", or "skipped".
 	State string `url:"state,omitempty"`
 
-	// Include set to "latest_fail" inlines the most recent failed execution per test.
-	// Include set to "executions" inlines the executions matching the current filter.
-	Include string `url:"include,omitempty"`
+	// Tags filters by comma-separated execution tags in key:value form. Prefix a
+	// value with "!" to exclude an exact value, or suffix it with "*" to match
+	// by prefix. For the result tag, prefix the value with "~" to return tests
+	// with at least one execution in the build having that result, or "^" to
+	// return tests for which every execution has that result. A build.id filter
+	// cannot override the buildUUID argument; for example
+	// "framework:!rspec,scm.branch:feature*,result:^passed".
+	Tags string `url:"tags,omitempty"`
+
+	// SortBy specifies the metric used to sort results: "duration_avg",
+	// "duration_sum", "duration_min", "duration_max", or "reliability". It
+	// defaults to "duration_avg".
+	SortBy string `url:"sort_by,omitempty"`
+
+	// Order specifies the sort direction: "asc" or "desc". It defaults to
+	// "desc".
+	Order string `url:"order,omitempty"`
 }
 
-func (bts *BuildTestsService) List(ctx context.Context, org, buildUUID string, opt *BuildTestsListOptions) ([]BuildTest, *Response, error) {
+// List returns tests with execution metrics aggregated over the build's time
+// window. Pagination is available through the returned Response.
+func (bts *BuildTestsService) List(ctx context.Context, org, buildUUID string, opt *BuildTestsListOptions) ([]TestWithMetrics, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/builds/%s/tests", org, buildUUID)
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -87,7 +69,7 @@ func (bts *BuildTestsService) List(ctx context.Context, org, buildUUID string, o
 		return nil, nil, err
 	}
 
-	var buildTests []BuildTest
+	var buildTests []TestWithMetrics
 	resp, err := bts.client.Do(req, &buildTests)
 	if err != nil {
 		return nil, resp, err
