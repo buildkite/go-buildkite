@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -18,202 +17,101 @@ func TestBuildTestsService_List(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
+	const linkHeader = `<https://api.buildkite.com/v2/analytics/organizations/my-great-org/builds/019d66fb-e8db-47eb-866c-94b85d42b9a1/tests?page=3>; rel="next", <https://api.buildkite.com/v2/analytics/organizations/my-great-org/builds/019d66fb-e8db-47eb-866c-94b85d42b9a1/tests?page=4>; rel="last"`
+
 	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/tests", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		if got := r.URL.Query().Get("include"); got != "" {
-			t.Errorf("query param include = %q, want empty", got)
-		}
+		testFormValues(t, r, values{
+			"page":     "2",
+			"per_page": "50",
+			"labels":   "flaky,!slow",
+			"branch":   "main*",
+			"owners":   "payments,!platform",
+			"state":    "enabled",
+			"tags":     "framework:rspec,result:^failed",
+			"sort_by":  "reliability",
+			"order":    "asc",
+		})
+
+		w.Header().Set("Link", linkHeader)
 		_, _ = fmt.Fprint(w,
 			`
 			[
 				{
 					"id": "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+					"url": "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/tests/a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+					"web_url": "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/tests/a915535c-a8f1-4e1a-bd6a-a5589e09f349",
 					"scope": "User#email",
-					"name": "TestExample1_Create",
-					"location": "./spec/models/text_example.rb:55",
-					"state": "enabled",
-					"labels": [{"name": "slow", "color": "#ff0000"}],
-					"executions_count": 5,
+					"name": "is correctly formatted",
+					"location": "./spec/models/user_spec.rb:42",
+					"file_name": "./spec/models/user_spec.rb",
+					"labels": ["flaky"],
+					"reliability": 0.9821,
+					"duration_avg": 0.213,
+					"duration_sum": 23.856,
+					"duration_min": 0.108,
+					"duration_max": 1.942,
+					"executions_count": 113,
 					"executions_count_by_result": {
-						"passed": 3,
-						"failed": 2
-					},
-					"reliability": 60.0,
-					"latest_fail": {
-						"id": "exec-001",
-						"timestamp": "2023-07-10T13:14:03.214Z",
-						"duration": 1.234,
-						"failure_reason": "Expected true got false",
-						"failure_expanded": [
-							{
-								"expanded": ["line 1", "line 2"]
-							}
-						]
+						"passed": 110,
+						"failed": 2,
+						"skipped": 1
 					}
-				},
-				{
-					"id": "01867216-8478-7fde-a55a-0300f88bb49b",
-					"scope": "User#email",
-					"name": "TestExample1_Delete",
-					"location": "./spec/models/text_example.rb:102",
-					"state": "muted",
-					"labels": [],
-					"executions_count": 3,
-					"executions_count_by_result": {
-						"passed": 3,
-						"failed": 0
-					},
-					"reliability": 100.0
 				}
 			]`)
 	})
 
-	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", testBuildUUID, nil)
-	if err != nil {
-		t.Errorf("BuildTests.List returned error: %v", err)
-	}
-
-	parsedTime := must(time.Parse(BuildKiteDateFormat, "2023-07-10T13:14:03.214Z"))
-
-	want := []BuildTest{
-		{
-			ID:              "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
-			Scope:           "User#email",
-			Name:            "TestExample1_Create",
-			Location:        "./spec/models/text_example.rb:55",
-			State:           "enabled",
-			Labels:          []TestLabel{{Name: "slow", Color: "#ff0000"}},
-			ExecutionsCount: 5,
-			ExecutionsCountByResult: BuildTestExecutionsCount{
-				Passed: 3,
-				Failed: 2,
-			},
-			Reliability: 60.0,
-			LatestFail: &BuildTestLatestFail{
-				ID:            "exec-001",
-				Timestamp:     NewTimestamp(parsedTime),
-				Duration:      1.234,
-				FailureReason: "Expected true got false",
-				FailureExpanded: []FailureExpanded{
-					{Expanded: []string{"line 1", "line 2"}},
-				},
-			},
-		},
-		{
-			ID:              "01867216-8478-7fde-a55a-0300f88bb49b",
-			Scope:           "User#email",
-			Name:            "TestExample1_Delete",
-			Location:        "./spec/models/text_example.rb:102",
-			State:           "muted",
-			Labels:          []TestLabel{},
-			ExecutionsCount: 3,
-			ExecutionsCountByResult: BuildTestExecutionsCount{
-				Passed: 3,
-				Failed: 0,
-			},
-			Reliability: 100.0,
-		},
-	}
-
-	if diff := cmp.Diff(buildTests, want); diff != "" {
-		t.Errorf("BuildTests.List diff: (-got +want)\n%s", diff)
-	}
-}
-
-func TestBuildTestsService_List_WithExecutionsIncluded(t *testing.T) {
-	t.Parallel()
-
-	server, client, teardown := newMockServerAndClient(t)
-	t.Cleanup(teardown)
-
-	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/tests", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-
-		if got, want := r.URL.Query().Get("result"), "^failed"; got != want {
-			t.Errorf("query param result = %q, want %q", got, want)
-		}
-		if got, want := r.URL.Query().Get("state"), "enabled"; got != want {
-			t.Errorf("query param state = %q, want %q", got, want)
-		}
-		if got, want := r.URL.Query().Get("include"), "executions"; got != want {
-			t.Errorf("query param include = %q, want %q", got, want)
-		}
-
-		_, _ = fmt.Fprint(w, `[
-			{
-				"id": "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
-				"scope": "User#email",
-				"name": "TestExample1_Create",
-				"location": "./spec/models/text_example.rb:55",
-				"state": "enabled",
-				"executions_count": 1,
-				"executions_count_by_result": {
-					"passed": 0,
-					"failed": 1
-				},
-				"reliability": 0.0,
-				"executions": [
-					{
-						"id": "exec-001",
-						"status": "failed",
-						"timestamp": "2023-07-10T13:14:03.214Z",
-						"duration": 1.234,
-						"location": "./spec/models/text_example.rb:55",
-						"failure_reason": "Expected true got false",
-						"failure_expanded": [
-							{
-								"expanded": ["line 1", "line 2"]
-							}
-						]
-					}
-				]
-			}
-		]`)
+	reliability := 0.9821
+	got, resp, err := client.BuildTests.List(context.Background(), "my-great-org", testBuildUUID, &BuildTestsListOptions{
+		ListOptions: ListOptions{Page: 2, PerPage: 50},
+		Labels:      "flaky,!slow",
+		Branch:      "main*",
+		Owners:      "payments,!platform",
+		State:       "enabled",
+		Tags:        "framework:rspec,result:^failed",
+		SortBy:      "reliability",
+		Order:       "asc",
 	})
-
-	opts := &BuildTestsListOptions{
-		Result:  "^failed",
-		State:   "enabled",
-		Include: "executions",
-	}
-
-	parsedTime := must(time.Parse(BuildKiteDateFormat, "2023-07-10T13:14:03.214Z"))
-
-	buildTests, _, err := client.BuildTests.List(context.Background(), "my-great-org", testBuildUUID, opts)
 	if err != nil {
-		t.Errorf("BuildTests.List returned error: %v", err)
+		t.Fatalf("BuildTests.List returned error: %v", err)
 	}
 
-	want := []BuildTest{
+	want := []TestWithMetrics{
 		{
-			ID:              "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
-			Scope:           "User#email",
-			Name:            "TestExample1_Create",
-			Location:        "./spec/models/text_example.rb:55",
-			State:           "enabled",
-			ExecutionsCount: 1,
-			ExecutionsCountByResult: BuildTestExecutionsCount{
-				Passed: 0,
-				Failed: 1,
+			Test: Test{
+				ID:       "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+				URL:      "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-example/tests/a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+				WebURL:   "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/tests/a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+				Scope:    "User#email",
+				Name:     "is correctly formatted",
+				Location: "./spec/models/user_spec.rb:42",
+				FileName: "./spec/models/user_spec.rb",
+				Labels:   []string{"flaky"},
 			},
-			Reliability: 0.0,
-			Executions: []BuildTestExecution{
-				{
-					ID:            "exec-001",
-					Status:        "failed",
-					Timestamp:     NewTimestamp(parsedTime),
-					Duration:      1.234,
-					Location:      "./spec/models/text_example.rb:55",
-					FailureReason: "Expected true got false",
-					FailureExpanded: []FailureExpanded{
-						{Expanded: []string{"line 1", "line 2"}},
-					},
-				},
+			Reliability:     &reliability,
+			DurationAverage: 0.213,
+			DurationTotal:   23.856,
+			DurationMinimum: 0.108,
+			DurationMaximum: 1.942,
+			ExecutionsCount: 113,
+			ExecutionsCountByResult: map[string]int{
+				"passed":  110,
+				"failed":  2,
+				"skipped": 1,
 			},
 		},
 	}
 
-	if diff := cmp.Diff(buildTests, want); diff != "" {
+	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("BuildTests.List diff: (-got +want)\n%s", diff)
+	}
+	if got, want := resp.NextPage, 3; got != want {
+		t.Errorf("response.NextPage = %d, want %d", got, want)
+	}
+	if got, want := resp.LastPage, 4; got != want {
+		t.Errorf("response.LastPage = %d, want %d", got, want)
+	}
+	if got := resp.Header.Get("Link"); got != linkHeader {
+		t.Errorf("response Link header = %q, want %q", got, linkHeader)
 	}
 }
