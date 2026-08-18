@@ -1,3 +1,8 @@
+## [v5.14.0](https://github.com/buildkite/go-buildkite/compare/v5.13.0...v5.14.0) (2026-08-18)
+
+* Update changelog for v5.13.0 [#363](https://github.com/buildkite/go-buildkite/pull/363) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+* Add JobStateCounts to Build [#364](https://github.com/buildkite/go-buildkite/pull/364) ([nethsix](https://github.com/nethsix))
+
 ## [v5.13.0](https://github.com/buildkite/go-buildkite/compare/v5.12.0...v5.13.0) (2026-08-18)
 
 * Align build tests client with updated API [#362](https://github.com/buildkite/go-buildkite/pull/362) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
