@@ -172,6 +172,35 @@ func TestBuildsService_Get(t *testing.T) {
 		}
 	})
 
+	t.Run("returns job state counts", func(t *testing.T) {
+		t.Parallel()
+
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+
+		server.HandleFunc(requestSlug,
+			func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				_, _ = fmt.Fprintf(w, `{"id":"%s", "job_state_counts": {"total": 4, "states": {"passed": 2, "failed": 1, "running": 1}}}`, buildNumber)
+			})
+
+		build, _, err := client.Builds.Get(context.Background(), orgName, pipelineName, buildNumber, nil)
+		if err != nil {
+			t.Errorf("Builds.Get (job state counts) returned error: %v", err)
+		}
+
+		want := Build{
+			ID: buildNumber,
+			JobStateCounts: &JobStateCounts{
+				Total:  4,
+				States: map[string]int{"passed": 2, "failed": 1, "running": 1},
+			},
+		}
+		if diff := cmp.Diff(build, want); diff != "" {
+			t.Errorf("Builds.Get (job state counts) diff: (-got +want)\n%s", diff)
+		}
+	})
+
 	t.Run("includes test engine data when option is set", func(t *testing.T) {
 		t.Parallel()
 
