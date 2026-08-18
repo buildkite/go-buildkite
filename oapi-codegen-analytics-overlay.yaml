@@ -1,0 +1,85 @@
+overlay: 1.0.0
+info:
+  title: Map the analytics spec onto the go-buildkite model names and types
+  version: 1.0.0
+actions:
+  # Only models are generated, so drop everything that would otherwise produce
+  # operation parameter, request body, and response types.
+  - target: $.paths
+    remove: true
+  - target: $.components.parameters
+    remove: true
+  - target: $.components.responses
+    remove: true
+  - target: $.components.headers
+    remove: true
+
+  ###########################################################################
+  # Type names. The Test Engine models share a package with the REST API
+  # models, so they keep the prefixed names the SDK already exports.
+  ###########################################################################
+  - target: $.components.schemas.Suite
+    update:
+      x-go-name: TestSuite
+  - target: $.components.schemas.Run
+    update:
+      x-go-name: TestRun
+  - target: $.components.schemas.Execution
+    update:
+      x-go-name: FailedExecution
+  - target: $.components.schemas.Label
+    update:
+      x-go-name: TestLabel
+  - target: $.components.schemas.ExecutionsCountByResult
+    update:
+      x-go-name: BuildTestExecutionsCount
+
+  ###########################################################################
+  # Field names the name normalizer cannot infer. GraphQL and SHA are not in
+  # its initialism list.
+  ###########################################################################
+  - target: $.components.schemas.Suite.properties.graphql_id
+    update:
+      x-go-name: GraphQLID
+  - target: $.components.schemas.Suite.properties.oidc_policy
+    update:
+      x-go-name: OIDCPolicy
+  - target: $.components.schemas.Run.properties.commit_sha
+    update:
+      x-go-name: CommitSHA
+  - target: $.components.schemas.Execution.properties.commit_sha
+    update:
+      x-go-name: CommitSHA
+  # Without this the field inherits the x-go-name given to the referenced
+  # schema and is called BuildTestExecutionsCount.
+  - target: $.components.schemas.BuildTest.properties.executions_count_by_result
+    update:
+      x-go-name: ExecutionsCountByResult
+
+  ###########################################################################
+  # Go types
+  ###########################################################################
+  # failure_expanded is an array of backtrace/expanded objects on every
+  # endpoint that returns it; the spec describes it loosely, so point all
+  # three at the hand-written model in test_runs.go.
+  - target: $.components.schemas.Execution.properties.failure_expanded
+    update:
+      x-go-type: "[]FailureExpanded"
+  - target: $.components.schemas.BuildTestLatestFail.properties.failure_expanded
+    update:
+      x-go-type: "[]FailureExpanded"
+  - target: $.components.schemas.BuildTestExecution.properties.failure_expanded
+    update:
+      x-go-type: "[]FailureExpanded"
+
+  # BuildTest.state refs the TestState enum. The SDK exports states as plain
+  # strings, so resolve the ref to string and leave TestState ungenerated.
+  - target: $.components.schemas.BuildTest.properties.state
+    update:
+      x-go-type: string
+
+  # latest_fail is absent unless the test has a failure, so it keeps the
+  # pointer that prefer-skip-optional-pointer would otherwise remove.
+  - target: $.components.schemas.BuildTest.properties.latest_fail
+    update:
+      x-go-type-skip-optional-pointer: false

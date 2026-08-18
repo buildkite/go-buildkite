@@ -21,17 +21,6 @@ type TestSuiteCreate struct {
 	TeamUUIDs     []string `json:"team_ids,omitempty"`
 }
 
-// TestSuite represents a Buildkite Test Analytics suite.
-type TestSuite struct {
-	ID            string `json:"id,omitempty"`
-	GraphQLID     string `json:"graphql_id,omitempty"`
-	Slug          string `json:"slug,omitempty"`
-	Name          string `json:"name,omitempty"`
-	URL           string `json:"url,omitempty"`
-	WebURL        string `json:"web_url,omitempty"`
-	DefaultBranch string `json:"default_branch,omitempty"`
-}
-
 // TestSuiteUpdate represents the request body for updating a test suite.
 type TestSuiteUpdate struct {
 	Name          Optional[string] `json:"name,omitzero"`
