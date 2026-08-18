@@ -1,3 +1,8 @@
+## [v5.13.0](https://github.com/buildkite/go-buildkite/compare/v5.12.0...v5.13.0) (2026-08-18)
+
+* Align build tests client with updated API [#362](https://github.com/buildkite/go-buildkite/pull/362) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+* Update changelog for v5.12.0 [#361](https://github.com/buildkite/go-buildkite/pull/361) ([nethsix](https://github.com/nethsix))
+
 ## [v5.12.0](https://github.com/buildkite/go-buildkite/compare/v5.11.0...v5.12.0) (2026-08-17)
 
 * Update dependency go to v1.26.6 [#360](https://github.com/buildkite/go-buildkite/pull/360) ([renovate[bot]](https://github.com/apps/renovate))
