@@ -97,6 +97,13 @@ type TestEngineProperty struct {
 	Runs []TestEngineRun `json:"runs,omitempty"`
 }
 
+// JobStateCounts is a tally of a build's jobs grouped by state, as returned
+// by the get-build API endpoint.
+type JobStateCounts struct {
+	Total  int            `json:"total"`
+	States map[string]int `json:"states,omitempty"`
+}
+
 // Build represents a build which has run in buildkite
 type Build struct {
 	ID          string            `json:"id,omitempty"`
@@ -136,6 +143,10 @@ type Build struct {
 	TriggeredFrom *TriggeredFrom `json:"triggered_from,omitempty"`
 
 	TestEngine *TestEngineProperty `json:"test_engine,omitempty"`
+
+	// every job in the build counted by state, regardless of any job filters
+	// applied to the request; nil when the API omits it
+	JobStateCounts *JobStateCounts `json:"job_state_counts,omitempty"`
 }
 
 type MetaDataFilters struct {
