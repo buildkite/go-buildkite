@@ -1,0 +1,46 @@
+# oapi-codegen configuration for the Test Engine (Analytics) models generated
+# from analytics-openapi.yaml. Run with `go generate ./...` (see analytics.go).
+#
+# Only the models backing the endpoints this SDK implements are generated.
+# oapi-codegen has no "only generate these schemas" switch, so every other
+# schema is excluded explicitly; add new entries here when the spec grows a
+# schema we do not want generated into this file.
+package: buildkite
+output: analytics_gen.go
+generate:
+  models: true
+output-options:
+  # Nothing references the schemas once the paths are removed by the overlay,
+  # so pruning would strip every model.
+  skip-prune: true
+  # Match the hand-written models: optional fields are values with omitempty,
+  # not pointers, and id/url/web_url keep the Go initialism casing.
+  prefer-skip-optional-pointer: true
+  prefer-skip-optional-pointer-on-container-types: true
+  name-normalizer: ToCamelCaseWithInitialisms
+  type-mapping:
+    number:
+      # JSON has one number type; the SDK has always exposed float64.
+      default: { type: float64 }
+    string:
+      formats:
+        # The rest of the SDK represents UUIDs as plain strings (see rules.go,
+        # access_tokens.go) and decodes timestamps through Timestamp, which
+        # accepts both the API and webhook date formats.
+        uuid: { type: string }
+        date-time: { type: "*Timestamp" }
+  overlay:
+    path: oapi-codegen-analytics-overlay.yaml
+  user-templates:
+    imports.tmpl: oapi-codegen-imports.tmpl
+  exclude-schemas:
+    - Error
+    # BuildTest.state is generated as a plain string, see the overlay.
+    - TestState
+    # Request bodies are hand written so that updates can use Optional[T].
+    - SuiteAttributes
+    - SuiteCreateRequest
+    - SuiteUpdateRequest
+    # Endpoints the SDK does not implement yet.
+    - TestWithMetrics
+    - Upload
