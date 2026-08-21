@@ -13,39 +13,12 @@ type TestRunsService struct {
 	client *Client
 }
 
-type TestRun struct {
-	ID        string     `json:"id,omitempty"`
-	URL       string     `json:"url,omitempty"`
-	WebURL    string     `json:"web_url,omitempty"`
-	Branch    string     `json:"branch,omitempty"`
-	CommitSHA string     `json:"commit_sha,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty"`
-	State     string     `json:"state,omitempty"`
-	Result    string     `json:"result,omitempty"`
-	BuildID   string     `json:"build_id,omitempty"`
-}
-
+// FailureExpanded is the expanded failure detail attached to a failed
+// execution. The OpenAPI description leaves the shape open, so it is hand
+// written and wired in through the codegen overlay.
 type FailureExpanded struct {
 	Backtrace []string `json:"backtrace,omitempty"`
 	Expanded  []string `json:"expanded,omitempty"`
-}
-
-type FailedExecution struct {
-	ExecutionID      string            `json:"execution_id,omitempty"`
-	RunID            string            `json:"run_id,omitempty"`
-	TestID           string            `json:"test_id,omitempty"`
-	RunName          string            `json:"run_name,omitempty"`
-	CommitSHA        string            `json:"commit_sha,omitempty"`
-	CreatedAt        *Timestamp        `json:"created_at,omitempty"`
-	Branch           string            `json:"branch,omitempty"`
-	FailureReason    string            `json:"failure_reason,omitempty"`
-	FailureExpanded  []FailureExpanded `json:"failure_expanded,omitempty"`
-	Duration         float64           `json:"duration,omitempty"`
-	Location         string            `json:"location,omitempty"`
-	TestName         string            `json:"test_name,omitempty"`
-	RunURL           string            `json:"run_url,omitempty"`
-	TestURL          string            `json:"test_url,omitempty"`
-	TestExecutionURL string            `json:"test_execution_url,omitempty"`
 }
 
 type TestRunsListOptions struct {

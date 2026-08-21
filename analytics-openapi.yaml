@@ -1,0 +1,1488 @@
+---
+openapi: 3.1.0
+info:
+  title: Buildkite Test Engine (Analytics) REST API
+  version: '2'
+  description: |
+    All endpoints are served under the `/v2/analytics` path prefix.
+
+    ## Authentication
+
+    Most endpoints authenticate with a Buildkite API access token passed as a
+    Bearer token. A subset of endpoints (suite `create_from_pipeline` & `show`)
+    additionally accept OIDC tokens issued to a Pipeline build. When
+    authenticated via OIDC, scope checks are made against the OIDC policy
+    rather than the access token's scopes.
+
+    Each endpoint enforces one or more scopes; the required scope is documented
+    per operation via the `security` requirement.
+servers:
+- url: https://api.buildkite.com/v2/analytics
+  description: Buildkite Test Engine REST API
+security:
+- bearerAuth: []
+tags:
+- name: Suites
+  description: Manage Test Engine suites.
+- name: Tests
+  description: Inspect and manage individual tests within a suite.
+- name: Runs
+  description: Test runs and their failed executions.
+- name: Builds
+  description: Build-scoped Test Engine data.
+- name: Uploads
+  description: Test result uploads.
+paths:
+  "/organizations/{org}/suites":
+    get:
+      tags:
+      - Suites
+      operationId: listSuites
+      summary: List suites
+      description: |
+        Returns all suites in the organization, ordered by creation time.
+        Pass `show_api_token=true` to include each suite's API token in the
+        response; this requires edit permission on every returned suite.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - name: show_api_token
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: Include the suite API token (requires edit permission).
+      responses:
+        '200':
+          description: A list of suites.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Suite"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          "$ref": "#/components/responses/Forbidden"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+    post:
+      tags:
+      - Suites
+      operationId: createSuite
+      summary: Create a suite
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SuiteCreateRequest"
+      responses:
+        '201':
+          description: The created suite.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Suite"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          "$ref": "#/components/responses/Forbidden"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+  "/organizations/{org}/suites/create_from_pipeline":
+    parameters:
+    - "$ref": "#/components/parameters/Org"
+    post:
+      tags:
+      - Suites
+      operationId: createSuiteFromPipeline
+      summary: Bootstrap a suite from a Pipeline build (OIDC only)
+      description: |
+        OIDC-only endpoint that lets a Pipeline build create a suite for itself.
+        The new suite inherits its identity (name, slug, default branch, teams,
+        repo URL, emoji, color) from the calling Pipeline and is seeded with an
+        OIDC policy authorizing the same Pipeline to write test data.
+
+        The endpoint is idempotent: if a suite with the resolved slug already
+        exists it is returned with a `200`. It is rejected for public pipelines.
+        Requires OIDC authentication with an organization-audience token and the
+        `create_suite` scope.
+      security:
+      - oidcAuth:
+        - create_suite
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slug:
+                  type: string
+                  description: |
+                    Optional slug to override the Pipeline's slug. When present,
+                    the suite name is derived from it (titleized).
+      responses:
+        '200':
+          description: An existing suite matching the slug was returned.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Suite"
+        '201':
+          description: The suite was created.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Suite"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          description: 'OIDC token missing/invalid, or the calling pipeline is public.
+
+            '
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+  "/organizations/{org}/suites/{slug}":
+    get:
+      tags:
+      - Suites
+      operationId: getSuite
+      summary: Get a suite
+      description: |
+        Accepts both API access tokens and suite-audience OIDC tokens. Pass
+        `show_api_token=true` to include the API token (requires edit
+        permission on the suite).
+      security:
+      - bearerAuth:
+        - read_suites
+      - oidcAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlugPath"
+      - name: show_api_token
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The suite.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Suite"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          "$ref": "#/components/responses/Forbidden"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+    patch:
+      tags:
+      - Suites
+      operationId: updateSuite
+      summary: Update a suite
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlugPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SuiteUpdateRequest"
+      responses:
+        '200':
+          description: The updated suite.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Suite"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          "$ref": "#/components/responses/Forbidden"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+    put:
+      tags:
+      - Suites
+      operationId: replaceSuite
+      summary: Update a suite (PUT alias)
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlugPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SuiteUpdateRequest"
+      responses:
+        '200':
+          description: The updated suite.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Suite"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          "$ref": "#/components/responses/Forbidden"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+    delete:
+      tags:
+      - Suites
+      operationId: deleteSuite
+      summary: Delete a suite
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlugPath"
+      responses:
+        '204':
+          description: The suite was deleted.
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '403':
+          "$ref": "#/components/responses/Forbidden"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+  "/organizations/{org}/suites/{suite_slug}/tests":
+    get:
+      tags:
+      - Tests
+      operationId: listTests
+      summary: List tests
+      description: |
+        List tests in a Buildkite Test Engine suite with execution metrics
+        aggregated over a selected time window. Supports filtering, metric
+        sorting, and pagination.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - "$ref": "#/components/parameters/BuildkiteVersion"
+      - name: labels
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter by comma-separated test labels. Prefix a label with `!` to
+          exclude it, for example `flaky,!slow`.
+      - "$ref": "#/components/parameters/Page"
+      - "$ref": "#/components/parameters/PerPage"
+      - "$ref": "#/components/parameters/Period"
+      - "$ref": "#/components/parameters/MaxTimestamp"
+      - "$ref": "#/components/parameters/MinTimestamp"
+      - name: branch
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter executions included in the metrics by branch. Prefix with
+          `!` to exclude an exact branch or suffix with `*` to match by
+          prefix, for example `!main` or `feature*`. Use at most one operator.
+      - name: owners
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter by comma-separated test owner slugs. Prefix an owner with
+          `!` to exclude it, for example `payments,!platform`.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - duration_avg
+          - duration_sum
+          - duration_min
+          - duration_max
+          - reliability
+          default: duration_avg
+        description: |
+          Metric used to sort results: `duration_avg`, `duration_sum`,
+          `duration_min`, `duration_max`, or `reliability`. Defaults to
+          `duration_avg`. Metrics cover only executions in the selected window.
+      - name: order
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+        description: 'Sort direction: `asc` or `desc`. Defaults to `desc`.
+
+          '
+      - name: state
+        in: query
+        required: false
+        schema:
+          "$ref": "#/components/schemas/TestState"
+        description: 'Filter by test state: `enabled`, `muted`, or `skipped`.
+
+          '
+      - name: tags
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter by comma-separated execution tags in `key:value` form.
+          Values support `!` for exclusion and `*` for prefix matching.
+          Result values additionally support `~` for any matching execution
+          and `^` for every execution matching, for example
+          `framework:!rspec,scm.branch:feature*,result:^passed`.
+      responses:
+        '200':
+          description: A list of tests with metrics.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/TestWithMetrics"
+          headers:
+            Link:
+              "$ref": "#/components/headers/Link"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+  "/organizations/{org}/suites/{suite_slug}/tests/{id}":
+    get:
+      tags:
+      - Tests
+      operationId: getTest
+      summary: Get a test
+      description: |
+        Get a test with its aggregated duration, reliability, and execution
+        metrics over a specified time range. A test with no executions in
+        the time range is still returned, with zeroed execution counts and no
+        durations or reliability.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - "$ref": "#/components/parameters/TestId"
+      - "$ref": "#/components/parameters/BuildkiteVersion"
+      - "$ref": "#/components/parameters/Period"
+      - "$ref": "#/components/parameters/MaxTimestamp"
+      - "$ref": "#/components/parameters/MinTimestamp"
+      responses:
+        '200':
+          description: The test with metrics.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TestWithMetrics"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+  "/organizations/{org}/suites/{suite_slug}/tests/skipped":
+    get:
+      tags:
+      - Tests
+      operationId: listSkippedTests
+      summary: List skipped tests
+      description: Requires the suite to have state management enabled.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      responses:
+        '200':
+          description: Skipped tests.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Test"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/tests/muted":
+    get:
+      tags:
+      - Tests
+      operationId: listMutedTests
+      summary: List muted tests
+      description: Requires the suite to have state management enabled.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      responses:
+        '200':
+          description: Muted tests.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Test"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/tests/find":
+    post:
+      tags:
+      - Tests
+      operationId: findTest
+      summary: Find a test by scope and name
+      description: |
+        Looks up a single test by its `scope` and `name` (the UUID is derived
+        from these), returning `404` when no match exists. Uses POST because
+        scope and name can be long.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - scope
+              properties:
+                name:
+                  type: string
+                scope:
+                  type: string
+      responses:
+        '200':
+          description: The matching test.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Test"
+        '400':
+          description: Missing name or scope.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          description: Test not found.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/organizations/{org}/suites/{suite_slug}/tests/{id}/skip":
+    put:
+      tags:
+      - Tests
+      operationId: skipTest
+      summary: Skip a test
+      description: Requires the suite to have state management enabled.
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - "$ref": "#/components/parameters/TestId"
+      responses:
+        '200':
+          description: The updated test.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Test"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/tests/{id}/enable":
+    put:
+      tags:
+      - Tests
+      operationId: enableTest
+      summary: Enable a test
+      description: Requires the suite to have state management enabled.
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - "$ref": "#/components/parameters/TestId"
+      responses:
+        '200':
+          description: The updated test.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Test"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/tests/{id}/mute":
+    put:
+      tags:
+      - Tests
+      operationId: muteTest
+      summary: Mute a test
+      description: Requires the suite to have state management enabled.
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - "$ref": "#/components/parameters/TestId"
+      responses:
+        '200':
+          description: The updated test.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Test"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/tests/{id}/labels":
+    patch:
+      tags:
+      - Tests
+      operationId: updateTestLabels
+      summary: Add or remove test labels
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - "$ref": "#/components/parameters/TestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - operator
+              - labels
+              properties:
+                operator:
+                  type: string
+                  enum:
+                  - add
+                  - remove
+                labels:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: The updated test.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Test"
+        '400':
+          description: Invalid operator or labels.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/runs":
+    get:
+      tags:
+      - Runs
+      operationId: listRuns
+      summary: List runs
+      description: Runs ordered newest first, optionally filtered by build UUID.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - name: build_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+        description: Filter to runs for a given build UUID.
+      - "$ref": "#/components/parameters/Page"
+      - "$ref": "#/components/parameters/PerPage"
+      responses:
+        '200':
+          description: A list of runs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Run"
+          headers:
+            Link:
+              "$ref": "#/components/headers/Link"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/runs/{id}":
+    get:
+      tags:
+      - Runs
+      operationId: getRun
+      summary: Get a run
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Run UUID.
+      responses:
+        '200':
+          description: The run.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Run"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/runs/{run_id}/failed_executions":
+    get:
+      tags:
+      - Runs
+      operationId: listFailedExecutions
+      summary: List failed executions for a run
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Run UUID.
+      - "$ref": "#/components/parameters/Page"
+      - "$ref": "#/components/parameters/PerPage"
+      - name: include_failure_expanded
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+        description: Include the expanded failure detail in each execution.
+      responses:
+        '200':
+          description: Failed executions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Execution"
+          headers:
+            Link:
+              "$ref": "#/components/headers/Link"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/suites/{suite_slug}/uploads/{id}":
+    get:
+      tags:
+      - Uploads
+      operationId: getUpload
+      summary: Get an upload
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Upload UUID.
+      responses:
+        '200':
+          description: The upload.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Upload"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+  "/organizations/{org}/builds/{build_id}/tests":
+    get:
+      tags:
+      - Builds
+      operationId: listBuildTests
+      summary: List tests for a build
+      description: |
+        List tests for a Buildkite build with execution metrics aggregated over
+        the build's time window. Supports filtering, metric sorting, and
+        pagination. The aggregation window is bounded by the build's lifetime
+        and the organization's maximum Test Engine window. The build is always
+        taken from the URL; a `build.id` supplied in `tags` cannot override it.
+      security:
+      - bearerAuth:
+        - read_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - name: build_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Build UUID.
+      - name: labels
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter by comma-separated test labels. Prefix a label with `!` to
+          exclude it, for example `flaky,!slow`.
+      - "$ref": "#/components/parameters/Page"
+      - "$ref": "#/components/parameters/PerPage"
+      - name: branch
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter executions included in the metrics by branch. Prefix with
+          `!` to exclude an exact branch or suffix with `*` to match by
+          prefix, for example `!main` or `feature*`. Use at most one operator.
+      - name: owners
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter by comma-separated test owner slugs. Prefix an owner with
+          `!` to exclude it, for example `payments,!platform`.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - duration_avg
+          - duration_sum
+          - duration_min
+          - duration_max
+          - reliability
+          default: duration_avg
+        description: |
+          Metric used to sort results: `duration_avg`, `duration_sum`,
+          `duration_min`, `duration_max`, or `reliability`. Defaults to
+          `duration_avg`. Metrics cover only executions in the build window.
+      - name: order
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+        description: 'Sort direction: `asc` or `desc`. Defaults to `desc`.
+
+          '
+      - name: state
+        in: query
+        required: false
+        schema:
+          "$ref": "#/components/schemas/TestState"
+        description: 'Filter by test state: `enabled`, `muted`, or `skipped`.
+
+          '
+      - name: tags
+        in: query
+        required: false
+        schema:
+          type: string
+        description: |
+          Filter by comma-separated execution tags in `key:value` form.
+          Values support `!` for exclusion and `*` for prefix matching.
+          Result values additionally support `~` for any matching execution
+          and `^` for every execution matching, for example
+          `framework:!rspec,scm.branch:feature*,result:^passed`. A supplied
+          `build.id` is replaced by the build UUID from the URL.
+      responses:
+        '200':
+          description: A list of tests with metrics for the build.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/TestWithMetrics"
+          headers:
+            Link:
+              "$ref": "#/components/headers/Link"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+  "/organizations/{org}/suites/{suite_slug}/execution-tags":
+    put:
+      tags:
+      - Runs
+      operationId: updateExecutionTags
+      summary: Bulk replace mutable tags on executions
+      description: |
+        Replaces the mutable tags of a batch of executions. Every tag key must
+        carry the mutable-tag prefix. Subject to organization service quotas on
+        batch size, tag count, and key/value byte length.
+      security:
+      - bearerAuth:
+        - write_suites
+      parameters:
+      - "$ref": "#/components/parameters/Org"
+      - "$ref": "#/components/parameters/SuiteSlug"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - executions
+              properties:
+                executions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                    - id
+                    - tags
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      tags:
+                        type: object
+                        additionalProperties:
+                          type: string
+      responses:
+        '200':
+          description: Tags replaced.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Empty object.
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '401':
+          "$ref": "#/components/responses/Unauthorized"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+        '429':
+          "$ref": "#/components/responses/RateLimited"
+        '503':
+          description: ClickHouse temporarily unavailable; retry.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Buildkite API access token. Required scopes are documented per
+        operation; the scopes listed in a `security` requirement must all be
+        granted to the token.
+    oidcAuth:
+      type: http
+      scheme: bearer
+      description: |
+        OIDC token issued to a Pipeline build. Accepted only on the endpoints
+        that declare it. Scope checks are made against the token's OIDC policy.
+  parameters:
+    Org:
+      name: org
+      in: path
+      required: true
+      description: Organization slug
+      schema:
+        type: string
+    SuiteSlug:
+      name: suite_slug
+      in: path
+      required: true
+      description: Suite slug.
+      schema:
+        type: string
+    SuiteSlugPath:
+      name: slug
+      in: path
+      required: true
+      description: Suite slug.
+      schema:
+        type: string
+    BuildkiteVersion:
+      name: Buildkite-Version
+      in: header
+      required: true
+      description: 'Opt in to the versioned Test Engine API response.
+
+        '
+      schema:
+        type: string
+        example: '2026-08-01'
+    TestId:
+      name: id
+      in: path
+      required: true
+      description: Test UUID.
+      schema:
+        type: string
+        format: uuid
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number for pagination (minimum 1).
+    PerPage:
+      name: per_page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 30
+      description: Results per page for pagination (minimum 1, maximum 100).
+    Period:
+      name: period
+      in: query
+      required: false
+      schema:
+        type: string
+        example: 7days
+      description: |
+        Relative aggregation window, such as `7days` or `28days`. Whether
+        selected by period or timestamps, the aggregation window cannot exceed
+        the organization's maximum Test Engine window. Cannot be combined with
+        `min_timestamp` or `max_timestamp`.
+    MaxTimestamp:
+      name: max_timestamp
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: |
+        End of the aggregation window in RFC 3339 format. Defaults to the
+        current time when omitted. Cannot be combined with `period`.
+    MinTimestamp:
+      name: min_timestamp
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: |
+        Start of the aggregation window in RFC 3339 format. When omitted,
+        defaults to the organization's default Test Engine period before the
+        current time. Cannot be combined with `period`.
+  headers:
+    Link:
+      description: RFC 5988 pagination links (next/prev/first/last).
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: The request was malformed.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    Unauthorized:
+      description: Authentication is missing or invalid.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    Forbidden:
+      description: The caller lacks the required scope or permission.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    NotFound:
+      description: |
+        The resource does not exist, Test Engine is not enabled, or a required
+        feature flag is off.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    UnprocessableEntity:
+      description: The request was well-formed but could not be processed.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    RateLimited:
+      description: The rate limit for this endpoint has been exceeded.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+      description: Standard API error body.
+    TestState:
+      type: string
+      description: Test state.
+      enum:
+      - enabled
+      - muted
+      - skipped
+    Label:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+    Suite:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        graphql_id:
+          type: string
+        organization_id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+        default_branch:
+          type: string
+        application_name:
+          type: string
+        color:
+          type: string
+        emoji:
+          type: string
+        oidc_policy:
+          description: OIDC policy (YAML string or structured policy statements).
+        api_token:
+          type: string
+          description: Only present when `show_api_token` is requested and permitted.
+    SuiteAttributes:
+      type: object
+      properties:
+        name:
+          type: string
+        default_branch:
+          type: string
+        application_name:
+          type: string
+        repo_url:
+          type: string
+        color:
+          type: string
+        emoji:
+          type: string
+        external_url:
+          type: string
+        flaky_detection:
+          type: boolean
+          default: true
+        oidc_policy:
+          description: |
+            OIDC policy as a YAML string, or a JSON array/object of policy
+            statements (encoded to a JSON string server-side).
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: object
+          - type: object
+        team_ids:
+          description: A single team ID or an array of team IDs.
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+        show_api_token:
+          type: boolean
+          description: Include the API token in the response.
+    SuiteCreateRequest:
+      allOf:
+      - "$ref": "#/components/schemas/SuiteAttributes"
+      - type: object
+        required:
+        - name
+    SuiteUpdateRequest:
+      allOf:
+      - "$ref": "#/components/schemas/SuiteAttributes"
+    Test:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+        scope:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        file_name:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+    ExecutionsCountByResult:
+      type: object
+      description: |
+        Execution counts by result. `passed` and `failed` are always present;
+        `skipped`, `pending`, and `unknown` appear only when non-zero.
+      properties:
+        passed:
+          type: integer
+        failed:
+          type: integer
+        skipped:
+          type: integer
+        pending:
+          type: integer
+        unknown:
+          type: integer
+    TestWithMetrics:
+      allOf:
+      - "$ref": "#/components/schemas/Test"
+      - type: object
+        properties:
+          reliability:
+            type:
+            - number
+            - 'null'
+            description: |
+              Ratio of passed executions to passed and failed executions.
+              Null when there were no executions in the aggregation window.
+          duration_avg:
+            type:
+            - number
+            - 'null'
+            description: |
+              Average execution duration in seconds. Null when there were no
+              executions in the aggregation window.
+          duration_sum:
+            type:
+            - number
+            - 'null'
+            description: |
+              Total execution duration in seconds. Null when there were no
+              executions in the aggregation window.
+          duration_min:
+            type:
+            - number
+            - 'null'
+            description: |
+              Shortest execution duration in seconds. Null when there were no
+              executions in the aggregation window.
+          duration_max:
+            type:
+            - number
+            - 'null'
+            description: |
+              Longest execution duration in seconds. Null when there were no
+              executions in the aggregation window.
+          executions_count:
+            type: integer
+            description: Number of executions in the aggregation window.
+          executions_count_by_result:
+            "$ref": "#/components/schemas/ExecutionsCountByResult"
+    Run:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        branch:
+          type: string
+        commit_sha:
+          type: string
+        state:
+          type: string
+        result:
+          type: string
+        url:
+          type: string
+          format: uri
+        web_url:
+          type: string
+          format: uri
+        build_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    Execution:
+      type: object
+      properties:
+        execution_id:
+          type: string
+          format: uuid
+        run_id:
+          type: string
+          format: uuid
+        test_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        branch:
+          type: string
+        failure_reason:
+          type: string
+        duration:
+          type: number
+        run_name:
+          type: string
+        test_name:
+          type: string
+        location:
+          type: string
+        commit_sha:
+          type: string
+        test_execution_url:
+          type: string
+          format: uri
+        test_url:
+          type: string
+          format: uri
+        run_url:
+          type: string
+          format: uri
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        failure_expanded:
+          description: Only present when `include_failure_expanded=true`.
+    Upload:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        suite_id:
+          type: string
+          format: uuid
+        organization_id:
+          type: string
+          format: uuid
+        run_id:
+          type: string
+          format: uuid
+        run_env:
+          type: object
+          additionalProperties: true
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        uploaded_at:
+          type: string
+          format: date-time
+    BuildTestLatestFail:
+      type: object
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        duration:
+          type: number
+        failure_reason:
+          type: string
+        failure_expanded:
+          type: string
+    BuildTestExecution:
+      type: object
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        duration:
+          type: number
+        status:
+          type: string
+        location:
+          type: string
+        failure_reason:
+          type: string
+        failure_expanded:
+          type: string
+    BuildTest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        scope:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        state:
+          "$ref": "#/components/schemas/TestState"
+        labels:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Label"
+        executions_count:
+          type: integer
+        executions_count_by_result:
+          "$ref": "#/components/schemas/ExecutionsCountByResult"
+        reliability:
+          type: number
+        latest_fail:
+          "$ref": "#/components/schemas/BuildTestLatestFail"
+        executions:
+          type: array
+          items:
+            "$ref": "#/components/schemas/BuildTestExecution"
+          description: Present only when `include=executions`.

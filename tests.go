@@ -16,18 +16,6 @@ type TestsService struct {
 
 const testsListAPIVersion = "2026-08-01"
 
-// Test represents a test in a Buildkite Test Engine suite.
-type Test struct {
-	ID       string   `json:"id,omitempty"`
-	URL      string   `json:"url,omitempty"`
-	WebURL   string   `json:"web_url,omitempty"`
-	Scope    string   `json:"scope,omitempty"`
-	Name     string   `json:"name,omitempty"`
-	Location string   `json:"location,omitempty"`
-	FileName string   `json:"file_name,omitempty"`
-	Labels   []string `json:"labels,omitempty"`
-}
-
 // TestWithMetrics represents a test and its execution metrics aggregated over
 // the time window used by [TestsService.List] or [BuildTestsService.List].
 type TestWithMetrics struct {
