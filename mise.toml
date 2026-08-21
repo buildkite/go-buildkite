@@ -7,7 +7,7 @@ lockfile = true
 [tools]
 go = "1.26.6"
 golangci-lint = "2.12.2"
-lefthook = "2.1.10"
+lefthook = "2.1.11"
 
 [tasks.format]
 description = "Format Go files"
