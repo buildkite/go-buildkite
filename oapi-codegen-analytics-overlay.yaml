@@ -41,9 +41,6 @@ actions:
   - target: $.components.schemas.Suite.properties.graphql_id
     update:
       x-go-name: GraphQLID
-  - target: $.components.schemas.Suite.properties.oidc_policy
-    update:
-      x-go-name: OIDCPolicy
   - target: $.components.schemas.Run.properties.commit_sha
     update:
       x-go-name: CommitSHA
@@ -83,3 +80,11 @@ actions:
   - target: $.components.schemas.BuildTest.properties.latest_fail
     update:
       x-go-type-skip-optional-pointer: false
+
+  # Suite.oidc_policy is described without a type, so it would generate as
+  # interface{} and make TestSuite uncomparable: existing `a == b` and
+  # map[TestSuite]T code would panic once the API returned a structured
+  # policy. TestSuite has never exposed the field, so drop it until the
+  # description gives it a comparable representation.
+  - target: $.components.schemas.Suite.properties.oidc_policy
+    remove: true

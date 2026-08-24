@@ -104,13 +104,10 @@ type TestSuite struct {
 	GraphQLID       string `json:"graphql_id,omitempty"`
 	ID              string `json:"id,omitempty"`
 	Name            string `json:"name,omitempty"`
-
-	// OIDCPolicy OIDC policy (YAML string or structured policy statements).
-	OIDCPolicy     interface{} `json:"oidc_policy,omitempty"`
-	OrganizationID string      `json:"organization_id,omitempty"`
-	Slug           string      `json:"slug,omitempty"`
-	URL            string      `json:"url,omitempty"`
-	WebURL         string      `json:"web_url,omitempty"`
+	OrganizationID  string `json:"organization_id,omitempty"`
+	Slug            string `json:"slug,omitempty"`
+	URL             string `json:"url,omitempty"`
+	WebURL          string `json:"web_url,omitempty"`
 }
 
 // Test defines model for Test.
