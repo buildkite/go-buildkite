@@ -76,6 +76,10 @@ type TestsListOptions struct {
 	// current time when omitted.
 	MaxTimestamp time.Time `url:"max_timestamp,omitempty"`
 
+	// MinExecutions filters out tests with fewer than this number of executions
+	// in the aggregation window.
+	MinExecutions int `url:"min_executions,omitempty"`
+
 	// Labels filters by comma-separated test labels. Prefix a label with "!" to
 	// exclude it, for example "flaky,!slow".
 	Labels string `url:"labels,omitempty"`
