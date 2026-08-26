@@ -22,7 +22,7 @@ func TestTestsService_List(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		if got, want := r.Header.Get("Buildkite-Version"), testsListAPIVersion; got != want {
+		if got, want := r.Header.Get("Buildkite-Version"), testsMetricsAPIVersion; got != want {
 			t.Errorf("Buildkite-Version header = %q, want %q", got, want)
 		}
 		testFormValues(t, r, values{
@@ -153,7 +153,7 @@ func TestTestsService_List_NilOptionsAndReliability(t *testing.T) {
 		if got := r.URL.RawQuery; got != "" {
 			t.Errorf("request query = %q, want empty", got)
 		}
-		if got, want := r.Header.Get("Buildkite-Version"), testsListAPIVersion; got != want {
+		if got, want := r.Header.Get("Buildkite-Version"), testsMetricsAPIVersion; got != want {
 			t.Errorf("Buildkite-Version header = %q, want %q", got, want)
 		}
 		_, _ = fmt.Fprint(w, `[
@@ -229,6 +229,14 @@ func TestTestsService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		if got, want := r.Header.Get("Buildkite-Version"), testsMetricsAPIVersion; got != want {
+			t.Errorf("Buildkite-Version header = %q, want %q", got, want)
+		}
+		testFormValues(t, r, values{
+			"min_timestamp": "2026-07-01T00:00:00Z",
+			"max_timestamp": "2026-07-23T00:00:00Z",
+		})
+
 		_, _ = fmt.Fprint(w,
 			`
 			{
@@ -239,27 +247,89 @@ func TestTestsService_Get(t *testing.T) {
 				"scope": "User#email",
 				"location": "./resources/test_example_test.go:123",
 				"file_name": "./resources/test_example_test.go",
-				"labels": ["flaky"]
+				"labels": ["flaky"],
+				"reliability": 0.9821,
+				"duration_avg": 0.213,
+				"duration_sum": 23.856,
+				"duration_min": 0.108,
+				"duration_max": 1.942,
+				"executions_count": 113,
+				"executions_count_by_result": {
+					"passed": 110,
+					"failed": 2,
+					"skipped": 1
+				}
 			}`)
 	})
 
-	got, _, err := client.Tests.Get(context.Background(), "my-great-org", "suite-example", "b3abe2e9-35c5-4905-85e1-8c9f2da3240f")
+	got, _, err := client.Tests.Get(context.Background(), "my-great-org", "suite-example", "b3abe2e9-35c5-4905-85e1-8c9f2da3240f", &TestsGetOptions{
+		MinTimestamp: time.Date(2026, time.July, 1, 0, 0, 0, 0, time.UTC),
+		MaxTimestamp: time.Date(2026, time.July, 23, 0, 0, 0, 0, time.UTC),
+	})
 	if err != nil {
-		t.Errorf("TestSuites.Get returned error: %v", err)
+		t.Errorf("TestsService.Get returned error: %v", err)
 	}
 
-	want := Test{
-		ID:       "b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
-		URL:      "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
-		WebURL:   "https://buildkite.com/organizations/my-great-org/analytics/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
-		Name:     "TestExample1_Create",
-		Scope:    "User#email",
-		Location: "./resources/test_example_test.go:123",
-		FileName: "./resources/test_example_test.go",
-		Labels:   []string{"flaky"},
+	reliability := 0.9821
+	want := TestWithMetrics{
+		Test: Test{
+			ID:       "b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
+			URL:      "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
+			WebURL:   "https://buildkite.com/organizations/my-great-org/analytics/suite-example/tests/b3abe2e9-35c5-4905-85e1-8c9f2da3240f",
+			Name:     "TestExample1_Create",
+			Scope:    "User#email",
+			Location: "./resources/test_example_test.go:123",
+			FileName: "./resources/test_example_test.go",
+			Labels:   []string{"flaky"},
+		},
+		Reliability:     &reliability,
+		DurationAverage: 0.213,
+		DurationTotal:   23.856,
+		DurationMinimum: 0.108,
+		DurationMaximum: 1.942,
+		ExecutionsCount: 113,
+		ExecutionsCountByResult: map[string]int{
+			"passed":  110,
+			"failed":  2,
+			"skipped": 1,
+		},
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("TestsService.Get diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestTestsService_Get_NilOptionsAndPeriod(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests/nil-options", func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.RawQuery; got != "" {
+			t.Errorf("request query = %q, want empty", got)
+		}
+		_, _ = fmt.Fprint(w, `{"id": "nil-options", "reliability": null, "executions_count": 0}`)
+	})
+	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests/period", func(w http.ResponseWriter, r *http.Request) {
+		testFormValues(t, r, values{"period": "28days"})
+		_, _ = fmt.Fprint(w, `{"id": "period", "reliability": null, "executions_count": 0}`)
+	})
+
+	got, _, err := client.Tests.Get(context.Background(), "my-great-org", "suite-example", "nil-options", nil)
+	if err != nil {
+		t.Fatalf("TestsService.Get returned error: %v", err)
+	}
+	if diff := cmp.Diff(got, TestWithMetrics{Test: Test{ID: "nil-options"}}); diff != "" {
+		t.Errorf("TestsService.Get diff: (-got +want)\n%s", diff)
+	}
+
+	got, _, err = client.Tests.Get(context.Background(), "my-great-org", "suite-example", "period", &TestsGetOptions{Period: "28days"})
+	if err != nil {
+		t.Fatalf("TestsService.Get returned error: %v", err)
+	}
+	if diff := cmp.Diff(got, TestWithMetrics{Test: Test{ID: "period"}}); diff != "" {
 		t.Errorf("TestsService.Get diff: (-got +want)\n%s", diff)
 	}
 }
