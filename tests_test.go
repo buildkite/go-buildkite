@@ -26,17 +26,18 @@ func TestTestsService_List(t *testing.T) {
 			t.Errorf("Buildkite-Version header = %q, want %q", got, want)
 		}
 		testFormValues(t, r, values{
-			"page":          "2",
-			"per_page":      "50",
-			"min_timestamp": "2026-07-01T00:00:00Z",
-			"max_timestamp": "2026-07-23T00:00:00Z",
-			"labels":        "flaky,!slow",
-			"branch":        "main*",
-			"owners":        "payments,!platform",
-			"state":         "enabled",
-			"tags":          "framework:rspec,result:^failed",
-			"sort_by":       "reliability",
-			"order":         "asc",
+			"page":           "2",
+			"per_page":       "50",
+			"min_timestamp":  "2026-07-01T00:00:00Z",
+			"max_timestamp":  "2026-07-23T00:00:00Z",
+			"min_executions": "10",
+			"labels":         "flaky,!slow",
+			"branch":         "main*",
+			"owners":         "payments,!platform",
+			"state":          "enabled",
+			"tags":           "framework:rspec,result:^failed",
+			"sort_by":        "reliability",
+			"order":          "asc",
 		})
 
 		w.Header().Set("Link", linkHeader)
@@ -71,14 +72,15 @@ func TestTestsService_List(t *testing.T) {
 		MinTimestamp: time.Date(
 			2026, time.July, 1, 0, 0, 0, 0, time.UTC,
 		),
-		MaxTimestamp: time.Date(2026, time.July, 23, 0, 0, 0, 0, time.UTC),
-		Labels:       "flaky,!slow",
-		Branch:       "main*",
-		Owners:       "payments,!platform",
-		State:        "enabled",
-		Tags:         "framework:rspec,result:^failed",
-		SortBy:       "reliability",
-		Order:        "asc",
+		MaxTimestamp:  time.Date(2026, time.July, 23, 0, 0, 0, 0, time.UTC),
+		MinExecutions: 10,
+		Labels:        "flaky,!slow",
+		Branch:        "main*",
+		Owners:        "payments,!platform",
+		State:         "enabled",
+		Tags:          "framework:rspec,result:^failed",
+		SortBy:        "reliability",
+		Order:         "asc",
 	})
 	if err != nil {
 		t.Fatalf("TestsService.List returned error: %v", err)
