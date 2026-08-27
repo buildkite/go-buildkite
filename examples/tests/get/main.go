@@ -16,6 +16,7 @@ var (
 	org      = kingpin.Flag("org", "Organization slug").Required().String()
 	slug     = kingpin.Flag("slug", "Test suite slug").Required().String()
 	testID   = kingpin.Flag("testID", "Test ID").Required().String()
+	period   = kingpin.Flag("period", "Relative aggregation window for metrics").Default("7days").String()
 )
 
 func main() {
@@ -26,7 +27,9 @@ func main() {
 		log.Fatalf("creating buildkite API client failed: %v", err)
 	}
 
-	test, _, err := client.Tests.Get(context.Background(), *org, *slug, *testID)
+	test, _, err := client.Tests.Get(context.Background(), *org, *slug, *testID, &buildkite.TestsGetOptions{
+		Period: *period,
+	})
 	if err != nil {
 		log.Fatalf("Getting test %s failed: %s", *testID, err)
 	}

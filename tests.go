@@ -14,7 +14,9 @@ type TestsService struct {
 	client *Client
 }
 
-const testsListAPIVersion = "2026-08-01"
+// testsMetricsAPIVersion opts requests in to the versioned response that
+// includes test execution metrics.
+const testsMetricsAPIVersion = "2026-08-01"
 
 // Test represents a test in a Buildkite Test Engine suite.
 type Test struct {
@@ -29,7 +31,8 @@ type Test struct {
 }
 
 // TestWithMetrics represents a test and its execution metrics aggregated over
-// the time window used by [TestsService.List] or [BuildTestsService.List].
+// the time window used by [TestsService.List], [TestsService.Get], or
+// [BuildTestsService.List].
 type TestWithMetrics struct {
 	Test
 
@@ -137,7 +140,7 @@ func (ts *TestsService) List(ctx context.Context, org, slug string, opt *TestsLi
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("Buildkite-Version", testsListAPIVersion)
+	req.Header.Set("Buildkite-Version", testsMetricsAPIVersion)
 
 	var tests []TestWithMetrics
 	resp, err := ts.client.Do(req, &tests)
@@ -148,17 +151,42 @@ func (ts *TestsService) List(ctx context.Context, org, slug string, opt *TestsLi
 	return tests, resp, err
 }
 
-func (ts *TestsService) Get(ctx context.Context, org, slug, testID string) (Test, *Response, error) {
+// TestsGetOptions specifies optional parameters for [TestsService.Get].
+// Invalid values and incompatible combinations are validated by the API.
+type TestsGetOptions struct {
+	// Period sets a relative aggregation window, such as "7days" or "28days".
+	// Available periods depend on the organization's maximum time window. Period
+	// cannot be combined with MinTimestamp or MaxTimestamp.
+	Period string `url:"period,omitempty"`
+
+	// MinTimestamp sets the start of the aggregation window. When omitted, it
+	// defaults to the organization's default period before the current time.
+	MinTimestamp time.Time `url:"min_timestamp,omitempty"`
+
+	// MaxTimestamp sets the end of the aggregation window. It defaults to the
+	// current time when omitted.
+	MaxTimestamp time.Time `url:"max_timestamp,omitempty"`
+}
+
+// Get returns a single test with its execution metrics aggregated over the
+// requested time window. It opts in to the versioned metrics response.
+func (ts *TestsService) Get(ctx context.Context, org, slug, testID string, opt *TestsGetOptions) (TestWithMetrics, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s", org, slug, testID)
-	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
+	u, err := addOptions(u, opt)
 	if err != nil {
-		return Test{}, nil, err
+		return TestWithMetrics{}, nil, err
 	}
 
-	var t Test
+	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return TestWithMetrics{}, nil, err
+	}
+	req.Header.Set("Buildkite-Version", testsMetricsAPIVersion)
+
+	var t TestWithMetrics
 	resp, err := ts.client.Do(req, &t)
 	if err != nil {
-		return Test{}, resp, err
+		return TestWithMetrics{}, resp, err
 	}
 
 	return t, resp, err
