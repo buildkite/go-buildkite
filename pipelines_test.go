@@ -585,3 +585,43 @@ func TestPluginsUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func TestPipelinesService_CreateWithTeams(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	input := CreatePipeline{
+		Name:          "my-great-pipeline",
+		Repository:    "my-great-repo",
+		ClusterID:     "528000d8-4ee1-4479-8af1-032b143185f0",
+		Configuration: "steps:\n  - command: \"script/release.sh\"",
+		Teams: map[string]string{
+			"b3a1c8f4-1f2e-4f0e-9d8c-0a1b2c3d4e5f": "build_and_read",
+		},
+	}
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		var v map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+			t.Fatalf("Error parsing json body: %v", err)
+		}
+
+		testMethod(t, r, "POST")
+
+		want := map[string]any{"b3a1c8f4-1f2e-4f0e-9d8c-0a1b2c3d4e5f": "build_and_read"}
+		if diff := cmp.Diff(v["teams"], want); diff != "" {
+			t.Errorf("teams diff: (-got +want)\n%s", diff)
+		}
+		if _, ok := v["team_uuids"]; ok {
+			t.Error("team_uuids should be omitted when unset")
+		}
+
+		_, _ = fmt.Fprint(w, `{"name":"my-great-pipeline","repository":"my-great-repo"}`)
+	})
+
+	if _, _, err := client.Pipelines.Create(context.Background(), "my-great-org", input); err != nil {
+		t.Errorf("Pipelines.Create returned error: %v", err)
+	}
+}
