@@ -72,6 +72,53 @@ func TestTestSuitesService_List(t *testing.T) {
 	}
 }
 
+func TestTestSuitesService_ListByPipeline(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/analytics/organizations/my-great-org/pipelines/my-great-pipeline/suites", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{"page": "2"})
+		_, _ = fmt.Fprint(w,
+			`
+			[
+				{
+					"id": "7c202aaa-3165-4811-9813-173c4c285463",
+					"graphql_id": "N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz=",
+					"slug": "suite-1",
+					"name": "suite-1",
+					"url": "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1",
+					"web_url": "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1",
+					"default_branch": "main"
+				}
+			]`)
+	})
+
+	suites, _, err := client.TestSuites.ListByPipeline(context.Background(), "my-great-org", "my-great-pipeline", &TestSuiteListOptions{
+		ListOptions: ListOptions{Page: 2},
+	})
+	if err != nil {
+		t.Errorf("TestSuites.ListByPipeline returned error: %v", err)
+	}
+
+	want := []TestSuite{
+		{
+			ID:            "7c202aaa-3165-4811-9813-173c4c285463",
+			GraphQLID:     "N2MyMDJhYWEtMzE2NS00ODExLTk4MTMtMTczYzRjMjg1NDYz=",
+			Slug:          "suite-1",
+			Name:          "suite-1",
+			URL:           "https://api.buildkite.com/v2/analytics/organizations/my-great-org/suites/suite-1",
+			WebURL:        "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-1",
+			DefaultBranch: "main",
+		},
+	}
+	if diff := cmp.Diff(suites, want); diff != "" {
+		t.Errorf("TestSuites.ListByPipeline diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestTestSuitesService_Get(t *testing.T) {
 	t.Parallel()
 

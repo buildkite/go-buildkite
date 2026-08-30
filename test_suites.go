@@ -61,6 +61,30 @@ func (tss *TestSuitesService) List(ctx context.Context, org string, opt *TestSui
 	return testSuites, resp, err
 }
 
+// ListByPipeline returns the test suites that have recorded at least one run
+// attributed to the given pipeline, ordered by creation time. Each suite is
+// returned once.
+func (tss *TestSuitesService) ListByPipeline(ctx context.Context, org, pipelineSlug string, opt *TestSuiteListOptions) ([]TestSuite, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/pipelines/%s/suites", org, pipelineSlug)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := tss.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var testSuites []TestSuite
+	resp, err := tss.client.Do(req, &testSuites)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return testSuites, resp, err
+}
+
 func (tss *TestSuitesService) Get(ctx context.Context, org, slug string) (TestSuite, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s", org, slug)
 	req, err := tss.client.NewRequest(ctx, "GET", u, nil)
