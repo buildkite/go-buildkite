@@ -15,6 +15,10 @@ type PipelinesService struct {
 }
 
 // CreatePipeline - Create a Pipeline.
+//
+// Teams maps a team UUID to its access level on the pipeline: read_only,
+// build_and_read or manage_build_and_read. It supersedes TeamUuids, which is
+// deprecated because it cannot carry an access level.
 type CreatePipeline struct {
 	Name       string `json:"name"`
 	Repository string `json:"repository"`
@@ -37,6 +41,7 @@ type CreatePipeline struct {
 	CancelRunningBranchBuilds       bool              `json:"cancel_running_branch_builds"`
 	CancelRunningBranchBuildsFilter string            `json:"cancel_running_branch_builds_filter,omitempty"`
 	TeamUuids                       []string          `json:"team_uuids,omitempty"`
+	Teams                           map[string]string `json:"teams,omitempty"`
 	Visibility                      string            `json:"visibility,omitempty"`
 	Tags                            []string          `json:"tags,omitempty"`
 }
