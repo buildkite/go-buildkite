@@ -1,3 +1,11 @@
+## [v5.15.0](https://github.com/buildkite/go-buildkite/compare/v5.14.0...v5.15.0) (2026-08-31)
+
+* Add Teams to CreatePipeline [#374](https://github.com/buildkite/go-buildkite/pull/374) ([JuanitoFatas](https://github.com/JuanitoFatas))
+* Add TestSuitesService.ListByPipeline [#375](https://github.com/buildkite/go-buildkite/pull/375) ([malclocke](https://github.com/malclocke))
+* Return test metrics from TestsService.Get [#373](https://github.com/buildkite/go-buildkite/pull/373) ([malclocke](https://github.com/malclocke))
+* Support min_executions when listing tests [#372](https://github.com/buildkite/go-buildkite/pull/372) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+* Update changelog for v5.14.0 [#365](https://github.com/buildkite/go-buildkite/pull/365) ([nethsix](https://github.com/nethsix))
+
 ## [v5.14.0](https://github.com/buildkite/go-buildkite/compare/v5.13.0...v5.14.0) (2026-08-18)
 
 * Update changelog for v5.13.0 [#363](https://github.com/buildkite/go-buildkite/pull/363) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
