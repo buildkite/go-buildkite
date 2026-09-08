@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/buildkite/go-buildkite/v5"
@@ -16,8 +15,8 @@ var (
 	baseURL   = kingpin.Flag("base-url", "Buildkite API base URL").Default(buildkite.DefaultBaseURL).String()
 	org       = kingpin.Flag("org", "Organization slug").Required().String()
 	buildUUID = kingpin.Flag("build-id", "Build UUID").Required().String()
-	limit     = kingpin.Flag("limit", "Maximum number of executions to return. Defaults to the API default of 20.").Int()
-	withTrace = kingpin.Flag("with-trace", "Also fetch the trace summary for the slowest execution").Bool()
+	limit     = kingpin.Flag("limit", "Maximum number of executions to return (API default: 20)").Int()
+	withTrace = kingpin.Flag("with-trace", "Also fetch the trace of the slowest execution").Bool()
 )
 
 func main() {
@@ -33,11 +32,9 @@ func main() {
 
 	ctx := context.Background()
 
-	executions, _, err := client.Executions.ListSlowestByBuild(ctx, *org, *buildUUID, &buildkite.SlowestExecutionsOptions{
-		Limit: *limit,
-	})
+	executions, _, err := client.Executions.ListSlowestByBuild(ctx, *org, *buildUUID, &buildkite.SlowestExecutionsOptions{Limit: *limit})
 	if err != nil {
-		log.Fatalf("listing slowest executions for build %s failed: %s", *buildUUID, err)
+		log.Fatalf("listing slowest executions for build %s failed: %v", *buildUUID, err)
 	}
 
 	printJSON(executions)
@@ -49,7 +46,7 @@ func main() {
 	slowest := executions[0]
 	trace, _, err := client.Executions.GetTrace(ctx, *org, slowest.SuiteSlug, slowest.ID, nil)
 	if err != nil {
-		log.Fatalf("getting trace for execution %s failed: %s", slowest.ID, err)
+		log.Fatalf("getting trace for execution %s failed: %v", slowest.ID, err)
 	}
 
 	printJSON(trace)
@@ -58,8 +55,8 @@ func main() {
 func printJSON(v any) {
 	data, err := json.MarshalIndent(v, "", "\t")
 	if err != nil {
-		log.Fatalf("json encode failed: %s", err)
+		log.Fatalf("json encode failed: %v", err)
 	}
 
-	_, _ = fmt.Fprintf(os.Stdout, "%s\n", string(data))
+	fmt.Println(string(data))
 }

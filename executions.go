@@ -183,16 +183,14 @@ func (es *ExecutionsService) GetTrace(ctx context.Context, org, slug, executionI
 	return trace, resp, err
 }
 
-// BuildExecution is a single test execution recorded against a build. SuiteSlug
-// and ID are the arguments to [ExecutionsService.GetTrace].
+// BuildExecution is a test execution recorded against a build. SuiteSlug and ID
+// are the arguments to [ExecutionsService.GetTrace].
 type BuildExecution struct {
 	ID        string `json:"id"`
 	SuiteSlug string `json:"suite_slug"`
 	TestID    string `json:"test_id"`
 
-	// Duration is the most recently recorded duration of the execution in
-	// seconds. Trace spans report time as [time.Duration]; convert with
-	// time.Duration(Duration * float64(time.Second)) before comparing the two.
+	// Duration is the execution's duration in seconds.
 	Duration float64 `json:"duration"`
 }
 
@@ -200,25 +198,16 @@ type BuildExecution struct {
 // [ExecutionsService.ListSlowestByBuild].
 type SlowestExecutionsOptions struct {
 	// Limit is the maximum number of executions to return. It defaults to 20
-	// and is capped by the organization's slowest executions quota; the API
-	// rejects values outside that range.
+	// and is capped by the organization's slowest executions quota.
 	Limit int `url:"limit,omitempty"`
 }
 
 // ListSlowestByBuild returns the slowest test executions recorded against a
-// build, across every suite the caller can view. Executions are ordered slowest
-// first, with ties broken by execution ID newest first. The result is a top-N
-// list rather than a paginated collection; use Limit to control its size. While
-// the build is still running, the list reflects the executions uploaded so far.
+// build, across every suite the caller can view, slowest first. It is a top-N
+// list rather than a paginated collection. While the build is still running it
+// reflects the executions uploaded so far.
 //
 // buildUUID is the build's UUID, not the pipeline's build number.
-//
-// Each result's SuiteSlug and ID identify the execution to
-// [ExecutionsService.GetTrace], whose default summary view returns the test's
-// name, location and result alongside where its time went. Not every listed
-// execution still has a trace: spans are retained for a shorter window than
-// executions, so GetTrace returns an empty trace for those rather than an
-// error.
 func (es *ExecutionsService) ListSlowestByBuild(ctx context.Context, org, buildUUID string, opt *SlowestExecutionsOptions) ([]BuildExecution, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/builds/%s/executions/slowest", org, buildUUID)
 	u, err := addOptions(u, opt)

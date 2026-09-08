@@ -396,7 +396,7 @@ func TestExecutionsService_ListSlowestByBuild_ServerError(t *testing.T) {
 
 	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/executions/slowest", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		_, _ = fmt.Fprint(w, "{\"message\":\"limit must be an integer between 1 and 100\"}")
+		_, _ = fmt.Fprint(w, `{"message": "limit must be an integer between 1 and 100"}`)
 	})
 
 	got, resp, err := client.Executions.ListSlowestByBuild(context.Background(), "my-great-org", testBuildUUID, &SlowestExecutionsOptions{Limit: 500})
