@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
 // ExecutionsService handles communication with test execution related
@@ -46,11 +47,11 @@ type TraceCategoryRollup struct {
 	Category  TraceCategory `json:"category,omitempty"`
 	SpanCount int           `json:"span_count,omitempty"`
 
-	// DurationNanoseconds is the total duration of the category's spans.
-	DurationNanoseconds int64 `json:"duration_ns,omitempty"`
+	// Duration is the total duration of the category's spans.
+	Duration time.Duration `json:"duration_ns,omitempty"`
 
-	// SelfTimeNanoseconds is the total self time of the category's spans.
-	SelfTimeNanoseconds int64 `json:"self_time_ns,omitempty"`
+	// SelfTime is the total self time of the category's spans.
+	SelfTime time.Duration `json:"self_time_ns,omitempty"`
 }
 
 // TraceSpan is a single span in a trace. Name, Kind, ServiceName, ScopeName,
@@ -83,12 +84,11 @@ type TraceSpan struct {
 
 	StartedAt *Timestamp `json:"started_at,omitempty"`
 
-	DurationNanoseconds int64 `json:"duration_ns,omitempty"`
+	Duration time.Duration `json:"duration_ns,omitempty"`
 
-	// SelfTimeNanoseconds is the span's own time: its duration less what its
-	// recorded children spent, clamped at zero for concurrent children that
-	// outlast it.
-	SelfTimeNanoseconds int64 `json:"self_time_ns,omitempty"`
+	// SelfTime is the span's own time: its duration less what its recorded
+	// children spent, clamped at zero for concurrent children that outlast it.
+	SelfTime time.Duration `json:"self_time_ns,omitempty"`
 
 	Error         bool   `json:"error,omitempty"`
 	StatusMessage string `json:"status_message,omitempty"`
@@ -125,10 +125,10 @@ type ExecutionTrace struct {
 	// span list was clipped.
 	Truncated bool `json:"truncated,omitempty"`
 
-	// TraceDurationNanoseconds spans the earliest span start to the latest span
-	// end, rather than the root span's own duration - a root can finish before a
-	// child it never awaited.
-	TraceDurationNanoseconds int64 `json:"trace_duration_ns,omitempty"`
+	// TraceDuration spans the earliest span start to the latest span end, rather
+	// than the root span's own duration - a root can finish before a child it
+	// never awaited.
+	TraceDuration time.Duration `json:"trace_duration_ns,omitempty"`
 
 	// Categories is the category rollup over every span, ordered by self time.
 	Categories []TraceCategoryRollup `json:"categories,omitempty"`
