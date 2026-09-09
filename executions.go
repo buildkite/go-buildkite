@@ -192,6 +192,10 @@ type BuildExecution struct {
 
 	// Duration is the execution's duration in seconds.
 	Duration float64 `json:"duration"`
+
+	// HasTrace indicates a trace was recorded and is within span retention.
+	// Even when true, GetTrace may return an empty trace if spans were sampled away.
+	HasTrace bool `json:"has_trace"`
 }
 
 // SlowestExecutionsOptions specifies optional parameters for

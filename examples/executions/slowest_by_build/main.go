@@ -16,7 +16,7 @@ var (
 	org       = kingpin.Flag("org", "Organization slug").Required().String()
 	buildUUID = kingpin.Flag("build-id", "Build UUID").Required().String()
 	limit     = kingpin.Flag("limit", "Maximum number of executions to return (API default: 20)").Int()
-	withTrace = kingpin.Flag("with-trace", "Also fetch the trace of the slowest execution").Bool()
+	withTrace = kingpin.Flag("with-trace", "Also fetch the trace of the slowest execution if it has one").Bool()
 )
 
 func main() {
@@ -44,6 +44,11 @@ func main() {
 	}
 
 	slowest := executions[0]
+	if !slowest.HasTrace {
+		log.Printf("execution %s has no trace within retention", slowest.ID)
+		return
+	}
+
 	trace, _, err := client.Executions.GetTrace(ctx, *org, slowest.SuiteSlug, slowest.ID, nil)
 	if err != nil {
 		log.Fatalf("getting trace for execution %s failed: %v", slowest.ID, err)

@@ -331,13 +331,15 @@ func TestExecutionsService_ListSlowestByBuild(t *testing.T) {
 					"id": "019d66fc-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
 					"suite_slug": "suite-example",
 					"test_id": "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
-					"duration": 12.345
+					"duration": 12.345,
+					"has_trace": true
 				},
 				{
 					"id": "019d66fc-0000-7c3d-8e4f-5a6b7c8d9e0f",
 					"suite_slug": "other-suite",
 					"test_id": "b0e3a5b8-2b7c-4a4e-9d9e-1f2a3b4c5d6e",
-					"duration": 2.5
+					"duration": 2.5,
+					"has_trace": false
 				}
 			]`)
 	})
@@ -353,12 +355,14 @@ func TestExecutionsService_ListSlowestByBuild(t *testing.T) {
 			SuiteSlug: "suite-example",
 			TestID:    "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
 			Duration:  12.345,
+			HasTrace:  true,
 		},
 		{
 			ID:        "019d66fc-0000-7c3d-8e4f-5a6b7c8d9e0f",
 			SuiteSlug: "other-suite",
 			TestID:    "b0e3a5b8-2b7c-4a4e-9d9e-1f2a3b4c5d6e",
 			Duration:  2.5,
+			HasTrace:  false,
 		},
 	}
 	if diff := cmp.Diff(got, want); diff != "" {
