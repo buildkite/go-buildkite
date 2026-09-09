@@ -1,3 +1,8 @@
+## [v5.16.0](https://github.com/buildkite/go-buildkite/compare/v5.15.0...v5.16.0) (2026-09-10)
+
+* Add ExecutionsService.ListSlowestByBuild [#379](https://github.com/buildkite/go-buildkite/pull/379) ([mttns](https://github.com/mttns))
+* Add ExecutionsService.GetTrace [#378](https://github.com/buildkite/go-buildkite/pull/378) ([malclocke](https://github.com/malclocke))
+
 ## [v5.15.0](https://github.com/buildkite/go-buildkite/compare/v5.14.0...v5.15.0) (2026-08-31)
 
 * Add Teams to CreatePipeline [#374](https://github.com/buildkite/go-buildkite/pull/374) ([JuanitoFatas](https://github.com/JuanitoFatas))
