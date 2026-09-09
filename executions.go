@@ -182,3 +182,53 @@ func (es *ExecutionsService) GetTrace(ctx context.Context, org, slug, executionI
 
 	return trace, resp, err
 }
+
+// BuildExecution is a test execution recorded against a build. SuiteSlug and ID
+// are the arguments to [ExecutionsService.GetTrace].
+type BuildExecution struct {
+	ID        string `json:"id"`
+	SuiteSlug string `json:"suite_slug"`
+	TestID    string `json:"test_id"`
+
+	// Duration is the execution's duration in seconds.
+	Duration float64 `json:"duration"`
+
+	// HasTrace indicates a trace was recorded and is within span retention.
+	// Even when true, GetTrace may return an empty trace if spans were sampled away.
+	HasTrace bool `json:"has_trace"`
+}
+
+// SlowestExecutionsOptions specifies optional parameters for
+// [ExecutionsService.ListSlowestByBuild].
+type SlowestExecutionsOptions struct {
+	// Limit is the maximum number of executions to return. It defaults to 20
+	// and is capped by the organization's slowest executions quota.
+	Limit int `url:"limit,omitempty"`
+}
+
+// ListSlowestByBuild returns the slowest test executions recorded against a
+// build, across every suite the caller can view, slowest first. It is a top-N
+// list rather than a paginated collection. While the build is still running it
+// reflects the executions uploaded so far.
+//
+// buildUUID is the build's UUID, not the pipeline's build number.
+func (es *ExecutionsService) ListSlowestByBuild(ctx context.Context, org, buildUUID string, opt *SlowestExecutionsOptions) ([]BuildExecution, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/builds/%s/executions/slowest", org, buildUUID)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := es.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var executions []BuildExecution
+	resp, err := es.client.Do(req, &executions)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return executions, resp, err
+}

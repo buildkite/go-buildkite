@@ -311,3 +311,112 @@ func TestExecutionsService_GetTrace_NotFound(t *testing.T) {
 		t.Errorf("response.StatusCode = %d, want %d", got, want)
 	}
 }
+
+func TestExecutionsService_ListSlowestByBuild(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/executions/slowest", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"limit": "2",
+		})
+
+		_, _ = fmt.Fprint(w,
+			`
+			[
+				{
+					"id": "019d66fc-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+					"suite_slug": "suite-example",
+					"test_id": "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+					"duration": 12.345,
+					"has_trace": true
+				},
+				{
+					"id": "019d66fc-0000-7c3d-8e4f-5a6b7c8d9e0f",
+					"suite_slug": "other-suite",
+					"test_id": "b0e3a5b8-2b7c-4a4e-9d9e-1f2a3b4c5d6e",
+					"duration": 2.5,
+					"has_trace": false
+				}
+			]`)
+	})
+
+	got, _, err := client.Executions.ListSlowestByBuild(context.Background(), "my-great-org", testBuildUUID, &SlowestExecutionsOptions{Limit: 2})
+	if err != nil {
+		t.Fatalf("ExecutionsService.ListSlowestByBuild returned error: %v", err)
+	}
+
+	want := []BuildExecution{
+		{
+			ID:        "019d66fc-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+			SuiteSlug: "suite-example",
+			TestID:    "a915535c-a8f1-4e1a-bd6a-a5589e09f349",
+			Duration:  12.345,
+			HasTrace:  true,
+		},
+		{
+			ID:        "019d66fc-0000-7c3d-8e4f-5a6b7c8d9e0f",
+			SuiteSlug: "other-suite",
+			TestID:    "b0e3a5b8-2b7c-4a4e-9d9e-1f2a3b4c5d6e",
+			Duration:  2.5,
+			HasTrace:  false,
+		},
+	}
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("ExecutionsService.ListSlowestByBuild diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestExecutionsService_ListSlowestByBuild_ZeroLimitOmitted(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/executions/slowest", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{})
+
+		_, _ = fmt.Fprint(w, `[]`)
+	})
+
+	got, _, err := client.Executions.ListSlowestByBuild(context.Background(), "my-great-org", testBuildUUID, &SlowestExecutionsOptions{})
+	if err != nil {
+		t.Fatalf("ExecutionsService.ListSlowestByBuild returned error: %v", err)
+	}
+	if len(got) != 0 {
+		t.Errorf("ExecutionsService.ListSlowestByBuild returned %v, want no executions", got)
+	}
+}
+
+func TestExecutionsService_ListSlowestByBuild_ServerError(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc(fmt.Sprintf("/v2/analytics/organizations/my-great-org/builds/%s/executions/slowest", testBuildUUID), func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		_, _ = fmt.Fprint(w, `{"message": "limit must be an integer between 1 and 100"}`)
+	})
+
+	got, resp, err := client.Executions.ListSlowestByBuild(context.Background(), "my-great-org", testBuildUUID, &SlowestExecutionsOptions{Limit: 500})
+	if err == nil {
+		t.Fatal("ExecutionsService.ListSlowestByBuild returned nil error, want API error")
+	}
+	if got != nil {
+		t.Errorf("ExecutionsService.ListSlowestByBuild returned items %v, want nil", got)
+	}
+	if resp == nil || resp.StatusCode != http.StatusUnprocessableEntity {
+		t.Errorf("ExecutionsService.ListSlowestByBuild response = %#v, want status %d", resp, http.StatusUnprocessableEntity)
+	}
+	var apiErr *ErrorResponse
+	if !errors.As(err, &apiErr) {
+		t.Errorf("ExecutionsService.ListSlowestByBuild error type = %T, want *ErrorResponse", err)
+	} else if got, want := apiErr.Message, "limit must be an integer between 1 and 100"; got != want {
+		t.Errorf("ExecutionsService.ListSlowestByBuild error message = %q, want %q", got, want)
+	}
+}
