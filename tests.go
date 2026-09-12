@@ -3,11 +3,17 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"time"
 )
 
 // TestsService handles communication with test related
 // methods of the Buildkite Test Analytics API.
+//
+// Every method escapes the org, suite and test values it interpolates into the
+// request path. An unescaped "#" would truncate the path at that point, because
+// url.Parse strips everything after it into a fragment that is never sent — so
+// a Skip would reach the Enable endpoint, and a List the suite endpoint.
 //
 // Buildkite API docs: https://buildkite.com/docs/apis/rest-api/analytics/tests
 type TestsService struct {
@@ -97,7 +103,10 @@ type TestsListOptions struct {
 	// "!" to exclude it, for example "payments,!platform".
 	Owners string `url:"owners,omitempty"`
 
-	// State filters by test state: "enabled", "muted", or "skipped".
+	// State filters by test state: "enabled", "muted", or "skipped". It filters
+	// the aggregation, so it reports only tests that ran within the window; for
+	// the complete quarantine list use [TestsService.ListMuted] or
+	// [TestsService.ListSkipped].
 	State string `url:"state,omitempty"`
 
 	// Tags filters by comma-separated execution tags in key:value form. Prefix a
@@ -130,7 +139,8 @@ type FindTestOptions struct {
 // tests with executions in that window. Pagination is available through the
 // returned Response.
 func (ts *TestsService) List(ctx context.Context, org, slug string, opt *TestsListOptions) ([]TestWithMetrics, *Response, error) {
-	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests", org, slug)
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests",
+		url.PathEscape(org), url.PathEscape(slug))
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return nil, nil, err
@@ -171,7 +181,8 @@ type TestsGetOptions struct {
 // Get returns a single test with its execution metrics aggregated over the
 // requested time window. It opts in to the versioned metrics response.
 func (ts *TestsService) Get(ctx context.Context, org, slug, testID string, opt *TestsGetOptions) (TestWithMetrics, *Response, error) {
-	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s", org, slug, testID)
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s",
+		url.PathEscape(org), url.PathEscape(slug), url.PathEscape(testID))
 	u, err := addOptions(u, opt)
 	if err != nil {
 		return TestWithMetrics{}, nil, err
@@ -193,7 +204,8 @@ func (ts *TestsService) Get(ctx context.Context, org, slug, testID string, opt *
 }
 
 func (ts *TestsService) Find(ctx context.Context, org, slug string, find FindTestOptions) (Test, *Response, error) {
-	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/find", org, slug)
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/find",
+		url.PathEscape(org), url.PathEscape(slug))
 	req, err := ts.client.NewRequest(ctx, "POST", u, find)
 	if err != nil {
 		return Test{}, nil, err
@@ -204,4 +216,121 @@ func (ts *TestsService) Find(ctx context.Context, org, slug string, find FindTes
 		return Test{}, resp, err
 	}
 	return t, resp, err
+}
+
+// QuarantinedTestsListOptions specifies optional parameters for
+// [TestsService.ListMuted] and [TestsService.ListSkipped].
+type QuarantinedTestsListOptions struct {
+	ListOptions
+}
+
+// changeState moves a test into the state reached by action, which is one of
+// "skip", "mute" or "enable", and returns the updated test.
+func (ts *TestsService) changeState(ctx context.Context, org, slug, testID, action string) (Test, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s/%s",
+		url.PathEscape(org), url.PathEscape(slug), url.PathEscape(testID), action)
+	req, err := ts.client.NewRequest(ctx, "PUT", u, nil)
+	if err != nil {
+		return Test{}, nil, err
+	}
+
+	var t Test
+	resp, err := ts.client.Do(req, &t)
+	if err != nil {
+		return Test{}, resp, err
+	}
+
+	return t, resp, nil
+}
+
+// listByState returns the tests in the given quarantine state, which is one of
+// "muted" or "skipped". Pagination is available through the returned Response.
+func (ts *TestsService) listByState(ctx context.Context, org, slug, state string, opt *QuarantinedTestsListOptions) ([]Test, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/tests/%s",
+		url.PathEscape(org), url.PathEscape(slug), state)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := ts.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var tests []Test
+	resp, err := ts.client.Do(req, &tests)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return tests, resp, nil
+}
+
+// Skip quarantines a test by skipping it, so that supported test runners do not
+// execute it. It requires the write_suites scope.
+//
+// The response carries no state field, so callers confirming the new state
+// should use [TestsService.ListSkipped].
+//
+// It returns 404 when the suite does not have test state management enabled.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/test-engine/quarantine#update-test-state-skip-test
+func (ts *TestsService) Skip(ctx context.Context, org, slug, testID string) (Test, *Response, error) {
+	return ts.changeState(ctx, org, slug, testID, "skip")
+}
+
+// Mute quarantines a test by muting it, so that its failures do not fail the
+// build. It requires the write_suites scope.
+//
+// The response carries no state field, so callers confirming the new state
+// should use [TestsService.ListMuted].
+//
+// It returns 404 when the suite does not have test state management enabled.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/test-engine/quarantine#update-test-state-mute-test
+func (ts *TestsService) Mute(ctx context.Context, org, slug, testID string) (Test, *Response, error) {
+	return ts.changeState(ctx, org, slug, testID, "mute")
+}
+
+// Enable removes a test from quarantine, undoing a previous skip or mute. It
+// requires the write_suites scope.
+//
+// An enabled test appears in neither [TestsService.ListMuted] nor
+// [TestsService.ListSkipped], so confirming the new state means checking for
+// its absence from both, or listing with [TestsListOptions.State] "enabled".
+//
+// It returns 404 when the suite does not have test state management enabled.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/test-engine/quarantine#update-test-state-enable-test
+func (ts *TestsService) Enable(ctx context.Context, org, slug, testID string) (Test, *Response, error) {
+	return ts.changeState(ctx, org, slug, testID, "enable")
+}
+
+// ListMuted returns every muted test in a suite, for configuring a test runner
+// to ignore their failures. It requires the read_suites scope, and returns 404
+// when the suite does not have test state management enabled.
+//
+// Unlike [TestsService.List] with [TestsListOptions.State] "muted", which
+// reports only tests that ran within the aggregation window, this is the
+// complete quarantine list. Pagination is available through the returned
+// Response.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/test-engine/quarantine#list-quarantined-tests-muted-tests
+func (ts *TestsService) ListMuted(ctx context.Context, org, slug string, opt *QuarantinedTestsListOptions) ([]Test, *Response, error) {
+	return ts.listByState(ctx, org, slug, "muted", opt)
+}
+
+// ListSkipped returns every skipped test in a suite, for configuring a test
+// runner to skip them. It requires the read_suites scope, and returns 404 when
+// the suite does not have test state management enabled.
+//
+// Unlike [TestsService.List] with [TestsListOptions.State] "skipped", which
+// reports only tests that ran within the aggregation window, this is the
+// complete quarantine list. Pagination is available through the returned
+// Response.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/test-engine/quarantine#list-quarantined-tests-skipped-tests
+func (ts *TestsService) ListSkipped(ctx context.Context, org, slug string, opt *QuarantinedTestsListOptions) ([]Test, *Response, error) {
+	return ts.listByState(ctx, org, slug, "skipped", opt)
 }
