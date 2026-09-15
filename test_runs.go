@@ -46,7 +46,6 @@ type FailedExecution struct {
 	RunURL           string            `json:"run_url,omitempty"`
 	TestURL          string            `json:"test_url,omitempty"`
 	TestExecutionURL string            `json:"test_execution_url,omitempty"`
-	Tags             map[string]string `json:"tags,omitempty"`
 }
 
 type TestRunsListOptions struct {

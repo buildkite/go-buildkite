@@ -23,19 +23,13 @@ type TestSuiteCreate struct {
 
 // TestSuite represents a Buildkite Test Analytics suite.
 type TestSuite struct {
-	ID              string  `json:"id,omitempty"`
-	GraphQLID       string  `json:"graphql_id,omitempty"`
-	OrganizationID  string  `json:"organization_id,omitempty"`
-	Slug            string  `json:"slug,omitempty"`
-	Name            string  `json:"name,omitempty"`
-	URL             string  `json:"url,omitempty"`
-	WebURL          string  `json:"web_url,omitempty"`
-	DefaultBranch   string  `json:"default_branch,omitempty"`
-	ApplicationName *string `json:"application_name,omitempty"`
-	Color           *string `json:"color,omitempty"`
-	Emoji           *string `json:"emoji,omitempty"`
-	OIDCPolicy      any     `json:"oidc_policy,omitempty"`
-	APIToken        string  `json:"api_token,omitempty"`
+	ID            string `json:"id,omitempty"`
+	GraphQLID     string `json:"graphql_id,omitempty"`
+	Slug          string `json:"slug,omitempty"`
+	Name          string `json:"name,omitempty"`
+	URL           string `json:"url,omitempty"`
+	WebURL        string `json:"web_url,omitempty"`
+	DefaultBranch string `json:"default_branch,omitempty"`
 }
 
 // TestSuiteUpdate represents the request body for updating a test suite.
