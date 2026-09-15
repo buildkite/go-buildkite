@@ -8,7 +8,6 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-querystring v1.2.0
 	github.com/google/uuid v1.6.0
-	go.yaml.in/yaml/v3 v3.0.4
 )
 
 require (

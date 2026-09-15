@@ -2,7 +2,7 @@
 
 set -Eeuo pipefail
 
-if output=$(go test -tags=analytics_openapi -run '^TestAnalyticsResponseTypesMatchOpenAPI$' -count=1 . 2>&1); then
+if output=$(go run ./.buildkite/steps/analytics-openapi-drift 2>&1); then
   exit 0
 fi
 
