@@ -24,7 +24,7 @@ func main() {
 	schemas, err := fetchSchemas()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		os.Exit(2)
 	}
 
 	responseTypes := []struct {
