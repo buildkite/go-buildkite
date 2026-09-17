@@ -25,6 +25,15 @@ steps:
           upload: "cover.{html,out}"
       - mise#v1.1.5: ~
 
+  - label: ":mag: Analytics OpenAPI drift"
+    key: analytics-openapi-drift
+    command: ".buildkite/steps/analytics-openapi-drift.sh"
+    soft_fail: true
+    secrets:
+      - MISE_GITHUB_TOKEN
+    plugins:
+      - mise#v1.1.5: ~
+
   - label: ":writing_hand: Annotate with Test Failures"
     key: annotate
     depends_on: test

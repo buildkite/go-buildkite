@@ -27,6 +27,7 @@ type Test struct {
 	Name     string   `json:"name,omitempty"`
 	Location string   `json:"location,omitempty"`
 	FileName string   `json:"file_name,omitempty"`
+	State    string   `json:"state,omitempty"`
 	Labels   []string `json:"labels,omitempty"`
 }
 
