@@ -41,6 +41,26 @@ const (
 	TraceViewFull TraceView = "full"
 )
 
+// TraceStatus describes the availability of an execution's trace, regardless
+// of the requested view.
+type TraceStatus string
+
+const (
+	// TraceStatusOK means spans were found, even if truncated or past retention.
+	TraceStatusOK TraceStatus = "ok"
+
+	// TraceStatusMissing means a trace ID was recorded but no spans were found
+	// within the retention window.
+	TraceStatusMissing TraceStatus = "missing"
+
+	// TraceStatusExpired means no spans were found and the execution with a
+	// recorded trace ID is at least one month old.
+	TraceStatusExpired TraceStatus = "expired"
+
+	// TraceStatusNone means no trace ID was recorded.
+	TraceStatusNone TraceStatus = "none"
+)
+
 // TraceCategoryRollup is one category's share of a trace, across every span in
 // it.
 type TraceCategoryRollup struct {
@@ -116,6 +136,9 @@ type ExecutionTrace struct {
 
 	// TraceID is empty when the execution recorded no trace.
 	TraceID string `json:"trace_id,omitempty"`
+
+	// TraceStatus describes whether spans were found or why they are absent.
+	TraceStatus TraceStatus `json:"trace_status,omitempty"`
 
 	// SpanCount counts every span in the trace, not only the ones returned.
 	SpanCount int `json:"span_count,omitempty"`

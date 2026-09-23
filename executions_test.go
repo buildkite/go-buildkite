@@ -34,6 +34,7 @@ func TestExecutionsService_GetTrace(t *testing.T) {
 			"web_url": "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/executions/01867216-8478-7fde-a55a-0300f88bb49b",
 			"view": "full",
 			"trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+			"trace_status": "ok",
 			"span_count": 3,
 			"truncated": true,
 			"trace_duration_ns": 213000000,
@@ -119,6 +120,7 @@ func TestExecutionsService_GetTrace(t *testing.T) {
 		WebURL:        "https://buildkite.com/organizations/my-great-org/analytics/suites/suite-example/executions/01867216-8478-7fde-a55a-0300f88bb49b",
 		View:          TraceViewFull,
 		TraceID:       "4bf92f3577b34da6a3ce929d0e0e4736",
+		TraceStatus:   TraceStatusOK,
 		SpanCount:     3,
 		Truncated:     true,
 		TraceDuration: 213 * time.Millisecond,
@@ -259,6 +261,7 @@ func TestExecutionsService_GetTrace_NoTrace(t *testing.T) {
 			"execution_id": "01867216-8478-7fde-a55a-0300f88bb49b",
 			"view": "full",
 			"trace_id": null,
+			"trace_status": "none",
 			"span_count": 0,
 			"truncated": false,
 			"trace_duration_ns": 0,
@@ -275,6 +278,9 @@ func TestExecutionsService_GetTrace_NoTrace(t *testing.T) {
 
 	if got.TraceID != "" {
 		t.Errorf("ExecutionsService.GetTrace TraceID = %q, want empty", got.TraceID)
+	}
+	if got.TraceStatus != TraceStatusNone {
+		t.Errorf("ExecutionsService.GetTrace TraceStatus = %q, want %q", got.TraceStatus, TraceStatusNone)
 	}
 	if got.SpanCount != 0 {
 		t.Errorf("ExecutionsService.GetTrace SpanCount = %d, want 0", got.SpanCount)
