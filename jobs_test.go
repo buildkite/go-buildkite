@@ -98,6 +98,59 @@ func TestJobsService_ListByBuild(t *testing.T) {
 	}
 }
 
+func TestJobsService_ListByBuild_BrokenJob(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		_, _ = fmt.Fprint(w, `{
+  "items": [
+    {
+      "id": "job-2",
+      "type": "script",
+      "name": ":rocket: Deploy",
+      "step_key": "deploy",
+      "state": "broken",
+      "broken_reason": "conditional_failed",
+      "web_url": "https://buildkite.com/my-great-org/sup-keith/builds/123#job-2",
+      "soft_failed": false,
+      "retried": false,
+      "unblockable": false
+    }
+  ],
+  "links": {
+    "self": "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?per_page=30&state[]=broken"
+  }
+}`)
+	})
+
+	jobs, _, err := client.Jobs.ListByBuild(context.Background(), "my-great-org", "sup-keith", "123", &JobsListOptions{State: []string{"broken"}})
+	if err != nil {
+		t.Errorf("ListByBuild returned error: %v", err)
+	}
+
+	want := JobsList{
+		Items: []Job{{
+			ID:           "job-2",
+			Type:         "script",
+			Name:         ":rocket: Deploy",
+			StepKey:      "deploy",
+			State:        "broken",
+			BrokenReason: "conditional_failed",
+			WebURL:       "https://buildkite.com/my-great-org/sup-keith/builds/123#job-2",
+		}},
+		Links: JobsListLinks{
+			Self: "https://api.buildkite.com/v2/organizations/my-great-org/pipelines/sup-keith/builds/123/jobs?per_page=30&state[]=broken",
+		},
+	}
+	if diff := cmp.Diff(jobs, want); diff != "" {
+		t.Errorf("ListByBuild diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestJobsService_ListByBuild_WithOptions(t *testing.T) {
 	t.Parallel()
 

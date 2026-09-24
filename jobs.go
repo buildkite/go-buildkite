@@ -34,6 +34,7 @@ type Job struct {
 	ExitStatus         *int            `json:"exit_status,omitempty"`
 	Signal             string          `json:"signal,omitempty"`
 	SignalReason       string          `json:"signal_reason,omitempty"`
+	BrokenReason       string          `json:"broken_reason,omitempty"`
 	ArtifactPaths      string          `json:"artifact_paths,omitempty"`
 	ArtifactsURL       string          `json:"artifacts_url,omitempty"`
 	CreatedAt          *Timestamp      `json:"created_at,omitempty"`
