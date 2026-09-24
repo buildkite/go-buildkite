@@ -1,3 +1,7 @@
+## [v5.18.0](https://github.com/buildkite/go-buildkite/compare/v5.17.0...v5.18.0) (2026-09-25)
+
+* PB-3329: Add Job.BrokenReason from the REST API broken_reason field [#381](https://github.com/buildkite/go-buildkite/pull/381) ([nethsix](https://github.com/nethsix))
+
 ## [v5.17.0](https://github.com/buildkite/go-buildkite/compare/v5.16.0...v5.17.0) (2026-09-25)
 
 * Add trace status to ExecutionTrace [#383](https://github.com/buildkite/go-buildkite/pull/383) ([malclocke](https://github.com/malclocke))
