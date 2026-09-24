@@ -1,3 +1,8 @@
+## [v5.17.0](https://github.com/buildkite/go-buildkite/compare/v5.16.0...v5.17.0) (2026-09-25)
+
+* Add trace status to ExecutionTrace [#383](https://github.com/buildkite/go-buildkite/pull/383) ([malclocke](https://github.com/malclocke))
+* Add missing Test Engine API response fields (`TestSuite -> ApplicationName,Color,Emoji,OIDCPolicy,APIToken`, `Test -> State`) [#382](https://github.com/buildkite/go-buildkite/pull/382) ([malclocke](https://github.com/malclocke))
+
 ## [v5.16.0](https://github.com/buildkite/go-buildkite/compare/v5.15.0...v5.16.0) (2026-09-10)
 
 * Add ExecutionsService.ListSlowestByBuild [#379](https://github.com/buildkite/go-buildkite/pull/379) ([mttns](https://github.com/mttns))
