@@ -1,3 +1,7 @@
+## [v5.19.0](https://github.com/buildkite/go-buildkite/compare/v5.18.0...v5.19.0) (2026-09-28)
+
+* Add cluster cache registry API support [#386](https://github.com/buildkite/go-buildkite/pull/386) ([buildkate](https://github.com/buildkate))
+
 ## [v5.18.0](https://github.com/buildkite/go-buildkite/compare/v5.17.0...v5.18.0) (2026-09-25)
 
 * PB-3329: Add Job.BrokenReason from the REST API broken_reason field [#381](https://github.com/buildkite/go-buildkite/pull/381) ([nethsix](https://github.com/nethsix))
