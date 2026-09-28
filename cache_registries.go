@@ -33,7 +33,8 @@ type CacheRegistry struct {
 
 // CacheRegistryCreate represents the request body for creating a cache
 // registry. The optional nullable fields can be omitted with their zero value,
-// sent with Some(&value), or sent as JSON null with Some(nil).
+// sent with Some(&value), or sent as JSON null with Some[*string](nil) for
+// metadata and Some[CacheRegistryPolicy](nil) for policy.
 type CacheRegistryCreate struct {
 	Name        string                        `json:"name"`
 	Description Optional[*string]             `json:"description,omitzero"`
@@ -44,7 +45,7 @@ type CacheRegistryCreate struct {
 
 // CacheRegistryUpdate represents the request body for updating a cache
 // registry. Unset fields are omitted. Nullable fields can be cleared by passing
-// Some(nil).
+// Some[*string](nil) for metadata or Some[CacheRegistryPolicy](nil) for policy.
 type CacheRegistryUpdate struct {
 	Name        Optional[string]              `json:"name,omitzero"`
 	Description Optional[*string]             `json:"description,omitzero"`
