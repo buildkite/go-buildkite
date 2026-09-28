@@ -53,6 +53,7 @@ type Client struct {
 	Artifacts                    *ArtifactsService
 	BuildTests                   *BuildTestsService
 	Builds                       *BuildsService
+	CacheRegistries              *CacheRegistriesService
 	Clusters                     *ClustersService
 	ClusterQueues                *ClusterQueuesService
 	ClusterTokens                *ClusterTokensService
@@ -225,6 +226,7 @@ func (c *Client) populateDefaultServices() {
 	c.Artifacts = &ArtifactsService{c}
 	c.BuildTests = &BuildTestsService{c}
 	c.Builds = &BuildsService{c}
+	c.CacheRegistries = &CacheRegistriesService{c}
 	c.Clusters = &ClustersService{c}
 	c.ClusterQueues = &ClusterQueuesService{c}
 	c.ClusterTokens = &ClusterTokensService{c}
