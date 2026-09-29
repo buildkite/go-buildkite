@@ -1,3 +1,7 @@
+## [v5.20.0](https://github.com/buildkite/go-buildkite/compare/v5.19.0...v5.20.0) (2026-09-29)
+
+* Add repository connections API support [#388](https://github.com/buildkite/go-buildkite/pull/388) ([wolfeidau](https://github.com/wolfeidau))
+
 ## [v5.19.0](https://github.com/buildkite/go-buildkite/compare/v5.18.0...v5.19.0) (2026-09-28)
 
 * Add cluster cache registry API support [#386](https://github.com/buildkite/go-buildkite/pull/386) ([buildkate](https://github.com/buildkate))
