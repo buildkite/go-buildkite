@@ -73,6 +73,7 @@ type Client struct {
 	PipelineSchedules            *PipelineSchedulesService
 	PipelineTemplates            *PipelineTemplatesService
 	RateLimit                    *RateLimitService
+	RepositoryConnections        *RepositoryConnectionsService
 	Rules                        *RulesService
 	StepUploads                  *StepUploadsService
 	User                         *UserService
@@ -246,6 +247,7 @@ func (c *Client) populateDefaultServices() {
 	c.PipelineSchedules = &PipelineSchedulesService{c}
 	c.PipelineTemplates = &PipelineTemplatesService{c}
 	c.RateLimit = &RateLimitService{c}
+	c.RepositoryConnections = &RepositoryConnectionsService{c}
 	c.Rules = &RulesService{c}
 	c.StepUploads = &StepUploadsService{c}
 	c.User = &UserService{c}
