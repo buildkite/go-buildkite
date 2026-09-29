@@ -21,7 +21,7 @@ steps:
     secrets:
       - MISE_GITHUB_TOKEN
     plugins:
-      - artifacts#v1.9.4:
+      - artifacts#v1.10.0:
           upload: "cover.{html,out}"
       - mise#v1.1.5: ~
 
