@@ -1,3 +1,7 @@
+## [v5.21.0](https://github.com/buildkite/go-buildkite/compare/v5.20.0...v5.21.0) (2026-09-30)
+
+* Add default cache registry fields to clusters and cache registries [#391](https://github.com/buildkite/go-buildkite/pull/391) ([ss1909](https://github.com/ss1909))
+
 ## [v5.20.0](https://github.com/buildkite/go-buildkite/compare/v5.19.0...v5.20.0) (2026-09-29)
 
 * Add repository connections API support [#388](https://github.com/buildkite/go-buildkite/pull/388) ([wolfeidau](https://github.com/wolfeidau))
