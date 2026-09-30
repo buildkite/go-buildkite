@@ -440,6 +440,40 @@ func TestClustersService_Update(t *testing.T) {
 	}
 }
 
+func TestClustersService_UpdateDefaultCacheRegistry(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	orgSlug := "my-great-org"
+	clusterID := "a32cbe81-82b2-45f7-bd97-66f1ac2c0cc1"
+	registryUUID := "019a1dd8-a49b-70c5-99b8-b8f9f0ed6824"
+	registryURL := fmt.Sprintf("https://api.buildkite.com/v2/organizations/%s/clusters/%s/cache-registries/%s", orgSlug, clusterID, registryUUID)
+
+	server.HandleFunc(fmt.Sprintf("/v2/organizations/%s/clusters/%s", orgSlug, clusterID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PATCH")
+		assertRequestJSON(t, r, fmt.Sprintf(`{"default_cache_registry_uuid":%q}`, registryUUID))
+
+		_, _ = fmt.Fprintf(w, `{"id":%q,"name":"Testing Cluster","default_cache_registry_uuid":%q,"default_cache_registry_url":%q}`, clusterID, registryUUID, registryURL)
+	})
+
+	cluster, _, err := client.Clusters.Update(context.Background(), orgSlug, clusterID, ClusterUpdate{DefaultCacheRegistryUUID: Some(registryUUID)})
+	if err != nil {
+		t.Fatalf("TestClusters.Update returned error: %v", err)
+	}
+
+	want := Cluster{
+		ID:                       clusterID,
+		Name:                     "Testing Cluster",
+		DefaultCacheRegistryUUID: registryUUID,
+		DefaultCacheRegistryURL:  registryURL,
+	}
+	if diff := cmp.Diff(cluster, want); diff != "" {
+		t.Errorf("TestClusters.Update diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestClustersService_Delete(t *testing.T) {
 	t.Parallel()
 

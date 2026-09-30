@@ -25,10 +25,12 @@ type CacheRegistry struct {
 	Emoji       *string             `json:"emoji,omitempty"`
 	Color       *string             `json:"color,omitempty"`
 	Policy      CacheRegistryPolicy `json:"policy,omitempty"`
-	CreatedAt   *Timestamp          `json:"created_at,omitempty"`
-	UpdatedAt   *Timestamp          `json:"updated_at,omitempty"`
-	URL         string              `json:"url,omitempty"`
-	ClusterURL  string              `json:"cluster_url,omitempty"`
+	// Default reports whether this is the cluster's default cache registry.
+	Default    bool       `json:"default"`
+	CreatedAt  *Timestamp `json:"created_at,omitempty"`
+	UpdatedAt  *Timestamp `json:"updated_at,omitempty"`
+	URL        string     `json:"url,omitempty"`
+	ClusterURL string     `json:"cluster_url,omitempty"`
 }
 
 // CacheRegistryCreate represents the request body for creating a cache

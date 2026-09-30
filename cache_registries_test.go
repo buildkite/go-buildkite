@@ -155,7 +155,7 @@ func TestCacheRegistriesService_Get(t *testing.T) {
 
 	server.HandleFunc("/v2/organizations/acme/clusters/"+testCacheClusterUUID+"/cache-registries/"+testCacheRegistryUUID, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
-		_, _ = fmt.Fprintf(w, `{"uuid":%q,"slug":"ruby-gems","name":"Ruby gems","policy":{}}`, testCacheRegistryUUID)
+		_, _ = fmt.Fprintf(w, `{"uuid":%q,"slug":"ruby-gems","name":"Ruby gems","policy":{},"default":true}`, testCacheRegistryUUID)
 	})
 
 	got, _, err := client.CacheRegistries.Get(context.Background(), "acme", testCacheClusterUUID, testCacheRegistryUUID)
@@ -163,10 +163,11 @@ func TestCacheRegistriesService_Get(t *testing.T) {
 		t.Fatalf("CacheRegistriesService.Get returned error: %v", err)
 	}
 	if diff := cmp.Diff(CacheRegistry{
-		UUID:   testCacheRegistryUUID,
-		Slug:   "ruby-gems",
-		Name:   "Ruby gems",
-		Policy: CacheRegistryPolicy{},
+		UUID:    testCacheRegistryUUID,
+		Slug:    "ruby-gems",
+		Name:    "Ruby gems",
+		Policy:  CacheRegistryPolicy{},
+		Default: true,
 	}, got); diff != "" {
 		t.Errorf("CacheRegistriesService.Get diff (-want +got):\n%s", diff)
 	}

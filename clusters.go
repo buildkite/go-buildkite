@@ -29,23 +29,31 @@ type ClusterUpdate struct {
 	Emoji          Optional[string] `json:"emoji,omitzero"`
 	Color          Optional[string] `json:"color,omitzero"`
 	DefaultQueueID Optional[string] `json:"default_queue_id,omitzero"`
+	// DefaultCacheRegistryUUID sets the cluster's default cache registry. It
+	// must be the UUID of a cache registry in the same cluster; the API does not
+	// accept slugs or null, because a cluster always keeps a default.
+	DefaultCacheRegistryUUID Optional[string] `json:"default_cache_registry_uuid,omitzero"`
 }
 
 type Cluster struct {
-	ID              string                 `json:"id,omitempty"`
-	GraphQLID       string                 `json:"graphql_id,omitempty"`
-	DefaultQueueID  string                 `json:"default_queue_id,omitempty"`
-	Name            string                 `json:"name,omitempty"`
-	Description     string                 `json:"description,omitempty"`
-	Emoji           string                 `json:"emoji,omitempty"`
-	Color           string                 `json:"color,omitempty"`
-	URL             string                 `json:"url,omitempty"`
-	WebURL          string                 `json:"web_url,omitempty"`
-	QueuesURL       string                 `json:"queues_url,omitempty"`
-	DefaultQueueURL string                 `json:"default_queue_url,omitempty"`
-	CreatedAt       *Timestamp             `json:"created_at,omitempty"`
-	CreatedBy       ClusterCreator         `json:"created_by,omitempty"`
-	Maintainers     ClusterMaintainersList `json:"maintainers,omitempty"`
+	ID              string `json:"id,omitempty"`
+	GraphQLID       string `json:"graphql_id,omitempty"`
+	DefaultQueueID  string `json:"default_queue_id,omitempty"`
+	Name            string `json:"name,omitempty"`
+	Description     string `json:"description,omitempty"`
+	Emoji           string `json:"emoji,omitempty"`
+	Color           string `json:"color,omitempty"`
+	URL             string `json:"url,omitempty"`
+	WebURL          string `json:"web_url,omitempty"`
+	QueuesURL       string `json:"queues_url,omitempty"`
+	DefaultQueueURL string `json:"default_queue_url,omitempty"`
+	// DefaultCacheRegistryUUID and DefaultCacheRegistryURL are only returned
+	// to callers who can manage the cluster.
+	DefaultCacheRegistryUUID string                 `json:"default_cache_registry_uuid,omitempty"`
+	DefaultCacheRegistryURL  string                 `json:"default_cache_registry_url,omitempty"`
+	CreatedAt                *Timestamp             `json:"created_at,omitempty"`
+	CreatedBy                ClusterCreator         `json:"created_by,omitempty"`
+	Maintainers              ClusterMaintainersList `json:"maintainers,omitempty"`
 }
 
 type ClusterCreator struct {
