@@ -65,6 +65,7 @@ type Client struct {
 	Jobs                         *JobsService
 	Members                      *MembersService
 	Meta                         *MetaService
+	NotificationServices         *NotificationServicesService
 	Organizations                *OrganizationsService
 	PackagesService              *PackagesService
 	PackageRegistriesService     *PackageRegistriesService
@@ -239,6 +240,7 @@ func (c *Client) populateDefaultServices() {
 	c.Jobs = &JobsService{c}
 	c.Members = &MembersService{c}
 	c.Meta = &MetaService{c}
+	c.NotificationServices = &NotificationServicesService{c}
 	c.Organizations = &OrganizationsService{c}
 	c.PackagesService = &PackagesService{c}
 	c.PackageRegistriesService = &PackageRegistriesService{c}
