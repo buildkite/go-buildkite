@@ -308,6 +308,50 @@ func (js *JobsService) RetryJob(ctx context.Context, org string, pipeline string
 	return job, resp, err
 }
 
+// CancelJob - cancel a job
+//
+// Running jobs are returned in the canceling state until the agent stops them.
+// Scheduled, reserved, assigned and accepted jobs are returned as canceled.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#cancel-a-job
+func (js *JobsService) CancelJob(ctx context.Context, org string, pipeline string, buildNumber string, jobID string) (Job, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/cancel", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, "PUT", u, nil)
+	if err != nil {
+		return Job{}, nil, err
+	}
+
+	var job Job
+	resp, err := js.client.Do(req, &job)
+	if err != nil {
+		return Job{}, resp, err
+	}
+
+	return job, resp, err
+}
+
+// CancelJobByOrg - cancel a job by organization and job ID
+//
+// Running jobs are returned in the canceling state until the agent stops them.
+// Scheduled, reserved, assigned and accepted jobs are returned as canceled.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#cancel-a-job
+func (js *JobsService) CancelJobByOrg(ctx context.Context, org string, jobID string) (Job, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/jobs/%s/cancel", org, jobID)
+	req, err := js.client.NewRequest(ctx, "PUT", u, nil)
+	if err != nil {
+		return Job{}, nil, err
+	}
+
+	var job Job
+	resp, err := js.client.Do(req, &job)
+	if err != nil {
+		return Job{}, resp, err
+	}
+
+	return job, resp, err
+}
+
 // GetJobLog - get a job’s log output
 //
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
