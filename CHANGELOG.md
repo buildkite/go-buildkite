@@ -1,3 +1,8 @@
+## [v5.22.0](https://github.com/buildkite/go-buildkite/compare/v5.21.0...v5.22.0) (2026-10-12)
+
+* Add JobsService.CancelJob and CancelJobByOrg [#395](https://github.com/buildkite/go-buildkite/pull/395) ([mitchbne](https://github.com/mitchbne))
+* Add notification services API support [#394](https://github.com/buildkite/go-buildkite/pull/394) ([wolfeidau](https://github.com/wolfeidau))
+
 ## [v5.21.0](https://github.com/buildkite/go-buildkite/compare/v5.20.0...v5.21.0) (2026-09-30)
 
 * Add default cache registry fields to clusters and cache registries [#391](https://github.com/buildkite/go-buildkite/pull/391) ([ss1909](https://github.com/ss1909))
