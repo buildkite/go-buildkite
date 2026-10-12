@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -371,6 +372,62 @@ func TestJobsService_RetryJob(t *testing.T) {
 	want := Job{ID: "awesome-job-id", State: "scheduled", Retried: true, RetriesCount: 1}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("RetryJob diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_CancelJob(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/cancel", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		if body := must(io.ReadAll(r.Body)); len(body) != 0 {
+			t.Errorf("request body = %q, want empty", body)
+		}
+		_, _ = fmt.Fprint(w, `{
+  "id": "awesome-job-id",
+  "state": "canceling"
+}`)
+	})
+
+	job, _, err := client.Jobs.CancelJob(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id")
+	if err != nil {
+		t.Errorf("CancelJob returned error: %v", err)
+	}
+
+	want := Job{ID: "awesome-job-id", State: "canceling"}
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("CancelJob diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_CancelJobByOrg(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/jobs/awesome-job-id/cancel", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		if body := must(io.ReadAll(r.Body)); len(body) != 0 {
+			t.Errorf("request body = %q, want empty", body)
+		}
+		_, _ = fmt.Fprint(w, `{
+  "id": "awesome-job-id",
+  "state": "canceling"
+}`)
+	})
+
+	job, _, err := client.Jobs.CancelJobByOrg(context.Background(), "my-great-org", "awesome-job-id")
+	if err != nil {
+		t.Errorf("CancelJobByOrg returned error: %v", err)
+	}
+
+	want := Job{ID: "awesome-job-id", State: "canceling"}
+	if diff := cmp.Diff(job, want); diff != "" {
+		t.Errorf("CancelJobByOrg diff: (-got +want)\n%s", diff)
 	}
 }
 
