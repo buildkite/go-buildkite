@@ -1,3 +1,9 @@
+## [v5.23.0](https://github.com/buildkite/go-buildkite/compare/v5.22.0...v5.23.0) (2026-10-14)
+
+* Add flakiness scores to TestsService.Get [#397](https://github.com/buildkite/go-buildkite/pull/397) ([JuanitoFatas](https://github.com/JuanitoFatas))
+* Add Test.StateChangedAt [#398](https://github.com/buildkite/go-buildkite/pull/398) ([JuanitoFatas](https://github.com/JuanitoFatas))
+* Add Test Engine quarantine support [#377](https://github.com/buildkite/go-buildkite/pull/377) ([Megh03](https://github.com/Megh03))
+
 ## [v5.22.0](https://github.com/buildkite/go-buildkite/compare/v5.21.0...v5.22.0) (2026-10-12)
 
 * Add JobsService.CancelJob and CancelJobByOrg [#395](https://github.com/buildkite/go-buildkite/pull/395) ([mitchbne](https://github.com/mitchbne))
