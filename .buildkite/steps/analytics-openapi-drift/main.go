@@ -42,6 +42,12 @@ func main() {
 		{"TraceSpan", buildkite.TraceSpan{}},
 	}
 
+	// Fields that the spec declares inline on an operation response, not on
+	// the shared schema. Only the get test response returns these scores.
+	inlineFields := map[string][]string{
+		"TestWithMetrics": {"probabilistic_flakiness_score", "transition_count_score"},
+	}
+
 	drift := false
 	for _, responseType := range responseTypes {
 		want, err := schemaProperties(responseType.schema, schemas, nil)
@@ -49,6 +55,10 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			drift = true
 			continue
+		}
+		if extra := inlineFields[responseType.schema]; len(extra) > 0 {
+			want = append(want, extra...)
+			sort.Strings(want)
 		}
 		got := jsonFields(reflect.TypeOf(responseType.value))
 		if !reflect.DeepEqual(got, want) {
