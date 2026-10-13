@@ -558,7 +558,8 @@ func TestTestsService_ListByState(t *testing.T) {
 				"name": "passes only on the second try on BK CI",
 				"location": "flaky.spec.js:1",
 				"file_name": "flaky.spec.js",
-				"labels": []
+				"labels": [],
+				"state_changed_at": "2026-10-01T02:03:04.000Z"
 			}
 		]`)
 			})
@@ -580,6 +581,8 @@ func TestTestsService_ListByState(t *testing.T) {
 					Location: "flaky.spec.js:1",
 					FileName: "flaky.spec.js",
 					Labels:   []string{},
+
+					StateChangedAt: NewTimestamp(time.Date(2026, time.October, 1, 2, 3, 4, 0, time.UTC)),
 				},
 			}
 			if diff := cmp.Diff(got, want); diff != "" {
