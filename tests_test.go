@@ -262,6 +262,15 @@ func TestTestsService_Get(t *testing.T) {
 					"passed": 110,
 					"failed": 2,
 					"skipped": 1
+				},
+				"transition_count_score": {
+					"score": 0.4,
+					"transition_count": 2,
+					"result_count": 5,
+					"window_size": 5
+				},
+				"probabilistic_flakiness_score": {
+					"score": 0.216
 				}
 			}`)
 	})
@@ -297,6 +306,13 @@ func TestTestsService_Get(t *testing.T) {
 			"failed":  2,
 			"skipped": 1,
 		},
+		TransitionCountScore: &TransitionCountScore{
+			Score:           0.4,
+			TransitionCount: 2,
+			ResultCount:     5,
+			WindowSize:      5,
+		},
+		ProbabilisticFlakinessScore: &ProbabilisticFlakinessScore{Score: 0.216},
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
@@ -314,7 +330,7 @@ func TestTestsService_Get_NilOptionsAndPeriod(t *testing.T) {
 		if got := r.URL.RawQuery; got != "" {
 			t.Errorf("request query = %q, want empty", got)
 		}
-		_, _ = fmt.Fprint(w, `{"id": "nil-options", "reliability": null, "executions_count": 0}`)
+		_, _ = fmt.Fprint(w, `{"id": "nil-options", "reliability": null, "executions_count": 0, "transition_count_score": null, "probabilistic_flakiness_score": null}`)
 	})
 	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-example/tests/period", func(w http.ResponseWriter, r *http.Request) {
 		testFormValues(t, r, values{"period": "28days"})

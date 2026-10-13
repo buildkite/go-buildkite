@@ -70,6 +70,42 @@ type TestWithMetrics struct {
 	// Passed and failed are always present; skipped, pending, and unknown are
 	// present only when non-zero.
 	ExecutionsCountByResult map[string]int `json:"executions_count_by_result"`
+
+	// TransitionCountScore is the highest score across the suite's active
+	// transition count monitors. Only [TestsService.Get] returns it. It is nil
+	// when the suite has no active transition count monitor, or the monitor has
+	// not scored the test yet. The aggregation window does not apply.
+	TransitionCountScore *TransitionCountScore `json:"transition_count_score,omitempty"`
+
+	// ProbabilisticFlakinessScore is the test's latest probabilistic flakiness
+	// score. Only [TestsService.Get] returns it. It is nil when the suite has no
+	// probabilistic flakiness monitor, or the test has not been scored yet. The
+	// aggregation window does not apply.
+	ProbabilisticFlakinessScore *ProbabilisticFlakinessScore `json:"probabilistic_flakiness_score,omitempty"`
+}
+
+// TransitionCountScore is a test's score from a transition count monitor.
+type TransitionCountScore struct {
+	// Score is between 0.0 and 1.0. Higher means more frequent passed/failed
+	// transitions.
+	Score float64 `json:"score"`
+
+	// TransitionCount is the number of passed/failed transitions in the window.
+	TransitionCount int `json:"transition_count"`
+
+	// ResultCount is the number of results in the window.
+	ResultCount int `json:"result_count"`
+
+	// WindowSize is the maximum number of recent results the monitor scores.
+	WindowSize int `json:"window_size"`
+}
+
+// ProbabilisticFlakinessScore is a test's score from a probabilistic flakiness
+// monitor.
+type ProbabilisticFlakinessScore struct {
+	// Score is between 0.0 and 1.0. Higher means the test is more likely to be
+	// flaky.
+	Score float64 `json:"score"`
 }
 
 // TestsListOptions specifies optional parameters for [TestsService.List].
