@@ -35,6 +35,10 @@ type Test struct {
 	FileName string   `json:"file_name,omitempty"`
 	State    string   `json:"state,omitempty"`
 	Labels   []string `json:"labels,omitempty"`
+
+	// StateChangedAt is when the test entered its current state. It is nil for
+	// enabled tests, which carry no state record.
+	StateChangedAt *Timestamp `json:"state_changed_at,omitempty"`
 }
 
 // TestWithMetrics represents a test and its execution metrics aggregated over
