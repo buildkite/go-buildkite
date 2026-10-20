@@ -32,6 +32,24 @@ if err != nil {
 pipelines, _, err := client.Pipelines.List(*org, nil)
 ```
 
+## Test Engine workflows
+
+Use `client.TestWorkflows` to list and inspect workflows within a suite.
+Suite paths accept a slug or UUID. Requests require `read_suites`.
+
+Response types include monitor conditions, filters, alarm/recovery action
+configuration, identity, and links. Pointer fields distinguish absent fields
+from zero thresholds or null labels. Webhook endpoints retain the API's redaction.
+Unknown response types remain readable, and unknown response fields are ignored.
+
+```go
+workflow, _, err := client.TestWorkflows.Get(ctx, org, suite, workflowID)
+```
+
+See the [workflow example](test_workflows_example_test.go) for listing
+and inspection. Unavailable or unauthorized requests return errors rather than
+an empty workflow list. Workflow writes and event history are not included.
+
 ## Migrating to v5 update payloads
 
 Version 5 changes update request structs so PATCH requests can distinguish

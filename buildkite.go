@@ -85,6 +85,7 @@ type Client struct {
 	Tests                        *TestsService
 	TestRuns                     *TestRunsService
 	TestSuites                   *TestSuitesService
+	TestWorkflows                *TestWorkflowsService
 
 	authHeader      string
 	httpDebug       bool
@@ -260,6 +261,7 @@ func (c *Client) populateDefaultServices() {
 	c.Tests = &TestsService{c}
 	c.TestRuns = &TestRunsService{c}
 	c.TestSuites = &TestSuitesService{c}
+	c.TestWorkflows = &TestWorkflowsService{c}
 }
 
 // resolveURL properly handles base URLs with path prefixes by combining the base URL
