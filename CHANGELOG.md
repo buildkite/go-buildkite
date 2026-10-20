@@ -1,6 +1,6 @@
-## Unreleased
+## [v5.24.0](https://github.com/buildkite/go-buildkite/compare/v5.23.0...v5.24.0) (2026-10-21)
 
-* Add typed Test Engine workflow list and get support, including monitor conditions, filters, and alarm/recovery action configuration.
+* Add Test Engine workflow list and get support [#402](https://github.com/buildkite/go-buildkite/pull/402) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
 
 ## [v5.23.0](https://github.com/buildkite/go-buildkite/compare/v5.22.0...v5.23.0) (2026-10-14)
 
