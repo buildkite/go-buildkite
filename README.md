@@ -32,6 +32,34 @@ if err != nil {
 pipelines, _, err := client.Pipelines.List(*org, nil)
 ```
 
+## Test Engine workflows
+
+Use `client.TestWorkflows` to list, get, create, update, and delete workflows
+within a suite. Suite paths accept a slug or UUID. Reads require `read_suites`;
+writes require `write_suites` and permission to edit the suite.
+
+Monitor and action structs contain the fields for all supported types. Set only
+the fields for the selected type. Pointer fields preserve explicit zero values;
+validation and plan restrictions are enforced by the API, not by the client.
+Unknown response types remain readable, and unknown response fields are ignored.
+Pipeline and agent trigger actions are not supported for writes.
+
+PATCH requests leave unset fields unchanged. Monitor updates can include only
+the threshold being changed. Supplied action and filter lists replace the entire
+existing list; initialized empty lists clear them:
+
+```go
+threshold := 0.125
+_, _, err := client.TestWorkflows.Update(ctx, org, suite, workflowID, buildkite.TestWorkflowUpdate{
+    Monitor: buildkite.Some(buildkite.TestWorkflowMonitor{AlarmThreshold: &threshold}),
+    RecoverActions: buildkite.Some([]buildkite.TestWorkflowAction{}),
+    // Filters and alarm actions remain unchanged.
+})
+```
+
+See the [workflow example](test_workflows_example_test.go) for pagination and
+the full create, inspect, update, and delete lifecycle.
+
 ## Migrating to v5 update payloads
 
 Version 5 changes update request structs so PATCH requests can distinguish
