@@ -1,3 +1,7 @@
+## Unreleased
+
+* Add suite-scoped Test Engine workflow list, get, create, update, and delete support via `TestWorkflowsService`, with typed monitors, filters, and actions, pagination, and presence-aware PATCH inputs.
+
 ## [v5.23.0](https://github.com/buildkite/go-buildkite/compare/v5.22.0...v5.23.0) (2026-10-14)
 
 * Add flakiness scores to TestsService.Get [#397](https://github.com/buildkite/go-buildkite/pull/397) ([JuanitoFatas](https://github.com/JuanitoFatas))

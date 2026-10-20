@@ -81,6 +81,16 @@ See the [examples](https://github.com/buildkite/go-buildkite/tree/master/example
 
 Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.
 
+## Test Engine workflows
+
+`client.TestWorkflows` provides suite-scoped `List`, `Get`, `Create`, `Update`,
+and `Delete` methods. Updates preserve omitted fields; supplied filter and
+action lists replace existing lists. To clear a list, pass an empty slice,
+for example `Some([]TestWorkflowActionInput{})`.
+
+See the [workflow examples](examples/test_workflows) for usage and
+[API types](test_workflows.go) for monitor and action configuration.
+
 # Releasing
 
 1. Generate a changelog using [ghch](https://github.com/Songmu/ghch): `ghch --format=markdown --next-version=v<next-version-number>`, and update it in `CHANGELOG.md`
