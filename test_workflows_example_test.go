@@ -16,23 +16,16 @@ func ExampleTestWorkflowsService() {
 	ctx := context.Background()
 	const org, suite = "acme", "web"
 
-	opt := &buildkite.TestWorkflowListOptions{ListOptions: buildkite.ListOptions{PerPage: 100}}
-	for {
-		workflows, resp, err := client.TestWorkflows.List(ctx, org, suite, opt)
+	workflows, _, err := client.TestWorkflows.List(ctx, org, suite, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, workflow := range workflows {
+		log.Printf("%s: %s", workflow.ID, workflow.Monitor.Type)
+		detail, _, err := client.TestWorkflows.Get(ctx, org, suite, workflow.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, workflow := range workflows {
-			log.Printf("%s: %s", workflow.ID, workflow.Monitor.Type)
-			detail, _, err := client.TestWorkflows.Get(ctx, org, suite, workflow.ID)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Print(detail.WebURL)
-		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opt.Page = resp.NextPage
+		log.Print(detail.WebURL)
 	}
 }

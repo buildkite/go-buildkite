@@ -46,7 +46,7 @@ Unknown response types remain readable, and unknown response fields are ignored.
 workflow, _, err := client.TestWorkflows.Get(ctx, org, suite, workflowID)
 ```
 
-See the [workflow example](test_workflows_example_test.go) for paginated listing
+See the [workflow example](test_workflows_example_test.go) for listing
 and inspection. Unavailable or unauthorized requests return errors rather than
 an empty workflow list. Workflow writes and event history are not included.
 
