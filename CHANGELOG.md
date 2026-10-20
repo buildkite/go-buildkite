@@ -1,6 +1,6 @@
 ## Unreleased
 
-* Add typed Test Engine workflows list, get, create, update, and delete support, including partial monitor updates and explicit list clearing.
+* Add typed Test Engine workflow list and get support, including monitor conditions, filters, and alarm/recovery action configuration.
 
 ## [v5.23.0](https://github.com/buildkite/go-buildkite/compare/v5.22.0...v5.23.0) (2026-10-14)
 

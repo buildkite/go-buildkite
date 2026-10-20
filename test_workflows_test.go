@@ -63,20 +63,41 @@ func TestTestWorkflowsService_List(t *testing.T) {
 	}
 }
 
-func TestTestWorkflowsService_Create(t *testing.T) {
+func TestTestWorkflowsService_ListEmpty(t *testing.T) {
+	t.Parallel()
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+	server.HandleFunc("/v2/analytics/organizations/acme/suites/web/workflows", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{})
+		_, _ = fmt.Fprint(w, `[]`)
+	})
+	got, resp, err := client.TestWorkflows.List(context.Background(), "acme", "web", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if diff := cmp.Diff([]TestWorkflow{}, got); diff != "" {
+		t.Errorf("workflows (-want +got):\n%s", diff)
+	}
+	if resp.NextPage != 0 {
+		t.Errorf("next page = %d", resp.NextPage)
+	}
+}
+
+func TestTestWorkflowsService_Get(t *testing.T) {
 	t.Parallel()
 	window, alarm, recover := 100, 0.075, 0.0
 	aggregation, evaluationWindow, alarmMS, recoverMS := "p50", 12, 1501, 0
-	label, state, endpoint := "flaky", "muted", "https://example.com/hook"
+	label, state, endpoint := "flaky", "muted", "https://example.com/[REDACTED]"
 	workspace, channel, message := "workspace-1", "#tests", "{{ test.name }} alarmed"
-	team, title, description := "team-1", "Flaky test", "{{ test.name }}"
+	team, title, description, pipeline := "team-1", "Flaky test", "{{ test.name }}", "acme/tests"
 	actions := []TestWorkflowAction{
 		{Type: "add_label", Label: &label},
-		{Type: "remove_label", Label: &label},
 		{Type: "change_state", State: &state},
 		{Type: "send_webhook_notification", Endpoint: &endpoint},
 		{Type: "send_slack_notification", SlackWorkspaceID: &workspace, Channel: &channel, MessageTemplate: &message},
 		{Type: "create_linear_issue", LinearTeamID: &team, TitleTemplate: &title, DescriptionTemplate: &description},
+		{Type: "trigger_pipeline", Pipeline: &pipeline},
 	}
 	tests := []struct {
 		name    string
@@ -94,108 +115,35 @@ func TestTestWorkflowsService_Create(t *testing.T) {
 			t.Parallel()
 			server, client, teardown := newMockServerAndClient(t)
 			t.Cleanup(teardown)
-			server.HandleFunc("/v2/analytics/organizations/acme/suites/web/workflows", func(w http.ResponseWriter, r *http.Request) {
-				testMethod(t, r, "POST")
-				assertRequestJSON(t, r, `{"monitor":`+tt.json+`,"filters":[{"key":"scm.branch","operator":"is","value":"main"}],"alarm_actions":[
+			suiteID := "7c202aaa-3165-4811-9813-173c4c285463"
+			server.HandleFunc("/v2/analytics/organizations/acme/suites/"+suiteID+"/workflows/workflow-1", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, values{})
+				_, _ = fmt.Fprint(w, `{"id":"workflow-1","monitor":`+tt.json+`,"filters":[{"key":"scm.branch","operator":"is_not","value":"main"},{"key":"test.scope","operator":"starts_with","value":"api"}],"alarm_actions":[
 					{"type":"add_label","label":"flaky"},
-					{"type":"remove_label","label":"flaky"},
 					{"type":"change_state","state":"muted"},
-					{"type":"send_webhook_notification","endpoint":"https://example.com/hook"},
+					{"type":"send_webhook_notification","endpoint":"https://example.com/[REDACTED]"},
 					{"type":"send_slack_notification","slack_workspace_id":"workspace-1","channel":"#tests","message_template":"{{ test.name }} alarmed"},
-					{"type":"create_linear_issue","linear_team_id":"team-1","title_template":"Flaky test","description_template":"{{ test.name }}"}
-				]}`)
-				w.WriteHeader(http.StatusCreated)
-				_, _ = fmt.Fprint(w, `{"id":"workflow-1","monitor":`+tt.json+`}`)
+					{"type":"create_linear_issue","linear_team_id":"team-1","title_template":"Flaky test","description_template":"{{ test.name }}"},
+					{"type":"trigger_pipeline","pipeline":"acme/tests"}
+				],"recover_actions":[]}`)
 			})
-			got, resp, err := client.TestWorkflows.Create(context.Background(), "acme", "web", TestWorkflowCreate{
-				Monitor: tt.monitor, Filters: []TestWorkflowFilter{{Key: "scm.branch", Operator: "is", Value: "main"}}, AlarmActions: actions,
-			})
+			got, resp, err := client.TestWorkflows.Get(context.Background(), "acme", suiteID, "workflow-1")
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got.ID != "workflow-1" || resp.StatusCode != http.StatusCreated {
-				t.Errorf("create: workflow=%+v response=%+v", got, resp)
+			want := TestWorkflow{
+				ID: "workflow-1", Monitor: tt.monitor,
+				Filters:      []TestWorkflowFilter{{Key: "scm.branch", Operator: "is_not", Value: "main"}, {Key: "test.scope", Operator: "starts_with", Value: "api"}},
+				AlarmActions: actions, RecoverActions: []TestWorkflowAction{},
 			}
-			if diff := cmp.Diff(tt.monitor, got.Monitor); diff != "" {
-				t.Errorf("monitor (-want +got):\n%s", diff)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("workflow (-want +got):\n%s", diff)
 			}
-		})
-	}
-}
-
-func TestTestWorkflowsService_Update(t *testing.T) {
-	t.Parallel()
-	threshold, zero, empty, label := 0.125, 0.0, "", "flaky"
-	tests := []struct {
-		name  string
-		input TestWorkflowUpdate
-		json  string
-	}{
-		{"omitted", TestWorkflowUpdate{}, `{}`},
-		{"threshold only", TestWorkflowUpdate{Monitor: Some(TestWorkflowMonitor{AlarmThreshold: &threshold})}, `{"monitor":{"alarm_threshold":0.125}}`},
-		{"zero threshold", TestWorkflowUpdate{Monitor: Some(TestWorkflowMonitor{RecoverThreshold: &zero})}, `{"monitor":{"recover_threshold":0}}`},
-		{"clear filters", TestWorkflowUpdate{Filters: Some([]TestWorkflowFilter{})}, `{"filters":[]}`},
-		{"clear alarm actions", TestWorkflowUpdate{AlarmActions: Some([]TestWorkflowAction{})}, `{"alarm_actions":[]}`},
-		{"clear recover actions", TestWorkflowUpdate{RecoverActions: Some([]TestWorkflowAction{})}, `{"recover_actions":[]}`},
-		{"replace lists", TestWorkflowUpdate{
-			Filters:        Some([]TestWorkflowFilter{{Key: "scm.branch", Operator: "is_not", Value: "main"}, {Key: "test.scope", Operator: "starts_with", Value: "api"}}),
-			AlarmActions:   Some([]TestWorkflowAction{{Type: "add_label", Label: &label}}),
-			RecoverActions: Some([]TestWorkflowAction{{Type: "remove_label", Label: &label}}),
-		}, `{"filters":[{"key":"scm.branch","operator":"is_not","value":"main"},{"key":"test.scope","operator":"starts_with","value":"api"}],"alarm_actions":[{"type":"add_label","label":"flaky"}],"recover_actions":[{"type":"remove_label","label":"flaky"}]}`},
-		{"invalid input is not discarded", TestWorkflowUpdate{AlarmActions: Some([]TestWorkflowAction{{Type: "not_supported", Label: &empty}})}, `{"alarm_actions":[{"type":"not_supported","label":""}]}`},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			server, client, teardown := newMockServerAndClient(t)
-			t.Cleanup(teardown)
-			server.HandleFunc("/v2/analytics/organizations/acme/suites/web/workflows/workflow-1", func(w http.ResponseWriter, r *http.Request) {
-				testMethod(t, r, "PATCH")
-				assertRequestJSON(t, r, tt.json)
-				_, _ = fmt.Fprint(w, `{"id":"workflow-1"}`)
-			})
-			got, _, err := client.TestWorkflows.Update(context.Background(), "acme", "web", "workflow-1", tt.input)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if got.ID != "workflow-1" {
-				t.Errorf("workflow ID = %q", got.ID)
+			if resp.StatusCode != http.StatusOK {
+				t.Errorf("get status = %d", resp.StatusCode)
 			}
 		})
-	}
-}
-
-func TestTestWorkflowsService_GetDelete(t *testing.T) {
-	t.Parallel()
-	server, client, teardown := newMockServerAndClient(t)
-	t.Cleanup(teardown)
-	suiteID := "7c202aaa-3165-4811-9813-173c4c285463"
-	server.HandleFunc("/v2/analytics/organizations/acme/suites/"+suiteID+"/workflows/workflow-1", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			_, _ = fmt.Fprint(w, `{"id":"workflow-1","alarm_actions":[{"type":"send_webhook_notification","endpoint":"https://example.com/[REDACTED]"}]}`)
-		case "DELETE":
-			w.WriteHeader(http.StatusNoContent)
-		default:
-			t.Errorf("unexpected method %s", r.Method)
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
-	got, _, err := client.TestWorkflows.Get(context.Background(), "acme", suiteID, "workflow-1")
-	if err != nil {
-		t.Fatal(err)
-	}
-	endpoint := "https://example.com/[REDACTED]"
-	want := TestWorkflow{ID: "workflow-1", AlarmActions: []TestWorkflowAction{{Type: "send_webhook_notification", Endpoint: &endpoint}}}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("workflow (-want +got):\n%s", diff)
-	}
-	resp, err := client.TestWorkflows.Delete(context.Background(), "acme", suiteID, "workflow-1")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if resp.StatusCode != http.StatusNoContent {
-		t.Errorf("delete status = %d", resp.StatusCode)
 	}
 }
 
@@ -206,33 +154,26 @@ func TestTestWorkflowsService_Errors(t *testing.T) {
 		call func(context.Context, *Client) (*Response, error)
 	}{
 		{"list", func(ctx context.Context, c *Client) (*Response, error) {
-			_, r, e := c.TestWorkflows.List(ctx, "acme", "web", nil)
+			got, r, e := c.TestWorkflows.List(ctx, "acme", "web", nil)
+			if e != nil && got != nil {
+				t.Errorf("list returned workflows on error: %+v", got)
+			}
 			return r, e
 		}},
 		{"get", func(ctx context.Context, c *Client) (*Response, error) {
 			_, r, e := c.TestWorkflows.Get(ctx, "acme", "web", "workflow-1")
 			return r, e
 		}},
-		{"create", func(ctx context.Context, c *Client) (*Response, error) {
-			_, r, e := c.TestWorkflows.Create(ctx, "acme", "web", TestWorkflowCreate{})
-			return r, e
-		}},
-		{"update", func(ctx context.Context, c *Client) (*Response, error) {
-			_, r, e := c.TestWorkflows.Update(ctx, "acme", "web", "workflow-1", TestWorkflowUpdate{})
-			return r, e
-		}},
-		{"delete", func(ctx context.Context, c *Client) (*Response, error) {
-			return c.TestWorkflows.Delete(ctx, "acme", "web", "workflow-1")
-		}},
 	}
 	for _, call := range calls {
 		t.Run(call.name, func(t *testing.T) {
 			t.Parallel()
-			for _, status := range []int{http.StatusNotFound, http.StatusUnprocessableEntity} {
+			for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden, http.StatusNotFound} {
 				t.Run(fmt.Sprint(status), func(t *testing.T) {
 					server, client, teardown := newMockServerAndClient(t)
 					t.Cleanup(teardown)
-					body := `{"message":"Validation Failed","errors":[{"field":"/alarm_actions/1/channel","code":"required"}]}`
+					message := http.StatusText(status)
+					body := fmt.Sprintf(`{"message":%q}`, message)
 					server.HandleFunc("/v2/analytics/organizations/acme/", func(w http.ResponseWriter, r *http.Request) {
 						w.WriteHeader(status)
 						_, _ = fmt.Fprint(w, body)
@@ -242,7 +183,7 @@ func TestTestWorkflowsService_Errors(t *testing.T) {
 					if !errors.As(err, &apiErr) {
 						t.Fatalf("error = %v; want *ErrorResponse", err)
 					}
-					if resp == nil || resp.StatusCode != status || apiErr.Message != "Validation Failed" || string(apiErr.RawBody) != body {
+					if resp == nil || resp.StatusCode != status || apiErr.Message != message || string(apiErr.RawBody) != body {
 						t.Errorf("response=%+v error=%+v", resp, apiErr)
 					}
 				})
