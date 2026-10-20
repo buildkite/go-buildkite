@@ -124,6 +124,51 @@ func TestAnnotationsService_ListByBuild_WithSummaryOptions(t *testing.T) {
 	}
 }
 
+func TestAnnotationsService_ListByBuild_WithRawBodyFormat(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/annotations", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"body_format": "raw",
+		})
+		_, _ = fmt.Fprint(w, `[{
+			"id": "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
+			"context": "default",
+			"style": "info",
+			"scope": "build",
+			"priority": 3,
+			"body": "# My Markdown Heading\n<img src=\"artifact://indy.png\" alt=\"Belongs in a museum\" height=250 />",
+			"created_at": "2019-04-09T18:07:15.775Z",
+			"updated_at": "2019-08-06T20:58:49.396Z"
+		}]`)
+	})
+
+	annotations, _, err := client.Annotations.ListByBuild(context.Background(), "my-great-org", "sup-keith", "awesome-build", &AnnotationListOptions{
+		BodyFormat: "raw",
+	})
+	if err != nil {
+		t.Errorf("ListByBuild returned error: %v", err)
+	}
+
+	want := []Annotation{{
+		ID:        "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
+		Context:   "default",
+		Style:     "info",
+		Scope:     "build",
+		Priority:  3,
+		Body:      "# My Markdown Heading\n<img src=\"artifact://indy.png\" alt=\"Belongs in a museum\" height=250 />",
+		CreatedAt: NewTimestamp(time.Date(2019, 4, 9, 18, 7, 15, 775000000, time.UTC)),
+		UpdatedAt: NewTimestamp(time.Date(2019, 8, 6, 20, 58, 49, 396000000, time.UTC)),
+	}}
+	if diff := cmp.Diff(annotations, want); diff != "" {
+		t.Errorf("ListByBuild diff: (-got +want)\n%s", diff)
+	}
+}
+
 func TestAnnotationsService_Create(t *testing.T) {
 	t.Parallel()
 
@@ -241,6 +286,54 @@ func TestAnnotationsService_ListByJob(t *testing.T) {
 			UpdatedAt: NewTimestamp(time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)),
 		},
 	}
+	if diff := cmp.Diff(annotations, want); diff != "" {
+		t.Errorf("ListByJob diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestAnnotationsService_ListByJob_WithBodyOptions(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/a7c5b1d2-4f3e-4a1b-9c8d-6e2f1a3b4c5d/annotations", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"omit_body":   "false",
+			"body_format": "raw",
+		})
+		_, _ = fmt.Fprint(w, `[{
+			"id": "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
+			"context": "test-results",
+			"style": "success",
+			"scope": "job",
+			"priority": 3,
+			"body": "All **42** tests passed",
+			"created_at": "2024-01-15T10:30:00.000Z",
+			"updated_at": "2024-01-15T10:30:00.000Z"
+		}]`)
+	})
+
+	omitBody := false
+	annotations, _, err := client.Annotations.ListByJob(context.Background(), "my-great-org", "sup-keith", "awesome-build", "a7c5b1d2-4f3e-4a1b-9c8d-6e2f1a3b4c5d", &AnnotationListOptions{
+		OmitBody:   &omitBody,
+		BodyFormat: "raw",
+	})
+	if err != nil {
+		t.Errorf("ListByJob returned error: %v", err)
+	}
+
+	want := []Annotation{{
+		ID:        "de0d4ab5-6360-467a-a34b-e5ef5db5320d",
+		Context:   "test-results",
+		Style:     "success",
+		Scope:     "job",
+		Priority:  3,
+		Body:      "All **42** tests passed",
+		CreatedAt: NewTimestamp(time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)),
+		UpdatedAt: NewTimestamp(time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)),
+	}}
 	if diff := cmp.Diff(annotations, want); diff != "" {
 		t.Errorf("ListByJob diff: (-got +want)\n%s", diff)
 	}

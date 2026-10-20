@@ -23,6 +23,7 @@ type Annotation struct {
 	JobID     string     `json:"job_id,omitempty"`
 	Priority  int        `json:"priority,omitempty"`
 	BodyHTML  string     `json:"body_html,omitempty"`
+	Body      string     `json:"body,omitempty"`
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	UpdatedAt *Timestamp `json:"updated_at,omitempty"`
 }
@@ -36,11 +37,15 @@ type AnnotationCreate struct {
 }
 
 // AnnotationListOptions specifies the optional parameters to the
-// AnnotationsService.List method.
+// AnnotationsService.ListByBuild and AnnotationsService.ListByJob methods.
 type AnnotationListOptions struct {
 	ListOptions
 	Scope    string `url:"scope,omitempty"`
 	OmitBody *bool  `url:"omit_body,omitempty"`
+	// BodyFormat selects the annotation body representation: "html" (the API
+	// default) populates Annotation.BodyHTML, while "raw" populates
+	// Annotation.Body with the body as submitted and omits BodyHTML.
+	BodyFormat string `url:"body_format,omitempty"`
 }
 
 // ListByBuild gets annotations for a specific build
