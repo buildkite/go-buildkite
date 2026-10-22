@@ -17,6 +17,7 @@ var (
 	slug     = kingpin.Flag("slug", "Test suite slug").Required().String()
 	period   = kingpin.Flag("period", "Aggregation period").Default("7days").String()
 	branch   = kingpin.Flag("branch", "Branch filter expression").String()
+	labels   = kingpin.Flag("labels", "Comma-separated test labels (for example, flaky or flaky,!slow)").String()
 	sortBy   = kingpin.Flag("sort-by", "Metric used to sort tests").Default("reliability").String()
 	order    = kingpin.Flag("order", "Sort direction").Default("asc").String()
 )
@@ -32,6 +33,7 @@ func main() {
 	tests, _, err := client.Tests.List(context.Background(), *org, *slug, &buildkite.TestsListOptions{
 		Period: *period,
 		Branch: *branch,
+		Labels: *labels,
 		SortBy: *sortBy,
 		Order:  *order,
 	})
