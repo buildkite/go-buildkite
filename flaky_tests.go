@@ -26,6 +26,10 @@ type FlakyTest struct {
 
 type FlakyTestsListOptions struct{ ListOptions }
 
+// List lists flaky tests for a given suite.
+//
+// Deprecated: Use [TestsService.List] via Client.Tests.List with
+// TestsListOptions{Labels: "flaky"} instead.
 func (fts *FlakyTestsService) List(ctx context.Context, org, slug string, opt *FlakyTestsListOptions) ([]FlakyTest, *Response, error) {
 	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/flaky-tests", org, slug)
 	u, err := addOptions(u, opt)
