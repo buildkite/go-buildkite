@@ -385,7 +385,7 @@ func newResponse(r *http.Response) *Response {
 // various pagination link values in the Reponse.
 func (r *Response) populatePageValues() {
 	if links, ok := r.Header["Link"]; ok && len(links) > 0 {
-		for _, link := range strings.Split(links[0], ",") {
+		for _, link := range strings.Split(strings.Join(links, ","), ",") {
 			segments := strings.Split(strings.TrimSpace(link), ";")
 
 			// link must at least have href and rel
