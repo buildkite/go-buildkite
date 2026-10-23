@@ -23,6 +23,7 @@ type ClusterToken struct {
 	ClusterURL         string         `json:"cluster_url,omitempty"`
 	CreatedAt          *Timestamp     `json:"created_at,omitempty"`
 	CreatedBy          ClusterCreator `json:"created_by,omitempty"`
+	ExpiresAt          *Timestamp     `json:"expires_at,omitempty"`
 	Token              string         `json:"token,omitempty"`
 }
 
@@ -30,6 +31,10 @@ type ClusterToken struct {
 type ClusterTokenCreate struct {
 	Description        string `json:"description,omitempty"`
 	AllowedIPAddresses string `json:"allowed_ip_addresses,omitempty"`
+	// ExpiresAt is when the token stops letting new agents register. The API
+	// requires it to be at least 10 minutes in the future, and it cannot be
+	// changed after creation. Leave it nil for a token that never expires.
+	ExpiresAt *Timestamp `json:"expires_at,omitempty"`
 }
 
 // ClusterTokenUpdate represents the request body for updating a cluster token.
