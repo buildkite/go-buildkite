@@ -2,7 +2,6 @@ package buildkite
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -171,25 +170,22 @@ func TestClusterTokensService_Create(t *testing.T) {
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
 
-	input := ClusterTokenCreate{Description: "Development 2 cluster token"}
+	expiresAt := must(time.Parse(BuildKiteDateFormat, "2026-11-01T09:30:00Z"))
+	input := ClusterTokenCreate{
+		Description: "Development 2 cluster token",
+		ExpiresAt:   NewTimestamp(expiresAt),
+	}
 
 	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
-		var v ClusterTokenCreate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
-
 		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
-		}
+		assertRequestJSON(t, r, `{"description":"Development 2 cluster token","expires_at":"2026-11-01T09:30:00Z"}`)
 
 		_, _ = fmt.Fprint(w,
 			`
 			{
-				"description": "Development 2 cluster token"
+				"id": "9cb33339-1c4a-4020-9aeb-3319b2e1f054",
+				"description": "Development 2 cluster token",
+				"expires_at": "2026-11-01T09:30:00.000Z"
 			}`)
 	})
 
@@ -198,9 +194,32 @@ func TestClusterTokensService_Create(t *testing.T) {
 		t.Errorf("TestClusterTokens.Create returned error: %v", err)
 	}
 
-	want := ClusterToken{Description: "Development 2 cluster token"}
+	want := ClusterToken{
+		ID:          "9cb33339-1c4a-4020-9aeb-3319b2e1f054",
+		Description: "Development 2 cluster token",
+		ExpiresAt:   NewTimestamp(expiresAt),
+	}
 	if diff := cmp.Diff(token, want); diff != "" {
 		t.Errorf("TestClusterTokens.Create diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestClusterTokensService_CreateWithoutExpiry(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/clusters/b7c9bc4f-526f-4c18-a3be-dc854ab75d57/tokens", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		assertRequestJSON(t, r, `{"description":"Development 2 cluster token"}`)
+
+		_, _ = fmt.Fprint(w, `{"description": "Development 2 cluster token"}`)
+	})
+
+	_, _, err := client.ClusterTokens.Create(context.Background(), "my-great-org", "b7c9bc4f-526f-4c18-a3be-dc854ab75d57", ClusterTokenCreate{Description: "Development 2 cluster token"})
+	if err != nil {
+		t.Errorf("TestClusterTokens.Create returned error: %v", err)
 	}
 }
 
