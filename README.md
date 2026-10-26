@@ -87,6 +87,11 @@ _, _, err := client.Clusters.Update(ctx, org, clusterID, buildkite.ClusterUpdate
 })
 ```
 
+Use `buildkite.Null[T]()` to send explicit JSON `null` for a nullable field.
+For example, `BranchConfiguration: buildkite.Null[string]()` clears the stored
+pipeline branch filter. `buildkite.Some("")` still sends an empty string, not null.
+Only use `Null` where the API accepts null.
+
 Some create/update request types were split so create calls keep plain required
 values while update calls use presence-aware fields:
 
@@ -94,6 +99,44 @@ values while update calls use presence-aware fields:
 - `PipelineTemplateCreateUpdate` is now `PipelineTemplateCreate` and `PipelineTemplateUpdate`.
 - `CreateTeam` is still used for team creation; `UpdateTeam` is now used for team updates.
 - `TestSuitesService.Update` now takes `TestSuiteUpdate`.
+
+## GitHub pipeline settings
+
+Use `GitHubSettingsInput` in `CreatePipeline.ProviderSettings` or
+`UpdatePipeline.ProviderSettings` to send only the settings you specify.
+Unset fields are omitted, `Some(false)` sends false, and `Null[string]()` clears
+`FilterCondition` or `PullRequestBranchFilterConfiguration`.
+
+```go
+_, _, err := client.Pipelines.Update(ctx, org, pipelineSlug, buildkite.UpdatePipeline{
+    BranchConfiguration:       buildkite.Null[string](),
+    SkipQueuedBranchBuilds:    buildkite.Some(false),
+    CancelRunningBranchBuilds: buildkite.Some(false),
+    ProviderSettings: buildkite.Some[buildkite.ProviderSettings](&buildkite.GitHubSettingsInput{
+        GitHubActionsMode:                 buildkite.Some(true),
+        GitHubWorkflowAccessTokensEnabled: buildkite.Some(true),
+        PublishCommitStatus:              buildkite.Some(false),
+        TriggerMode:                      buildkite.Some("none"),
+    }),
+})
+```
+
+Pipeline responses still decode GitHub settings as `*GitHubSettings`. The new
+GHAC and baseline boolean fields use pointers so absent fields stay absent and
+explicit false values survive JSON readback. Existing fields and legacy
+`GitHubSettings` writes keep their previous behavior, including sending every
+existing boolean. Use `GitHubSettingsInput` for partial writes instead of
+resending response settings. Existing response string fields still decode null
+as an empty string; use the request type to choose omission, null, or a string.
+
+On create, an omitted `CreatePipeline.BranchConfiguration` uses the API's null
+default. On update, use `Null[string]()` to clear an existing branch filter.
+
+These fields represent configuration, not server feature availability. They do
+not create a GitHub Actions pipeline trigger or repository webhook. Follow the
+[native GHAC setup](https://buildkite.com/docs/pipelines/migration/run-github-actions-workflows)
+for the complete settings and separate trigger request. GitHub Enterprise
+Server is not supported by native GHAC setup or workflow access tokens.
 
 See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
 
