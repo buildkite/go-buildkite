@@ -138,6 +138,51 @@ not create a GitHub Actions pipeline trigger or repository webhook. Follow the
 for the complete settings and separate trigger request. GitHub Enterprise
 Server is not supported by native GHAC setup or workflow access tokens.
 
+## Pipeline template assignment
+
+Set `CreatePipeline.PipelineTemplateUUID` to create a pipeline backed by an
+existing template. Leave `Configuration` and `Steps` unset; no placeholder YAML
+is required. Without a template, supply YAML configuration or visual steps as
+appropriate for the pipeline. The server validates template availability and
+configuration requirements.
+
+```go
+pipeline, _, err := client.Pipelines.Create(ctx, org, buildkite.CreatePipeline{
+    Name:                 "Example",
+    Repository:           "https://github.com/example/repo.git",
+    ClusterID:            clusterID,
+    PipelineTemplateUUID: templateUUID,
+})
+```
+
+On update, use `PipelineTemplateUUID: buildkite.Some(templateUUID)` to assign a
+template, or `PipelineTemplateUUID: buildkite.Null[string]()` to remove the
+assignment. Leaving the field unset preserves the existing assignment. If
+needed, supply replacement `Configuration` in the same update. Pipeline
+responses expose `PipelineTemplateUUID` as `*string`; null or absent values
+decode as nil.
+
+## Traditional GitHub webhook processing
+
+Use `client.Pipelines.GetGitHubWebhookProcessing(ctx, org, pipelineSlug)` to
+read processing state. `EnableGitHubWebhookProcessing` and
+`DisableGitHubWebhookProcessing` enable and disable it. All three return
+`(GitHubWebhookProcessing, *Response, error)`. The state includes `URL`,
+`Enabled`, nullable `DisabledAt` (`*Timestamp`), and nullable `DisabledBy`
+(`*string`, the user's name). Repeated enable or disable requests return the
+current state.
+
+These methods use GET, PUT, and DELETE on the pipeline's `github-webhooks`
+endpoint, with no request body. They require Full Access to the pipeline and
+`read_pipelines` for get or `write_pipelines` for enable/disable. Availability
+depends on organization enrollment and a GitHub or GitHub Enterprise provider.
+Permission/scope failures and availability/provider 404 responses remain API
+errors; the client does not treat them as disabled state.
+
+Disabling processing does not delete repository webhooks or disable dedicated
+GitHub Actions pipeline triggers. `AddWebhook` remains the separate POST
+`webhook` operation that creates a repository webhook.
+
 See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
 
 Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.
