@@ -138,6 +138,58 @@ not create a GitHub Actions pipeline trigger or repository webhook. Follow the
 for the complete settings and separate trigger request. GitHub Enterprise
 Server is not supported by native GHAC setup or workflow access tokens.
 
+## Provider settings maps
+
+Use `ProviderSettingsMap` for settings not represented by a typed input. It
+implements `ProviderSettings`, so existing request fields accept either form:
+
+```go
+settings := buildkite.ProviderSettingsMap{
+    "build_branches":   false,
+    "trigger_mode":     "",
+    "filter_condition": nil,
+}
+
+created, _, err := client.Pipelines.Create(ctx, org, buildkite.CreatePipeline{
+    Name:             "Example",
+    Repository:       "https://github.com/example/repo.git",
+    ClusterID:        clusterID,
+    ProviderSettings: settings,
+})
+
+updated, _, err := client.Pipelines.Update(ctx, org, pipelineSlug, buildkite.UpdatePipeline{
+    ProviderSettings: buildkite.Some[buildkite.ProviderSettings](settings),
+})
+```
+
+Only included keys are sent. Omission, `false`, `""`, and `nil` (JSON null)
+remain distinct. Values can include nested maps, slices, `json.Number`, and
+valid `json.RawMessage` for JSON passthrough. Use `json.Number` or integer types
+instead of `float64` when writing numbers that need exact precision. Unsupported
+Go values and invalid raw JSON return an encoding error before sending a request.
+
+Leave the request field unset to omit `provider_settings`. An initialized empty
+map sends `{}`; a nil map supplied to either request sends `null`. These values
+do not imply that the API clears all settings. The server determines which
+properties, values, and providers it accepts; the map does not bypass validation
+or make a server feature available.
+
+Pipeline responses expose complete settings objects in `Provider.SettingsMap`,
+including unknown properties and unknown providers. All map numbers, including
+numbers inside nested objects and arrays, decode as `json.Number`. Missing keys
+remain absent, JSON null becomes `nil`, and empty objects remain empty maps.
+For unknown providers, `Provider.Settings` remains nil. Known providers retain
+their existing typed settings and decoding errors. Unknown providers with
+non-object settings remain accepted, but their `SettingsMap` is nil.
+
+`Settings` and `SettingsMap` are independent snapshots. Editing one does not
+update the other. `SettingsMap` is excluded from JSON serialization; marshaling
+a provider still uses only the legacy typed `Settings` view and does not retain
+unknown properties. Marshal `SettingsMap` itself if you need the complete object.
+The client does not merge these views or automatically resend response settings.
+Build a write map with only intended writable keys, not the full response map,
+which can contain read-only properties such as `repository`.
+
 See the [examples](https://github.com/buildkite/go-buildkite/tree/master/examples) directory for additional examples.
 
 Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.

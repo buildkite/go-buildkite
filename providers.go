@@ -1,12 +1,20 @@
 package buildkite
 
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+)
 
 // Provider represents a source code provider. It is read-only, but settings may be written using Pipeline.ProviderSettings.
 type Provider struct {
 	ID         string           `json:"id"`
 	WebhookURL string           `json:"webhook_url"`
 	Settings   ProviderSettings `json:"settings"`
+
+	// SettingsMap contains all response settings, including unknown properties.
+	// Numbers, including nested values, decode as json.Number. This snapshot is
+	// independent of Settings and is excluded from JSON serialization.
+	SettingsMap ProviderSettingsMap `json:"-"`
 }
 
 // UnmarshalJSON decodes the Provider, choosing the type of the Settings from the ID.
@@ -33,15 +41,28 @@ func (p *Provider) UnmarshalJSON(data []byte) error {
 		settings = &GitHubEnterpriseSettings{}
 	case "gitlab", "gitlab_ee":
 		settings = &GitLabSettings{}
-	default:
+	}
+
+	if settings != nil {
+		err = json.Unmarshal(v.Settings, settings)
+		if err != nil {
+			return err
+		}
+		p.Settings = settings
+	}
+
+	// Unknown providers previously accepted non-object settings without decoding them.
+	if settings == nil && len(v.Settings) > 0 && v.Settings[0] != '{' {
 		return nil
 	}
 
-	err = json.Unmarshal(v.Settings, settings)
-	if err != nil {
-		return err
+	if len(v.Settings) > 0 {
+		decoder := json.NewDecoder(bytes.NewReader(v.Settings))
+		decoder.UseNumber()
+		if err := decoder.Decode(&p.SettingsMap); err != nil {
+			return err
+		}
 	}
-	p.Settings = settings
 
 	return nil
 }
@@ -50,6 +71,14 @@ func (p *Provider) UnmarshalJSON(data []byte) error {
 type ProviderSettings interface {
 	isProviderSettings()
 }
+
+// ProviderSettingsMap sends provider settings without a typed schema.
+// Only included keys are sent; false, empty strings and nil encode as false,
+// "" and null. Values may include nested maps, slices and json.RawMessage.
+// The API determines which settings and values it accepts.
+type ProviderSettingsMap map[string]any
+
+func (s ProviderSettingsMap) isProviderSettings() {}
 
 // BitbucketSettings are settings for pipelines building from Bitbucket repositories.
 type BitbucketSettings struct {

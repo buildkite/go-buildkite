@@ -15,8 +15,9 @@ func TestUnmarshalBitbucketProvider(t *testing.T) {
 	}
 
 	want := Provider{
-		ID:       "bitbucket",
-		Settings: &BitbucketSettings{Repository: "my-bitbucket-repo"},
+		ID:          "bitbucket",
+		Settings:    &BitbucketSettings{Repository: "my-bitbucket-repo"},
+		SettingsMap: ProviderSettingsMap{"repository": "my-bitbucket-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -32,8 +33,9 @@ func TestUnmarshalGitHubProvider(t *testing.T) {
 	}
 
 	want := Provider{
-		ID:       "github",
-		Settings: &GitHubSettings{Repository: "my-github-repo"},
+		ID:          "github",
+		Settings:    &GitHubSettings{Repository: "my-github-repo"},
+		SettingsMap: ProviderSettingsMap{"repository": "my-github-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -49,8 +51,9 @@ func TestUnmarshalGitHubEnterpriseProvider(t *testing.T) {
 	}
 
 	want := Provider{
-		ID:       "github_enterprise",
-		Settings: &GitHubEnterpriseSettings{Repository: "my-github-enterprise-repo"},
+		ID:          "github_enterprise",
+		Settings:    &GitHubEnterpriseSettings{Repository: "my-github-enterprise-repo"},
+		SettingsMap: ProviderSettingsMap{"repository": "my-github-enterprise-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -66,8 +69,9 @@ func TestUnmarshalGitLabProvider(t *testing.T) {
 	}
 
 	want := Provider{
-		ID:       "gitlab",
-		Settings: &GitLabSettings{Repository: "my-gitlab-repo"},
+		ID:          "gitlab",
+		Settings:    &GitLabSettings{Repository: "my-gitlab-repo"},
+		SettingsMap: ProviderSettingsMap{"repository": "my-gitlab-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -83,8 +87,9 @@ func TestUnmarshalGitLabEnterpriseProvider(t *testing.T) {
 	}
 
 	want := Provider{
-		ID:       "gitlab_ee",
-		Settings: &GitLabSettings{Repository: "my-gitlab-repo"},
+		ID:          "gitlab_ee",
+		Settings:    &GitLabSettings{Repository: "my-gitlab-repo"},
+		SettingsMap: ProviderSettingsMap{"repository": "my-gitlab-repo"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
@@ -100,11 +105,55 @@ func TestUnmarshalUnknownProvider(t *testing.T) {
 	}
 
 	want := Provider{
-		ID:       "unknown",
-		Settings: nil,
+		ID:          "unknown",
+		Settings:    nil,
+		SettingsMap: ProviderSettingsMap{"emoji": ":shrug:"},
 	}
 
 	if diff := cmp.Diff(provider, want); diff != "" {
 		t.Errorf("Unmarshalling unknown provider JSON produced unexpected output. diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestProviderSettingsDecodeErrors(t *testing.T) {
+	for _, data := range []string{
+		`{"id":"github","settings":{"build_branches":"invalid"}}`,
+		`{"id":"github","settings":[]}`,
+		`{"id":"github"}`,
+		`{"id":"github","settings":{"extra":}}`,
+	} {
+		t.Run(data, func(t *testing.T) {
+			var provider Provider
+			if err := json.Unmarshal([]byte(data), &provider); err == nil {
+				t.Fatal("invalid provider settings decoded without error")
+			}
+		})
+	}
+}
+
+func TestProviderSettingsEmptyAndReused(t *testing.T) {
+	var provider Provider
+	for _, tt := range []struct {
+		data string
+		want ProviderSettingsMap
+	}{
+		{`{"id":"github","settings":{"build_branches":true}}`, ProviderSettingsMap{"build_branches": true}},
+		{`{"id":"github","settings":{}}`, ProviderSettingsMap{}},
+		{`{"id":"github","settings":null}`, nil},
+		{`{"id":"unknown","settings":{"extra":false}}`, ProviderSettingsMap{"extra": false}},
+		{`{"id":"unknown","settings": []}`, nil},
+		{`{"id":"unknown","settings": "opaque"}`, nil},
+		{`{"id":"unknown","settings":null}`, nil},
+		{`{"id":"unknown"}`, nil},
+	} {
+		if err := json.Unmarshal([]byte(tt.data), &provider); err != nil {
+			t.Fatalf("Unmarshal %s: %v", tt.data, err)
+		}
+		if diff := cmp.Diff(tt.want, provider.SettingsMap); diff != "" {
+			t.Errorf("SettingsMap for %s (-want +got):\n%s", tt.data, diff)
+		}
+		if provider.ID == "unknown" && provider.Settings != nil {
+			t.Errorf("unknown provider has typed settings: %T", provider.Settings)
+		}
 	}
 }

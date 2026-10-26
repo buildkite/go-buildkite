@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestPipelinesService_List(t *testing.T) {
@@ -577,7 +580,7 @@ func TestPipelinesService_CreateGitHubActions(t *testing.T) {
 			BuildTags:                         true,
 			TriggerMode:                       "none",
 		}},
-	}, got); diff != "" {
+	}, got, cmpopts.IgnoreFields(Provider{}, "SettingsMap")); diff != "" {
 		t.Errorf("Create response (-want +got):\n%s", diff)
 	}
 }
@@ -654,6 +657,16 @@ func TestPipelinesService_UpdateGitHubSettings(t *testing.T) {
 			name: "ordinary update omits provider and filters",
 			in:   UpdatePipeline{Description: Some("Ordinary pipeline")},
 			want: `{"description":"Ordinary pipeline"}`,
+		},
+		{
+			name: "empty settings map",
+			in:   UpdatePipeline{ProviderSettings: Some[ProviderSettings](ProviderSettingsMap{})},
+			want: `{"provider_settings":{}}`,
+		},
+		{
+			name: "nil settings map",
+			in:   UpdatePipeline{ProviderSettings: Some[ProviderSettings](ProviderSettingsMap(nil))},
+			want: `{"provider_settings":null}`,
 		},
 		{
 			name: "legacy GitHub writes keep existing booleans",
@@ -757,7 +770,7 @@ func TestPipelinesService_GetGitHubActionsSettings(t *testing.T) {
 				settings.SkipBuildsForClosedPullRequests = boolPtr(!tt.enabled)
 				settings.SkipBuildsForExistingCommits = boolPtr(tt.enabled)
 			}
-			if diff := cmp.Diff(want, got); diff != "" {
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Provider{}, "SettingsMap")); diff != "" {
 				t.Errorf("Get response (-want +got):\n%s", diff)
 			}
 			encoded, err := json.Marshal(got)
@@ -781,10 +794,152 @@ func TestPipelinesService_GetGitHubActionsSettings(t *testing.T) {
 			if err := json.Unmarshal(encoded, &roundTrip); err != nil {
 				t.Fatalf("Unmarshal pipeline: %v", err)
 			}
-			if diff := cmp.Diff(want, roundTrip); diff != "" {
+			if diff := cmp.Diff(want, roundTrip, cmpopts.IgnoreFields(Provider{}, "SettingsMap")); diff != "" {
 				t.Errorf("Pipeline JSON round trip (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestPipelinesService_ProviderSettingsMap(t *testing.T) {
+	t.Parallel()
+
+	const settingsJSON = `{"build_branches":false,"filter_condition":null,"trigger_mode":"",
+		"future":{"values":[9007199254740993,null,false,"",{"decimal":1.234567890123456789}]},
+		"large":18446744073709551615,"repository":"read-only-repo"}`
+	wantMap := ProviderSettingsMap{
+		"build_branches": false, "filter_condition": nil, "trigger_mode": "",
+		"future": map[string]any{"values": []any{
+			json.Number("9007199254740993"), nil, false, "",
+			map[string]any{"decimal": json.Number("1.234567890123456789")},
+		}},
+		"large": json.Number("18446744073709551615"), "repository": "read-only-repo",
+	}
+	writeMap := ProviderSettingsMap{
+		"build_branches": false, "filter_condition": nil, "trigger_mode": "",
+		"future": json.RawMessage(`{"values":[9007199254740993,null,false,"",{"decimal":1.234567890123456789}]}`),
+		"large":  json.Number("18446744073709551615"),
+	}
+	const writeJSON = `{"build_branches":false,"filter_condition":null,"trigger_mode":"",
+		"future":{"values":[9007199254740993,null,false,"",{"decimal":1.234567890123456789}]},
+		"large":18446744073709551615}`
+	assertNumberRequest := func(r *http.Request, want string) {
+		t.Helper()
+		// Avoid float64 conversion so rounding cannot hide a precision failure.
+		var values [2]map[string]any
+		for i, reader := range []io.Reader{r.Body, strings.NewReader(want)} {
+			decoder := json.NewDecoder(reader)
+			decoder.UseNumber()
+			if err := decoder.Decode(&values[i]); err != nil {
+				t.Errorf("Decode request comparison: %v", err)
+				return
+			}
+		}
+		if diff := cmp.Diff(values[1], values[0]); diff != "" {
+			t.Errorf("Request (-want +got):\n%s", diff)
+		}
+	}
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+	server.HandleFunc("/v2/organizations/example/pipelines", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		assertNumberRequest(r, `{"name":"Example","repository":"https://example.com/repo.git","cluster_id":"cluster",
+			"skip_queued_branch_builds":false,"cancel_running_branch_builds":false,"provider_settings":`+writeJSON+`}`)
+		w.WriteHeader(http.StatusCreated)
+		_, _ = fmt.Fprintf(w, `{"provider":{"id":"github","settings":%s}}`, settingsJSON)
+	})
+	server.HandleFunc("/v2/organizations/example/pipelines/example", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "PATCH":
+			assertNumberRequest(r, `{"provider_settings":`+writeJSON+`}`)
+		case "GET":
+		default:
+			t.Errorf("Unexpected method: %s", r.Method)
+		}
+		_, _ = fmt.Fprintf(w, `{"provider":{"id":"unknown","settings":%s}}`, settingsJSON)
+	})
+
+	created, _, err := client.Pipelines.Create(context.Background(), "example", CreatePipeline{
+		Name: "Example", Repository: "https://example.com/repo.git", ClusterID: "cluster", ProviderSettings: writeMap,
+	})
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	updated, _, err := client.Pipelines.Update(context.Background(), "example", "example", UpdatePipeline{
+		ProviderSettings: Some[ProviderSettings](writeMap),
+	})
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	fetched, _, err := client.Pipelines.Get(context.Background(), "example", "example")
+	if err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	for _, pipeline := range []Pipeline{created, updated, fetched} {
+		if diff := cmp.Diff(wantMap, pipeline.Provider.SettingsMap); diff != "" {
+			t.Errorf("%s readback (-want +got):\n%s", pipeline.Provider.ID, diff)
+		}
+		if pipeline.Provider.ID == "unknown" {
+			if pipeline.Provider.Settings != nil {
+				t.Errorf("Unknown provider has typed settings: %T", pipeline.Provider.Settings)
+			}
+			encoded, err := json.Marshal(pipeline.Provider)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(encoded), `{"id":"unknown","webhook_url":"","settings":null}`)
+		}
+	}
+	settings, ok := created.Provider.Settings.(*GitHubSettings)
+	if !ok {
+		t.Fatalf("Typed settings = %T, want *GitHubSettings", created.Provider.Settings)
+	}
+	if diff := cmp.Diff(&GitHubSettings{Repository: "read-only-repo"}, settings); diff != "" {
+		t.Errorf("Typed readback (-want +got):\n%s", diff)
+	}
+	settings.BuildBranches = true
+	if created.Provider.SettingsMap["build_branches"] != false {
+		t.Error("Typed mutation changed SettingsMap")
+	}
+	created.Provider.SettingsMap["repository"] = "map-only-repo"
+	if settings.Repository != "read-only-repo" {
+		t.Error("Map mutation changed typed settings")
+	}
+	encoded, err := json.Marshal(created.Provider)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var wire struct {
+		Settings map[string]json.RawMessage `json:"settings"`
+	}
+	if err := json.Unmarshal(encoded, &wire); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := wire.Settings["future"]; ok || string(wire.Settings["repository"]) != `"read-only-repo"` || string(wire.Settings["build_branches"]) != "true" {
+		t.Errorf("Provider serialization did not retain only the typed view: %s", encoded)
+	}
+}
+
+func TestPipelinesService_InvalidProviderSettingsMap(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+	server.HandleFunc("/v2/organizations/example/", func(w http.ResponseWriter, r *http.Request) {
+		t.Errorf("Invalid settings sent an HTTP request: %s %s", r.Method, r.URL)
+		w.WriteHeader(http.StatusBadRequest)
+	})
+	for _, value := range []any{make(chan bool), json.RawMessage(`{"invalid":}`)} {
+		settings := ProviderSettingsMap{"extra": value}
+		if _, _, err := client.Pipelines.Create(context.Background(), "example", CreatePipeline{ProviderSettings: settings}); err == nil {
+			t.Error("Create accepted invalid JSON settings")
+		}
+		if _, _, err := client.Pipelines.Update(context.Background(), "example", "example", UpdatePipeline{
+			ProviderSettings: Some[ProviderSettings](settings),
+		}); err == nil {
+			t.Error("Update accepted invalid JSON settings")
+		}
 	}
 }
 
