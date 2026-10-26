@@ -3,9 +3,12 @@ package buildkite
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -305,6 +308,7 @@ func TestPipelinesService_Get(t *testing.T) {
 		testMethod(t, r, "GET")
 		_, _ = fmt.Fprint(w, `{"id":"123",
 						"slug":"my-great-pipeline-slug",
+						"pipeline_template_uuid":"00000000-0000-4000-8000-000000000001",
 						"timeout_in_minutes": "1",
 						"agent_query_rules": [
 							"queue=default",
@@ -317,7 +321,8 @@ func TestPipelinesService_Get(t *testing.T) {
 		t.Errorf("Pipelines.Get returned error: %v", err)
 	}
 
-	want := Pipeline{ID: "123", Slug: "my-great-pipeline-slug"}
+	templateUUID := "00000000-0000-4000-8000-000000000001"
+	want := Pipeline{ID: "123", Slug: "my-great-pipeline-slug", PipelineTemplateUUID: &templateUUID}
 	if diff := cmp.Diff(pipeline, want); diff != "" {
 		t.Errorf("Pipelines.Get diff: (-got +want)\n%s", diff)
 	}
@@ -783,6 +788,199 @@ func TestPipelinesService_GetGitHubActionsSettings(t *testing.T) {
 			}
 			if diff := cmp.Diff(want, roundTrip); diff != "" {
 				t.Errorf("Pipeline JSON round trip (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestPipelinesService_CreateWithTemplateOrConfiguration(t *testing.T) {
+	t.Parallel()
+
+	templateUUID := "00000000-0000-4000-8000-000000000001"
+	for _, tt := range []struct {
+		name         string
+		input        CreatePipeline
+		wantFields   string
+		response     string
+		wantTemplate *string
+	}{
+		{
+			name:         "template without configuration or steps",
+			input:        CreatePipeline{PipelineTemplateUUID: templateUUID},
+			wantFields:   `,"pipeline_template_uuid":"` + templateUUID + `"`,
+			response:     `{"pipeline_template_uuid":"` + templateUUID + `"}`,
+			wantTemplate: &templateUUID,
+		},
+		{
+			name:       "YAML without template",
+			input:      CreatePipeline{Configuration: "steps:\n  - command: echo test\n"},
+			wantFields: `,"configuration":"steps:\n  - command: echo test\n"`,
+			response:   `{"pipeline_template_uuid":null}`,
+		},
+		{
+			name:       "visual steps without template",
+			input:      CreatePipeline{Steps: []Step{{Type: "script", Command: "echo test"}}},
+			wantFields: `,"steps":[{"type":"script","command":"echo test"}]`,
+			response:   `{}`,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc("/v2/organizations/example/pipelines", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "POST")
+				assertRequestJSON(t, r, `{"name":"Example","repository":"https://github.com/example/repo.git",
+					"cluster_id":"cluster","skip_queued_branch_builds":false,"cancel_running_branch_builds":false`+tt.wantFields+`}`)
+				w.WriteHeader(http.StatusCreated)
+				_, _ = fmt.Fprint(w, tt.response)
+			})
+			tt.input.Name = "Example"
+			tt.input.Repository = "https://github.com/example/repo.git"
+			tt.input.ClusterID = "cluster"
+			got, _, err := client.Pipelines.Create(context.Background(), "example", tt.input)
+			if err != nil {
+				t.Fatalf("Create: %v", err)
+			}
+			if diff := cmp.Diff(Pipeline{PipelineTemplateUUID: tt.wantTemplate}, got); diff != "" {
+				t.Errorf("Create response (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestPipelinesService_UpdatePipelineTemplate(t *testing.T) {
+	t.Parallel()
+
+	templateUUID := "00000000-0000-4000-8000-000000000002"
+	for _, tt := range []struct {
+		name         string
+		input        UpdatePipeline
+		want         string
+		response     string
+		wantTemplate *string
+	}{
+		{"assign", UpdatePipeline{PipelineTemplateUUID: Some(templateUUID)},
+			`{"pipeline_template_uuid":"` + templateUUID + `"}`, `{"pipeline_template_uuid":"` + templateUUID + `"}`, &templateUUID},
+		{"omit", UpdatePipeline{Description: Some("Updated")},
+			`{"description":"Updated"}`, `{"pipeline_template_uuid":"` + templateUUID + `"}`, &templateUUID},
+		{"remove", UpdatePipeline{PipelineTemplateUUID: Null[string]()},
+			`{"pipeline_template_uuid":null}`, `{"pipeline_template_uuid":null}`, nil},
+		{"remove and supply YAML", UpdatePipeline{PipelineTemplateUUID: Null[string](), Configuration: Some("steps: []")},
+			`{"pipeline_template_uuid":null,"configuration":"steps: []"}`, `{"pipeline_template_uuid":null}`, nil},
+		{"empty is not null", UpdatePipeline{PipelineTemplateUUID: Some("")},
+			`{"pipeline_template_uuid":""}`, `{"pipeline_template_uuid":null}`, nil},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc("/v2/organizations/example/pipelines/example", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "PATCH")
+				assertRequestJSON(t, r, tt.want)
+				_, _ = fmt.Fprint(w, tt.response)
+			})
+			got, _, err := client.Pipelines.Update(context.Background(), "example", "example", tt.input)
+			if err != nil {
+				t.Fatalf("Update: %v", err)
+			}
+			if diff := cmp.Diff(Pipeline{PipelineTemplateUUID: tt.wantTemplate}, got); diff != "" {
+				t.Errorf("Update response (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestPipelinesService_GitHubWebhookProcessing(t *testing.T) {
+	t.Parallel()
+
+	const stateURL = "https://api.buildkite.com/v2/organizations/example/pipelines/example/github-webhooks"
+	const enabledJSON = `{"url":"` + stateURL + `","enabled":true,"disabled_at":null,"disabled_by":null}`
+	const disabledJSON = `{"url":"` + stateURL + `","enabled":false,"disabled_at":"2026-01-15T09:30:00.123Z","disabled_by":"Example User"}`
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+	enabled := true
+	server.HandleFunc("/v2/organizations/example/pipelines/example/github-webhooks", func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil || len(body) != 0 {
+			t.Errorf("Expected empty request body, got %q, error %v", body, err)
+		}
+		switch r.Method {
+		case "GET":
+		case "PUT":
+			enabled = true
+		case "DELETE":
+			enabled = false
+		default:
+			t.Errorf("Unexpected method %s", r.Method)
+		}
+		if enabled {
+			_, _ = fmt.Fprint(w, enabledJSON)
+		} else {
+			_, _ = fmt.Fprint(w, disabledJSON)
+		}
+	})
+	user := "Example User"
+	enabledState := GitHubWebhookProcessing{URL: stateURL, Enabled: true}
+	disabledState := GitHubWebhookProcessing{URL: stateURL, DisabledAt: NewTimestamp(time.Date(2026, 1, 15, 9, 30, 0, 123000000, time.UTC)), DisabledBy: &user}
+	for _, tt := range []struct {
+		method string
+		call   func(context.Context, string, string) (GitHubWebhookProcessing, *Response, error)
+		want   GitHubWebhookProcessing
+	}{
+		{"GET", client.Pipelines.GetGitHubWebhookProcessing, enabledState},
+		{"DELETE", client.Pipelines.DisableGitHubWebhookProcessing, disabledState},
+		{"DELETE", client.Pipelines.DisableGitHubWebhookProcessing, disabledState},
+		{"GET", client.Pipelines.GetGitHubWebhookProcessing, disabledState},
+		{"PUT", client.Pipelines.EnableGitHubWebhookProcessing, enabledState},
+		{"PUT", client.Pipelines.EnableGitHubWebhookProcessing, enabledState},
+		{"GET", client.Pipelines.GetGitHubWebhookProcessing, enabledState},
+	} {
+		got, resp, err := tt.call(context.Background(), "example", "example")
+		if err != nil {
+			t.Fatalf("%s: %v", tt.method, err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("%s status = %d, want 200", tt.method, resp.StatusCode)
+		}
+		if diff := cmp.Diff(tt.want, got); diff != "" {
+			t.Errorf("%s state (-want +got):\n%s", tt.method, diff)
+		}
+		if method := server.calls[len(server.calls)-1].Method; method != tt.method {
+			t.Errorf("Request method = %s, want %s", method, tt.method)
+		}
+	}
+}
+
+func TestPipelinesService_GitHubWebhookProcessingErrors(t *testing.T) {
+	t.Parallel()
+
+	for _, status := range []int{http.StatusForbidden, http.StatusNotFound} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			const body = `{"message":"Request not permitted"}`
+			server.HandleFunc("/v2/organizations/example/pipelines/example/github-webhooks", func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(status)
+				_, _ = fmt.Fprint(w, body)
+			})
+			for _, call := range []func(context.Context, string, string) (GitHubWebhookProcessing, *Response, error){
+				client.Pipelines.GetGitHubWebhookProcessing,
+				client.Pipelines.EnableGitHubWebhookProcessing,
+				client.Pipelines.DisableGitHubWebhookProcessing,
+			} {
+				got, resp, err := call(context.Background(), "example", "example")
+				var apiErr *ErrorResponse
+				if !errors.As(err, &apiErr) {
+					t.Fatalf("Error = %v, want *ErrorResponse", err)
+				}
+				if resp == nil || resp.StatusCode != status || apiErr.Response.StatusCode != status || apiErr.Message != "Request not permitted" || string(apiErr.RawBody) != body {
+					t.Errorf("API error not preserved: response=%v error=%+v", resp, apiErr)
+				}
+				if diff := cmp.Diff(GitHubWebhookProcessing{}, got); diff != "" {
+					t.Errorf("Error returned nonzero state: %s", diff)
+				}
 			}
 		})
 	}

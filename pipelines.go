@@ -24,7 +24,7 @@ type CreatePipeline struct {
 	Repository string `json:"repository"`
 	ClusterID  string `json:"cluster_id"`
 
-	// Either configuration needs to be specified as a yaml string or steps.
+	// Supply Configuration, Steps, or PipelineTemplateUUID for the pipeline's steps.
 	Configuration string `json:"configuration,omitempty"`
 	Steps         []Step `json:"steps,omitempty"`
 
@@ -44,11 +44,12 @@ type CreatePipeline struct {
 	Teams                           map[string]string `json:"teams,omitempty"`
 	Visibility                      string            `json:"visibility,omitempty"`
 	Tags                            []string          `json:"tags,omitempty"`
+	PipelineTemplateUUID            string            `json:"pipeline_template_uuid,omitempty"`
 }
 
 // UpdatePipeline represents the request body for updating a pipeline.
 type UpdatePipeline struct {
-	// Either configuration needs to be specified as a yaml string or steps (based on what the pipeline uses)
+	// Leave these unset when retaining existing steps or assigning a pipeline template.
 	Configuration Optional[string] `json:"configuration,omitzero"`
 	Steps         Optional[[]Step] `json:"steps,omitzero"`
 
@@ -67,6 +68,7 @@ type UpdatePipeline struct {
 	ClusterID                       Optional[string]           `json:"cluster_id,omitzero"`
 	Visibility                      Optional[string]           `json:"visibility,omitzero"`
 	Tags                            Optional[[]string]         `json:"tags,omitzero"`
+	PipelineTemplateUUID            Optional[string]           `json:"pipeline_template_uuid,omitzero"`
 }
 
 // Pipeline represents a buildkite pipeline.
@@ -92,6 +94,7 @@ type Pipeline struct {
 	ClusterID                       string     `json:"cluster_id,omitempty"`
 	Visibility                      string     `json:"visibility,omitempty"`
 	Tags                            []string   `json:"tags,omitempty"`
+	PipelineTemplateUUID            *string    `json:"pipeline_template_uuid,omitempty"`
 
 	ScheduledBuildsCount int `json:"scheduled_builds_count,omitempty"`
 	RunningBuildsCount   int `json:"running_builds_count,omitempty"`
@@ -275,6 +278,75 @@ func (ps *PipelinesService) AddWebhook(ctx context.Context, org string, slug str
 	}
 
 	return ps.client.Do(req, nil)
+}
+
+// GitHubWebhookProcessing represents a pipeline's traditional GitHub webhook processing state.
+// These controls do not delete repository webhooks or affect GitHub Actions pipeline triggers.
+type GitHubWebhookProcessing struct {
+	URL        string     `json:"url"`
+	Enabled    bool       `json:"enabled"`
+	DisabledAt *Timestamp `json:"disabled_at"`
+	DisabledBy *string    `json:"disabled_by"`
+}
+
+// GetGitHubWebhookProcessing fetches the traditional GitHub webhook processing state.
+// It requires read_pipelines scope and Full Access to the pipeline.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#get-github-webhook-processing-state
+func (ps *PipelinesService) GetGitHubWebhookProcessing(ctx context.Context, org, slug string) (GitHubWebhookProcessing, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/github-webhooks", org, slug)
+	req, err := ps.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return GitHubWebhookProcessing{}, nil, err
+	}
+
+	var state GitHubWebhookProcessing
+	resp, err := ps.client.Do(req, &state)
+	if err != nil {
+		return GitHubWebhookProcessing{}, resp, err
+	}
+
+	return state, resp, nil
+}
+
+// EnableGitHubWebhookProcessing enables traditional GitHub webhook processing and returns its state.
+// It requires write_pipelines scope and Full Access to the pipeline.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#enable-github-webhook-processing
+func (ps *PipelinesService) EnableGitHubWebhookProcessing(ctx context.Context, org, slug string) (GitHubWebhookProcessing, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/github-webhooks", org, slug)
+	req, err := ps.client.NewRequest(ctx, "PUT", u, nil)
+	if err != nil {
+		return GitHubWebhookProcessing{}, nil, err
+	}
+
+	var state GitHubWebhookProcessing
+	resp, err := ps.client.Do(req, &state)
+	if err != nil {
+		return GitHubWebhookProcessing{}, resp, err
+	}
+
+	return state, resp, nil
+}
+
+// DisableGitHubWebhookProcessing disables traditional GitHub webhook processing and returns its state.
+// It requires write_pipelines scope and Full Access to the pipeline.
+//
+// Buildkite API docs: https://buildkite.com/docs/apis/rest-api/pipelines#disable-github-webhook-processing
+func (ps *PipelinesService) DisableGitHubWebhookProcessing(ctx context.Context, org, slug string) (GitHubWebhookProcessing, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/github-webhooks", org, slug)
+	req, err := ps.client.NewRequest(ctx, "DELETE", u, nil)
+	if err != nil {
+		return GitHubWebhookProcessing{}, nil, err
+	}
+
+	var state GitHubWebhookProcessing
+	resp, err := ps.client.Do(req, &state)
+	if err != nil {
+		return GitHubWebhookProcessing{}, resp, err
+	}
+
+	return state, resp, nil
 }
 
 // Archive - Archives a pipeline.
