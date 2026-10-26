@@ -1,3 +1,8 @@
+## [v5.25.0](https://github.com/buildkite/go-buildkite/compare/v5.24.0...v5.25.0) (2026-10-26)
+
+* Support GitHub Actions pipeline settings safely [#407](https://github.com/buildkite/go-buildkite/pull/407) ([mcncl](https://github.com/mcncl))
+* Deprecate the flaky-tests endpoint in favor of test labels [#404](https://github.com/buildkite/go-buildkite/pull/404) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+
 ## [v5.24.0](https://github.com/buildkite/go-buildkite/compare/v5.23.0...v5.24.0) (2026-10-21)
 
 * Add Test Engine workflow list and get support [#402](https://github.com/buildkite/go-buildkite/pull/402) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
