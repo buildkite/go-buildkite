@@ -1,3 +1,9 @@
+## [v5.26.0](https://github.com/buildkite/go-buildkite/compare/v5.25.0...v5.26.0) (2026-10-26)
+
+* Add ExpiresAt to ClusterTokenCreate and ClusterToken [#405](https://github.com/buildkite/go-buildkite/pull/405) ([dahtey-bk](https://github.com/dahtey-bk))
+* Support pipeline templates and GitHub webhook processing [#410](https://github.com/buildkite/go-buildkite/pull/410) ([mcncl](https://github.com/mcncl))
+* Add a changelog for v5.25.0 [#408](https://github.com/buildkite/go-buildkite/pull/408) ([mcncl](https://github.com/mcncl))
+
 ## [v5.25.0](https://github.com/buildkite/go-buildkite/compare/v5.24.0...v5.25.0) (2026-10-26)
 
 * Support GitHub Actions pipeline settings safely [#407](https://github.com/buildkite/go-buildkite/pull/407) ([mcncl](https://github.com/mcncl))
