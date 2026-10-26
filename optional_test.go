@@ -33,6 +33,13 @@ func TestOptionalMarshalJSON(t *testing.T) {
 			want: `{"name":""}`,
 		},
 		{
+			name: "explicit null is sent",
+			in: payload{
+				Name: Null[string](),
+			},
+			want: `{"name":null}`,
+		},
+		{
 			name: "false is sent",
 			in: payload{
 				Enabled: Some(false),

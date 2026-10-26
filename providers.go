@@ -69,7 +69,13 @@ type BitbucketSettings struct {
 func (s *BitbucketSettings) isProviderSettings() {}
 
 // GitHubSettings are settings for pipelines building from GitHub repositories.
+// Use GitHubSettingsInput for partial writes that leave unspecified settings unchanged.
 type GitHubSettings struct {
+	GitHubActionsMode                       *bool  `json:"github_actions_mode,omitempty"`
+	GitHubWorkflowAccessTokensEnabled       *bool  `json:"github_workflow_access_tokens_enabled,omitempty"`
+	IgnoreDefaultBranchPullRequests         *bool  `json:"ignore_default_branch_pull_requests,omitempty"`
+	SkipBuildsForClosedPullRequests         *bool  `json:"skip_builds_for_closed_pull_requests,omitempty"`
+	SkipBuildsForExistingCommits            *bool  `json:"skip_builds_for_existing_commits,omitempty"`
 	TriggerMode                             string `json:"trigger_mode,omitempty"`
 	BuildPullRequests                       bool   `json:"build_pull_requests"`
 	BuildBranches                           bool   `json:"build_branches"`
@@ -91,6 +97,36 @@ type GitHubSettings struct {
 }
 
 func (s *GitHubSettings) isProviderSettings() {}
+
+// GitHubSettingsInput configures GitHub provider settings on pipeline creation
+// or update. Unset fields are omitted; Some(false) explicitly disables a setting.
+// Null[string]() clears FilterCondition or PullRequestBranchFilterConfiguration.
+// GitHub Actions settings require server-side availability and do not provision
+// a pipeline trigger or repository webhook.
+type GitHubSettingsInput struct {
+	GitHubActionsMode                       Optional[bool]   `json:"github_actions_mode,omitzero"`
+	GitHubWorkflowAccessTokensEnabled       Optional[bool]   `json:"github_workflow_access_tokens_enabled,omitzero"`
+	IgnoreDefaultBranchPullRequests         Optional[bool]   `json:"ignore_default_branch_pull_requests,omitzero"`
+	SkipBuildsForClosedPullRequests         Optional[bool]   `json:"skip_builds_for_closed_pull_requests,omitzero"`
+	SkipBuildsForExistingCommits            Optional[bool]   `json:"skip_builds_for_existing_commits,omitzero"`
+	TriggerMode                             Optional[string] `json:"trigger_mode,omitzero"`
+	BuildPullRequests                       Optional[bool]   `json:"build_pull_requests,omitzero"`
+	BuildBranches                           Optional[bool]   `json:"build_branches,omitzero"`
+	PullRequestBranchFilterEnabled          Optional[bool]   `json:"pull_request_branch_filter_enabled,omitzero"`
+	PullRequestBranchFilterConfiguration    Optional[string] `json:"pull_request_branch_filter_configuration,omitzero"`
+	SkipPullRequestBuildsForExistingCommits Optional[bool]   `json:"skip_pull_request_builds_for_existing_commits,omitzero"`
+	BuildPullRequestForks                   Optional[bool]   `json:"build_pull_request_forks,omitzero"`
+	PrefixPullRequestForkBranchNames        Optional[bool]   `json:"prefix_pull_request_fork_branch_names,omitzero"`
+	BuildTags                               Optional[bool]   `json:"build_tags,omitzero"`
+	PublishCommitStatus                     Optional[bool]   `json:"publish_commit_status,omitzero"`
+	PublishCommitStatusPerStep              Optional[bool]   `json:"publish_commit_status_per_step,omitzero"`
+	FilterEnabled                           Optional[bool]   `json:"filter_enabled,omitzero"`
+	FilterCondition                         Optional[string] `json:"filter_condition,omitzero"`
+	SeparatePullRequestStatuses             Optional[bool]   `json:"separate_pull_request_statuses,omitzero"`
+	PublishBlockedAsPending                 Optional[bool]   `json:"publish_blocked_as_pending,omitzero"`
+}
+
+func (s *GitHubSettingsInput) isProviderSettings() {}
 
 // GitHubEnterpriseSettings are settings for pipelines building from GitHub Enterprise repositories.
 type GitHubEnterpriseSettings struct {
