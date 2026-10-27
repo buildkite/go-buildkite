@@ -210,6 +210,198 @@ func TestOrganizationsService_GetActiveUsersUsageErrors(t *testing.T) {
 	})
 }
 
+func TestOrganizationsService_GetHostedAgentsUsage(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		org      string
+		path     string
+		opt      HostedAgentsUsageOptions
+		query    values
+		body     string
+		scope    string
+		interval string
+		summary  HostedAgentsUsageSummary
+		items    []HostedAgentsUsageItem
+	}{
+		{
+			name:  "daily_preserves_period_rounding_and_int64",
+			org:   "acme",
+			path:  "/v2/organizations/acme/usage/hosted-agents",
+			opt:   HostedAgentsUsageOptions{From: "2026-10-23", To: "2026-10-25"},
+			query: values{"from": "2026-10-23", "to": "2026-10-25"},
+			body: `{
+				"description":"Hosted usage can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-23","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"day","unit":"vCPU-minutes",
+				"definition":"CPU-weighted recognized shapes, combined by resource before flooring minutes.",
+				"summary":{"vcpu_minutes":2147483660,"vcpu_minutes_by_resource":{
+					"hosted_agents_linux_amd64_vcpu_minutes":2147483650,
+					"hosted_agents_linux_arm64_vcpu_minutes":5,
+					"hosted_agents_macos_m4_vcpu_minutes":5,
+					"hosted_agents_windows_amd64_vcpu_minutes":0
+				}},
+				"items":[
+					{"date":"2026-10-23","vcpu_minutes_by_resource":{
+						"hosted_agents_linux_amd64_vcpu_minutes":1073741824,
+						"hosted_agents_linux_arm64_vcpu_minutes":1,
+						"hosted_agents_macos_m4_vcpu_minutes":2,
+						"hosted_agents_windows_amd64_vcpu_minutes":0
+					}},
+					{"date":"2026-10-24","vcpu_minutes_by_resource":{
+						"hosted_agents_linux_amd64_vcpu_minutes":0,
+						"hosted_agents_linux_arm64_vcpu_minutes":0,
+						"hosted_agents_macos_m4_vcpu_minutes":0,
+						"hosted_agents_windows_amd64_vcpu_minutes":0
+					}},
+					{"date":"2026-10-25","vcpu_minutes_by_resource":{
+						"hosted_agents_linux_amd64_vcpu_minutes":1073741825,
+						"hosted_agents_linux_arm64_vcpu_minutes":3,
+						"hosted_agents_macos_m4_vcpu_minutes":2,
+						"hosted_agents_windows_amd64_vcpu_minutes":0
+					}}
+				]
+			}`,
+			scope:    "organization_and_billing_children",
+			interval: "day",
+			summary: HostedAgentsUsageSummary{VCPUMinutes: 2147483660, VCPUMinutesByResource: map[string]int64{
+				"hosted_agents_linux_amd64_vcpu_minutes":   2147483650,
+				"hosted_agents_linux_arm64_vcpu_minutes":   5,
+				"hosted_agents_macos_m4_vcpu_minutes":      5,
+				"hosted_agents_windows_amd64_vcpu_minutes": 0,
+			}},
+			items: []HostedAgentsUsageItem{
+				{Date: "2026-10-23", VCPUMinutesByResource: map[string]int64{
+					"hosted_agents_linux_amd64_vcpu_minutes":   1073741824,
+					"hosted_agents_linux_arm64_vcpu_minutes":   1,
+					"hosted_agents_macos_m4_vcpu_minutes":      2,
+					"hosted_agents_windows_amd64_vcpu_minutes": 0,
+				}},
+				{Date: "2026-10-24", VCPUMinutesByResource: map[string]int64{
+					"hosted_agents_linux_amd64_vcpu_minutes":   0,
+					"hosted_agents_linux_arm64_vcpu_minutes":   0,
+					"hosted_agents_macos_m4_vcpu_minutes":      0,
+					"hosted_agents_windows_amd64_vcpu_minutes": 0,
+				}},
+				{Date: "2026-10-25", VCPUMinutesByResource: map[string]int64{
+					"hosted_agents_linux_amd64_vcpu_minutes":   1073741825,
+					"hosted_agents_linux_arm64_vcpu_minutes":   3,
+					"hosted_agents_macos_m4_vcpu_minutes":      2,
+					"hosted_agents_windows_amd64_vcpu_minutes": 0,
+				}},
+			},
+		},
+		{
+			name:  "zero_monthly_uuid",
+			org:   "7c202aaa-3165-4811-9813-173c4c285463",
+			path:  "/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/hosted-agents",
+			opt:   HostedAgentsUsageOptions{From: "2026-10-15", To: "2026-10-25", Interval: "month"},
+			query: values{"from": "2026-10-15", "to": "2026-10-25", "interval": "month"},
+			body: `{
+				"description":"Hosted usage can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-15","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization","interval":"month","unit":"vCPU-minutes",
+				"definition":"CPU-weighted recognized shapes, combined by resource before flooring minutes.",
+				"summary":{"vcpu_minutes":0,"vcpu_minutes_by_resource":{
+					"hosted_agents_linux_amd64_vcpu_minutes":0,
+					"hosted_agents_linux_arm64_vcpu_minutes":0,
+					"hosted_agents_macos_m4_vcpu_minutes":0,
+					"hosted_agents_windows_amd64_vcpu_minutes":0
+				}},
+				"items":[{"date":"2026-10-01","vcpu_minutes_by_resource":{
+					"hosted_agents_linux_amd64_vcpu_minutes":0,
+					"hosted_agents_linux_arm64_vcpu_minutes":0,
+					"hosted_agents_macos_m4_vcpu_minutes":0,
+					"hosted_agents_windows_amd64_vcpu_minutes":0
+				}}]
+			}`,
+			scope:    "organization",
+			interval: "month",
+			summary: HostedAgentsUsageSummary{VCPUMinutesByResource: map[string]int64{
+				"hosted_agents_linux_amd64_vcpu_minutes":   0,
+				"hosted_agents_linux_arm64_vcpu_minutes":   0,
+				"hosted_agents_macos_m4_vcpu_minutes":      0,
+				"hosted_agents_windows_amd64_vcpu_minutes": 0,
+			}},
+			items: []HostedAgentsUsageItem{{Date: "2026-10-01", VCPUMinutesByResource: map[string]int64{
+				"hosted_agents_linux_amd64_vcpu_minutes":   0,
+				"hosted_agents_linux_arm64_vcpu_minutes":   0,
+				"hosted_agents_macos_m4_vcpu_minutes":      0,
+				"hosted_agents_windows_amd64_vcpu_minutes": 0,
+			}}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc(tt.path, func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, tt.query)
+				_, _ = fmt.Fprint(w, tt.body)
+			})
+			got, resp, err := client.Organizations.GetHostedAgentsUsage(context.Background(), tt.org, &tt.opt)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := HostedAgentsUsage{
+				Description:     "Hosted usage can change as late events arrive.",
+				ReportingPeriod: UsageReportingPeriod{From: tt.opt.From, To: tt.opt.To},
+				GeneratedAt:     NewTimestamp(time.Date(2026, 10, 27, 3, 4, 5, 0, time.UTC)),
+				Scope:           tt.scope,
+				Interval:        tt.interval,
+				Unit:            "vCPU-minutes",
+				Definition:      "CPU-weighted recognized shapes, combined by resource before flooring minutes.",
+				Summary:         tt.summary,
+				Items:           tt.items,
+			}
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("hosted-agent usage (-want +got):\n%s", diff)
+			}
+			if resp == nil || resp.StatusCode != http.StatusOK {
+				t.Fatalf("response = %+v; want status 200", resp)
+			}
+			data, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(data), tt.body)
+		})
+	}
+}
+
+func TestOrganizationsService_GetHostedAgentsUsageErrors(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{http.StatusBadRequest, http.StatusServiceUnavailable} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			body := fmt.Sprintf(`{"message":%q}`, http.StatusText(status))
+			server.HandleFunc("/v2/organizations/acme/usage/hosted-agents", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, values{})
+				w.WriteHeader(status)
+				_, _ = fmt.Fprint(w, body)
+			})
+			got, resp, err := client.Organizations.GetHostedAgentsUsage(context.Background(), "acme", nil)
+			var apiErr *ErrorResponse
+			if !errors.As(err, &apiErr) || resp == nil || resp.StatusCode != status {
+				t.Fatalf("response=%+v error=%v; want API error %d", resp, err, status)
+			}
+			if apiErr.Message != http.StatusText(status) || string(apiErr.RawBody) != body {
+				t.Errorf("error=%+v", apiErr)
+			}
+			if diff := cmp.Diff(HostedAgentsUsage{}, got); diff != "" {
+				t.Errorf("report returned on error (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestOrganizationsService_GetConcurrentAgentsUsage(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

@@ -189,3 +189,87 @@ func (os *OrganizationsService) GetConcurrentAgentsUsage(ctx context.Context, or
 
 	return usage, resp, nil
 }
+
+// HostedAgentsUsageOptions specifies the reporting period and interval for
+// [OrganizationsService.GetHostedAgentsUsage]. The API validates these values.
+type HostedAgentsUsageOptions struct {
+	// From and To are required inclusive UTC dates in YYYY-MM-DD format.
+	// From must be no earlier than three calendar months before today;
+	// To must be no later than today and no earlier than From.
+	From string `url:"from,omitempty"`
+	To   string `url:"to,omitempty"`
+
+	// Interval is "day" (the default) or "month".
+	Interval string `url:"interval,omitempty"`
+}
+
+// HostedAgentsUsageSummary contains CPU-weighted usage, combining instance
+// shapes by resource before flooring minutes, like the Usage table/overview.
+// Unrecognized shapes are excluded. These totals can differ from sums of
+// independently rounded interval values.
+type HostedAgentsUsageSummary struct {
+	VCPUMinutes int64 `json:"vcpu_minutes"`
+
+	// VCPUMinutesByResource always contains all four canonical keys, including
+	// zeros: hosted_agents_linux_amd64_vcpu_minutes,
+	// hosted_agents_linux_arm64_vcpu_minutes, hosted_agents_macos_m4_vcpu_minutes,
+	// and hosted_agents_windows_amd64_vcpu_minutes.
+	VCPUMinutesByResource map[string]int64 `json:"vcpu_minutes_by_resource"`
+}
+
+// HostedAgentsUsageItem contains CPU-weighted minutes floored per resource and
+// interval, like the Usage chart. It uses the same four resource keys as the
+// summary, including zeros.
+type HostedAgentsUsageItem struct {
+	// Date is YYYY-MM-DD. Monthly buckets use the first of the calendar month,
+	// even for partial-month requests; values honor the exact requested range.
+	Date                  string           `json:"date"`
+	VCPUMinutesByResource map[string]int64 `json:"vcpu_minutes_by_resource"`
+}
+
+// HostedAgentsUsage reports hosted compute using the Usage page's calculations.
+// Late events can revise values on cache refresh.
+type HostedAgentsUsage struct {
+	Description     string               `json:"description"`
+	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
+
+	// GeneratedAt is the calculation time, retained in cached reports,
+	// not an ingestion watermark.
+	GeneratedAt *Timestamp `json:"generated_at"`
+
+	// Scope is "organization" when there are no billing children, otherwise
+	// "organization_and_billing_children".
+	Scope string `json:"scope"`
+
+	Interval   string                   `json:"interval"`
+	Unit       string                   `json:"unit"`
+	Definition string                   `json:"definition"`
+	Summary    HostedAgentsUsageSummary `json:"summary"`
+	Items      []HostedAgentsUsageItem  `json:"items"`
+}
+
+// GetHostedAgentsUsage returns hosted compute usage for an organization (slug
+// or UUID) and its billing children, without pagination. Requests require
+// read_organizations and access to the requested organization. Invalid options
+// (400), a disabled usage-breakdowns feature (404), and unavailable usage data
+// (503) remain API errors rather than empty reports.
+func (os *OrganizationsService) GetHostedAgentsUsage(ctx context.Context, org string, opt *HostedAgentsUsageOptions) (HostedAgentsUsage, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/usage/hosted-agents", org)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return HostedAgentsUsage{}, nil, err
+	}
+
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return HostedAgentsUsage{}, nil, err
+	}
+
+	var usage HostedAgentsUsage
+	resp, err := os.client.Do(req, &usage)
+	if err != nil {
+		return HostedAgentsUsage{}, resp, err
+	}
+
+	return usage, resp, nil
+}

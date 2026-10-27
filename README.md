@@ -100,6 +100,36 @@ paginated; per-organization breakdowns are not embedded in this report.
 
 See the [concurrent-agent usage example](examples/organizations/concurrent_agents_usage).
 
+## Hosted-agent usage
+
+Use `client.Organizations.GetHostedAgentsUsage` with `HostedAgentsUsageOptions`
+containing `From`, `To`, and optional `Interval` (`day` by default, or `month`).
+Dates, organization identifiers, scopes, authorization, errors, and caching
+follow the active-user report above. The bounded series has no pagination.
+
+```go
+usage, _, err := client.Organizations.GetHostedAgentsUsage(ctx, org, &buildkite.HostedAgentsUsageOptions{
+    From: "2026-10-01",
+    To:   "2026-10-25",
+})
+```
+
+`Summary.VCPUMinutes` and `Summary.VCPUMinutesByResource` preserve the Usage
+table/overview's CPU-weighted period totals: shapes are combined by resource
+before flooring minutes. Items floor each resource/interval independently,
+like the chart, so adding rounded daily values can differ from the summary.
+Unknown instance shapes are excluded from weighted metrics. The SDK does not
+recalculate or reconcile these values.
+
+Summary and item resource maps always include these keys, including zeros:
+
+- `hosted_agents_linux_amd64_vcpu_minutes`
+- `hosted_agents_linux_arm64_vcpu_minutes`
+- `hosted_agents_macos_m4_vcpu_minutes`
+- `hosted_agents_windows_amd64_vcpu_minutes`
+
+See the [hosted-agent usage example](examples/organizations/hosted_agents_usage).
+
 ## Test Engine workflows
 
 Use `client.TestWorkflows` to list and inspect workflows within a suite.
