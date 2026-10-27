@@ -209,3 +209,211 @@ func TestOrganizationsService_GetActiveUsersUsageErrors(t *testing.T) {
 		}
 	})
 }
+
+func TestOrganizationsService_GetConcurrentAgentsUsage(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name       string
+		org        string
+		path       string
+		opt        ConcurrentAgentsUsageOptions
+		query      values
+		body       string
+		scope      string
+		interval   string
+		agentType  string
+		percentile int
+		summary    ConcurrentAgentsUsageSummary
+		items      []ConcurrentAgentsUsageItem
+	}{
+		{
+			name:  "defaults",
+			org:   "acme",
+			path:  "/v2/organizations/acme/usage/concurrent-agents",
+			opt:   ConcurrentAgentsUsageOptions{From: "2026-10-23", To: "2026-10-25"},
+			query: values{"from": "2026-10-23", "to": "2026-10-25"},
+			body: `{
+				"description":"Recorded usage can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-23","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"day","unit":"agents",
+				"definition":"Discrete percentile across zero-filled daily sums of organization peaks.",
+				"agent_type":"self_hosted","percentile":95,
+				"summary":{"max_concurrent_agents":13,"percentile_concurrent_agents":13},
+				"items":[
+					{"date":"2026-10-23","max_concurrent_agents":9},
+					{"date":"2026-10-24","max_concurrent_agents":0},
+					{"date":"2026-10-25","max_concurrent_agents":13}
+				]
+			}`,
+			scope:      "organization_and_billing_children",
+			interval:   "day",
+			agentType:  "self_hosted",
+			percentile: 95,
+			summary:    ConcurrentAgentsUsageSummary{MaxConcurrentAgents: 13, PercentileConcurrentAgents: 13},
+			items: []ConcurrentAgentsUsageItem{
+				{Date: "2026-10-23", MaxConcurrentAgents: 9},
+				{Date: "2026-10-24", MaxConcurrentAgents: 0},
+				{Date: "2026-10-25", MaxConcurrentAgents: 13},
+			},
+		},
+		{
+			name: "hosted_monthly_preserves_daily_percentile",
+			org:  "acme",
+			path: "/v2/organizations/acme/usage/concurrent-agents",
+			opt: ConcurrentAgentsUsageOptions{
+				From: "2026-09-21", To: "2026-10-11", Interval: "month", Percentile: 95, AgentType: "hosted",
+			},
+			query: values{"from": "2026-09-21", "to": "2026-10-11", "interval": "month", "percentile": "95", "filter[agent_type]": "hosted"},
+			// Twenty zero days followed by one day with 17 agents have a discrete
+			// p95 of zero. The p95 of the two monthly bars would instead be 17.
+			body: `{
+				"description":"Recorded usage can change as late events arrive.",
+				"reporting_period":{"from":"2026-09-21","to":"2026-10-11"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"month","unit":"agents",
+				"definition":"Discrete percentile across zero-filled daily sums of organization peaks.",
+				"agent_type":"hosted","percentile":95,
+				"summary":{"max_concurrent_agents":17,"percentile_concurrent_agents":0},
+				"items":[
+					{"date":"2026-09-01","max_concurrent_agents":0},
+					{"date":"2026-10-01","max_concurrent_agents":17}
+				]
+			}`,
+			scope:      "organization_and_billing_children",
+			interval:   "month",
+			agentType:  "hosted",
+			percentile: 95,
+			summary:    ConcurrentAgentsUsageSummary{MaxConcurrentAgents: 17, PercentileConcurrentAgents: 0},
+			items: []ConcurrentAgentsUsageItem{
+				{Date: "2026-09-01", MaxConcurrentAgents: 0},
+				{Date: "2026-10-01", MaxConcurrentAgents: 17},
+			},
+		},
+		{
+			name: "zero_daily_uuid",
+			org:  "7c202aaa-3165-4811-9813-173c4c285463",
+			path: "/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/concurrent-agents",
+			opt: ConcurrentAgentsUsageOptions{
+				From: "2026-10-25", To: "2026-10-25", Interval: "day", Percentile: 1, AgentType: "self_hosted",
+			},
+			query: values{"from": "2026-10-25", "to": "2026-10-25", "interval": "day", "percentile": "1", "filter[agent_type]": "self_hosted"},
+			body: `{
+				"description":"Recorded usage can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-25","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization","interval":"day","unit":"agents",
+				"definition":"Discrete percentile across zero-filled daily sums of organization peaks.",
+				"agent_type":"self_hosted","percentile":1,
+				"summary":{"max_concurrent_agents":0,"percentile_concurrent_agents":0},
+				"items":[{"date":"2026-10-25","max_concurrent_agents":0}]
+			}`,
+			scope:      "organization",
+			interval:   "day",
+			agentType:  "self_hosted",
+			percentile: 1,
+			summary:    ConcurrentAgentsUsageSummary{},
+			items:      []ConcurrentAgentsUsageItem{{Date: "2026-10-25"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc(tt.path, func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, tt.query)
+				_, _ = fmt.Fprint(w, tt.body)
+			})
+
+			got, resp, err := client.Organizations.GetConcurrentAgentsUsage(context.Background(), tt.org, &tt.opt)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := ConcurrentAgentsUsage{
+				Description:     "Recorded usage can change as late events arrive.",
+				ReportingPeriod: UsageReportingPeriod{From: tt.opt.From, To: tt.opt.To},
+				GeneratedAt:     NewTimestamp(time.Date(2026, 10, 27, 3, 4, 5, 0, time.UTC)),
+				Scope:           tt.scope,
+				Interval:        tt.interval,
+				Unit:            "agents",
+				Definition:      "Discrete percentile across zero-filled daily sums of organization peaks.",
+				AgentType:       tt.agentType,
+				Percentile:      tt.percentile,
+				Summary:         tt.summary,
+				Items:           tt.items,
+			}
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("concurrent-agent usage (-want +got):\n%s", diff)
+			}
+			if resp == nil || resp.StatusCode != http.StatusOK {
+				t.Fatalf("response = %+v; want status 200", resp)
+			}
+			data, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(data), tt.body)
+		})
+	}
+}
+
+func TestOrganizationsService_GetConcurrentAgentsUsageErrors(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{http.StatusBadRequest, http.StatusUnauthorized, http.StatusForbidden, http.StatusNotFound, http.StatusServiceUnavailable} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			body := fmt.Sprintf(`{"message":%q}`, http.StatusText(status))
+			server.HandleFunc("/v2/organizations/acme/usage/concurrent-agents", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, values{"from": "2026-10", "to": "2026-10-25", "interval": "week", "percentile": "101", "filter[agent_type]": "hosted & self_hosted"})
+				w.WriteHeader(status)
+				_, _ = fmt.Fprint(w, body)
+			})
+			got, resp, err := client.Organizations.GetConcurrentAgentsUsage(context.Background(), "acme", &ConcurrentAgentsUsageOptions{
+				From: "2026-10", To: "2026-10-25", Interval: "week", Percentile: 101, AgentType: "hosted & self_hosted",
+			})
+			var apiErr *ErrorResponse
+			if !errors.As(err, &apiErr) {
+				t.Fatalf("error = %v; want *ErrorResponse", err)
+			}
+			if resp == nil || resp.StatusCode != status || apiErr.Message != http.StatusText(status) || string(apiErr.RawBody) != body {
+				t.Errorf("response=%+v error=%+v", resp, apiErr)
+			}
+			if diff := cmp.Diff(ConcurrentAgentsUsage{}, got); diff != "" {
+				t.Errorf("report returned on error (-want +got):\n%s", diff)
+			}
+		})
+	}
+
+	t.Run("missing_options", func(t *testing.T) {
+		server, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+		server.HandleFunc("/v2/organizations/acme/usage/concurrent-agents", func(w http.ResponseWriter, r *http.Request) {
+			testFormValues(t, r, values{})
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = fmt.Fprint(w, `{"message":"from and to are required"}`)
+		})
+		_, resp, err := client.Organizations.GetConcurrentAgentsUsage(context.Background(), "acme", nil)
+		var apiErr *ErrorResponse
+		if !errors.As(err, &apiErr) || resp == nil || resp.StatusCode != http.StatusBadRequest {
+			t.Fatalf("response=%+v error=%v; want API error 400", resp, err)
+		}
+	})
+
+	t.Run("canceled", func(t *testing.T) {
+		_, client, teardown := newMockServerAndClient(t)
+		t.Cleanup(teardown)
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		_, _, err := client.Organizations.GetConcurrentAgentsUsage(ctx, "acme", &ConcurrentAgentsUsageOptions{
+			From: "2026-10-23", To: "2026-10-25",
+		})
+		if !errors.Is(err, context.Canceled) {
+			t.Errorf("error = %v; want context.Canceled", err)
+		}
+	})
+}

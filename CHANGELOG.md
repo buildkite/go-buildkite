@@ -1,6 +1,7 @@
 ## Unreleased
 
 * Add organization active-user usage reports with daily and monthly distinct counts.
+* Add recorded concurrent-agent usage reports with daily inputs and requested-period percentiles.
 
 ## [v5.26.0](https://github.com/buildkite/go-buildkite/compare/v5.25.0...v5.26.0) (2026-10-26)
 

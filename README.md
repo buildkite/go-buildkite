@@ -69,6 +69,37 @@ including its one-month custom-range limit.
 
 See the [active-user usage example](examples/organizations/active_users_usage).
 
+## Recorded concurrent-agent usage
+
+Use `client.Organizations.GetConcurrentAgentsUsage` for recorded concurrency.
+Dates, organization identifiers, scopes, authorization, errors, and caching
+follow the active-user report above. `Interval` is `day` (the default) or `month`.
+`Percentile` accepts 1–100; leaving it zero omits it for the server default of 95.
+`AgentType` is `self_hosted` (the default) or `hosted`, encoded by the SDK as
+`filter[agent_type]`.
+
+```go
+usage, _, err := client.Organizations.GetConcurrentAgentsUsage(ctx, org, &buildkite.ConcurrentAgentsUsageOptions{
+    From:       "2026-10-01",
+    To:         "2026-10-25",
+    Interval:   "day",
+    Percentile: 95,
+    AgentType:  "self_hosted",
+})
+```
+
+Each daily input is the sum of each scoped organization's recorded daily peak,
+with zero-filled missing dates. This is **not simultaneous concurrency across
+organizations**. `Summary.PercentileConcurrentAgents` is the discrete percentile
+over every daily input in the requested period, not over instantaneous readings.
+Monthly items show the maximum daily sum in each calendar month; the summary
+percentile still uses the underlying daily values, never the monthly bars.
+Request `Interval: "day"` to obtain those inputs. The SDK forwards the server's
+counts and percentile without recalculating them. The bounded series is not
+paginated; per-organization breakdowns are not embedded in this report.
+
+See the [concurrent-agent usage example](examples/organizations/concurrent_agents_usage).
+
 ## Test Engine workflows
 
 Use `client.TestWorkflows` to list and inspect workflows within a suite.
