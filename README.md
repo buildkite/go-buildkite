@@ -32,6 +32,23 @@ if err != nil {
 pipelines, _, err := client.Pipelines.List(*org, nil)
 ```
 
+Organization usage reporting covers the four aggregate reports below.
+Organization, pipeline, and suite drill-down reports are deferred.
+
+All four reports retain the server's `Period UsageReportingPeriod` on every
+dated item. `Date` labels the day or calendar month; `Period.From` and `Period.To`
+are inclusive UTC dates clipped to the request. A daily item's bounds both equal
+`Date`. For a monthly request from `2026-08-15` through `2026-10-10`:
+
+| Date label | Period.From | Period.To |
+| --- | --- | --- |
+| 2026-08-01 | 2026-08-15 | 2026-08-31 |
+| 2026-09-01 | 2026-09-01 | 2026-09-30 |
+| 2026-10-01 | 2026-10-01 | 2026-10-10 |
+
+The SDK preserves these bounds during JSON reserialization, without calculating
+bucket boundaries or changing counts, rounding, or cache behavior.
+
 ## Active-user usage
 
 Use `client.Organizations.GetActiveUsersUsage` for distinct active users in an
@@ -96,36 +113,9 @@ Monthly items show the maximum daily sum in each calendar month; the summary
 percentile still uses the underlying daily values, never the monthly bars.
 Request `Interval: "day"` to obtain those inputs. The SDK forwards the server's
 counts and percentile without recalculating them. The bounded series is not
-paginated; per-organization breakdowns are not embedded in this report.
+paginated.
 
 See the [concurrent-agent usage example](examples/organizations/concurrent_agents_usage).
-
-For the per-organization Usage table/CSV inputs, use
-`Organizations.GetConcurrentAgentsUsageByOrganization`. Its options embed
-`ConcurrentAgentsUsageOptions` and add `PerPage` (1–100; zero omits it for the
-default of 30) and opaque `After`. Each page contains organizations in UUID
-order, each with its own summary and zero-filled series, including organizations
-with no usage. Dates are not paginated.
-
-```go
-usage, _, err := client.Organizations.GetConcurrentAgentsUsageByOrganization(ctx, org, &buildkite.ConcurrentAgentsUsageByOrganizationOptions{
-    ConcurrentAgentsUsageOptions: buildkite.ConcurrentAgentsUsageOptions{
-        From: "2026-10-01", To: "2026-10-25", Interval: "month",
-    },
-    PerPage: 30,
-    After:  cursor,
-})
-```
-
-An organization's summary uses all requested daily peaks. A bucket's percentile
-uses only the daily peaks within that clipped day/month; a daily percentile
-equals the daily maximum. Percentiles are not additive. `Links.Self` and
-`Links.Next` preserve the server URLs; `Next` is nil (JSON `null`) on the last
-page. The standard `Link` header is also available on `Response`. Forward the
-next URL's opaque `after` cursor without interpreting it. Pages have no snapshot
-guarantee: cached calculation times and values may differ as late events arrive.
-
-See the [per-organization example](examples/organizations/concurrent_agents_usage_by_organization).
 
 ## Hosted-agent usage
 
@@ -157,28 +147,6 @@ Summary and item resource maps always include these keys, including zeros:
 
 See the [hosted-agent usage example](examples/organizations/hosted_agents_usage).
 
-Use `Organizations.GetHostedAgentsUsageByPipeline` for sparse CSV detail. Its
-`HostedAgentsUsageByPipelineOptions` embeds `HostedAgentsUsageOptions` and adds
-`PerPage` (1–100; zero omits it for the default of 30) and opaque `After`.
-Pagination counts grouped date/organization/pipeline/shape rows, **not pipelines
-or dates**. Rows are ordered by date, legacy organization ID, pipeline ID, then
-instance shape. This report has no summary.
-
-Each row retains `DurationMicroseconds`, `JobCount`, and CSV-weighted
-`VCPUMinutes` floored per row; summing rows may differ from overview totals.
-Unknown nonempty shapes retain raw duration and job counts with zero weighted
-minutes; empty self-hosted shapes are excluded. `PipelineID` and usage remain
-available when `PipelineUUID` or `PipelineSlug` is nil because metadata is
-unavailable, deleted, or not visible to the caller. These metrics are not costs
-or invoice reconciliation.
-
-`Links` and the standard `Link` header have the same forward-only semantics as
-the organization concurrency report. `Links.Next` is nil (JSON `null`) on the
-last page, and late events can change values across pages without a snapshot
-guarantee.
-
-See the [pipeline detail example](examples/organizations/hosted_agents_usage_by_pipeline).
-
 ## Recorded test-execution usage
 
 Use `client.Organizations.GetTestExecutionsUsage` with `TestExecutionsUsageOptions`
@@ -202,23 +170,6 @@ missing intervals and carried-forward cumulative counts. The SDK forwards
 these values without calculating its own summaries or cumulative counts.
 
 See the [test-execution usage example](examples/organizations/test_executions_usage).
-
-Use `Organizations.GetTestExecutionsUsageBySuite` for sparse suite detail. Its
-`TestExecutionsUsageBySuiteOptions` embeds `TestExecutionsUsageOptions` and adds
-`PerPage` (1–100; zero omits it for the default of 30) and opaque `After`.
-Pagination counts grouped date/organization/suite rows, **not distinct suites**.
-Rows are ordered by date, organization UUID, then suite UUID. This report has
-no summary.
-
-`TestExecutions` contains the additive corrected execution count for each clipped
-bucket; absent and fully corrected zero groups are omitted rather than
-zero-filled. `SuiteUUID` and usage remain available when `SuiteSlug` or
-`SuiteName` is nil because metadata is unavailable or not visible to the caller.
-These are recorded executions, not managed tests. `Links.Next` is nil (JSON
-`null`) on the last page; body links and the standard `Link` header retain
-forward-only pagination without a cross-page snapshot guarantee.
-
-See the [suite detail example](examples/organizations/test_executions_usage_by_suite).
 
 ## Test Engine workflows
 

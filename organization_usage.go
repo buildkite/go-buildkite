@@ -5,7 +5,9 @@ import (
 	"fmt"
 )
 
-// UsageReportingPeriod is the inclusive UTC date range used for a usage report.
+// UsageReportingPeriod is an inclusive UTC date range in YYYY-MM-DD format.
+// A report's ReportingPeriod is the requested range. An item's Period is its
+// day/month bucket clipped to that range, independently of the Date label.
 type UsageReportingPeriod struct {
 	From string `json:"from"`
 	To   string `json:"to"`
@@ -41,9 +43,10 @@ type ActiveUsersUsageSummary struct {
 type ActiveUsersUsageItem struct {
 	// Date is YYYY-MM-DD. Monthly buckets use the first of the calendar month,
 	// even when From is later; counts still honor the exact requested range.
-	Date                  string `json:"date"`
-	ActiveUsers           int64  `json:"active_users"`
-	CumulativeActiveUsers int64  `json:"cumulative_active_users"`
+	Date                  string               `json:"date"`
+	Period                UsageReportingPeriod `json:"period"`
+	ActiveUsers           int64                `json:"active_users"`
+	CumulativeActiveUsers int64                `json:"cumulative_active_users"`
 }
 
 // ActiveUsersUsage reports distinct active users using the same calculations
@@ -134,8 +137,9 @@ type ConcurrentAgentsUsageSummary struct {
 type ConcurrentAgentsUsageItem struct {
 	// Date is YYYY-MM-DD. Monthly buckets use the first of the calendar month,
 	// even for partial-month requests; counts honor the exact requested range.
-	Date                string `json:"date"`
-	MaxConcurrentAgents int64  `json:"max_concurrent_agents"`
+	Date                string               `json:"date"`
+	Period              UsageReportingPeriod `json:"period"`
+	MaxConcurrentAgents int64                `json:"max_concurrent_agents"`
 }
 
 // ConcurrentAgentsUsage reports recorded concurrent-agent usage using the
@@ -223,8 +227,9 @@ type HostedAgentsUsageSummary struct {
 type HostedAgentsUsageItem struct {
 	// Date is YYYY-MM-DD. Monthly buckets use the first of the calendar month,
 	// even for partial-month requests; values honor the exact requested range.
-	Date                  string           `json:"date"`
-	VCPUMinutesByResource map[string]int64 `json:"vcpu_minutes_by_resource"`
+	Date                  string               `json:"date"`
+	Period                UsageReportingPeriod `json:"period"`
+	VCPUMinutesByResource map[string]int64     `json:"vcpu_minutes_by_resource"`
 }
 
 // HostedAgentsUsage reports hosted compute using the Usage page's calculations.
@@ -303,9 +308,10 @@ type TestExecutionsUsageSummary struct {
 type TestExecutionsUsageItem struct {
 	// Date is YYYY-MM-DD. Monthly buckets use the first of the calendar month,
 	// even for partial-month requests; counts honor the exact requested range.
-	Date                     string `json:"date"`
-	TestExecutions           int64  `json:"test_executions"`
-	CumulativeTestExecutions int64  `json:"cumulative_test_executions"`
+	Date                     string               `json:"date"`
+	Period                   UsageReportingPeriod `json:"period"`
+	TestExecutions           int64                `json:"test_executions"`
+	CumulativeTestExecutions int64                `json:"cumulative_test_executions"`
 }
 
 // TestExecutionsUsage reports recorded test executions using the Usage page's
@@ -353,249 +359,6 @@ func (os *OrganizationsService) GetTestExecutionsUsage(ctx context.Context, org 
 	resp, err := os.client.Do(req, &usage)
 	if err != nil {
 		return TestExecutionsUsage{}, resp, err
-	}
-
-	return usage, resp, nil
-}
-
-// UsageReportLinks contains cursor pagination URLs. Next is nil on the final
-// page and is serialized as null, not omitted.
-type UsageReportLinks struct {
-	Self string  `json:"self"`
-	Next *string `json:"next"`
-}
-
-// ConcurrentAgentsUsageByOrganizationOptions specifies the report parameters
-// and forward-only organization cursor. The API validates all values.
-type ConcurrentAgentsUsageByOrganizationOptions struct {
-	ConcurrentAgentsUsageOptions
-
-	// PerPage is from 1 to 100; zero omits it for the server default of 30.
-	PerPage int `url:"per_page,omitempty"`
-
-	// After is an opaque cursor. No snapshot is guaranteed between pages.
-	After string `url:"after,omitempty"`
-}
-
-// ConcurrentAgentsUsageOrganizationItem contains an organization's maximum
-// and discrete percentile across daily peaks in the clipped interval. On a
-// daily report the percentile equals the maximum; monthly percentiles still
-// use daily peaks, not instantaneous readings.
-type ConcurrentAgentsUsageOrganizationItem struct {
-	Date                       string `json:"date"`
-	MaxConcurrentAgents        int64  `json:"max_concurrent_agents"`
-	PercentileConcurrentAgents int64  `json:"percentile_concurrent_agents"`
-}
-
-// ConcurrentAgentsUsageOrganization contains an organization's zero-filled
-// series and its summary across the entire requested period's daily peaks.
-// Percentiles are not additive across organizations or intervals.
-type ConcurrentAgentsUsageOrganization struct {
-	OrganizationUUID string `json:"organization_uuid"`
-	OrganizationSlug string `json:"organization_slug"`
-	OrganizationName string `json:"organization_name"`
-
-	Summary ConcurrentAgentsUsageSummary            `json:"summary"`
-	Items   []ConcurrentAgentsUsageOrganizationItem `json:"items"`
-}
-
-// ConcurrentAgentsUsageByOrganization is a page of organizations ordered by
-// UUID, each with its own recorded concurrent-agent usage. Late events can
-// revise values; pages are not a consistent snapshot.
-type ConcurrentAgentsUsageByOrganization struct {
-	Description     string               `json:"description"`
-	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
-
-	// GeneratedAt is the calculation time, retained in cached reports,
-	// not an ingestion watermark or cross-page snapshot identifier.
-	GeneratedAt *Timestamp `json:"generated_at"`
-
-	// Scope is "organization" when there are no billing children, otherwise
-	// "organization_and_billing_children".
-	Scope string `json:"scope"`
-
-	Interval   string                              `json:"interval"`
-	Unit       string                              `json:"unit"`
-	Definition string                              `json:"definition"`
-	AgentType  string                              `json:"agent_type"`
-	Percentile int                                 `json:"percentile"`
-	Items      []ConcurrentAgentsUsageOrganization `json:"items"`
-	Links      UsageReportLinks                    `json:"links"`
-}
-
-// GetConcurrentAgentsUsageByOrganization returns one page of organizations
-// (not dates), including zero-usage organizations. Org accepts a slug or UUID.
-// Requests require read_organizations and access to the requested organization.
-// Disabled usage breakdowns and other API failures remain errors. Use Links.Next
-// for forward pagination; the standard Link header is also available on Response.
-func (os *OrganizationsService) GetConcurrentAgentsUsageByOrganization(ctx context.Context, org string, opt *ConcurrentAgentsUsageByOrganizationOptions) (ConcurrentAgentsUsageByOrganization, *Response, error) {
-	u := fmt.Sprintf("v2/organizations/%s/usage/concurrent-agents/organizations", org)
-	u, err := addOptions(u, opt)
-	if err != nil {
-		return ConcurrentAgentsUsageByOrganization{}, nil, err
-	}
-
-	req, err := os.client.NewRequest(ctx, "GET", u, nil)
-	if err != nil {
-		return ConcurrentAgentsUsageByOrganization{}, nil, err
-	}
-
-	var usage ConcurrentAgentsUsageByOrganization
-	resp, err := os.client.Do(req, &usage)
-	if err != nil {
-		return ConcurrentAgentsUsageByOrganization{}, resp, err
-	}
-
-	return usage, resp, nil
-}
-
-// HostedAgentsUsageByPipelineOptions specifies the reporting period, interval,
-// and forward-only grouped-row cursor. The API validates all values.
-type HostedAgentsUsageByPipelineOptions struct {
-	HostedAgentsUsageOptions
-
-	// PerPage counts grouped rows, not pipelines or dates. Valid values are
-	// 1 to 100; zero omits it for the server default of 30.
-	PerPage int `url:"per_page,omitempty"`
-
-	// After is an opaque cursor. No snapshot is guaranteed between pages.
-	After string `url:"after,omitempty"`
-}
-
-// HostedAgentsUsagePipeline is a sparse date/organization/pipeline/shape row
-// using the CSV's CPU weighting and flooring. Summing these rounded rows may
-// differ from the overview. Unknown nonempty shapes retain raw duration and
-// job counts with zero VCPUMinutes; self-hosted empty shapes are excluded.
-type HostedAgentsUsagePipeline struct {
-	Date                 string  `json:"date"`
-	OrganizationUUID     string  `json:"organization_uuid"`
-	PipelineID           int64   `json:"pipeline_id"`
-	PipelineUUID         *string `json:"pipeline_uuid"`
-	PipelineSlug         *string `json:"pipeline_slug"`
-	InstanceShape        string  `json:"instance_shape"`
-	DurationMicroseconds int64   `json:"duration_microseconds"`
-	JobCount             int64   `json:"job_count"`
-	VCPUMinutes          int64   `json:"vcpu_minutes"`
-}
-
-// HostedAgentsUsageByPipeline is one sparse page of CSV detail, ordered by date,
-// legacy organization ID, pipeline ID, and instance shape. Pipeline UUID and
-// slug are nil when unavailable or not visible to the caller; usage is retained.
-// Late events can revise values; pages are not a consistent snapshot.
-type HostedAgentsUsageByPipeline struct {
-	Description     string               `json:"description"`
-	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
-
-	// GeneratedAt is the calculation time retained in cached reports,
-	// not an ingestion watermark or cross-page snapshot identifier.
-	GeneratedAt *Timestamp `json:"generated_at"`
-
-	// Scope is "organization" when there are no billing children, otherwise
-	// "organization_and_billing_children".
-	Scope string `json:"scope"`
-
-	Interval   string                      `json:"interval"`
-	Unit       string                      `json:"unit"`
-	Definition string                      `json:"definition"`
-	Items      []HostedAgentsUsagePipeline `json:"items"`
-	Links      UsageReportLinks            `json:"links"`
-}
-
-// GetHostedAgentsUsageByPipeline returns one page of grouped hosted-agent
-// usage rows for an organization (slug or UUID) and its billing children.
-// Requests require read_organizations and access to the requested organization.
-// API failures remain errors. Use Links.Next for forward pagination; the
-// standard Link header is also available on Response.
-func (os *OrganizationsService) GetHostedAgentsUsageByPipeline(ctx context.Context, org string, opt *HostedAgentsUsageByPipelineOptions) (HostedAgentsUsageByPipeline, *Response, error) {
-	u := fmt.Sprintf("v2/organizations/%s/usage/hosted-agents/pipelines", org)
-	u, err := addOptions(u, opt)
-	if err != nil {
-		return HostedAgentsUsageByPipeline{}, nil, err
-	}
-
-	req, err := os.client.NewRequest(ctx, "GET", u, nil)
-	if err != nil {
-		return HostedAgentsUsageByPipeline{}, nil, err
-	}
-
-	var usage HostedAgentsUsageByPipeline
-	resp, err := os.client.Do(req, &usage)
-	if err != nil {
-		return HostedAgentsUsageByPipeline{}, resp, err
-	}
-
-	return usage, resp, nil
-}
-
-// TestExecutionsUsageBySuiteOptions specifies the reporting period, interval,
-// and forward-only grouped-row cursor. The API validates all values.
-type TestExecutionsUsageBySuiteOptions struct {
-	TestExecutionsUsageOptions
-
-	// PerPage counts grouped rows, not distinct suites. Valid values are
-	// 1 to 100; zero omits it for the server default of 30.
-	PerPage int `url:"per_page,omitempty"`
-
-	// After is an opaque cursor. No snapshot is guaranteed between pages.
-	After string `url:"after,omitempty"`
-}
-
-// TestExecutionsUsageSuite is a sparse date/organization/suite row containing
-// corrected recorded executions for the clipped bucket, not managed tests.
-// Counts are additive. Missing and fully corrected zero groups are omitted.
-type TestExecutionsUsageSuite struct {
-	Date             string  `json:"date"`
-	OrganizationUUID string  `json:"organization_uuid"`
-	SuiteUUID        string  `json:"suite_uuid"`
-	SuiteSlug        *string `json:"suite_slug"`
-	SuiteName        *string `json:"suite_name"`
-	TestExecutions   int64   `json:"test_executions"`
-}
-
-// TestExecutionsUsageBySuite is one sparse page ordered by date, organization
-// UUID, and suite UUID. Suite slug and name are nil when unavailable or not
-// visible to the caller; UUID and usage are retained. Late events can revise
-// values; pages are not a consistent snapshot.
-type TestExecutionsUsageBySuite struct {
-	Description     string               `json:"description"`
-	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
-
-	// GeneratedAt is the calculation time retained in cached reports,
-	// not an ingestion watermark or cross-page snapshot identifier.
-	GeneratedAt *Timestamp `json:"generated_at"`
-
-	// Scope is "organization" when there are no billing children, otherwise
-	// "organization_and_billing_children".
-	Scope string `json:"scope"`
-
-	Interval   string                     `json:"interval"`
-	Unit       string                     `json:"unit"`
-	Definition string                     `json:"definition"`
-	Items      []TestExecutionsUsageSuite `json:"items"`
-	Links      UsageReportLinks           `json:"links"`
-}
-
-// GetTestExecutionsUsageBySuite returns one page of grouped test-execution
-// usage rows for an organization (slug or UUID) and its billing children.
-// Requests require read_organizations and access to the requested organization.
-// API failures remain errors. Use Links.Next for forward pagination; the
-// standard Link header is also available on Response.
-func (os *OrganizationsService) GetTestExecutionsUsageBySuite(ctx context.Context, org string, opt *TestExecutionsUsageBySuiteOptions) (TestExecutionsUsageBySuite, *Response, error) {
-	u := fmt.Sprintf("v2/organizations/%s/usage/test-executions/suites", org)
-	u, err := addOptions(u, opt)
-	if err != nil {
-		return TestExecutionsUsageBySuite{}, nil, err
-	}
-
-	req, err := os.client.NewRequest(ctx, "GET", u, nil)
-	if err != nil {
-		return TestExecutionsUsageBySuite{}, nil, err
-	}
-
-	var usage TestExecutionsUsageBySuite
-	resp, err := os.client.Do(req, &usage)
-	if err != nil {
-		return TestExecutionsUsageBySuite{}, resp, err
 	}
 
 	return usage, resp, nil
