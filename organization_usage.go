@@ -526,3 +526,77 @@ func (os *OrganizationsService) GetHostedAgentsUsageByPipeline(ctx context.Conte
 
 	return usage, resp, nil
 }
+
+// TestExecutionsUsageBySuiteOptions specifies the reporting period, interval,
+// and forward-only grouped-row cursor. The API validates all values.
+type TestExecutionsUsageBySuiteOptions struct {
+	TestExecutionsUsageOptions
+
+	// PerPage counts grouped rows, not distinct suites. Valid values are
+	// 1 to 100; zero omits it for the server default of 30.
+	PerPage int `url:"per_page,omitempty"`
+
+	// After is an opaque cursor. No snapshot is guaranteed between pages.
+	After string `url:"after,omitempty"`
+}
+
+// TestExecutionsUsageSuite is a sparse date/organization/suite row containing
+// corrected recorded executions for the clipped bucket, not managed tests.
+// Counts are additive. Missing and fully corrected zero groups are omitted.
+type TestExecutionsUsageSuite struct {
+	Date             string  `json:"date"`
+	OrganizationUUID string  `json:"organization_uuid"`
+	SuiteUUID        string  `json:"suite_uuid"`
+	SuiteSlug        *string `json:"suite_slug"`
+	SuiteName        *string `json:"suite_name"`
+	TestExecutions   int64   `json:"test_executions"`
+}
+
+// TestExecutionsUsageBySuite is one sparse page ordered by date, organization
+// UUID, and suite UUID. Suite slug and name are nil when unavailable or not
+// visible to the caller; UUID and usage are retained. Late events can revise
+// values; pages are not a consistent snapshot.
+type TestExecutionsUsageBySuite struct {
+	Description     string               `json:"description"`
+	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
+
+	// GeneratedAt is the calculation time retained in cached reports,
+	// not an ingestion watermark or cross-page snapshot identifier.
+	GeneratedAt *Timestamp `json:"generated_at"`
+
+	// Scope is "organization" when there are no billing children, otherwise
+	// "organization_and_billing_children".
+	Scope string `json:"scope"`
+
+	Interval   string                     `json:"interval"`
+	Unit       string                     `json:"unit"`
+	Definition string                     `json:"definition"`
+	Items      []TestExecutionsUsageSuite `json:"items"`
+	Links      UsageReportLinks           `json:"links"`
+}
+
+// GetTestExecutionsUsageBySuite returns one page of grouped test-execution
+// usage rows for an organization (slug or UUID) and its billing children.
+// Requests require read_organizations and access to the requested organization.
+// API failures remain errors. Use Links.Next for forward pagination; the
+// standard Link header is also available on Response.
+func (os *OrganizationsService) GetTestExecutionsUsageBySuite(ctx context.Context, org string, opt *TestExecutionsUsageBySuiteOptions) (TestExecutionsUsageBySuite, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/usage/test-executions/suites", org)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return TestExecutionsUsageBySuite{}, nil, err
+	}
+
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return TestExecutionsUsageBySuite{}, nil, err
+	}
+
+	var usage TestExecutionsUsageBySuite
+	resp, err := os.client.Do(req, &usage)
+	if err != nil {
+		return TestExecutionsUsageBySuite{}, resp, err
+	}
+
+	return usage, resp, nil
+}

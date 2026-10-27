@@ -6,6 +6,7 @@
 * Add recorded test-execution usage reports with summaries and cumulative interval counts.
 * Add cursor-paginated concurrent-agent usage by organization, including bucket percentiles.
 * Add sparse, cursor-paginated hosted-agent pipeline usage with raw durations and job counts.
+* Add sparse, cursor-paginated recorded test-execution usage by suite.
 
 ## [v5.26.0](https://github.com/buildkite/go-buildkite/compare/v5.25.0...v5.26.0) (2026-10-26)
 

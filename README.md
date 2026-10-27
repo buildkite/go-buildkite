@@ -203,6 +203,23 @@ these values without calculating its own summaries or cumulative counts.
 
 See the [test-execution usage example](examples/organizations/test_executions_usage).
 
+Use `Organizations.GetTestExecutionsUsageBySuite` for sparse suite detail. Its
+`TestExecutionsUsageBySuiteOptions` embeds `TestExecutionsUsageOptions` and adds
+`PerPage` (1–100; zero omits it for the default of 30) and opaque `After`.
+Pagination counts grouped date/organization/suite rows, **not distinct suites**.
+Rows are ordered by date, organization UUID, then suite UUID. This report has
+no summary.
+
+`TestExecutions` contains the additive corrected execution count for each clipped
+bucket; absent and fully corrected zero groups are omitted rather than
+zero-filled. `SuiteUUID` and usage remain available when `SuiteSlug` or
+`SuiteName` is nil because metadata is unavailable or not visible to the caller.
+These are recorded executions, not managed tests. `Links.Next` is nil (JSON
+`null`) on the last page; body links and the standard `Link` header retain
+forward-only pagination without a cross-page snapshot guarantee.
+
+See the [suite detail example](examples/organizations/test_executions_usage_by_suite).
+
 ## Test Engine workflows
 
 Use `client.TestWorkflows` to list and inspect workflows within a suite.
