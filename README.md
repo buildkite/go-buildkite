@@ -32,6 +32,43 @@ if err != nil {
 pipelines, _, err := client.Pipelines.List(*org, nil)
 ```
 
+## Active-user usage
+
+Use `client.Organizations.GetActiveUsersUsage` for distinct active users in an
+organization and its billing children. Organizations accept slugs or UUIDs.
+Supply inclusive UTC `YYYY-MM-DD` dates:
+`From` can be at most three calendar months before today, and `To` must be between
+`From` and today. `Interval` is `day` (the default) or `month`. The API validates
+the options; the SDK does not normalize dates or calculate counts.
+
+```go
+usage, _, err := client.Organizations.GetActiveUsersUsage(ctx, org, &buildkite.ActiveUsersUsageOptions{
+    From:     "2026-10-01",
+    To:       "2026-10-25",
+    Interval: "day",
+})
+```
+
+The report uses the Usage page's calculations. `Summary.ActiveUsers` deduplicates
+users over the whole period and across billing children, rather than adding
+daily counts. `Summary.AverageMonthlyActiveUsers` preserves the Usage page's
+monthly average, which can differ for multi-month periods. Items include zero
+counts and carried-forward cumulative counts for missing intervals. Month
+buckets use the calendar month's first date even for a partial-month request;
+the counts still honor the exact range. There is no pagination.
+
+Late events can revise results. `GeneratedAt` is the calculation time, not an
+ingestion watermark; cached responses retain it, and late events appear after
+refresh of the five-minute server cache. `Scope` is `organization` without
+billing children, otherwise `organization_and_billing_children`. All response
+fields are non-null. Requests require `read_organizations` and access to the
+requested organization. Invalid options (400), permission failures, a disabled
+usage-breakdowns feature (404), and unavailable usage data (503) remain API
+errors rather than empty reports. The existing `/usage` endpoint is unchanged,
+including its one-month custom-range limit.
+
+See the [active-user usage example](examples/organizations/active_users_usage).
+
 ## Test Engine workflows
 
 Use `client.TestWorkflows` to list and inspect workflows within a suite.
