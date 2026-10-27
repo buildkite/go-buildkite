@@ -952,3 +952,124 @@ func TestOrganizationsService_GetConcurrentAgentsUsageByOrganizationErrors(t *te
 		})
 	}
 }
+
+func TestOrganizationsService_GetHostedAgentsUsageByPipeline(t *testing.T) {
+	t.Parallel()
+	pipelineUUID, pipelineSlug := "pipeline-1", "build"
+	next := "https://api.buildkite.com/v2/organizations/acme/usage/hosted-agents/pipelines?from=2026-09-21&to=2026-10-11&interval=month&per_page=2&after=next-cursor"
+	tests := []struct {
+		name       string
+		org        string
+		opt        HostedAgentsUsageByPipelineOptions
+		query      values
+		body       string
+		items      []HostedAgentsUsagePipeline
+		linkHeader string
+	}{
+		{
+			name: "monthly_sparse_cursor_page",
+			org:  "acme",
+			opt: HostedAgentsUsageByPipelineOptions{
+				HostedAgentsUsageOptions: HostedAgentsUsageOptions{From: "2026-09-21", To: "2026-10-11", Interval: "month"},
+				PerPage:                  2, After: "opaque+/= &?",
+			},
+			query: values{"from": "2026-09-21", "to": "2026-10-11", "interval": "month", "per_page": "2", "after": "opaque+/= &?"},
+			body: `{
+				"description":"CSV rows can change as late events arrive.",
+				"reporting_period":{"from":"2026-09-21","to":"2026-10-11"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"month","unit":"vCPU-minutes",
+				"definition":"CPU-weighted minutes floored per CSV row, not overview totals.",
+				"items":[
+					{"date":"2026-09-01","organization_uuid":"org-1","pipeline_id":4294967301,"pipeline_uuid":"pipeline-1","pipeline_slug":"build","instance_shape":"linux-amd64-2x4","duration_microseconds":59999999,"job_count":3,"vcpu_minutes":1},
+					{"date":"2026-10-01","organization_uuid":"org-2","pipeline_id":4294967302,"pipeline_uuid":null,"pipeline_slug":null,"instance_shape":"future-shape","duration_microseconds":9007199254740993,"job_count":4294967303,"vcpu_minutes":0}
+				],
+				"links":{
+					"self":"https://api.buildkite.com/v2/organizations/acme/usage/hosted-agents/pipelines?from=2026-09-21&to=2026-10-11&interval=month&per_page=2&after=opaque%2B%2F%3D+%26%3F",
+					"next":"https://api.buildkite.com/v2/organizations/acme/usage/hosted-agents/pipelines?from=2026-09-21&to=2026-10-11&interval=month&per_page=2&after=next-cursor"
+				}
+			}`,
+			items: []HostedAgentsUsagePipeline{
+				{Date: "2026-09-01", OrganizationUUID: "org-1", PipelineID: 4294967301, PipelineUUID: &pipelineUUID, PipelineSlug: &pipelineSlug, InstanceShape: "linux-amd64-2x4", DurationMicroseconds: 59999999, JobCount: 3, VCPUMinutes: 1},
+				{Date: "2026-10-01", OrganizationUUID: "org-2", PipelineID: 4294967302, InstanceShape: "future-shape", DurationMicroseconds: 9007199254740993, JobCount: 4294967303},
+			},
+			linkHeader: "<" + next + `>; rel="next"`,
+		},
+		{
+			name: "empty_final_uuid_defaults",
+			org:  "7c202aaa-3165-4811-9813-173c4c285463",
+			opt: HostedAgentsUsageByPipelineOptions{HostedAgentsUsageOptions: HostedAgentsUsageOptions{
+				From: "2026-10-25", To: "2026-10-25",
+			}},
+			query: values{"from": "2026-10-25", "to": "2026-10-25"},
+			body: `{
+				"description":"CSV rows can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-25","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization","interval":"day","unit":"vCPU-minutes",
+				"definition":"CPU-weighted minutes floored per CSV row, not overview totals.",
+				"items":[],
+				"links":{"self":"https://api.buildkite.com/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/hosted-agents/pipelines?from=2026-10-25&to=2026-10-25","next":null}
+			}`,
+			items: []HostedAgentsUsagePipeline{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc("/v2/organizations/"+tt.org+"/usage/hosted-agents/pipelines", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, tt.query)
+				if tt.linkHeader != "" {
+					w.Header().Set("Link", tt.linkHeader)
+				}
+				_, _ = fmt.Fprint(w, tt.body)
+			})
+			got, resp, err := client.Organizations.GetHostedAgentsUsageByPipeline(context.Background(), tt.org, &tt.opt)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(tt.items, got.Items); diff != "" {
+				t.Errorf("pipeline rows (-want +got):\n%s", diff)
+			}
+			if resp == nil || resp.StatusCode != http.StatusOK || resp.Header.Get("Link") != tt.linkHeader {
+				t.Fatalf("response = %+v; want status 200 and Link %q", resp, tt.linkHeader)
+			}
+			data, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(data), tt.body)
+		})
+	}
+}
+
+func TestOrganizationsService_GetHostedAgentsUsageByPipelineErrors(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{http.StatusBadRequest, http.StatusNotFound, http.StatusServiceUnavailable} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			body := fmt.Sprintf(`{"message":%q}`, http.StatusText(status))
+			server.HandleFunc("/v2/organizations/acme/usage/hosted-agents/pipelines", func(w http.ResponseWriter, r *http.Request) {
+				testFormValues(t, r, values{})
+				w.WriteHeader(status)
+				_, _ = fmt.Fprint(w, body)
+			})
+			got, resp, err := client.Organizations.GetHostedAgentsUsageByPipeline(context.Background(), "acme", nil)
+			var apiErr *ErrorResponse
+			if !errors.As(err, &apiErr) || resp == nil || resp.StatusCode != status {
+				t.Fatalf("response=%+v error=%v; want API error %d", resp, err, status)
+			}
+			if apiErr.Message != http.StatusText(status) || string(apiErr.RawBody) != body {
+				t.Errorf("error=%+v", apiErr)
+			}
+			if diff := cmp.Diff(HostedAgentsUsageByPipeline{}, got); diff != "" {
+				t.Errorf("report returned on error (-want +got):\n%s", diff)
+			}
+		})
+	}
+}

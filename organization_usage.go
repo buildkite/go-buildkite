@@ -448,3 +448,81 @@ func (os *OrganizationsService) GetConcurrentAgentsUsageByOrganization(ctx conte
 
 	return usage, resp, nil
 }
+
+// HostedAgentsUsageByPipelineOptions specifies the reporting period, interval,
+// and forward-only grouped-row cursor. The API validates all values.
+type HostedAgentsUsageByPipelineOptions struct {
+	HostedAgentsUsageOptions
+
+	// PerPage counts grouped rows, not pipelines or dates. Valid values are
+	// 1 to 100; zero omits it for the server default of 30.
+	PerPage int `url:"per_page,omitempty"`
+
+	// After is an opaque cursor. No snapshot is guaranteed between pages.
+	After string `url:"after,omitempty"`
+}
+
+// HostedAgentsUsagePipeline is a sparse date/organization/pipeline/shape row
+// using the CSV's CPU weighting and flooring. Summing these rounded rows may
+// differ from the overview. Unknown nonempty shapes retain raw duration and
+// job counts with zero VCPUMinutes; self-hosted empty shapes are excluded.
+type HostedAgentsUsagePipeline struct {
+	Date                 string  `json:"date"`
+	OrganizationUUID     string  `json:"organization_uuid"`
+	PipelineID           int64   `json:"pipeline_id"`
+	PipelineUUID         *string `json:"pipeline_uuid"`
+	PipelineSlug         *string `json:"pipeline_slug"`
+	InstanceShape        string  `json:"instance_shape"`
+	DurationMicroseconds int64   `json:"duration_microseconds"`
+	JobCount             int64   `json:"job_count"`
+	VCPUMinutes          int64   `json:"vcpu_minutes"`
+}
+
+// HostedAgentsUsageByPipeline is one sparse page of CSV detail, ordered by date,
+// legacy organization ID, pipeline ID, and instance shape. Pipeline UUID and
+// slug are nil when unavailable or not visible to the caller; usage is retained.
+// Late events can revise values; pages are not a consistent snapshot.
+type HostedAgentsUsageByPipeline struct {
+	Description     string               `json:"description"`
+	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
+
+	// GeneratedAt is the calculation time retained in cached reports,
+	// not an ingestion watermark or cross-page snapshot identifier.
+	GeneratedAt *Timestamp `json:"generated_at"`
+
+	// Scope is "organization" when there are no billing children, otherwise
+	// "organization_and_billing_children".
+	Scope string `json:"scope"`
+
+	Interval   string                      `json:"interval"`
+	Unit       string                      `json:"unit"`
+	Definition string                      `json:"definition"`
+	Items      []HostedAgentsUsagePipeline `json:"items"`
+	Links      UsageReportLinks            `json:"links"`
+}
+
+// GetHostedAgentsUsageByPipeline returns one page of grouped hosted-agent
+// usage rows for an organization (slug or UUID) and its billing children.
+// Requests require read_organizations and access to the requested organization.
+// API failures remain errors. Use Links.Next for forward pagination; the
+// standard Link header is also available on Response.
+func (os *OrganizationsService) GetHostedAgentsUsageByPipeline(ctx context.Context, org string, opt *HostedAgentsUsageByPipelineOptions) (HostedAgentsUsageByPipeline, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/usage/hosted-agents/pipelines", org)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return HostedAgentsUsageByPipeline{}, nil, err
+	}
+
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return HostedAgentsUsageByPipeline{}, nil, err
+	}
+
+	var usage HostedAgentsUsageByPipeline
+	resp, err := os.client.Do(req, &usage)
+	if err != nil {
+		return HostedAgentsUsageByPipeline{}, resp, err
+	}
+
+	return usage, resp, nil
+}

@@ -157,6 +157,28 @@ Summary and item resource maps always include these keys, including zeros:
 
 See the [hosted-agent usage example](examples/organizations/hosted_agents_usage).
 
+Use `Organizations.GetHostedAgentsUsageByPipeline` for sparse CSV detail. Its
+`HostedAgentsUsageByPipelineOptions` embeds `HostedAgentsUsageOptions` and adds
+`PerPage` (1–100; zero omits it for the default of 30) and opaque `After`.
+Pagination counts grouped date/organization/pipeline/shape rows, **not pipelines
+or dates**. Rows are ordered by date, legacy organization ID, pipeline ID, then
+instance shape. This report has no summary.
+
+Each row retains `DurationMicroseconds`, `JobCount`, and CSV-weighted
+`VCPUMinutes` floored per row; summing rows may differ from overview totals.
+Unknown nonempty shapes retain raw duration and job counts with zero weighted
+minutes; empty self-hosted shapes are excluded. `PipelineID` and usage remain
+available when `PipelineUUID` or `PipelineSlug` is nil because metadata is
+unavailable, deleted, or not visible to the caller. These metrics are not costs
+or invoice reconciliation.
+
+`Links` and the standard `Link` header have the same forward-only semantics as
+the organization concurrency report. `Links.Next` is nil (JSON `null`) on the
+last page, and late events can change values across pages without a snapshot
+guarantee.
+
+See the [pipeline detail example](examples/organizations/hosted_agents_usage_by_pipeline).
+
 ## Recorded test-execution usage
 
 Use `client.Organizations.GetTestExecutionsUsage` with `TestExecutionsUsageOptions`
