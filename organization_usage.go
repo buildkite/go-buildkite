@@ -273,3 +273,87 @@ func (os *OrganizationsService) GetHostedAgentsUsage(ctx context.Context, org st
 
 	return usage, resp, nil
 }
+
+// TestExecutionsUsageOptions specifies the reporting period and interval for
+// [OrganizationsService.GetTestExecutionsUsage]. The API validates these values.
+type TestExecutionsUsageOptions struct {
+	// From and To are required inclusive UTC dates in YYYY-MM-DD format.
+	// From must be no earlier than three calendar months before today;
+	// To must be no later than today and no earlier than From.
+	From string `url:"from,omitempty"`
+	To   string `url:"to,omitempty"`
+
+	// Interval is "day" (the default) or "month".
+	Interval string `url:"interval,omitempty"`
+}
+
+// TestExecutionsUsageSummary contains the Usage page's recorded execution
+// counts, including merged partial/correction rows, not managed-test usage.
+type TestExecutionsUsageSummary struct {
+	TestExecutions int64 `json:"test_executions"`
+	ActiveSuites   int64 `json:"active_suites"`
+
+	// AverageTestExecutions is the total divided by the number of requested
+	// day/month buckets, floored like the Usage panels.
+	AverageTestExecutions int64 `json:"average_test_executions"`
+}
+
+// TestExecutionsUsageItem contains recorded executions in an interval and the
+// cumulative executions within the requested period through that interval.
+type TestExecutionsUsageItem struct {
+	// Date is YYYY-MM-DD. Monthly buckets use the first of the calendar month,
+	// even for partial-month requests; counts honor the exact requested range.
+	Date                     string `json:"date"`
+	TestExecutions           int64  `json:"test_executions"`
+	CumulativeTestExecutions int64  `json:"cumulative_test_executions"`
+}
+
+// TestExecutionsUsage reports recorded test executions using the Usage page's
+// calculations. Late events can revise values on cache refresh.
+type TestExecutionsUsage struct {
+	Description     string               `json:"description"`
+	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
+
+	// GeneratedAt is the calculation time, retained in cached reports,
+	// not an ingestion watermark.
+	GeneratedAt *Timestamp `json:"generated_at"`
+
+	// Scope is "organization" when there are no billing children, otherwise
+	// "organization_and_billing_children".
+	Scope string `json:"scope"`
+
+	Interval   string                     `json:"interval"`
+	Unit       string                     `json:"unit"`
+	Definition string                     `json:"definition"`
+	Summary    TestExecutionsUsageSummary `json:"summary"`
+
+	// Items is not paginated. Missing intervals have zero executions and
+	// carry forward the cumulative count.
+	Items []TestExecutionsUsageItem `json:"items"`
+}
+
+// GetTestExecutionsUsage returns recorded test execution usage for an
+// organization (slug or UUID) and its billing children. Requests require
+// read_organizations and access to the requested organization. Invalid options
+// (400), a disabled usage-breakdowns feature (404), and unavailable usage data
+// (503) remain API errors rather than empty reports.
+func (os *OrganizationsService) GetTestExecutionsUsage(ctx context.Context, org string, opt *TestExecutionsUsageOptions) (TestExecutionsUsage, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/usage/test-executions", org)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return TestExecutionsUsage{}, nil, err
+	}
+
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return TestExecutionsUsage{}, nil, err
+	}
+
+	var usage TestExecutionsUsage
+	resp, err := os.client.Do(req, &usage)
+	if err != nil {
+		return TestExecutionsUsage{}, resp, err
+	}
+
+	return usage, resp, nil
+}

@@ -609,3 +609,163 @@ func TestOrganizationsService_GetConcurrentAgentsUsageErrors(t *testing.T) {
 		}
 	})
 }
+
+func TestOrganizationsService_GetTestExecutionsUsage(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		org      string
+		path     string
+		opt      TestExecutionsUsageOptions
+		query    values
+		body     string
+		scope    string
+		interval string
+		summary  TestExecutionsUsageSummary
+		items    []TestExecutionsUsageItem
+	}{
+		{
+			name:  "default_daily_int64",
+			org:   "acme",
+			path:  "/v2/organizations/acme/usage/test-executions",
+			opt:   TestExecutionsUsageOptions{From: "2026-10-23", To: "2026-10-25"},
+			query: values{"from": "2026-10-23", "to": "2026-10-25"},
+			body: `{
+				"description":"Recorded executions can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-23","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"day","unit":"executions",
+				"definition":"Recorded test executions including merged partial and correction rows, not managed tests.",
+				"summary":{"test_executions":2147483651,"active_suites":2,"average_test_executions":715827883},
+				"items":[
+					{"date":"2026-10-23","test_executions":2147483647,"cumulative_test_executions":2147483647},
+					{"date":"2026-10-24","test_executions":0,"cumulative_test_executions":2147483647},
+					{"date":"2026-10-25","test_executions":4,"cumulative_test_executions":2147483651}
+				]
+			}`,
+			scope:    "organization_and_billing_children",
+			interval: "day",
+			summary:  TestExecutionsUsageSummary{TestExecutions: 2147483651, ActiveSuites: 2, AverageTestExecutions: 715827883},
+			items: []TestExecutionsUsageItem{
+				{Date: "2026-10-23", TestExecutions: 2147483647, CumulativeTestExecutions: 2147483647},
+				{Date: "2026-10-24", TestExecutions: 0, CumulativeTestExecutions: 2147483647},
+				{Date: "2026-10-25", TestExecutions: 4, CumulativeTestExecutions: 2147483651},
+			},
+		},
+		{
+			name:  "monthly_partial_range",
+			org:   "acme",
+			path:  "/v2/organizations/acme/usage/test-executions",
+			opt:   TestExecutionsUsageOptions{From: "2026-08-15", To: "2026-10-10", Interval: "month"},
+			query: values{"from": "2026-08-15", "to": "2026-10-10", "interval": "month"},
+			body: `{
+				"description":"Recorded executions can change as late events arrive.",
+				"reporting_period":{"from":"2026-08-15","to":"2026-10-10"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"month","unit":"executions",
+				"definition":"Recorded test executions including merged partial and correction rows, not managed tests.",
+				"summary":{"test_executions":11,"active_suites":2,"average_test_executions":3},
+				"items":[
+					{"date":"2026-08-01","test_executions":4,"cumulative_test_executions":4},
+					{"date":"2026-09-01","test_executions":0,"cumulative_test_executions":4},
+					{"date":"2026-10-01","test_executions":7,"cumulative_test_executions":11}
+				]
+			}`,
+			scope:    "organization_and_billing_children",
+			interval: "month",
+			summary:  TestExecutionsUsageSummary{TestExecutions: 11, ActiveSuites: 2, AverageTestExecutions: 3},
+			items: []TestExecutionsUsageItem{
+				{Date: "2026-08-01", TestExecutions: 4, CumulativeTestExecutions: 4},
+				{Date: "2026-09-01", TestExecutions: 0, CumulativeTestExecutions: 4},
+				{Date: "2026-10-01", TestExecutions: 7, CumulativeTestExecutions: 11},
+			},
+		},
+		{
+			name:  "zero_explicit_daily_uuid",
+			org:   "7c202aaa-3165-4811-9813-173c4c285463",
+			path:  "/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/test-executions",
+			opt:   TestExecutionsUsageOptions{From: "2026-10-25", To: "2026-10-25", Interval: "day"},
+			query: values{"from": "2026-10-25", "to": "2026-10-25", "interval": "day"},
+			body: `{
+				"description":"Recorded executions can change as late events arrive.",
+				"reporting_period":{"from":"2026-10-25","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization","interval":"day","unit":"executions",
+				"definition":"Recorded test executions including merged partial and correction rows, not managed tests.",
+				"summary":{"test_executions":0,"active_suites":0,"average_test_executions":0},
+				"items":[{"date":"2026-10-25","test_executions":0,"cumulative_test_executions":0}]
+			}`,
+			scope:    "organization",
+			interval: "day",
+			summary:  TestExecutionsUsageSummary{},
+			items:    []TestExecutionsUsageItem{{Date: "2026-10-25"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc(tt.path, func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, tt.query)
+				_, _ = fmt.Fprint(w, tt.body)
+			})
+			got, resp, err := client.Organizations.GetTestExecutionsUsage(context.Background(), tt.org, &tt.opt)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := TestExecutionsUsage{
+				Description:     "Recorded executions can change as late events arrive.",
+				ReportingPeriod: UsageReportingPeriod{From: tt.opt.From, To: tt.opt.To},
+				GeneratedAt:     NewTimestamp(time.Date(2026, 10, 27, 3, 4, 5, 0, time.UTC)),
+				Scope:           tt.scope,
+				Interval:        tt.interval,
+				Unit:            "executions",
+				Definition:      "Recorded test executions including merged partial and correction rows, not managed tests.",
+				Summary:         tt.summary,
+				Items:           tt.items,
+			}
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("test-execution usage (-want +got):\n%s", diff)
+			}
+			if resp == nil || resp.StatusCode != http.StatusOK {
+				t.Fatalf("response = %+v; want status 200", resp)
+			}
+			data, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(data), tt.body)
+		})
+	}
+}
+
+func TestOrganizationsService_GetTestExecutionsUsageErrors(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{http.StatusBadRequest, http.StatusServiceUnavailable} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			body := fmt.Sprintf(`{"message":%q}`, http.StatusText(status))
+			server.HandleFunc("/v2/organizations/acme/usage/test-executions", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, values{})
+				w.WriteHeader(status)
+				_, _ = fmt.Fprint(w, body)
+			})
+			got, resp, err := client.Organizations.GetTestExecutionsUsage(context.Background(), "acme", nil)
+			var apiErr *ErrorResponse
+			if !errors.As(err, &apiErr) || resp == nil || resp.StatusCode != status {
+				t.Fatalf("response=%+v error=%v; want API error %d", resp, err, status)
+			}
+			if apiErr.Message != http.StatusText(status) || string(apiErr.RawBody) != body {
+				t.Errorf("error=%+v", apiErr)
+			}
+			if diff := cmp.Diff(TestExecutionsUsage{}, got); diff != "" {
+				t.Errorf("report returned on error (-want +got):\n%s", diff)
+			}
+		})
+	}
+}

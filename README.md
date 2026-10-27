@@ -130,6 +130,30 @@ Summary and item resource maps always include these keys, including zeros:
 
 See the [hosted-agent usage example](examples/organizations/hosted_agents_usage).
 
+## Recorded test-execution usage
+
+Use `client.Organizations.GetTestExecutionsUsage` with `TestExecutionsUsageOptions`
+containing `From`, `To`, and optional `Interval` (`day` by default, or `month`).
+Dates, organization identifiers, scopes, authorization, errors, and caching
+follow the active-user report above. The bounded series has no pagination.
+
+```go
+usage, _, err := client.Organizations.GetTestExecutionsUsage(ctx, org, &buildkite.TestExecutionsUsageOptions{
+    From: "2026-10-01",
+    To:   "2026-10-25",
+})
+```
+
+The report counts recorded executions, including sum-merged partial/correction
+rows, **not managed tests**. `Summary` exposes `TestExecutions`, `ActiveSuites`,
+and `AverageTestExecutions`. The average floors the total divided by the number
+of requested day/month buckets, including zero-filled buckets, like the Usage
+panels. Items preserve execution counts and cumulative sums, with zero-filled
+missing intervals and carried-forward cumulative counts. The SDK forwards
+these values without calculating its own summaries or cumulative counts.
+
+See the [test-execution usage example](examples/organizations/test_executions_usage).
+
 ## Test Engine workflows
 
 Use `client.TestWorkflows` to list and inspect workflows within a suite.
