@@ -33,8 +33,10 @@ type ActiveUsersUsageSummary struct {
 	// billing children. It is not the sum of the interval counts.
 	ActiveUsers int64 `json:"active_users"`
 
-	// AverageMonthlyActiveUsers is the Usage page's average monthly count,
-	// which can differ from ActiveUsers for multi-month periods.
+	// AverageMonthlyActiveUsers equals ActiveUsers for ranges up to one
+	// inclusive billing month, even across calendar-month boundaries. Longer
+	// ranges use the floored average of distinct counts in clipped calendar
+	// months. This Usage page headline is not always the mean of monthly items.
 	AverageMonthlyActiveUsers int64 `json:"average_monthly_active_users"`
 }
 

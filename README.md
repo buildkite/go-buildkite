@@ -68,11 +68,18 @@ usage, _, err := client.Organizations.GetActiveUsersUsage(ctx, org, &buildkite.A
 
 The report uses the Usage page's calculations. `Summary.ActiveUsers` deduplicates
 users over the whole period and across billing children, rather than adding
-daily counts. `Summary.AverageMonthlyActiveUsers` preserves the Usage page's
-monthly average, which can differ for multi-month periods. Items include zero
-counts and carried-forward cumulative counts for missing intervals. Month
-buckets use the calendar month's first date even for a partial-month request;
-the counts still honor the exact range. There is no pagination.
+daily counts. `Summary.AverageMonthlyActiveUsers` equals that period-distinct
+count for ranges up to one inclusive **billing month**, even when they cross a
+calendar-month boundary. Only longer ranges floor the average of distinct
+counts in clipped calendar months. For September 30 through October 3, monthly
+counts of 1 and 2 with 2 period-distinct users produce a headline average of 2,
+not 1. The SDK preserves the server's headline rather than deriving it from
+`Items`.
+
+Items include zero counts and carried-forward cumulative counts for missing
+intervals. Month buckets use the calendar month's first date even for a
+partial-month request; the counts still honor the exact range. There is no
+pagination.
 
 Late events can revise results. `GeneratedAt` is the calculation time, not an
 ingestion watermark; cached responses retain it, and late events appear after

@@ -68,7 +68,7 @@ func TestOrganizationsService_GetActiveUsersUsage(t *testing.T) {
 				"generated_at":"2026-10-27T03:04:05Z",
 				"scope":"organization_and_billing_children","interval":"month","unit":"users",
 				"definition":"Distinct active users, deduplicated across billing children.",
-				"summary":{"active_users":7,"average_monthly_active_users":5},
+				"summary":{"active_users":7,"average_monthly_active_users":3},
 				"items":[
 					{"date":"2026-08-01","period":{"from":"2026-08-15","to":"2026-08-31"},"active_users":4,"cumulative_active_users":4},
 					{"date":"2026-09-01","period":{"from":"2026-09-01","to":"2026-09-30"},"active_users":0,"cumulative_active_users":4},
@@ -77,11 +77,37 @@ func TestOrganizationsService_GetActiveUsersUsage(t *testing.T) {
 			}`,
 			scope:    "organization_and_billing_children",
 			interval: "month",
-			summary:  ActiveUsersUsageSummary{ActiveUsers: 7, AverageMonthlyActiveUsers: 5},
+			summary:  ActiveUsersUsageSummary{ActiveUsers: 7, AverageMonthlyActiveUsers: 3},
 			items: []ActiveUsersUsageItem{
 				{Date: "2026-08-01", Period: UsageReportingPeriod{From: "2026-08-15", To: "2026-08-31"}, ActiveUsers: 4, CumulativeActiveUsers: 4},
 				{Date: "2026-09-01", Period: UsageReportingPeriod{From: "2026-09-01", To: "2026-09-30"}, ActiveUsers: 0, CumulativeActiveUsers: 4},
 				{Date: "2026-10-01", Period: UsageReportingPeriod{From: "2026-10-01", To: "2026-10-10"}, ActiveUsers: 5, CumulativeActiveUsers: 7},
+			},
+		},
+		{
+			name:  "crosses_calendar_month_within_one_billing_month",
+			org:   "acme",
+			path:  "/v2/organizations/acme/usage/active-users",
+			opt:   ActiveUsersUsageOptions{From: "2026-09-30", To: "2026-10-03", Interval: "month"},
+			query: values{"from": "2026-09-30", "to": "2026-10-03", "interval": "month"},
+			body: `{
+				"description":"Usage can change as late events arrive.",
+				"reporting_period":{"from":"2026-09-30","to":"2026-10-03"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"month","unit":"users",
+				"definition":"Distinct active users, deduplicated across billing children.",
+				"summary":{"active_users":2,"average_monthly_active_users":2},
+				"items":[
+					{"date":"2026-09-01","period":{"from":"2026-09-30","to":"2026-09-30"},"active_users":1,"cumulative_active_users":1},
+					{"date":"2026-10-01","period":{"from":"2026-10-01","to":"2026-10-03"},"active_users":2,"cumulative_active_users":2}
+				]
+			}`,
+			scope:    "organization_and_billing_children",
+			interval: "month",
+			summary:  ActiveUsersUsageSummary{ActiveUsers: 2, AverageMonthlyActiveUsers: 2},
+			items: []ActiveUsersUsageItem{
+				{Date: "2026-09-01", Period: UsageReportingPeriod{From: "2026-09-30", To: "2026-09-30"}, ActiveUsers: 1, CumulativeActiveUsers: 1},
+				{Date: "2026-10-01", Period: UsageReportingPeriod{From: "2026-10-01", To: "2026-10-03"}, ActiveUsers: 2, CumulativeActiveUsers: 2},
 			},
 		},
 		{
