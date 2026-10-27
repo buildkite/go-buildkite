@@ -769,3 +769,186 @@ func TestOrganizationsService_GetTestExecutionsUsageErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestOrganizationsService_GetConcurrentAgentsUsageByOrganization(t *testing.T) {
+	t.Parallel()
+	next := "https://api.buildkite.com/v2/organizations/acme/usage/concurrent-agents/organizations?from=2026-09-21&to=2026-10-11&interval=month&filter%5Bagent_type%5D=hosted&percentile=95&per_page=2&after=next-cursor"
+	tests := []struct {
+		name       string
+		org        string
+		path       string
+		opt        ConcurrentAgentsUsageByOrganizationOptions
+		query      values
+		body       string
+		scope      string
+		interval   string
+		agentType  string
+		items      []ConcurrentAgentsUsageOrganization
+		links      UsageReportLinks
+		linkHeader string
+	}{
+		{
+			name: "monthly_cursor_page",
+			org:  "acme",
+			path: "/v2/organizations/acme/usage/concurrent-agents/organizations",
+			opt: ConcurrentAgentsUsageByOrganizationOptions{
+				ConcurrentAgentsUsageOptions: ConcurrentAgentsUsageOptions{
+					From: "2026-09-21", To: "2026-10-11", Interval: "month", AgentType: "hosted", Percentile: 95,
+				},
+				PerPage: 2, After: "opaque+/= &?",
+			},
+			query: values{"from": "2026-09-21", "to": "2026-10-11", "interval": "month", "filter[agent_type]": "hosted", "percentile": "95", "per_page": "2", "after": "opaque+/= &?"},
+			body: `{
+				"description":"Organization usage can change between pages.",
+				"reporting_period":{"from":"2026-09-21","to":"2026-10-11"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization_and_billing_children","interval":"month","unit":"agents",
+				"definition":"Per-organization daily peaks; percentiles are not additive.",
+				"agent_type":"hosted","percentile":95,
+				"items":[{
+					"organization_uuid":"org-1","organization_slug":"acme","organization_name":"Acme",
+					"summary":{"max_concurrent_agents":17,"percentile_concurrent_agents":0},
+					"items":[
+						{"date":"2026-09-01","max_concurrent_agents":0,"percentile_concurrent_agents":0},
+						{"date":"2026-10-01","max_concurrent_agents":17,"percentile_concurrent_agents":17}
+					]
+				},{
+					"organization_uuid":"org-2","organization_slug":"acme-child","organization_name":"Child",
+					"summary":{"max_concurrent_agents":0,"percentile_concurrent_agents":0},
+					"items":[
+						{"date":"2026-09-01","max_concurrent_agents":0,"percentile_concurrent_agents":0},
+						{"date":"2026-10-01","max_concurrent_agents":0,"percentile_concurrent_agents":0}
+					]
+				}],
+				"links":{
+					"self":"https://api.buildkite.com/v2/organizations/acme/usage/concurrent-agents/organizations?from=2026-09-21&to=2026-10-11&interval=month&filter%5Bagent_type%5D=hosted&percentile=95&per_page=2&after=opaque%2B%2F%3D+%26%3F",
+					"next":"https://api.buildkite.com/v2/organizations/acme/usage/concurrent-agents/organizations?from=2026-09-21&to=2026-10-11&interval=month&filter%5Bagent_type%5D=hosted&percentile=95&per_page=2&after=next-cursor"
+				}
+			}`,
+			scope: "organization_and_billing_children", interval: "month", agentType: "hosted",
+			items: []ConcurrentAgentsUsageOrganization{
+				{
+					OrganizationUUID: "org-1", OrganizationSlug: "acme", OrganizationName: "Acme",
+					Summary: ConcurrentAgentsUsageSummary{MaxConcurrentAgents: 17, PercentileConcurrentAgents: 0},
+					Items: []ConcurrentAgentsUsageOrganizationItem{
+						{Date: "2026-09-01"},
+						{Date: "2026-10-01", MaxConcurrentAgents: 17, PercentileConcurrentAgents: 17},
+					},
+				},
+				{
+					OrganizationUUID: "org-2", OrganizationSlug: "acme-child", OrganizationName: "Child",
+					Summary: ConcurrentAgentsUsageSummary{},
+					Items: []ConcurrentAgentsUsageOrganizationItem{
+						{Date: "2026-09-01"}, {Date: "2026-10-01"},
+					},
+				},
+			},
+			links: UsageReportLinks{
+				Self: "https://api.buildkite.com/v2/organizations/acme/usage/concurrent-agents/organizations?from=2026-09-21&to=2026-10-11&interval=month&filter%5Bagent_type%5D=hosted&percentile=95&per_page=2&after=opaque%2B%2F%3D+%26%3F",
+				Next: &next,
+			},
+			linkHeader: "<" + next + `>; rel="next"`,
+		},
+		{
+			name: "daily_final_uuid_defaults",
+			org:  "7c202aaa-3165-4811-9813-173c4c285463",
+			path: "/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/concurrent-agents/organizations",
+			opt: ConcurrentAgentsUsageByOrganizationOptions{ConcurrentAgentsUsageOptions: ConcurrentAgentsUsageOptions{
+				From: "2026-10-25", To: "2026-10-25",
+			}},
+			query: values{"from": "2026-10-25", "to": "2026-10-25"},
+			body: `{
+				"description":"Organization usage can change between pages.",
+				"reporting_period":{"from":"2026-10-25","to":"2026-10-25"},
+				"generated_at":"2026-10-27T03:04:05Z",
+				"scope":"organization","interval":"day","unit":"agents",
+				"definition":"Per-organization daily peaks; percentiles are not additive.",
+				"agent_type":"self_hosted","percentile":95,
+				"items":[{
+					"organization_uuid":"org-1","organization_slug":"acme","organization_name":"Acme",
+					"summary":{"max_concurrent_agents":9,"percentile_concurrent_agents":9},
+					"items":[{"date":"2026-10-25","max_concurrent_agents":9,"percentile_concurrent_agents":9}]
+				}],
+				"links":{"self":"https://api.buildkite.com/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/concurrent-agents/organizations?from=2026-10-25&to=2026-10-25","next":null}
+			}`,
+			scope: "organization", interval: "day", agentType: "self_hosted",
+			items: []ConcurrentAgentsUsageOrganization{{
+				OrganizationUUID: "org-1", OrganizationSlug: "acme", OrganizationName: "Acme",
+				Summary: ConcurrentAgentsUsageSummary{MaxConcurrentAgents: 9, PercentileConcurrentAgents: 9},
+				Items:   []ConcurrentAgentsUsageOrganizationItem{{Date: "2026-10-25", MaxConcurrentAgents: 9, PercentileConcurrentAgents: 9}},
+			}},
+			links: UsageReportLinks{Self: "https://api.buildkite.com/v2/organizations/7c202aaa-3165-4811-9813-173c4c285463/usage/concurrent-agents/organizations?from=2026-10-25&to=2026-10-25"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc(tt.path, func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				testFormValues(t, r, tt.query)
+				if tt.linkHeader != "" {
+					w.Header().Set("Link", tt.linkHeader)
+				}
+				_, _ = fmt.Fprint(w, tt.body)
+			})
+			got, resp, err := client.Organizations.GetConcurrentAgentsUsageByOrganization(context.Background(), tt.org, &tt.opt)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := ConcurrentAgentsUsageByOrganization{
+				Description:     "Organization usage can change between pages.",
+				ReportingPeriod: UsageReportingPeriod{From: tt.opt.From, To: tt.opt.To},
+				GeneratedAt:     NewTimestamp(time.Date(2026, 10, 27, 3, 4, 5, 0, time.UTC)),
+				Scope:           tt.scope,
+				Interval:        tt.interval,
+				Unit:            "agents",
+				Definition:      "Per-organization daily peaks; percentiles are not additive.",
+				AgentType:       tt.agentType,
+				Percentile:      95,
+				Items:           tt.items,
+				Links:           tt.links,
+			}
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("concurrency by organization (-want +got):\n%s", diff)
+			}
+			if resp == nil || resp.StatusCode != http.StatusOK || resp.Header.Get("Link") != tt.linkHeader {
+				t.Fatalf("response = %+v; want status 200 and Link %q", resp, tt.linkHeader)
+			}
+			data, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(data), tt.body)
+		})
+	}
+}
+
+func TestOrganizationsService_GetConcurrentAgentsUsageByOrganizationErrors(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{http.StatusBadRequest, http.StatusServiceUnavailable} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			body := fmt.Sprintf(`{"message":%q}`, http.StatusText(status))
+			server.HandleFunc("/v2/organizations/acme/usage/concurrent-agents/organizations", func(w http.ResponseWriter, r *http.Request) {
+				testFormValues(t, r, values{})
+				w.WriteHeader(status)
+				_, _ = fmt.Fprint(w, body)
+			})
+			got, resp, err := client.Organizations.GetConcurrentAgentsUsageByOrganization(context.Background(), "acme", nil)
+			var apiErr *ErrorResponse
+			if !errors.As(err, &apiErr) || resp == nil || resp.StatusCode != status {
+				t.Fatalf("response=%+v error=%v; want API error %d", resp, err, status)
+			}
+			if apiErr.Message != http.StatusText(status) || string(apiErr.RawBody) != body {
+				t.Errorf("error=%+v", apiErr)
+			}
+			if diff := cmp.Diff(ConcurrentAgentsUsageByOrganization{}, got); diff != "" {
+				t.Errorf("report returned on error (-want +got):\n%s", diff)
+			}
+		})
+	}
+}

@@ -4,6 +4,7 @@
 * Add recorded concurrent-agent usage reports with daily inputs and requested-period percentiles.
 * Add hosted-agent usage reports preserving CPU-weighted totals and per-resource interval values.
 * Add recorded test-execution usage reports with summaries and cumulative interval counts.
+* Add cursor-paginated concurrent-agent usage by organization, including bucket percentiles.
 
 ## [v5.26.0](https://github.com/buildkite/go-buildkite/compare/v5.25.0...v5.26.0) (2026-10-26)
 

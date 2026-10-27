@@ -100,6 +100,33 @@ paginated; per-organization breakdowns are not embedded in this report.
 
 See the [concurrent-agent usage example](examples/organizations/concurrent_agents_usage).
 
+For the per-organization Usage table/CSV inputs, use
+`Organizations.GetConcurrentAgentsUsageByOrganization`. Its options embed
+`ConcurrentAgentsUsageOptions` and add `PerPage` (1–100; zero omits it for the
+default of 30) and opaque `After`. Each page contains organizations in UUID
+order, each with its own summary and zero-filled series, including organizations
+with no usage. Dates are not paginated.
+
+```go
+usage, _, err := client.Organizations.GetConcurrentAgentsUsageByOrganization(ctx, org, &buildkite.ConcurrentAgentsUsageByOrganizationOptions{
+    ConcurrentAgentsUsageOptions: buildkite.ConcurrentAgentsUsageOptions{
+        From: "2026-10-01", To: "2026-10-25", Interval: "month",
+    },
+    PerPage: 30,
+    After:  cursor,
+})
+```
+
+An organization's summary uses all requested daily peaks. A bucket's percentile
+uses only the daily peaks within that clipped day/month; a daily percentile
+equals the daily maximum. Percentiles are not additive. `Links.Self` and
+`Links.Next` preserve the server URLs; `Next` is nil (JSON `null`) on the last
+page. The standard `Link` header is also available on `Response`. Forward the
+next URL's opaque `after` cursor without interpreting it. Pages have no snapshot
+guarantee: cached calculation times and values may differ as late events arrive.
+
+See the [per-organization example](examples/organizations/concurrent_agents_usage_by_organization).
+
 ## Hosted-agent usage
 
 Use `client.Organizations.GetHostedAgentsUsage` with `HostedAgentsUsageOptions`

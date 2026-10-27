@@ -357,3 +357,94 @@ func (os *OrganizationsService) GetTestExecutionsUsage(ctx context.Context, org 
 
 	return usage, resp, nil
 }
+
+// UsageReportLinks contains cursor pagination URLs. Next is nil on the final
+// page and is serialized as null, not omitted.
+type UsageReportLinks struct {
+	Self string  `json:"self"`
+	Next *string `json:"next"`
+}
+
+// ConcurrentAgentsUsageByOrganizationOptions specifies the report parameters
+// and forward-only organization cursor. The API validates all values.
+type ConcurrentAgentsUsageByOrganizationOptions struct {
+	ConcurrentAgentsUsageOptions
+
+	// PerPage is from 1 to 100; zero omits it for the server default of 30.
+	PerPage int `url:"per_page,omitempty"`
+
+	// After is an opaque cursor. No snapshot is guaranteed between pages.
+	After string `url:"after,omitempty"`
+}
+
+// ConcurrentAgentsUsageOrganizationItem contains an organization's maximum
+// and discrete percentile across daily peaks in the clipped interval. On a
+// daily report the percentile equals the maximum; monthly percentiles still
+// use daily peaks, not instantaneous readings.
+type ConcurrentAgentsUsageOrganizationItem struct {
+	Date                       string `json:"date"`
+	MaxConcurrentAgents        int64  `json:"max_concurrent_agents"`
+	PercentileConcurrentAgents int64  `json:"percentile_concurrent_agents"`
+}
+
+// ConcurrentAgentsUsageOrganization contains an organization's zero-filled
+// series and its summary across the entire requested period's daily peaks.
+// Percentiles are not additive across organizations or intervals.
+type ConcurrentAgentsUsageOrganization struct {
+	OrganizationUUID string `json:"organization_uuid"`
+	OrganizationSlug string `json:"organization_slug"`
+	OrganizationName string `json:"organization_name"`
+
+	Summary ConcurrentAgentsUsageSummary            `json:"summary"`
+	Items   []ConcurrentAgentsUsageOrganizationItem `json:"items"`
+}
+
+// ConcurrentAgentsUsageByOrganization is a page of organizations ordered by
+// UUID, each with its own recorded concurrent-agent usage. Late events can
+// revise values; pages are not a consistent snapshot.
+type ConcurrentAgentsUsageByOrganization struct {
+	Description     string               `json:"description"`
+	ReportingPeriod UsageReportingPeriod `json:"reporting_period"`
+
+	// GeneratedAt is the calculation time, retained in cached reports,
+	// not an ingestion watermark or cross-page snapshot identifier.
+	GeneratedAt *Timestamp `json:"generated_at"`
+
+	// Scope is "organization" when there are no billing children, otherwise
+	// "organization_and_billing_children".
+	Scope string `json:"scope"`
+
+	Interval   string                              `json:"interval"`
+	Unit       string                              `json:"unit"`
+	Definition string                              `json:"definition"`
+	AgentType  string                              `json:"agent_type"`
+	Percentile int                                 `json:"percentile"`
+	Items      []ConcurrentAgentsUsageOrganization `json:"items"`
+	Links      UsageReportLinks                    `json:"links"`
+}
+
+// GetConcurrentAgentsUsageByOrganization returns one page of organizations
+// (not dates), including zero-usage organizations. Org accepts a slug or UUID.
+// Requests require read_organizations and access to the requested organization.
+// Disabled usage breakdowns and other API failures remain errors. Use Links.Next
+// for forward pagination; the standard Link header is also available on Response.
+func (os *OrganizationsService) GetConcurrentAgentsUsageByOrganization(ctx context.Context, org string, opt *ConcurrentAgentsUsageByOrganizationOptions) (ConcurrentAgentsUsageByOrganization, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/usage/concurrent-agents/organizations", org)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return ConcurrentAgentsUsageByOrganization{}, nil, err
+	}
+
+	req, err := os.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return ConcurrentAgentsUsageByOrganization{}, nil, err
+	}
+
+	var usage ConcurrentAgentsUsageByOrganization
+	resp, err := os.client.Do(req, &usage)
+	if err != nil {
+		return ConcurrentAgentsUsageByOrganization{}, resp, err
+	}
+
+	return usage, resp, nil
+}
