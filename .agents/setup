@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+
+if ! command -v mise >/dev/null 2>&1; then
+  tmpdir="$(mktemp -d)"
+  trap 'rm -rf "$tmpdir"' EXIT
+  curl --fail --silent --show-error --location \
+    https://github.com/jdx/mise/releases/download/v2026.10.21/mise-v2026.10.21-linux-x64.tar.gz \
+    | tar -xz -C "$tmpdir"
+  mkdir -p "$HOME/.local/bin"
+  install "$tmpdir/mise/bin/mise" "$HOME/.local/bin/mise"
+fi
+
+profile_line='export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"'
+if ! grep -Fqx "$profile_line" "$HOME/.bash_profile" 2>/dev/null; then
+  printf '\n%s\n' "$profile_line" >> "$HOME/.bash_profile"
+fi
+
+mise trust
+# mise.lock does not yet contain platform URLs for golangci-lint.
+MISE_LOCKFILE=false mise install
+mise reshim
+go mod download
