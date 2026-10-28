@@ -1,3 +1,7 @@
+## [v5.27.0](https://github.com/buildkite/go-buildkite/compare/v5.26.0...v5.27.0) (2026-10-28)
+
+* Add span aggregate endpoints [#413](https://github.com/buildkite/go-buildkite/pull/413) ([malclocke](https://github.com/malclocke))
+
 ## [v5.26.0](https://github.com/buildkite/go-buildkite/compare/v5.25.0...v5.26.0) (2026-10-26)
 
 * Add ExpiresAt to ClusterTokenCreate and ClusterToken [#405](https://github.com/buildkite/go-buildkite/pull/405) ([dahtey-bk](https://github.com/dahtey-bk))
