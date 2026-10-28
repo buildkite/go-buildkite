@@ -52,7 +52,8 @@ type SpanAggregateScopesListOptions struct {
 }
 
 // SpanAggregateNamesListOptions specifies optional parameters for
-// [SpanAggregatesService.ListNamesByBuild]. Invalid values are validated by the API.
+// [SpanAggregatesService.ListNamesByBuild] and is embedded in
+// [SpanAggregateSuiteNamesListOptions]. Invalid values are validated by the API.
 type SpanAggregateNamesListOptions struct {
 	// Sort is "count", "total", "avg", "p50", "p95", or "max", optionally
 	// prefixed with "-" for descending order. It defaults to "-total".
@@ -62,6 +63,17 @@ type SpanAggregateNamesListOptions struct {
 	// Limit is the maximum number of span names to return, from 1 to 100.
 	// It defaults to 20. SpanNamesTruncated indicates whether more names exist.
 	Limit int `url:"limit,omitempty"`
+}
+
+// SpanAggregateSuiteNamesListOptions specifies optional parameters for
+// [SpanAggregatesService.ListNamesBySuite]. Invalid values are validated by the API.
+type SpanAggregateSuiteNamesListOptions struct {
+	SpanAggregateNamesListOptions
+
+	// Period is one of "1hour", "4hours", "1day", "7days", "14days", or
+	// "28days". Values exceeding the organization's API history allowance
+	// return an API error. When omitted, the API selects the default period.
+	Period string `url:"period,omitempty"`
 }
 
 // ListScopesBySuite returns all instrumentation scopes for a suite in the
@@ -88,6 +100,61 @@ func (sas *SpanAggregatesService) ListScopesBySuite(ctx context.Context, org, sl
 	}
 
 	return scopes, resp, err
+}
+
+// ListScopesByBuild returns all instrumentation scopes across the build's
+// suites that the caller can view, ordered by total duration descending, then
+// name ascending. The caller must have access to the build's pipeline.
+// buildUUID is the build's UUID, not its pipeline build number. Results are
+// not paginated. OTel trace ingestion must be enabled for the organization.
+func (sas *SpanAggregatesService) ListScopesByBuild(ctx context.Context, org, buildUUID string) ([]SpanAggregateScope, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/builds/%s/span-aggregates/scopes", org, buildUUID)
+	req, err := sas.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var scopes []SpanAggregateScope
+	resp, err := sas.client.Do(req, &scopes)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return scopes, resp, err
+}
+
+// ListNamesBySuite returns the top span-name statistics for an instrumentation
+// scope in a suite during the requested period. The suite may be identified by
+// slug or UUID. An empty scopeName selects the unnamed scope; an unknown scope
+// returns an empty span-name list. Results are not paginated. Aggregates have
+// hourly precision and are retained for one month. OTel trace ingestion must
+// be enabled for the organization.
+func (sas *SpanAggregatesService) ListNamesBySuite(ctx context.Context, org, slug, scopeName string, opt *SpanAggregateSuiteNamesListOptions) (SpanAggregateNames, *Response, error) {
+	u := fmt.Sprintf("v2/analytics/organizations/%s/suites/%s/span-aggregates/span-names", org, slug)
+	params := struct {
+		ScopeName string `url:"scope_name"`
+		SpanAggregateSuiteNamesListOptions
+	}{ScopeName: scopeName}
+	if opt != nil {
+		params.SpanAggregateSuiteNamesListOptions = *opt
+	}
+	u, err := addOptions(u, params)
+	if err != nil {
+		return SpanAggregateNames{}, nil, err
+	}
+
+	req, err := sas.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return SpanAggregateNames{}, nil, err
+	}
+
+	var names SpanAggregateNames
+	resp, err := sas.client.Do(req, &names)
+	if err != nil {
+		return SpanAggregateNames{}, resp, err
+	}
+
+	return names, resp, err
 }
 
 // ListNamesByBuild returns the top span-name statistics for an instrumentation
