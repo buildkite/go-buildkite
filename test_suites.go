@@ -51,6 +51,8 @@ type TestSuiteUpdate struct {
 	DefaultBranch Optional[string] `json:"default_branch,omitzero"`
 
 	// Test state management requires a plan that includes the feature.
+	// Setting Some(false) permanently resets all muted and skipped tests to enabled.
+	// Re-enabling management does not restore their previous states.
 	TestStateManagement Optional[bool] `json:"test_state_management,omitzero"`
 	// AllowedTestStates may contain "muted" and/or "skipped".
 	// Use Some([]string{}) to clear the allowed states.
