@@ -1,3 +1,8 @@
+## [v5.28.0](https://github.com/buildkite/go-buildkite/compare/v5.27.0...v5.28.0) (2026-10-28)
+
+* Add missing span aggregate operations [#416](https://github.com/buildkite/go-buildkite/pull/416) ([malclocke](https://github.com/malclocke))
+* Add test state management settings to test suites [#414](https://github.com/buildkite/go-buildkite/pull/414) ([meghan-kradolfer](https://github.com/meghan-kradolfer))
+
 ## [v5.27.0](https://github.com/buildkite/go-buildkite/compare/v5.26.0...v5.27.0) (2026-10-28)
 
 * Add span aggregate endpoints [#413](https://github.com/buildkite/go-buildkite/pull/413) ([malclocke](https://github.com/malclocke))
