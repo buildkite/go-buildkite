@@ -163,49 +163,55 @@ func TestTestSuitesService_Get(t *testing.T) {
 func TestTestSuitesService_Create(t *testing.T) {
 	t.Parallel()
 
-	server, client, teardown := newMockServerAndClient(t)
-	t.Cleanup(teardown)
+	for _, tt := range []struct {
+		name    string
+		enabled bool
+		states  []string
+		body    string
+	}{
+		{
+			name: "default settings omitted",
+			body: `{"name":"Suite 3","default_branch":"main","show_api_token":false,"team_ids":["8369b300-fff0-4ef1-91de-010f72f4458d"]}`,
+		},
+		{
+			name:    "test state management enabled",
+			enabled: true,
+			states:  []string{"muted", "skipped"},
+			body:    `{"name":"Suite 3","default_branch":"main","show_api_token":false,"team_ids":["8369b300-fff0-4ef1-91de-010f72f4458d"],"test_state_management":true,"allowed_test_states":["muted","skipped"]}`,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
 
-	input := TestSuiteCreate{
-		Name:          "Suite 3",
-		DefaultBranch: "main",
-		TeamUUIDs:     []string{"8369b300-fff0-4ef1-91de-010f72f4458d"},
-	}
+			server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "POST")
+				assertRequestJSON(t, r, tt.body)
+				_, _ = fmt.Fprint(w, tt.body)
+			})
 
-	server.HandleFunc("/v2/analytics/organizations/my-great-org/suites", func(w http.ResponseWriter, r *http.Request) {
-		var v TestSuiteCreate
-		err := json.NewDecoder(r.Body).Decode(&v)
-		if err != nil {
-			t.Fatalf("Error parsing json body: %v", err)
-		}
+			suite, _, err := client.TestSuites.Create(context.Background(), "my-great-org", TestSuiteCreate{
+				Name:                "Suite 3",
+				DefaultBranch:       "main",
+				TeamUUIDs:           []string{"8369b300-fff0-4ef1-91de-010f72f4458d"},
+				TestStateManagement: tt.enabled,
+				AllowedTestStates:   tt.states,
+			})
+			if err != nil {
+				t.Fatalf("TestSuites.Create returned error: %v", err)
+			}
 
-		testMethod(t, r, "POST")
-
-		if diff := cmp.Diff(v, input); diff != "" {
-			t.Errorf("Request body diff: (-got +want)\n%s", diff)
-		}
-
-		_, _ = fmt.Fprint(w,
-			`
-			{
-				"name" : "Suite 3",
-				"default_branch": "main",
-				"team_ids": ["8369b300-fff0-4ef1-91de-010f72f4458d"]
-			}`)
-	})
-
-	suite, _, err := client.TestSuites.Create(context.Background(), "my-great-org", input)
-	if err != nil {
-		t.Errorf("TestSuites.Create returned error: %v", err)
-	}
-
-	want := TestSuite{
-		Name:          "Suite 3",
-		DefaultBranch: "main",
-	}
-
-	if diff := cmp.Diff(suite, want); diff != "" {
-		t.Errorf("TestSuites.Create diff: (-got +want)\n%s", diff)
+			want := TestSuite{
+				Name:                "Suite 3",
+				DefaultBranch:       "main",
+				TestStateManagement: tt.enabled,
+				AllowedTestStates:   tt.states,
+			}
+			if diff := cmp.Diff(suite, want); diff != "" {
+				t.Errorf("TestSuites.Create diff: (-got +want)\n%s", diff)
+			}
+		})
 	}
 }
 
@@ -276,6 +282,53 @@ func TestTestSuitesService_Update(t *testing.T) {
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("TestSuites.Update diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestTestSuitesService_UpdateTestStateManagement(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range []struct {
+		name    string
+		enabled bool
+		states  []string
+		body    string
+	}{
+		{
+			name:    "enable with skipped states",
+			enabled: true,
+			states:  []string{"skipped"},
+			body:    `{"test_state_management":true,"allowed_test_states":["skipped"]}`,
+		},
+		{
+			name:   "disable and clear states",
+			states: []string{},
+			body:   `{"test_state_management":false,"allowed_test_states":[]}`,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+
+			server.HandleFunc("/v2/analytics/organizations/my-great-org/suites/suite-4", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "PATCH")
+				assertRequestJSON(t, r, tt.body)
+				_, _ = fmt.Fprint(w, tt.body)
+			})
+
+			suite, _, err := client.TestSuites.Update(context.Background(), "my-great-org", "suite-4", TestSuiteUpdate{
+				TestStateManagement: Some(tt.enabled),
+				AllowedTestStates:   Some(tt.states),
+			})
+			if err != nil {
+				t.Fatalf("TestSuites.Update returned error: %v", err)
+			}
+			want := TestSuite{TestStateManagement: tt.enabled, AllowedTestStates: tt.states}
+			if diff := cmp.Diff(suite, want); diff != "" {
+				t.Errorf("TestSuites.Update diff: (-got +want)\n%s", diff)
+			}
+		})
 	}
 }
 

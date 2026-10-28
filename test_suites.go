@@ -19,29 +19,44 @@ type TestSuiteCreate struct {
 	DefaultBranch string   `json:"default_branch,omitempty"`
 	ShowAPIToken  bool     `json:"show_api_token"`
 	TeamUUIDs     []string `json:"team_ids,omitempty"`
+
+	// Test state management requires a plan that includes the feature.
+	TestStateManagement bool `json:"test_state_management,omitempty"`
+	// AllowedTestStates may contain "muted" and/or "skipped".
+	AllowedTestStates []string `json:"allowed_test_states,omitempty"`
 }
 
 // TestSuite represents a Buildkite Test Analytics suite.
 type TestSuite struct {
-	ID              string  `json:"id,omitempty"`
-	GraphQLID       string  `json:"graphql_id,omitempty"`
-	OrganizationID  string  `json:"organization_id,omitempty"`
-	Slug            string  `json:"slug,omitempty"`
-	Name            string  `json:"name,omitempty"`
-	URL             string  `json:"url,omitempty"`
-	WebURL          string  `json:"web_url,omitempty"`
-	DefaultBranch   string  `json:"default_branch,omitempty"`
-	ApplicationName *string `json:"application_name,omitempty"`
-	Color           *string `json:"color,omitempty"`
-	Emoji           *string `json:"emoji,omitempty"`
-	OIDCPolicy      any     `json:"oidc_policy,omitempty"`
-	APIToken        string  `json:"api_token,omitempty"`
+	ID                  string   `json:"id,omitempty"`
+	GraphQLID           string   `json:"graphql_id,omitempty"`
+	OrganizationID      string   `json:"organization_id,omitempty"`
+	Slug                string   `json:"slug,omitempty"`
+	Name                string   `json:"name,omitempty"`
+	URL                 string   `json:"url,omitempty"`
+	WebURL              string   `json:"web_url,omitempty"`
+	DefaultBranch       string   `json:"default_branch,omitempty"`
+	ApplicationName     *string  `json:"application_name,omitempty"`
+	Color               *string  `json:"color,omitempty"`
+	Emoji               *string  `json:"emoji,omitempty"`
+	OIDCPolicy          any      `json:"oidc_policy,omitempty"`
+	APIToken            string   `json:"api_token,omitempty"`
+	TestStateManagement bool     `json:"test_state_management,omitempty"`
+	AllowedTestStates   []string `json:"allowed_test_states,omitempty"`
 }
 
 // TestSuiteUpdate represents the request body for updating a test suite.
 type TestSuiteUpdate struct {
 	Name          Optional[string] `json:"name,omitzero"`
 	DefaultBranch Optional[string] `json:"default_branch,omitzero"`
+
+	// Test state management requires a plan that includes the feature.
+	// Setting Some(false) permanently resets all muted and skipped tests to enabled.
+	// Re-enabling management does not restore their previous states.
+	TestStateManagement Optional[bool] `json:"test_state_management,omitzero"`
+	// AllowedTestStates may contain "muted" and/or "skipped".
+	// Use Some([]string{}) to clear the allowed states.
+	AllowedTestStates Optional[[]string] `json:"allowed_test_states,omitzero"`
 }
 
 type TestSuiteListOptions struct{ ListOptions }
