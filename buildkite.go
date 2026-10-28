@@ -76,6 +76,7 @@ type Client struct {
 	RateLimit                    *RateLimitService
 	RepositoryConnections        *RepositoryConnectionsService
 	Rules                        *RulesService
+	SpanAggregates               *SpanAggregatesService
 	StepUploads                  *StepUploadsService
 	User                         *UserService
 	Teams                        *TeamsService
@@ -252,6 +253,7 @@ func (c *Client) populateDefaultServices() {
 	c.RateLimit = &RateLimitService{c}
 	c.RepositoryConnections = &RepositoryConnectionsService{c}
 	c.Rules = &RulesService{c}
+	c.SpanAggregates = &SpanAggregatesService{c}
 	c.StepUploads = &StepUploadsService{c}
 	c.User = &UserService{c}
 	c.Teams = &TeamsService{c}
