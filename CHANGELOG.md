@@ -1,3 +1,7 @@
+## [v5.29.0](https://github.com/buildkite/go-buildkite/compare/v5.28.0...v5.29.0) (2026-10-29)
+
+* PB-3605: Support raw annotation bodies when listing annotations [#393](https://github.com/buildkite/go-buildkite/pull/393) ([nethsix](https://github.com/nethsix))
+
 ## [v5.28.0](https://github.com/buildkite/go-buildkite/compare/v5.27.0...v5.28.0) (2026-10-28)
 
 * Add missing span aggregate operations [#416](https://github.com/buildkite/go-buildkite/pull/416) ([malclocke](https://github.com/malclocke))
