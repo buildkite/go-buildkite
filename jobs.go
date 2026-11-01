@@ -110,6 +110,46 @@ type JobEnvs struct {
 	EnvironmentVariables map[string]string `json:"env"`
 }
 
+// JobConcurrency is a job's concurrency configuration and bounded context.
+type JobConcurrency struct {
+	ConcurrencyGroup *JobConcurrencyGroup    `json:"concurrency_group"`
+	ConcurrencyLimit *int                    `json:"concurrency_limit"` // The target job's own limit, not a group-wide limit.
+	State            string                  `json:"state"`             // Stored job state, without REST job-state mapping.
+	JobsAhead        JobConcurrencyJobsAhead `json:"jobs_ahead"`
+}
+
+// JobConcurrencyGroup identifies the target job's associated concurrency group.
+type JobConcurrencyGroup struct {
+	ID        string  `json:"id"`
+	Key       string  `json:"key"`
+	Scope     string  `json:"scope"`      // custom or step.
+	ClusterID *string `json:"cluster_id"` // Nil for an unclustered group.
+}
+
+// JobConcurrencyJobsAhead contains visible active jobs ahead of a limited target.
+// It is not paginated, a full group, a list of causal blockers, or future execution
+// order. Only limited targets query jobs ahead; other targets return empty items.
+// An empty list does not establish that there are no blockers. Notice preserves
+// the server's explanation of these limitations.
+type JobConcurrencyJobsAhead struct {
+	Items  []JobConcurrencyJob `json:"items"`
+	Limit  int                 `json:"limit"`
+	Order  []string            `json:"order"` // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.
+	Scope  string              `json:"scope"`
+	Notice string              `json:"notice"`
+}
+
+// JobConcurrencyJob is a visible active job ahead of the target in submission order.
+type JobConcurrencyJob struct {
+	ID                string     `json:"id"` // Job UUID.
+	Name              string     `json:"name"`
+	State             string     `json:"state"`
+	WebURL            string     `json:"web_url"`
+	PipelineName      string     `json:"pipeline_name"`
+	BuildNumber       int        `json:"build_number"`
+	CurrentStateSince *Timestamp `json:"current_state_since"` // Only the first returned item may have a timestamp; even it can be nil.
+}
+
 type TriggeredBuild struct {
 	ID     string `json:"id,omitempty"`
 	Number int    `json:"number,omitempty"`
@@ -259,6 +299,42 @@ func (js *JobsService) GetJobByOrg(ctx context.Context, org string, jobID string
 	}
 
 	return job, resp, err
+}
+
+// GetJobConcurrency returns concurrency configuration and bounded jobs-ahead
+// context for a job in a specific build. Requires the read_builds scope.
+func (js *JobsService) GetJobConcurrency(ctx context.Context, org, pipeline, buildNumber, jobID string) (JobConcurrency, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/concurrency", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return JobConcurrency{}, nil, err
+	}
+
+	var concurrency JobConcurrency
+	resp, err := js.client.Do(req, &concurrency)
+	if err != nil {
+		return JobConcurrency{}, resp, err
+	}
+
+	return concurrency, resp, err
+}
+
+// GetJobConcurrencyByOrg returns concurrency configuration and bounded jobs-ahead
+// context by organization and job UUID. Requires the read_builds scope.
+func (js *JobsService) GetJobConcurrencyByOrg(ctx context.Context, org, jobID string) (JobConcurrency, *Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/jobs/%s/concurrency", org, jobID)
+	req, err := js.client.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return JobConcurrency{}, nil, err
+	}
+
+	var concurrency JobConcurrency
+	resp, err := js.client.Do(req, &concurrency)
+	if err != nil {
+		return JobConcurrency{}, resp, err
+	}
+
+	return concurrency, resp, err
 }
 
 // UnblockJob - unblock a job

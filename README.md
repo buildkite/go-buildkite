@@ -187,6 +187,21 @@ See the [examples](https://github.com/buildkite/go-buildkite/tree/master/example
 
 Note: not all API features are supported by `go-buildkite` just yet. If you need a feature, please make an [issue](https://github.com/buildkite/go-buildkite/issues) or submit a pull request.
 
+## Job concurrency context
+
+Use `client.Jobs.GetJobConcurrencyByOrg(ctx, org, jobID)` or
+`client.Jobs.GetJobConcurrency(ctx, org, pipeline, buildNumber, jobID)` to read
+`JobConcurrency`. Both require `read_builds` and a server with the job concurrency
+endpoint available.
+
+The response preserves nullable group, target limit, cluster ID, and state
+timestamp fields. `JobsAhead` preserves the server's limit, order, scope, and
+notice. It is a bounded list of visible active predecessors for a limited target,
+not pagination, a full group, causal blockers, or future execution order. Other
+target states retain their configuration but return empty items. An empty list
+does not establish that there are no blockers. Only the first returned item may
+have `CurrentStateSince`; even that timestamp may be nil.
+
 # Releasing
 
 1. Generate a changelog using [ghch](https://github.com/Songmu/ghch): `ghch --format=markdown --next-version=v<next-version-number>`, and update it in `CHANGELOG.md`
