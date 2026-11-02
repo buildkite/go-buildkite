@@ -708,17 +708,20 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 	group := JobConcurrencyGroup{ID: "group-id", Key: "deploy", Scope: "custom"}
 	stepGroup := JobConcurrencyGroup{ID: "step-group-id", Key: "step-key", Scope: "step", ClusterID: &clusterID}
 	cases := []struct {
-		name  string
-		group string
-		limit string
-		state string
-		items string
-		want  JobConcurrency
+		name             string
+		group            string
+		limit            string
+		state            string
+		items            string
+		examinedCount    int
+		truncatedByScope bool
+		want             JobConcurrency
 	}{
 		{
 			name:  "limited with visible predecessors",
 			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
 			limit: "2", state: "limited",
+			examinedCount: 30, truncatedByScope: true,
 			items: `[
 				{"id":"first-job-id","name":"Deploy","state":"limiting","web_url":"https://buildkite.com/my-org/deploy/builds/98#first-job-id","pipeline_name":"Deploy pipeline","build_number":98,"current_state_since":"2026-06-03T04:15:41.618Z"},
 				{"id":"second-job-id","name":"scripts/deploy.sh","state":"scheduled","web_url":"https://buildkite.com/my-org/other/builds/7#second-job-id","pipeline_name":"Other pipeline","build_number":7,"current_state_since":null}
@@ -742,10 +745,18 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 			name:  "first timestamp may be null",
 			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
 			limit: "2", state: "limited",
-			items: `[{"id":"waiting-job-id","name":"Wait","state":"waiting","web_url":"https://buildkite.com/my-org/deploy/builds/99#waiting-job-id","pipeline_name":"Deploy pipeline","build_number":99,"current_state_since":null}]`,
+			examinedCount: 1,
+			items:         `[{"id":"waiting-job-id","name":"Wait","state":"waiting","web_url":"https://buildkite.com/my-org/deploy/builds/99#waiting-job-id","pipeline_name":"Deploy pipeline","build_number":99,"current_state_since":null}]`,
 			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{
 				{ID: "waiting-job-id", Name: "Wait", State: "waiting", WebURL: "https://buildkite.com/my-org/deploy/builds/99#waiting-job-id", PipelineName: "Deploy pipeline", BuildNumber: 99},
 			}}},
+		},
+		{
+			name:  "all examined candidates inaccessible",
+			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
+			limit: "2", state: "limited", items: `[]`,
+			examinedCount: 30, truncatedByScope: true,
+			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{}}},
 		},
 	}
 	for _, route := range routes {
@@ -756,8 +767,8 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 					t.Parallel()
 					server, client, teardown := newMockServerAndClient(t)
 					t.Cleanup(teardown)
-					const notice = "Submission order is not execution order. This is not a complete list of blockers; an empty list does not mean there are no blockers."
-					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"limit":30,"order":["scheduled_at","position","id"],"scope":"visible_active_jobs_ahead_of_limited_target","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, notice)
+					const notice = "Up to the first 30 active predecessors are examined, then filtered by access without refilling. examined_count counts candidates, not database rows scanned. truncated_by_scope describes only these candidates, not full group visibility. Submission order is not execution order. This is not a complete list of blockers; an empty list does not mean there are no blockers."
+					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"limit":30,"examined_count":%d,"truncated_by_scope":%t,"order":["scheduled_at","position","id"],"scope":"visible_subset_of_first_30_active_jobs_ahead_of_limited_target","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, tc.examinedCount, tc.truncatedByScope, notice)
 					server.HandleFunc(route.path, func(w http.ResponseWriter, r *http.Request) {
 						testMethod(t, r, "GET")
 						if r.URL.RawQuery != "" {
@@ -774,8 +785,10 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 					}
 					want := tc.want
 					want.JobsAhead.Limit = 30
+					want.JobsAhead.ExaminedCount = tc.examinedCount
+					want.JobsAhead.TruncatedByScope = tc.truncatedByScope
 					want.JobsAhead.Order = []string{"scheduled_at", "position", "id"}
-					want.JobsAhead.Scope = "visible_active_jobs_ahead_of_limited_target"
+					want.JobsAhead.Scope = "visible_subset_of_first_30_active_jobs_ahead_of_limited_target"
 					want.JobsAhead.Notice = notice
 					if diff := cmp.Diff(want, got); diff != "" {
 						t.Errorf("GetJobConcurrency diff (-want +got):\n%s", diff)

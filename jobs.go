@@ -127,16 +127,20 @@ type JobConcurrencyGroup struct {
 }
 
 // JobConcurrencyJobsAhead contains visible active jobs ahead of a limited target.
+// The server selects at most Limit candidates before filtering by caller access;
+// it does not fill the list with later visible jobs.
 // It is not paginated, a full group, a list of causal blockers, or future execution
 // order. Only limited targets query jobs ahead; other targets return empty items.
 // An empty list does not establish that there are no blockers. Notice preserves
 // the server's explanation of these limitations.
 type JobConcurrencyJobsAhead struct {
-	Items  []JobConcurrencyJob `json:"items"`
-	Limit  int                 `json:"limit"`
-	Order  []string            `json:"order"` // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.
-	Scope  string              `json:"scope"`
-	Notice string              `json:"notice"`
+	Items            []JobConcurrencyJob `json:"items"`
+	Limit            int                 `json:"limit"`              // Candidate cap, not a requested visible-item count.
+	ExaminedCount    int                 `json:"examined_count"`     // Selected candidates inspected before access filtering (0..30), not DB rows scanned.
+	TruncatedByScope bool                `json:"truncated_by_scope"` // Whether access filtering omitted any candidate; false does not establish whole-group visibility.
+	Order            []string            `json:"order"`              // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.
+	Scope            string              `json:"scope"`
+	Notice           string              `json:"notice"`
 }
 
 // JobConcurrencyJob is a visible active job ahead of the target in submission order.
@@ -147,7 +151,7 @@ type JobConcurrencyJob struct {
 	WebURL            string     `json:"web_url"`
 	PipelineName      string     `json:"pipeline_name"`
 	BuildNumber       int        `json:"build_number"`
-	CurrentStateSince *Timestamp `json:"current_state_since"` // Only the first returned item may have a timestamp; even it can be nil.
+	CurrentStateSince *Timestamp `json:"current_state_since"` // Copied UI parity: only the first returned item may have a timestamp; even it can be nil.
 }
 
 type TriggeredBuild struct {

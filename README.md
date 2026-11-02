@@ -196,11 +196,20 @@ endpoint available.
 
 The response preserves nullable group, target limit, cluster ID, and state
 timestamp fields. `JobsAhead` preserves the server's limit, order, scope, and
-notice. It is a bounded list of visible active predecessors for a limited target,
-not pagination, a full group, causal blockers, or future execution order. Other
-target states retain their configuration but return empty items. An empty list
-does not establish that there are no blockers. Only the first returned item may
-have `CurrentStateSince`; even that timestamp may be nil.
+notice. The server selects at most 30 active predecessor candidates for a limited
+target, then filters them by caller access without filling from later candidates.
+`ExaminedCount` counts those selected candidates before access filtering (0..30),
+not database rows scanned. `TruncatedByScope` reports whether access filtering
+omitted any candidate; false does not establish visibility of the whole group.
+Both fields retain explicit zero/false JSON values and are 0/false for non-limited
+targets or targets without a group.
+
+This is not pagination, a full group, causal blockers, or future execution order.
+Other target states retain their configuration but return empty items. An empty
+list does not establish that there are no blockers. Copied from the job UI, only
+the first returned item may have `CurrentStateSince`; even that timestamp may be
+nil. General job REST endpoints already existed; this adds typed access to the
+new concurrency-context REST endpoint.
 
 # Releasing
 
