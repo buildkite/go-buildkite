@@ -136,7 +136,7 @@ type JobConcurrencyGroup struct {
 type JobConcurrencyJobsAhead struct {
 	Items            []JobConcurrencyJob `json:"items"`
 	Limit            int                 `json:"limit"`              // Candidate cap, not a requested visible-item count.
-	ExaminedCount    int                 `json:"examined_count"`     // Selected candidates inspected before access filtering (0..30), not DB rows scanned.
+	ExaminedCount    int                 `json:"examined_count"`     // Number of jobs returned by the query before permission filtering, at most 30.
 	TruncatedByScope bool                `json:"truncated_by_scope"` // Whether access filtering omitted any candidate; false does not establish whole-group visibility.
 	Order            []string            `json:"order"`              // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.
 	Scope            string              `json:"scope"`

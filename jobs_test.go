@@ -767,7 +767,7 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 					t.Parallel()
 					server, client, teardown := newMockServerAndClient(t)
 					t.Cleanup(teardown)
-					const notice = "Up to the first 30 active predecessors are examined, then filtered by access without refilling. examined_count counts candidates, not database rows scanned. truncated_by_scope describes only these candidates, not full group visibility. Submission order is not execution order. This is not a complete list of blockers; an empty list does not mean there are no blockers."
+					const notice = "Up to the first 30 active predecessors are examined, then filtered by access without refilling. examined_count is the number of jobs returned by the query before permission filtering, at most 30. truncated_by_scope describes only these candidates, not full group visibility. Submission order is not execution order. This is not a complete list of blockers; an empty list does not mean there are no blockers."
 					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"limit":30,"examined_count":%d,"truncated_by_scope":%t,"order":["scheduled_at","position","id"],"scope":"visible_subset_of_first_30_active_jobs_ahead_of_limited_target","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, tc.examinedCount, tc.truncatedByScope, notice)
 					server.HandleFunc(route.path, func(w http.ResponseWriter, r *http.Request) {
 						testMethod(t, r, "GET")
