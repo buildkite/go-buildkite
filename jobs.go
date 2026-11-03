@@ -127,7 +127,7 @@ type JobConcurrencyGroup struct {
 }
 
 // JobConcurrencyJobsAhead contains visible active jobs ahead of a limited target.
-// The server selects at most 30 candidates before filtering by caller access;
+// The server selects a bounded set of candidates before filtering by caller access;
 // it does not fill the list with later visible jobs.
 // It is not paginated, a full group, a list of causal blockers, or future execution
 // order. Only limited targets query jobs ahead; other targets return empty items.
