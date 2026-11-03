@@ -25,6 +25,11 @@ type ClusterToken struct {
 	CreatedBy          ClusterCreator `json:"created_by,omitempty"`
 	ExpiresAt          *Timestamp     `json:"expires_at,omitempty"`
 	Token              string         `json:"token,omitempty"`
+	// These fields are absent when their server features are disabled. Nil
+	// slices are omitted, while initialized empty slices are retained as [].
+	Permissions     []string `json:"permissions,omitzero"`
+	AllowAllQueues  *bool    `json:"allow_all_queues,omitempty"`
+	AllowedQueueIDs []string `json:"allowed_queue_ids,omitzero"`
 }
 
 // ClusterTokenCreate represents the request body for creating a cluster token.
@@ -35,12 +40,31 @@ type ClusterTokenCreate struct {
 	// requires it to be at least 10 minutes in the future, and it cannot be
 	// changed after creation. Leave it nil for a token that never expires.
 	ExpiresAt *Timestamp `json:"expires_at,omitempty"`
+	// Permissions defaults to the server's permissions when omitted. Use
+	// Some([]string{}) for no actions; nil slices encode as null, not [].
+	Permissions Optional[[]string] `json:"permissions,omitzero"`
+	// AllowAllQueues defaults to true when omitted. If false, AllowedQueueIDs
+	// must be explicit, including Some([]string{}) to allow no queues.
+	AllowAllQueues Optional[bool] `json:"allow_all_queues,omitzero"`
+	// AllowedQueueIDs contains queue UUIDs, not GraphQL IDs. A nonempty list
+	// cannot be combined with AllowAllQueues set to true.
+	AllowedQueueIDs Optional[[]string] `json:"allowed_queue_ids,omitzero"`
 }
 
 // ClusterTokenUpdate represents the request body for updating a cluster token.
 type ClusterTokenUpdate struct {
 	Description        Optional[string] `json:"description,omitzero"`
 	AllowedIPAddresses Optional[string] `json:"allowed_ip_addresses,omitzero"`
+	// Permissions is unchanged when omitted. Use Some([]string{}) to remove
+	// all actions; nil slices encode as null, not [].
+	Permissions Optional[[]string] `json:"permissions,omitzero"`
+	// AllowAllQueues is unchanged when omitted. To switch a restricted token
+	// to all queues, send Some(true) and AllowedQueueIDs: Some([]string{}).
+	AllowAllQueues Optional[bool] `json:"allow_all_queues,omitzero"`
+	// AllowedQueueIDs replaces queue UUIDs when set and preserves them when
+	// omitted. Some([]string{}) clears them; with AllowAllQueues false this
+	// allows no queues. A nonempty list cannot accompany AllowAllQueues true.
+	AllowedQueueIDs Optional[[]string] `json:"allowed_queue_ids,omitzero"`
 }
 
 type ClusterTokensListOptions struct {

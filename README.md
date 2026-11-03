@@ -100,6 +100,34 @@ values while update calls use presence-aware fields:
 - `CreateTeam` is still used for team creation; `UpdateTeam` is now used for team updates.
 - `TestSuitesService.Update` now takes `TestSuiteUpdate`.
 
+## Cluster token permissions and queues
+
+`ClusterTokenCreate` and `ClusterTokenUpdate` accept `Permissions`,
+`AllowAllQueues`, and `AllowedQueueIDs` as optional fields. Omission uses server
+defaults on create (including all queues) and preserves existing values on
+update. `Some([]string{})` explicitly grants no actions or clears queue bindings;
+use initialized empty slices, not nil slices or `Null`, for these arrays.
+
+```go
+token, _, err := client.ClusterTokens.Create(ctx, org, clusterID, buildkite.ClusterTokenCreate{
+    Permissions:    buildkite.Some([]string{"run_jobs", "upload_artifacts"}),
+    AllowAllQueues: buildkite.Some(false),
+    AllowedQueueIDs: buildkite.Some([]string{queueUUID}),
+})
+```
+
+Queue IDs are REST queue UUIDs, not GraphQL IDs. Creating a restricted token
+requires explicit `AllowedQueueIDs`; `Some(false)` with `Some([]string{})` is
+valid and permits no queues. All-queues access cannot accompany nonempty queue
+IDs. To switch a restricted token to all queues, update with
+`AllowAllQueues: Some(true)` and `AllowedQueueIDs: Some([]string{})`.
+
+The server controls feature availability and validates permissions and queue
+bindings. Responses omit the new fields when the corresponding features are
+disabled. `ClusterToken` retains this distinction: nil permission/queue slices
+and a nil `AllowAllQueues` are absent when marshaled, while empty slices and an
+explicit false are retained as `[]` and `false`.
+
 ## GitHub pipeline settings
 
 Use `GitHubSettingsInput` in `CreatePipeline.ProviderSettings` or
