@@ -767,7 +767,7 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 					server, client, teardown := newMockServerAndClient(t)
 					t.Cleanup(teardown)
 					const notice = "Up to the first 30 active predecessors are examined, then filtered by access without refilling. internal_limit_reached means the query returned the maximum of 30 jobs before permission filtering; it does not establish that more jobs exist. truncated_by_scope describes only these candidates, not full group visibility. Submission order is not execution order. This is not a complete list of blockers; an empty list does not mean there are no blockers."
-					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"limit":30,"internal_limit_reached":%t,"truncated_by_scope":%t,"order":["scheduled_at","position","id"],"scope":"visible_subset_of_first_30_active_jobs_ahead_of_limited_target","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, tc.internalLimitReached, tc.truncatedByScope, notice)
+					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"internal_limit_reached":%t,"truncated_by_scope":%t,"order":["scheduled_at","position","id"],"scope":"visible_subset_of_first_30_active_jobs_ahead_of_limited_target","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, tc.internalLimitReached, tc.truncatedByScope, notice)
 					server.HandleFunc(route.path, func(w http.ResponseWriter, r *http.Request) {
 						testMethod(t, r, "GET")
 						if r.URL.RawQuery != "" {
@@ -783,7 +783,6 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 						t.Fatalf("response = %#v, want status 200", resp)
 					}
 					want := tc.want
-					want.JobsAhead.Limit = 30
 					want.JobsAhead.InternalLimitReached = tc.internalLimitReached
 					want.JobsAhead.TruncatedByScope = tc.truncatedByScope
 					want.JobsAhead.Order = []string{"scheduled_at", "position", "id"}

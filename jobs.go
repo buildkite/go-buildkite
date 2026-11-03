@@ -127,7 +127,7 @@ type JobConcurrencyGroup struct {
 }
 
 // JobConcurrencyJobsAhead contains visible active jobs ahead of a limited target.
-// The server selects at most Limit candidates before filtering by caller access;
+// The server selects at most 30 candidates before filtering by caller access;
 // it does not fill the list with later visible jobs.
 // It is not paginated, a full group, a list of causal blockers, or future execution
 // order. Only limited targets query jobs ahead; other targets return empty items.
@@ -135,7 +135,6 @@ type JobConcurrencyGroup struct {
 // the server's explanation of these limitations.
 type JobConcurrencyJobsAhead struct {
 	Items                []JobConcurrencyJob `json:"items"`
-	Limit                int                 `json:"limit"`                  // Candidate cap, not a requested visible-item count.
 	InternalLimitReached bool                `json:"internal_limit_reached"` // Whether the query returned the maximum candidates before permission filtering; not proof more jobs exist.
 	TruncatedByScope     bool                `json:"truncated_by_scope"`     // Whether access filtering omitted any candidate; false does not establish whole-group visibility.
 	Order                []string            `json:"order"`                  // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.

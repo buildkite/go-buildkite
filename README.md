@@ -195,7 +195,7 @@ Use `client.Jobs.GetJobConcurrencyByOrg(ctx, org, jobID)` or
 endpoint available.
 
 The response preserves nullable group, target limit, cluster ID, and state
-timestamp fields. `JobsAhead` preserves the server's limit, order, scope, and
+timestamp fields. `JobsAhead` preserves the server's flags, order, scope, and
 notice. For a limited target, the server reads the first 30 jobs ahead, then
 leaves out jobs the caller's token cannot access. It returns the rest without
 reading further to replace omitted jobs. The existing UI reads 30 and returns
