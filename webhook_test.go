@@ -135,6 +135,15 @@ func TestValidatePayload(t *testing.T) {
 			signature: "invalid",
 			wantError: invalidSignatureHeader,
 		},
+		// Signature parts missing "="
+		{
+			signature: "1642080837,582d496ac2d869dd97a3101c4cda346288c49a742592daf582ec64c86449f79c",
+			wantError: invalidSignatureHeader,
+		},
+		{
+			signature: "timestamp=1642080837,582d496ac2d869dd97a3101c4cda346288c49a742592daf582ec64c86449f79c",
+			wantError: invalidSignatureHeader,
+		},
 		// Signature not hex string
 		{
 			signature: "timestamp=1642080837,signature=yo",

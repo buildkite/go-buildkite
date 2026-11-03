@@ -108,10 +108,12 @@ func getTimestampAndSignature(sig string) (timestamp string, signature []byte, e
 		return "", nil, fmt.Errorf("X-Buildkite-Signature format is incorrect")
 	}
 
-	ts, sg := sigParts[0], sigParts[1]
+	_, timestamp, tsOK := strings.Cut(sigParts[0], "=")
+	_, sigStr, sgOK := strings.Cut(sigParts[1], "=")
+	if !tsOK || !sgOK {
+		return "", nil, fmt.Errorf("X-Buildkite-Signature format is incorrect")
+	}
 
-	timestamp = strings.Split(ts, "=")[1]
-	sigStr := strings.Split(sg, "=")[1]
 	signature, err = hex.DecodeString(sigStr)
 	if err != nil {
 		return "", nil, fmt.Errorf("error decoding signature %q: %w", sigStr, err)
