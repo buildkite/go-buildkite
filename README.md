@@ -202,11 +202,12 @@ reading further to replace omitted jobs. The existing UI reads 30 and returns
 the list only if the viewer can access every job; otherwise it returns 204 with
 no list.
 
-**Beyond UI parity:** `ExaminedCount` is the number of jobs returned by the query
-before permission filtering, at most 30. `TruncatedByScope` reports whether any
-selected job was left out because the token cannot access it; false does not
-establish access to the whole group. Both fields retain explicit zero/false JSON
-values and are 0/false for non-limited targets or targets without a group.
+**Beyond UI parity:** `InternalLimitReached` reports whether the query returned
+the maximum of 30 jobs before permission filtering. True does not prove that
+additional jobs exist. `TruncatedByScope` reports whether any selected job was
+left out because the token cannot access it; false does not establish access to
+the whole group. Both fields always appear in JSON, including explicit false,
+and are false for non-limited targets or targets without a group.
 
 This is not pagination, a full group, causal blockers, or future execution order.
 Other target states retain their configuration but return empty items. An empty

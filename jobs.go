@@ -134,13 +134,13 @@ type JobConcurrencyGroup struct {
 // An empty list does not establish that there are no blockers. Notice preserves
 // the server's explanation of these limitations.
 type JobConcurrencyJobsAhead struct {
-	Items            []JobConcurrencyJob `json:"items"`
-	Limit            int                 `json:"limit"`              // Candidate cap, not a requested visible-item count.
-	ExaminedCount    int                 `json:"examined_count"`     // Number of jobs returned by the query before permission filtering, at most 30.
-	TruncatedByScope bool                `json:"truncated_by_scope"` // Whether access filtering omitted any candidate; false does not establish whole-group visibility.
-	Order            []string            `json:"order"`              // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.
-	Scope            string              `json:"scope"`
-	Notice           string              `json:"notice"`
+	Items                []JobConcurrencyJob `json:"items"`
+	Limit                int                 `json:"limit"`                  // Candidate cap, not a requested visible-item count.
+	InternalLimitReached bool                `json:"internal_limit_reached"` // Whether the query returned the maximum candidates before permission filtering; not proof more jobs exist.
+	TruncatedByScope     bool                `json:"truncated_by_scope"`     // Whether access filtering omitted any candidate; false does not establish whole-group visibility.
+	Order                []string            `json:"order"`                  // scheduled_at, position, id; id is the internal DB ID, not the returned UUID.
+	Scope                string              `json:"scope"`
+	Notice               string              `json:"notice"`
 }
 
 // JobConcurrencyJob is a visible active job ahead of the target in submission order.
