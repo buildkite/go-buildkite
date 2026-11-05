@@ -195,19 +195,18 @@ Use `client.Jobs.GetJobConcurrencyByOrg(ctx, org, jobID)` or
 endpoint available.
 
 The response preserves nullable group, target limit, cluster ID, and state
-timestamp fields. `JobsAhead` preserves the server's flags, order, scope, and
+timestamp fields. `JobsAhead` preserves the server's items, order, scope, and
 notice. For a limited target, the server reads a bounded set of jobs ahead, then
 leaves out jobs the caller's token cannot access. It returns the rest without
 reading further to replace omitted jobs. The existing UI also reads a bounded
 set and returns the list only if the viewer can access every selected job;
 otherwise it returns 204 with no list.
 
-**Beyond UI parity:** `InternalLimitReached` reports whether the query returned
-the maximum allowed number of jobs before permission filtering. True does not prove that
-additional jobs exist. `TruncatedByScope` reports whether any selected job was
-left out because the token cannot access it; false does not establish access to
-the whole group. Both fields always appear in JSON, including explicit false,
-and are false for non-limited targets or targets without a group.
+`JobsAhead.Scope` is
+`subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit`.
+`JobsAhead.Notice` preserves the server's warning:
+
+> Submission order is not execution order. This is not a complete list of jobs holding up this job because of concurrency limits; an empty list does not establish that there are no blockers.
 
 This is not pagination, a full group, causal blockers, or future execution order.
 Other target states retain their configuration but return empty items. An empty

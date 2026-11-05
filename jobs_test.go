@@ -708,20 +708,17 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 	group := JobConcurrencyGroup{ID: "group-id", Key: "deploy", Scope: "custom"}
 	stepGroup := JobConcurrencyGroup{ID: "step-group-id", Key: "step-key", Scope: "step", ClusterID: &clusterID}
 	cases := []struct {
-		name                 string
-		group                string
-		limit                string
-		state                string
-		items                string
-		internalLimitReached bool
-		truncatedByScope     bool
-		want                 JobConcurrency
+		name  string
+		group string
+		limit string
+		state string
+		items string
+		want  JobConcurrency
 	}{
 		{
 			name:  "limited with visible predecessors",
 			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
 			limit: "2", state: "limited",
-			internalLimitReached: true, truncatedByScope: true,
 			items: `[
 				{"id":"first-job-id","name":"Deploy","state":"limiting","web_url":"https://buildkite.com/my-org/deploy/builds/98#first-job-id","pipeline_name":"Deploy pipeline","build_number":98,"current_state_since":"2026-06-03T04:15:41.618Z"},
 				{"id":"second-job-id","name":"scripts/deploy.sh","state":"scheduled","web_url":"https://buildkite.com/my-org/other/builds/7#second-job-id","pipeline_name":"Other pipeline","build_number":7,"current_state_since":null}
@@ -751,11 +748,10 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 			}}},
 		},
 		{
-			name:  "all selected candidates inaccessible below cap",
+			name:  "limited with empty jobs ahead",
 			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
 			limit: "2", state: "limited", items: `[]`,
-			truncatedByScope: true,
-			want:             JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{}}},
+			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{}}},
 		},
 	}
 	for _, route := range routes {
@@ -766,8 +762,8 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 					t.Parallel()
 					server, client, teardown := newMockServerAndClient(t)
 					t.Cleanup(teardown)
-					const notice = "A bounded set of active predecessors is examined, then filtered by access without refilling. internal_limit_reached means the query returned the maximum allowed number of jobs before permission filtering; it does not establish that more jobs exist. truncated_by_scope describes only these candidates, not full group visibility. Submission order is not execution order. This is not a complete list of blockers; an empty list does not mean there are no blockers."
-					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"internal_limit_reached":%t,"truncated_by_scope":%t,"order":["scheduled_at","position","id"],"scope":"visible_subset_of_active_jobs_ahead_of_limited_target","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, tc.internalLimitReached, tc.truncatedByScope, notice)
+					const notice = "Submission order is not execution order. This is not a complete list of jobs holding up this job because of concurrency limits; an empty list does not establish that there are no blockers."
+					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"order":["scheduled_at","position","id"],"scope":"subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, notice)
 					server.HandleFunc(route.path, func(w http.ResponseWriter, r *http.Request) {
 						testMethod(t, r, "GET")
 						if r.URL.RawQuery != "" {
@@ -783,10 +779,8 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 						t.Fatalf("response = %#v, want status 200", resp)
 					}
 					want := tc.want
-					want.JobsAhead.InternalLimitReached = tc.internalLimitReached
-					want.JobsAhead.TruncatedByScope = tc.truncatedByScope
 					want.JobsAhead.Order = []string{"scheduled_at", "position", "id"}
-					want.JobsAhead.Scope = "visible_subset_of_active_jobs_ahead_of_limited_target"
+					want.JobsAhead.Scope = "subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit"
 					want.JobsAhead.Notice = notice
 					if diff := cmp.Diff(want, got); diff != "" {
 						t.Errorf("GetJobConcurrency diff (-want +got):\n%s", diff)
