@@ -259,6 +259,69 @@ func TestClusterQueuesService_Create(t *testing.T) {
 	}
 }
 
+func TestClusterQueuesService_Recommendations(t *testing.T) {
+	t.Parallel()
+	for _, body := range []string{
+		`[]`,
+		`[{"key":"linux-arm64","hostedAgents":{"instanceShape":"linux-arm64-2x4"}},{"key":"windows","hostedAgents":{"instanceShape":"windows-amd64-4x16"}},{"key":"macos","hostedAgents":{"instanceShape":"macos-arm64-m4-6x28","macosVersion":"SEQUOIA"}}]`,
+	} {
+		t.Run(body, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			defer teardown()
+			server.HandleFunc("/v2/organizations/org/clusters/cluster/queues/recommendations", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				fmt.Fprint(w, body)
+			})
+			recommendations, _, err := client.ClusterQueues.Recommendations(context.Background(), "org", "cluster")
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := json.Marshal(recommendations)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(got) != body {
+				t.Fatalf("creation payloads changed: got %s, want %s", got, body)
+			}
+			var payloads []json.RawMessage
+			if err := json.Unmarshal([]byte(body), &payloads); err != nil {
+				t.Fatal(err)
+			}
+			index := 0
+			server.HandleFunc("/v2/organizations/org/clusters/cluster/queues", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "POST")
+				assertRequestJSON(t, r, string(payloads[index]))
+				index++
+				fmt.Fprint(w, `{"id":"created","hosted":true,"hosted_agents":{"instance_shape":{"name":"MACOS_ARM64_M4_6X28","machine_type":"macos","architecture":"arm64","cpu":6,"memory":28},"platform_settings":{"macos":{"macos_version":"SEQUOIA","base_image_xcode_version":"16.4"}}}}`)
+			})
+			for _, recommendation := range recommendations {
+				queue, _, err := client.ClusterQueues.Create(context.Background(), "org", "cluster", recommendation)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !queue.Hosted || queue.HostedAgents == nil || queue.HostedAgents.InstanceShape.CPU != 6 || queue.HostedAgents.PlatformSettings.MacOS.MacOSVersion != "SEQUOIA" {
+					t.Fatalf("lost hosted configuration: %+v", queue)
+				}
+			}
+		})
+	}
+}
+
+func TestClusterQueuesService_RecommendationsError(t *testing.T) {
+	t.Parallel()
+	server, client, teardown := newMockServerAndClient(t)
+	defer teardown()
+	server.HandleFunc("/v2/organizations/org/clusters/cluster/queues/recommendations", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Fprint(w, `{"message":"Forbidden"}`)
+	})
+	_, resp, err := client.ClusterQueues.Recommendations(context.Background(), "org", "cluster")
+	if err == nil || resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("expected forbidden, got response %v, error %v", resp, err)
+	}
+}
+
 func TestClusterQueuesService_Update(t *testing.T) {
 	t.Parallel()
 
