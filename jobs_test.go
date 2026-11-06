@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -676,5 +677,153 @@ func TestJob_PromisedExitStatusJSON(t *testing.T) {
 	}
 	if empty.PromisedExitStatus != nil || empty.PromisedExitStatusAt != nil {
 		t.Errorf("expected nil promised fields, got %v / %v", empty.PromisedExitStatus, empty.PromisedExitStatusAt)
+	}
+}
+
+func TestJobsService_GetJobConcurrency(t *testing.T) {
+	t.Parallel()
+
+	routes := []struct {
+		name string
+		path string
+		get  func(*Client) (JobConcurrency, *Response, error)
+	}{
+		{
+			name: "build",
+			path: "/v2/organizations/my-org/pipelines/my-pipeline/builds/123/jobs/target-id/concurrency",
+			get: func(c *Client) (JobConcurrency, *Response, error) {
+				return c.Jobs.GetJobConcurrency(context.Background(), "my-org", "my-pipeline", "123", "target-id")
+			},
+		},
+		{
+			name: "organization",
+			path: "/v2/organizations/my-org/jobs/target-id/concurrency",
+			get: func(c *Client) (JobConcurrency, *Response, error) {
+				return c.Jobs.GetJobConcurrencyByOrg(context.Background(), "my-org", "target-id")
+			},
+		},
+	}
+	limit := 2
+	clusterID := "cluster-id"
+	group := JobConcurrencyGroup{ID: "group-id", Key: "deploy", Scope: "custom"}
+	stepGroup := JobConcurrencyGroup{ID: "step-group-id", Key: "step-key", Scope: "step", ClusterID: &clusterID}
+	cases := []struct {
+		name  string
+		group string
+		limit string
+		state string
+		items string
+		want  JobConcurrency
+	}{
+		{
+			name:  "limited with visible predecessors",
+			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
+			limit: "2", state: "limited",
+			items: `[
+				{"id":"first-job-id","name":"Deploy","state":"limiting","web_url":"https://buildkite.com/my-org/deploy/builds/98#first-job-id","pipeline_name":"Deploy pipeline","build_number":98,"current_state_since":"2026-06-03T04:15:41.618Z"},
+				{"id":"second-job-id","name":"scripts/deploy.sh","state":"scheduled","web_url":"https://buildkite.com/my-org/other/builds/7#second-job-id","pipeline_name":"Other pipeline","build_number":7,"current_state_since":null}
+			]`,
+			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{
+				{ID: "first-job-id", Name: "Deploy", State: "limiting", WebURL: "https://buildkite.com/my-org/deploy/builds/98#first-job-id", PipelineName: "Deploy pipeline", BuildNumber: 98, CurrentStateSince: NewTimestamp(time.Date(2026, 6, 3, 4, 15, 41, 618000000, time.UTC))},
+				{ID: "second-job-id", Name: "scripts/deploy.sh", State: "scheduled", WebURL: "https://buildkite.com/my-org/other/builds/7#second-job-id", PipelineName: "Other pipeline", BuildNumber: 7},
+			}}},
+		},
+		{
+			name:  "non-limited retains step configuration",
+			group: `{"id":"step-group-id","key":"step-key","scope":"step","cluster_id":"cluster-id"}`,
+			limit: "2", state: "running", items: `[]`,
+			want: JobConcurrency{ConcurrencyGroup: &stepGroup, ConcurrencyLimit: &limit, State: "running", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{}}},
+		},
+		{
+			name: "no concurrency", group: `null`, limit: `null`, state: "scheduled", items: `[]`,
+			want: JobConcurrency{State: "scheduled", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{}}},
+		},
+		{
+			name:  "first timestamp may be null",
+			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
+			limit: "2", state: "limited",
+			items: `[{"id":"waiting-job-id","name":"Wait","state":"waiting","web_url":"https://buildkite.com/my-org/deploy/builds/99#waiting-job-id","pipeline_name":"Deploy pipeline","build_number":99,"current_state_since":null}]`,
+			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{
+				{ID: "waiting-job-id", Name: "Wait", State: "waiting", WebURL: "https://buildkite.com/my-org/deploy/builds/99#waiting-job-id", PipelineName: "Deploy pipeline", BuildNumber: 99},
+			}}},
+		},
+		{
+			name:  "limited with empty jobs ahead",
+			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
+			limit: "2", state: "limited", items: `[]`,
+			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{}}},
+		},
+	}
+	for _, route := range routes {
+		t.Run(route.name, func(t *testing.T) {
+			t.Parallel()
+			for _, tc := range cases {
+				t.Run(tc.name, func(t *testing.T) {
+					t.Parallel()
+					server, client, teardown := newMockServerAndClient(t)
+					t.Cleanup(teardown)
+					const notice = "Submission order is not execution order. This is not a complete list of jobs holding up this job because of concurrency limits; an empty list does not establish that there are no blockers."
+					payload := fmt.Sprintf(`{"concurrency_group":%s,"concurrency_limit":%s,"state":%q,"jobs_ahead":{"items":%s,"order":["scheduled_at","position","id"],"scope":"subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit","notice":%q}}`, tc.group, tc.limit, tc.state, tc.items, notice)
+					server.HandleFunc(route.path, func(w http.ResponseWriter, r *http.Request) {
+						testMethod(t, r, "GET")
+						if r.URL.RawQuery != "" {
+							t.Errorf("unexpected query: %s", r.URL.RawQuery)
+						}
+						_, _ = fmt.Fprint(w, payload)
+					})
+					got, resp, err := route.get(client)
+					if err != nil {
+						t.Fatalf("GetJobConcurrency returned error: %v", err)
+					}
+					if resp == nil || resp.StatusCode != http.StatusOK {
+						t.Fatalf("response = %#v, want status 200", resp)
+					}
+					want := tc.want
+					want.JobsAhead.Order = []string{"scheduled_at", "position", "id"}
+					want.JobsAhead.Scope = "subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit"
+					want.JobsAhead.Notice = notice
+					if diff := cmp.Diff(want, got); diff != "" {
+						t.Errorf("GetJobConcurrency diff (-want +got):\n%s", diff)
+					}
+					// Consumers such as MCP forward this object as JSON: keep nulls and empty arrays.
+					encoded, err := json.Marshal(got)
+					if err != nil {
+						t.Fatal(err)
+					}
+					var original, roundTrip any
+					if err := json.Unmarshal([]byte(payload), &original); err != nil {
+						t.Fatal(err)
+					}
+					if err := json.Unmarshal(encoded, &roundTrip); err != nil {
+						t.Fatal(err)
+					}
+					if diff := cmp.Diff(original, roundTrip); diff != "" {
+						t.Errorf("JSON round-trip diff (-want +got):\n%s", diff)
+					}
+				})
+			}
+			for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden, http.StatusNotFound} {
+				t.Run(fmt.Sprint(status), func(t *testing.T) {
+					t.Parallel()
+					server, client, teardown := newMockServerAndClient(t)
+					t.Cleanup(teardown)
+					server.HandleFunc(route.path, func(w http.ResponseWriter, r *http.Request) {
+						w.WriteHeader(status)
+						_, _ = fmt.Fprint(w, `{"message":"access denied"}`)
+					})
+					got, resp, err := route.get(client)
+					var apiError *ErrorResponse
+					if !errors.As(err, &apiError) || apiError.Message != "access denied" {
+						t.Fatalf("error = %v, want API access denied error", err)
+					}
+					if resp == nil || resp.StatusCode != status {
+						t.Fatalf("response = %#v, want status %d", resp, status)
+					}
+					if diff := cmp.Diff(JobConcurrency{}, got); diff != "" {
+						t.Errorf("error result diff (-want +got):\n%s", diff)
+					}
+				})
+			}
+		})
 	}
 }
