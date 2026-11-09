@@ -27,6 +27,39 @@ func releaseTestPage(item string) string {
 	return `{"items":[` + item + `],"links":{"self":"https://api.example/self","first":"https://api.example/first","prev":"https://api.example/prev","next":"https://api.example/next?after=opaque%2Bcursor"}}`
 }
 
+func TestReleasePageLink_ToOptions(t *testing.T) {
+	t.Parallel()
+	for _, tt := range []struct {
+		name    string
+		link    ReleasePageLink
+		want    ReleasesListOptions
+		wantErr bool
+	}{
+		{"next", "https://api.example/installations?after=opaque%2Bcursor%2F%3D&per_page=25", ReleasesListOptions{After: "opaque+cursor/=", PerPage: 25}, false},
+		{"previous", "https://api.example/installations?before=prior%2Bcursor&per_page=7", ReleasesListOptions{Before: "prior+cursor", PerPage: 7}, false},
+		{"first", "https://api.example/installations?per_page=10", ReleasesListOptions{PerPage: 10}, false},
+		{"invalid link", "https://api.example/%zz", ReleasesListOptions{}, true},
+		{"invalid page size", "https://api.example/installations?per_page=many", ReleasesListOptions{}, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := tt.link.ToOptions()
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("ToOptions returned nil error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if *got != tt.want {
+				t.Errorf("options = %#v, want %#v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestReleasesService_Reads(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

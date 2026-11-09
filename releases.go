@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -92,11 +93,36 @@ type ReleasesPage[T any] struct {
 	Ordering *ReleaseVersionOrdering `json:"ordering,omitempty"`
 }
 
+type ReleasePageLink string
+
+// ToOptions extracts cursor pagination options from a Releases link.
+// Retain any resource-specific filters when applying these options.
+func (l ReleasePageLink) ToOptions() (*ReleasesListOptions, error) {
+	u, err := url.Parse(string(l))
+	if err != nil {
+		return nil, fmt.Errorf("parsing link: %w", err)
+	}
+
+	opt := &ReleasesListOptions{
+		After:  u.Query().Get("after"),
+		Before: u.Query().Get("before"),
+	}
+
+	if perPage := u.Query().Get("per_page"); perPage != "" {
+		opt.PerPage, err = strconv.Atoi(perPage)
+		if err != nil {
+			return nil, fmt.Errorf("parsing per_page: %w", err)
+		}
+	}
+
+	return opt, nil
+}
+
 type ReleasePageLinks struct {
-	Self     string `json:"self"`
-	First    string `json:"first,omitempty"`
-	Previous string `json:"prev,omitempty"`
-	Next     string `json:"next,omitempty"`
+	Self     ReleasePageLink `json:"self"`
+	First    ReleasePageLink `json:"first,omitempty"`
+	Previous ReleasePageLink `json:"prev,omitempty"`
+	Next     ReleasePageLink `json:"next,omitempty"`
 }
 
 type ReleaseVersionOrdering struct {
