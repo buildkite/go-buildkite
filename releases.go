@@ -9,10 +9,69 @@ import (
 	"strings"
 )
 
-// ReleasesService reads infrastructure registrations, observations and the
+// ReleasesService manages infrastructure registrations, observations and the
 // release artifact catalog. These artifacts are distinct from job artifacts.
 type ReleasesService struct {
 	client *Client
+}
+
+type ReleaseInstallationCreate struct {
+	Name string `json:"name"`
+}
+
+type ReleaseTargetCreate struct {
+	Name   string            `json:"name"`
+	Labels map[string]string `json:"labels,omitempty"`
+}
+
+type ReleaseTargetUpdate struct {
+	// Labels replaces the entire map. Some(map[string]string{}) clears it;
+	// an unset value leaves labels unchanged.
+	Labels Optional[map[string]string] `json:"labels,omitzero"`
+}
+
+type ReleaseComponentCreate struct {
+	Name     string              `json:"name"`
+	Artifact *ReleaseArtifactRef `json:"artifact,omitempty"`
+}
+
+type ReleaseArtifactCreate struct {
+	Name          string            `json:"name"`
+	VersionScheme string            `json:"version_scheme,omitempty"`
+	Pipeline      *ReleaseReference `json:"pipeline,omitempty"`
+}
+
+type ReleaseVersionPublish struct {
+	Version string `json:"version"`
+	Digest  string `json:"digest"`
+	// An unset SourceBuild uses the agent OIDC token's build, if any.
+	// Null[ReleaseReference]() explicitly records no source build.
+	SourceBuild  Optional[ReleaseReference] `json:"source_build,omitzero"`
+	SourceURL    Optional[string]           `json:"source_url,omitzero"`
+	PullRequests []ReleasePullRequest       `json:"pull_requests,omitempty"`
+}
+
+type ReleaseVersionYank struct {
+	Reason string `json:"reason,omitempty"`
+}
+
+// ReleaseObservationCreate reports a fact, not desired state. EventID must be a
+// caller-supplied UUIDv7, reused with the same payload if the outcome is unknown.
+// Type is TargetAppeared, ComponentAppeared, ComponentDisappeared, or
+// ComponentVersionObserved. Only the latter accepts Version and Digest;
+// Component is required for all but TargetAppeared.
+type ReleaseObservationCreate struct {
+	EventID    string     `json:"event_id"`
+	Type       string     `json:"type"`
+	Component  string     `json:"component,omitempty"`
+	Version    string     `json:"version,omitempty"`
+	Digest     string     `json:"digest,omitempty"`
+	OccurredAt *Timestamp `json:"occurred_at,omitempty"`
+}
+
+type ReleaseObservationWriteResult struct {
+	ReleaseObservation
+	Created bool `json:"created"`
 }
 
 // ReleaseInstallationRef selects by name or ID, never both. UUID-shaped names
@@ -346,22 +405,22 @@ func (r ReleaseVersionRef) path() (string, error) {
 	return parent + "/versions/" + releaseSegment(r.Version), nil
 }
 
-// releasesRead shares request construction and response/error handling across
-// the read-only endpoints. Selector errors are checked before any HTTP request.
 func releasesRead[T any](ctx context.Context, s *ReleasesService, org, path string, pathErr error, opt any) (T, *Response, error) {
+	if pathErr == nil && opt != nil {
+		path, pathErr = addOptions(path, opt)
+	}
+	return releasesRequest[T](ctx, s, http.MethodGet, org, path, pathErr, nil)
+}
+
+// releasesRequest shares request construction and response/error handling.
+// Selector errors are checked before any HTTP request.
+func releasesRequest[T any](ctx context.Context, s *ReleasesService, method, org, path string, pathErr error, body any) (T, *Response, error) {
 	var zero T
 	if pathErr != nil {
 		return zero, nil, pathErr
 	}
 	u := "v2/organizations/" + releaseSegment(org) + "/" + path
-	var err error
-	if opt != nil {
-		u, err = addOptions(u, opt)
-		if err != nil {
-			return zero, nil, err
-		}
-	}
-	req, err := s.client.NewRequest(ctx, http.MethodGet, u, nil)
+	req, err := s.client.NewRequest(ctx, method, u, body)
 	if err != nil {
 		return zero, nil, err
 	}
@@ -452,4 +511,105 @@ func (s *ReleasesService) CompareVersions(ctx context.Context, org string, ref R
 func (s *ReleasesService) ListComparisonPullRequests(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesComparisonListOptions) (ReleasesPage[ReleasePullRequest], *Response, error) {
 	path, err := ref.path()
 	return releasesRead[ReleasesPage[ReleasePullRequest]](ctx, s, org, path+"/version-comparison/pull-requests", err, opt)
+}
+
+func (s *ReleasesService) CreateInstallation(ctx context.Context, org string, input ReleaseInstallationCreate) (ReleaseInstallation, *Response, error) {
+	return releasesRequest[ReleaseInstallation](ctx, s, http.MethodPost, org, "installations", nil, input)
+}
+
+func (s *ReleasesService) CreateTarget(ctx context.Context, org string, installation ReleaseInstallationRef, input ReleaseTargetCreate) (ReleaseTarget, *Response, error) {
+	path, err := installation.path()
+	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/targets", err, input)
+}
+
+// UpdateTarget replaces labels when supplied; it does not rename the target.
+func (s *ReleasesService) UpdateTarget(ctx context.Context, org string, ref ReleaseTargetRef, input ReleaseTargetUpdate) (ReleaseTarget, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPatch, org, path, err, input)
+}
+
+func (s *ReleasesService) CreateComponent(ctx context.Context, org string, target ReleaseTargetRef, input ReleaseComponentCreate) (ReleaseComponent, *Response, error) {
+	path, err := target.path()
+	if err == nil && input.Artifact != nil {
+		_, err = input.Artifact.path()
+	}
+	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/components", err, input)
+}
+
+func (s *ReleasesService) CreateArtifact(ctx context.Context, org string, input ReleaseArtifactCreate) (ReleaseArtifact, *Response, error) {
+	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPost, org, "artifacts", nil, input)
+}
+
+// PublishVersion records an immutable version and digest. Replaying the same
+// version and digest returns the original publication and provenance (HTTP 200).
+// It does not upload or verify content.
+func (s *ReleasesService) PublishVersion(ctx context.Context, org string, artifact ReleaseArtifactRef, input ReleaseVersionPublish) (ReleaseArtifactVersion, *Response, error) {
+	path, err := artifact.path()
+	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/versions", err, input)
+}
+
+// YankVersion preserves history. Repeated calls retain the original yank time
+// and reason; a yanked version identity cannot be republished.
+func (s *ReleasesService) YankVersion(ctx context.Context, org string, ref ReleaseVersionRef, input ReleaseVersionYank) (ReleaseArtifactVersion, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/yank", err, input)
+}
+
+// AppendObservations reports 1–100 events in input order. The API returns 201
+// when all are new, or 200 when any event is a replay. Callers own event IDs and
+// recovery from unknown outcomes; this method does not generate IDs or retry
+// transport/server errors. The client's configured rate-limit retries apply.
+func (s *ReleasesService) AppendObservations(ctx context.Context, org string, target ReleaseTargetRef, events []ReleaseObservationCreate) ([]ReleaseObservationWriteResult, *Response, error) {
+	path, err := target.path()
+	input := struct {
+		Events []ReleaseObservationCreate `json:"events"`
+	}{Events: events}
+	return releasesRequest[[]ReleaseObservationWriteResult](ctx, s, http.MethodPost, org, path+"/observations", err, input)
+}
+
+// ArchiveInstallation also archives its active targets and components, without
+// deleting history. Repeated calls preserve the original archive timestamps.
+func (s *ReleasesService) ArchiveInstallation(ctx context.Context, org string, ref ReleaseInstallationRef) (ReleaseInstallation, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseInstallation](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
+}
+
+// UnarchiveInstallation restores only the installation, not its children.
+func (s *ReleasesService) UnarchiveInstallation(ctx context.Context, org string, ref ReleaseInstallationRef) (ReleaseInstallation, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseInstallation](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
+}
+
+// ArchiveTarget also archives its active components, without deleting history.
+func (s *ReleasesService) ArchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
+}
+
+// UnarchiveTarget restores only the target, not its components. Its installation
+// must be active.
+func (s *ReleasesService) UnarchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
+}
+
+func (s *ReleasesService) ArchiveComponent(ctx context.Context, org string, ref ReleaseComponentRef) (ReleaseComponent, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
+}
+
+// UnarchiveComponent requires an active installation and target.
+func (s *ReleasesService) UnarchiveComponent(ctx context.Context, org string, ref ReleaseComponentRef) (ReleaseComponent, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
+}
+
+func (s *ReleasesService) ArchiveArtifact(ctx context.Context, org string, ref ReleaseArtifactRef) (ReleaseArtifact, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
+}
+
+func (s *ReleasesService) UnarchiveArtifact(ctx context.Context, org string, ref ReleaseArtifactRef) (ReleaseArtifact, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
 }
