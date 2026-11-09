@@ -32,33 +32,6 @@ if err != nil {
 pipelines, _, err := client.Pipelines.List(*org, nil)
 ```
 
-## Releases
-
-Use `client.Releases` for infrastructure registrations, observations, and the
-release artifact catalog. These are distinct from files attached to build jobs.
-Reads require `read_deployment_artifacts`; writes require
-`write_deployment_artifacts`, along with the API's organization access and feature
-availability checks.
-
-```go
-version, _, err := client.Releases.PublishVersion(ctx, org,
-    buildkite.ReleaseArtifactRef{Name: "api"}, buildkite.ReleaseVersionPublish{
-        Version:     "1.2.3",
-        Digest:      "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-        SourceBuild: buildkite.Null[buildkite.ReleaseReference](),
-    })
-```
-
-Leaving `SourceBuild` unset uses the agent OIDC token's build, if any; explicit
-null records no build. Target label updates replace the entire map:
-`Labels: buildkite.Some(map[string]string{})` clears labels, while an unset field
-leaves them unchanged.
-
-`AppendObservations` accepts 1–100 events with caller-supplied UUIDv7 event IDs
-and returns per-event `Created` flags. Reuse the same IDs and payloads after an
-unknown outcome. The SDK does not generate event IDs or retry transport/server
-errors; the client's configured rate-limit retries still apply.
-
 ## Test Engine workflows
 
 Use `client.TestWorkflows` to list and inspect workflows within a suite.
