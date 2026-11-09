@@ -8,7 +8,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
 const releaseTestID = "019a1dd8-a49b-70c5-99b8-b8f9f0ed6824"
@@ -22,6 +25,244 @@ const releaseArtifactJSON = `{"id":"artifact-id","name":"api","version_scheme":"
 const releaseVersionJSON = `{"id":"version-id","version":"1.2.3+build.4","digest":null,"source_url":null,"source_build":null,"pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"},{"url":"https://example.com/pr/2"}],"created_by":null,"url":"https://api.example/version","id_url":"https://api.example/version-id","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`
 const releaseStatusJSON = `{"target_id":"target-id","component":"api","component_id":"component-id","present":false,"active_version":null,"active_digest":null,"last_active_version":"1.2.3","first_seen_at":"2026-09-20T01:02:03Z","last_seen_at":"2026-09-21T01:02:03Z","sequence":0,"catalog_resolution":{"status":"unknown","artifact_version_id":null,"digest_check":"not_checked","reason":"component_absent"}}`
 const releaseComparisonJSON = `{"artifact":{"id":"artifact-id","name":"api","version_scheme":"semver"},"left":{"id":"left-id","version":"2.0.0","digest":null,"yanked":false},"right":{"id":"right-id","version":"1.0.0","digest":"sha256:abc","yanked":true},"basis":"semver","result":"newer","reason":"higher_semver_precedence","same_version":false,"same_content":null}`
+
+func TestReleasesService_Writes(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	installation := ReleaseInstallationRef{ID: releaseTestID}
+	target := ReleaseTargetRef{Installation: installation, Name: "east"}
+	component := ReleaseComponentRef{ID: releaseTestID}
+	artifact := ReleaseArtifactRef{Name: "api"}
+	version := ReleaseVersionRef{Artifact: artifact, Version: "1.2.3+build.4"}
+	const digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+	const observationJSON = `{"id":"observation-id","target_id":"target-id","sequence":9007199254740993,"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6824","type":"ComponentVersionObserved","component":"api","version":"1.2.3","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","created":false}`
+	tests := []struct {
+		name, method, path, request, response string
+		status                                int
+		call                                  func(*ReleasesService) (any, *Response, error)
+	}{
+		{
+			name: "CreateInstallation", method: "POST", path: "installations", request: `{"name":"prod"}`, response: releaseInstallationJSON, status: 201,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.CreateInstallation(ctx, "acme", ReleaseInstallationCreate{Name: "prod"})
+			},
+		},
+		{
+			name: "CreateTarget", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets", request: `{"name":"east","labels":{"region":"au","empty":""}}`, response: releaseTargetJSON, status: 201,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.CreateTarget(ctx, "acme", installation, ReleaseTargetCreate{Name: "east", Labels: map[string]string{"region": "au", "empty": ""}})
+			},
+		},
+		{
+			name: "UpdateTarget", method: "PATCH", path: "installations/by-id/" + releaseTestID + "/targets/east", request: `{"labels":{}}`, response: releaseTargetJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.UpdateTarget(ctx, "acme", target, ReleaseTargetUpdate{Labels: Some(map[string]string{})})
+			},
+		},
+		{
+			name: "CreateComponent", method: "POST", path: "targets/by-id/" + releaseTestID + "/components", request: `{"name":"api","artifact":{"id":"artifact-id"}}`, response: releaseComponentJSON, status: 201,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.CreateComponent(ctx, "acme", ReleaseTargetRef{ID: releaseTestID}, ReleaseComponentCreate{Name: "api", Artifact: &ReleaseArtifactRef{ID: "artifact-id"}})
+			},
+		},
+		{
+			name: "CreateArtifact", method: "POST", path: "artifacts", request: `{"name":"api","version_scheme":"build_number","pipeline":{"id":"pipeline-id"}}`, response: releaseArtifactJSON, status: 201,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.CreateArtifact(ctx, "acme", ReleaseArtifactCreate{Name: "api", VersionScheme: "build_number", Pipeline: &ReleaseReference{ID: "pipeline-id"}})
+			},
+		},
+		{
+			name: "PublishVersion", method: "POST", path: "artifacts/api/versions", request: `{"version":"1.2.3","digest":"` + digest + `","source_build":{"id":"build-id"},"source_url":"https://example.com/source","pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"}]}`, response: releaseVersionJSON, status: 201,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.PublishVersion(ctx, "acme", artifact, ReleaseVersionPublish{Version: "1.2.3", Digest: digest, SourceBuild: Some(ReleaseReference{ID: "build-id"}), SourceURL: Some("https://example.com/source"), PullRequests: []ReleasePullRequest{{URL: "https://github.com/acme/api/pull/12", Provider: "github", RepositoryURL: "https://github.com/acme/api", ID: "12"}}})
+			},
+		},
+		{
+			name: "YankVersion", method: "POST", path: "artifacts/api/versions/1.2.3%2Bbuild.4/yank", request: `{"reason":"incorrect content"}`, response: releaseVersionJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.YankVersion(ctx, "acme", version, ReleaseVersionYank{Reason: "incorrect content"})
+			},
+		},
+		{
+			name: "AppendObservations", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets/east/observations", request: `{"events":[{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6824","type":"ComponentVersionObserved","component":"api","version":"1.2.3","digest":"` + digest + `","occurred_at":"2026-09-20T01:02:03Z"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"TargetAppeared"}]}`, response: `[` + observationJSON + `,{"id":"second","target_id":"target-id","sequence":9007199254740994,"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"TargetAppeared","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","created":true}]`, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.AppendObservations(ctx, "acme", target, []ReleaseObservationCreate{
+					{EventID: releaseTestID, Type: "ComponentVersionObserved", Component: "api", Version: "1.2.3", Digest: digest, OccurredAt: NewTimestamp(must(time.Parse(time.RFC3339, "2026-09-20T01:02:03Z")))},
+					{EventID: "019a1dd8-a49b-70c5-99b8-b8f9f0ed6825", Type: "TargetAppeared"},
+				})
+			},
+		},
+		{
+			name: "ArchiveInstallation", method: "POST", path: "installations/by-id/" + releaseTestID + "/archive", request: `{}`, response: releaseInstallationJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.ArchiveInstallation(ctx, "acme", installation)
+			},
+		},
+		{
+			name: "UnarchiveInstallation", method: "POST", path: "installations/prod/unarchive", request: `{}`, response: releaseInstallationJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.UnarchiveInstallation(ctx, "acme", ReleaseInstallationRef{Name: "prod"})
+			},
+		},
+		{
+			name: "ArchiveTarget", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets/east/archive", request: `{}`, response: releaseTargetJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) { return s.ArchiveTarget(ctx, "acme", target) },
+		},
+		{
+			name: "UnarchiveTarget", method: "POST", path: "targets/by-id/" + releaseTestID + "/unarchive", request: `{}`, response: releaseTargetJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.UnarchiveTarget(ctx, "acme", ReleaseTargetRef{ID: releaseTestID})
+			},
+		},
+		{
+			name: "ArchiveComponent", method: "POST", path: "components/by-id/" + releaseTestID + "/archive", request: `{}`, response: releaseComponentJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) { return s.ArchiveComponent(ctx, "acme", component) },
+		},
+		{
+			name: "UnarchiveComponent", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets/east/components/api/unarchive", request: `{}`, response: releaseComponentJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.UnarchiveComponent(ctx, "acme", ReleaseComponentRef{Target: target, Name: "api"})
+			},
+		},
+		{
+			name: "ArchiveArtifact", method: "POST", path: "artifacts/api/archive", request: `{}`, response: releaseArtifactJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) { return s.ArchiveArtifact(ctx, "acme", artifact) },
+		},
+		{
+			name: "UnarchiveArtifact", method: "POST", path: "artifacts/by-id/" + releaseTestID + "/unarchive", request: `{}`, response: releaseArtifactJSON, status: 200,
+			call: func(s *ReleasesService) (any, *Response, error) {
+				return s.UnarchiveArtifact(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID})
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, tt.method)
+				if r.URL.EscapedPath() != "/prefix/v2/organizations/acme/"+tt.path {
+					t.Errorf("wire path = %q, want %q", r.URL.EscapedPath(), tt.path)
+				}
+				if r.Header.Get("Authorization") != "Bearer release-test-token" || r.Header.Get("Content-Type") != "application/json" {
+					t.Error("missing authentication or JSON content type")
+				}
+				var body json.RawMessage
+				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+					t.Error(err)
+				}
+				assertJSONEqual(t, string(body), tt.request)
+				w.WriteHeader(tt.status)
+				_, _ = fmt.Fprint(w, tt.response)
+			}))
+			t.Cleanup(server.Close)
+			client := must(NewClient(WithBaseURL(server.URL + "/prefix/")))
+			client.authHeader = "Bearer release-test-token"
+			got, resp, err := tt.call(client.Releases)
+			if err != nil || resp == nil || resp.StatusCode != tt.status {
+				t.Fatalf("response = %#v, err = %v", resp, err)
+			}
+			assertJSONEqual(t, string(must(json.Marshal(got))), tt.response)
+			if results, ok := got.([]ReleaseObservationWriteResult); ok && (results[0].Sequence != 9007199254740993 || results[0].Created || !results[1].Created) {
+				t.Errorf("observation order, precision or replay state lost: %#v", results)
+			}
+		})
+	}
+}
+
+func TestReleasesService_WriteOptionalFields(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	target := ReleaseTargetRef{ID: releaseTestID}
+	artifact := ReleaseArtifactRef{ID: releaseTestID}
+	tests := []struct {
+		name, request string
+		call          func(*ReleasesService) (any, *Response, error)
+	}{
+		{"default target labels", `{"name":"east"}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateTarget(ctx, "acme", ReleaseInstallationRef{Name: "prod"}, ReleaseTargetCreate{Name: "east"})
+		}},
+		{"unchanged labels", `{}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.UpdateTarget(ctx, "acme", target, ReleaseTargetUpdate{})
+		}},
+		{"replacement labels", `{"labels":{"region":"au"}}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.UpdateTarget(ctx, "acme", target, ReleaseTargetUpdate{Labels: Some(map[string]string{"region": "au"})})
+		}},
+		{"unbound component", `{"name":"api"}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateComponent(ctx, "acme", target, ReleaseComponentCreate{Name: "api"})
+		}},
+		{"artifact name binding", `{"name":"api","artifact":{"name":"api"}}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateComponent(ctx, "acme", target, ReleaseComponentCreate{Name: "api", Artifact: &ReleaseArtifactRef{Name: "api"}})
+		}},
+		{"default version scheme", `{"name":"api"}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateArtifact(ctx, "acme", ReleaseArtifactCreate{Name: "api"})
+		}},
+		{"OIDC source build default", `{"version":"1.2.3","digest":"sha256:abc"}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.PublishVersion(ctx, "acme", artifact, ReleaseVersionPublish{Version: "1.2.3", Digest: "sha256:abc"})
+		}},
+		{"explicit null provenance", `{"version":"1.2.3","digest":"sha256:abc","source_build":null,"source_url":null}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.PublishVersion(ctx, "acme", artifact, ReleaseVersionPublish{Version: "1.2.3", Digest: "sha256:abc", SourceBuild: Null[ReleaseReference](), SourceURL: Null[string]()})
+		}},
+		{"empty source URL", `{"version":"1.2.3","digest":"sha256:abc","source_url":""}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.PublishVersion(ctx, "acme", artifact, ReleaseVersionPublish{Version: "1.2.3", Digest: "sha256:abc", SourceURL: Some("")})
+		}},
+		{"no yank reason", `{}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.YankVersion(ctx, "acme", ReleaseVersionRef{ID: releaseTestID}, ReleaseVersionYank{})
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				var body json.RawMessage
+				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+					t.Error(err)
+				}
+				assertJSONEqual(t, string(body), tt.request)
+				_, _ = fmt.Fprint(w, `{}`)
+			}))
+			t.Cleanup(server.Close)
+			client := must(NewClient(WithBaseURL(server.URL)))
+			if _, _, err := tt.call(client.Releases); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestReleasesService_ObservationWriteResponses(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{201, 200, 409, 422, 500} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			t.Parallel()
+			var calls atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				calls.Add(1)
+				w.WriteHeader(status)
+				if status < 300 {
+					_, _ = fmt.Fprintf(w, `[{"id":"observation-id","event_id":%q,"type":"TargetAppeared","target_id":"target-id","sequence":1,"occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","created":%t}]`, releaseTestID, status == 201)
+				} else {
+					_, _ = fmt.Fprint(w, `{"message":"observation rejected","errors":[{"field":"/events/0/event_id","code":"conflict"}]}`)
+				}
+			}))
+			t.Cleanup(server.Close)
+			client := must(NewClient(WithBaseURL(server.URL)))
+			got, resp, err := client.Releases.AppendObservations(context.Background(), "acme", ReleaseTargetRef{ID: releaseTestID}, []ReleaseObservationCreate{{EventID: releaseTestID, Type: "TargetAppeared"}})
+			if resp == nil || resp.StatusCode != status || calls.Load() != 1 {
+				t.Fatalf("response=%#v, calls=%d, error=%v", resp, calls.Load(), err)
+			}
+			if status < 300 {
+				if err != nil || len(got) != 1 || got[0].EventID != releaseTestID || got[0].Created != (status == 201) {
+					t.Fatalf("results=%#v, error=%v", got, err)
+				}
+			} else {
+				var apiErr *ErrorResponse
+				if !errors.As(err, &apiErr) || apiErr.Message != "observation rejected" || !strings.Contains(string(apiErr.RawBody), "/events/0/event_id") {
+					t.Fatalf("structured API error lost: %v", err)
+				}
+			}
+		})
+	}
+}
 
 func releaseTestPage(item string) string {
 	return `{"items":[` + item + `],"links":{"self":"https://api.example/self","first":"https://api.example/first","prev":"https://api.example/prev","next":"https://api.example/next?after=opaque%2Bcursor"}}`
@@ -326,6 +567,36 @@ func TestReleasesService_InvalidSelectors(t *testing.T) {
 		}},
 		{"invalid PR comparison artifact", func(s *ReleasesService) (any, *Response, error) {
 			return s.ListComparisonPullRequests(ctx, "acme", ReleaseArtifactRef{}, nil)
+		}},
+		{"create target without installation", func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateTarget(ctx, "acme", ReleaseInstallationRef{}, ReleaseTargetCreate{Name: "east"})
+		}},
+		{"update ambiguous target", func(s *ReleasesService) (any, *Response, error) {
+			return s.UpdateTarget(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Name: "east"}, ReleaseTargetUpdate{})
+		}},
+		{"create component without target", func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateComponent(ctx, "acme", ReleaseTargetRef{}, ReleaseComponentCreate{Name: "api"})
+		}},
+		{"create component with ambiguous artifact", func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateComponent(ctx, "acme", ReleaseTargetRef{ID: releaseTestID}, ReleaseComponentCreate{Name: "api", Artifact: &ReleaseArtifactRef{ID: releaseTestID, Name: "api"}})
+		}},
+		{"create component with empty artifact", func(s *ReleasesService) (any, *Response, error) {
+			return s.CreateComponent(ctx, "acme", ReleaseTargetRef{ID: releaseTestID}, ReleaseComponentCreate{Name: "api", Artifact: &ReleaseArtifactRef{}})
+		}},
+		{"publish without artifact", func(s *ReleasesService) (any, *Response, error) {
+			return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{}, ReleaseVersionPublish{})
+		}},
+		{"yank without version", func(s *ReleasesService) (any, *Response, error) {
+			return s.YankVersion(ctx, "acme", ReleaseVersionRef{}, ReleaseVersionYank{})
+		}},
+		{"append without target", func(s *ReleasesService) (any, *Response, error) {
+			return s.AppendObservations(ctx, "acme", ReleaseTargetRef{}, nil)
+		}},
+		{"archive without installation", func(s *ReleasesService) (any, *Response, error) {
+			return s.ArchiveInstallation(ctx, "acme", ReleaseInstallationRef{})
+		}},
+		{"unarchive without component", func(s *ReleasesService) (any, *Response, error) {
+			return s.UnarchiveComponent(ctx, "acme", ReleaseComponentRef{})
 		}},
 	}
 	for _, tt := range tests {
