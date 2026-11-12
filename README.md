@@ -202,6 +202,11 @@ reading further to replace omitted jobs. The existing UI also reads a bounded
 set and returns the list only if the viewer can access every selected job;
 otherwise it returns 204 with no list.
 
+Each `JobsAhead.Items` entry includes that job's own `ConcurrencyLimit`,
+`ConcurrencyMethod` (`ordered` or `eager`), and `Priority.Number`, including zero.
+The limit can be nil; the method is nil when historical step data is absent.
+These are per-job settings, not a group-wide limit or scheduler-effective priority.
+
 `JobsAhead.Scope` is
 `subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit`.
 `JobsAhead.Notice` preserves the server's warning:

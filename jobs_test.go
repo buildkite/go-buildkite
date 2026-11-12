@@ -704,6 +704,8 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 		},
 	}
 	limit := 2
+	predecessorLimit := 7
+	eager, ordered := "eager", "ordered"
 	clusterID := "cluster-id"
 	group := JobConcurrencyGroup{ID: "group-id", Key: "deploy", Scope: "custom"}
 	stepGroup := JobConcurrencyGroup{ID: "step-group-id", Key: "step-key", Scope: "step", ClusterID: &clusterID}
@@ -720,12 +722,14 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
 			limit: "2", state: "limited",
 			items: `[
-				{"id":"first-job-id","name":"Deploy","state":"limiting","web_url":"https://buildkite.com/my-org/deploy/builds/98#first-job-id","pipeline_name":"Deploy pipeline","build_number":98,"current_state_since":"2026-06-03T04:15:41.618Z"},
-				{"id":"second-job-id","name":"scripts/deploy.sh","state":"scheduled","web_url":"https://buildkite.com/my-org/other/builds/7#second-job-id","pipeline_name":"Other pipeline","build_number":7,"current_state_since":null}
+				{"id":"first-job-id","name":"Deploy","state":"limiting","web_url":"https://buildkite.com/my-org/deploy/builds/98#first-job-id","pipeline_name":"Deploy pipeline","build_number":98,"current_state_since":"2026-06-03T04:15:41.618Z","concurrency_limit":7,"concurrency_method":"eager","priority":{"number":-4}},
+				{"id":"second-job-id","name":"scripts/deploy.sh","state":"scheduled","web_url":"https://buildkite.com/my-org/other/builds/7#second-job-id","pipeline_name":"Other pipeline","build_number":7,"current_state_since":null,"concurrency_limit":2,"concurrency_method":"ordered","priority":{"number":8}},
+				{"id":"historical-job-id","name":"Historical deploy","state":"waiting","web_url":"https://buildkite.com/my-org/deploy/builds/97#historical-job-id","pipeline_name":"Deploy pipeline","build_number":97,"current_state_since":null,"concurrency_limit":null,"concurrency_method":null,"priority":{"number":0}}
 			]`,
 			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{
-				{ID: "first-job-id", Name: "Deploy", State: "limiting", WebURL: "https://buildkite.com/my-org/deploy/builds/98#first-job-id", PipelineName: "Deploy pipeline", BuildNumber: 98, CurrentStateSince: NewTimestamp(time.Date(2026, 6, 3, 4, 15, 41, 618000000, time.UTC))},
-				{ID: "second-job-id", Name: "scripts/deploy.sh", State: "scheduled", WebURL: "https://buildkite.com/my-org/other/builds/7#second-job-id", PipelineName: "Other pipeline", BuildNumber: 7},
+				{ID: "first-job-id", Name: "Deploy", State: "limiting", WebURL: "https://buildkite.com/my-org/deploy/builds/98#first-job-id", PipelineName: "Deploy pipeline", BuildNumber: 98, CurrentStateSince: NewTimestamp(time.Date(2026, 6, 3, 4, 15, 41, 618000000, time.UTC)), ConcurrencyLimit: &predecessorLimit, ConcurrencyMethod: &eager, Priority: &JobPriority{Number: -4}},
+				{ID: "second-job-id", Name: "scripts/deploy.sh", State: "scheduled", WebURL: "https://buildkite.com/my-org/other/builds/7#second-job-id", PipelineName: "Other pipeline", BuildNumber: 7, ConcurrencyLimit: &limit, ConcurrencyMethod: &ordered, Priority: &JobPriority{Number: 8}},
+				{ID: "historical-job-id", Name: "Historical deploy", State: "waiting", WebURL: "https://buildkite.com/my-org/deploy/builds/97#historical-job-id", PipelineName: "Deploy pipeline", BuildNumber: 97, Priority: &JobPriority{Number: 0}},
 			}}},
 		},
 		{
@@ -742,9 +746,9 @@ func TestJobsService_GetJobConcurrency(t *testing.T) {
 			name:  "first timestamp may be null",
 			group: `{"id":"group-id","key":"deploy","scope":"custom","cluster_id":null}`,
 			limit: "2", state: "limited",
-			items: `[{"id":"waiting-job-id","name":"Wait","state":"waiting","web_url":"https://buildkite.com/my-org/deploy/builds/99#waiting-job-id","pipeline_name":"Deploy pipeline","build_number":99,"current_state_since":null}]`,
+			items: `[{"id":"waiting-job-id","name":"Wait","state":"waiting","web_url":"https://buildkite.com/my-org/deploy/builds/99#waiting-job-id","pipeline_name":"Deploy pipeline","build_number":99,"current_state_since":null,"concurrency_limit":null,"concurrency_method":null,"priority":{"number":0}}]`,
 			want: JobConcurrency{ConcurrencyGroup: &group, ConcurrencyLimit: &limit, State: "limited", JobsAhead: JobConcurrencyJobsAhead{Items: []JobConcurrencyJob{
-				{ID: "waiting-job-id", Name: "Wait", State: "waiting", WebURL: "https://buildkite.com/my-org/deploy/builds/99#waiting-job-id", PipelineName: "Deploy pipeline", BuildNumber: 99},
+				{ID: "waiting-job-id", Name: "Wait", State: "waiting", WebURL: "https://buildkite.com/my-org/deploy/builds/99#waiting-job-id", PipelineName: "Deploy pipeline", BuildNumber: 99, Priority: &JobPriority{Number: 0}},
 			}}},
 		},
 		{
