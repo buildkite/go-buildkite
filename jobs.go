@@ -142,16 +142,21 @@ type JobConcurrencyJobsAhead struct {
 
 // JobConcurrencyJob is a visible active job ahead of the target in submission order.
 type JobConcurrencyJob struct {
-	ID                string       `json:"id"` // Job UUID.
-	Name              string       `json:"name"`
-	State             string       `json:"state"`
-	WebURL            string       `json:"web_url"`
-	PipelineName      string       `json:"pipeline_name"`
-	BuildNumber       int          `json:"build_number"`
-	CurrentStateSince *Timestamp   `json:"current_state_since"` // Copied UI parity: only the first returned item may have a timestamp; even it can be nil.
-	ConcurrencyLimit  *int         `json:"concurrency_limit"`   // This job's own limit, not a group-wide limit.
-	ConcurrencyMethod *string      `json:"concurrency_method"`  // ordered or eager; nil when historical step data is absent.
-	Priority          *JobPriority `json:"priority"`
+	ID                string                  `json:"id"` // Job UUID.
+	Name              string                  `json:"name"`
+	State             string                  `json:"state"`
+	WebURL            string                  `json:"web_url"`
+	PipelineName      string                  `json:"pipeline_name"`
+	BuildNumber       int                     `json:"build_number"`
+	CurrentStateSince *Timestamp              `json:"current_state_since"` // Copied UI parity: only the first returned item may have a timestamp; even it can be nil.
+	ConcurrencyLimit  *int                    `json:"concurrency_limit"`   // This job's own limit, not a group-wide limit.
+	ConcurrencyMethod *string                 `json:"concurrency_method"`  // ordered or eager; nil when historical step data is absent.
+	Priority          *JobConcurrencyPriority `json:"priority"`
+}
+
+// JobConcurrencyPriority preserves zero priority in concurrency responses.
+type JobConcurrencyPriority struct {
+	Number int `json:"number"`
 }
 
 type TriggeredBuild struct {
@@ -163,7 +168,7 @@ type TriggeredBuild struct {
 
 // JobPriority represents the priority of the job
 type JobPriority struct {
-	Number int `json:"number"`
+	Number int `json:"number,omitempty"`
 }
 
 // JobReprioritizationOptions represent the new priority of a job
