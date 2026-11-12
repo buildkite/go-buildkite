@@ -15,10 +15,6 @@ type ReleasesService struct {
 	client *Client
 }
 
-type ReleaseInstallationCreate struct {
-	Name string `json:"name"`
-}
-
 type ReleaseTargetCreate struct {
 	Name   string            `json:"name"`
 	Labels map[string]string `json:"labels,omitempty"`
@@ -74,18 +70,11 @@ type ReleaseObservationWriteResult struct {
 	Created bool `json:"created"`
 }
 
-// ReleaseInstallationRef selects by name or ID, never both. UUID-shaped names
-// remain names; IDs must be selected explicitly.
-type ReleaseInstallationRef struct {
-	Name string `json:"name,omitempty"`
-	ID   string `json:"id,omitempty"`
-}
-
-// ReleaseTargetRef selects a target by ID or by installation and target name.
+// ReleaseTargetRef selects an organization-owned target by name or ID, never
+// both. UUID-shaped names remain names; IDs must be selected explicitly.
 type ReleaseTargetRef struct {
-	ID           string                 `json:"id,omitempty"`
-	Installation ReleaseInstallationRef `json:"installation,omitempty,omitzero"`
-	Name         string                 `json:"name,omitempty"`
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 // ReleaseComponentRef selects by ID or by target and component name.
@@ -189,17 +178,9 @@ type ReleaseVersionOrdering struct {
 	Direction string `json:"direction"`
 }
 
-type ReleaseInstallation struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	URL        string     `json:"url"`
-	IDURL      string     `json:"id_url"`
-	CreatedAt  *Timestamp `json:"created_at"`
-	ArchivedAt *Timestamp `json:"archived_at"`
-}
-
 type ReleaseTarget struct {
 	ID         string            `json:"id"`
+	GraphQLID  string            `json:"graphql_id,omitempty"`
 	Name       string            `json:"name"`
 	Labels     map[string]string `json:"labels"`
 	URL        string            `json:"url"`
@@ -210,6 +191,7 @@ type ReleaseTarget struct {
 
 type ReleaseComponent struct {
 	ID         string                  `json:"id"`
+	GraphQLID  string                  `json:"graphql_id,omitempty"`
 	Name       string                  `json:"name"`
 	TargetID   string                  `json:"target_id"`
 	Artifact   *ReleaseArtifactSummary `json:"artifact"`
@@ -221,12 +203,14 @@ type ReleaseComponent struct {
 
 type ReleaseArtifactSummary struct {
 	ID            string `json:"id"`
+	GraphQLID     string `json:"graphql_id,omitempty"`
 	Name          string `json:"name"`
 	VersionScheme string `json:"version_scheme"`
 }
 
 type ReleaseArtifact struct {
 	ID            string            `json:"id"`
+	GraphQLID     string            `json:"graphql_id,omitempty"`
 	Name          string            `json:"name"`
 	VersionScheme string            `json:"version_scheme"`
 	Pipeline      *ReleaseReference `json:"pipeline,omitempty"`
@@ -243,6 +227,7 @@ type ReleaseReference struct {
 
 type ReleaseArtifactVersion struct {
 	ID           string               `json:"id"`
+	GraphQLID    string               `json:"graphql_id,omitempty"`
 	Version      string               `json:"version"`
 	Digest       *string              `json:"digest"`
 	SourceURL    *string              `json:"source_url"`
@@ -296,10 +281,11 @@ type ReleaseCatalogResolution struct {
 }
 
 type ReleaseVersionSummary struct {
-	ID      string  `json:"id"`
-	Version string  `json:"version"`
-	Digest  *string `json:"digest"`
-	Yanked  bool    `json:"yanked"`
+	ID        string  `json:"id"`
+	GraphQLID string  `json:"graphql_id,omitempty"`
+	Version   string  `json:"version"`
+	Digest    *string `json:"digest"`
+	Yanked    bool    `json:"yanked"`
 }
 
 // ReleaseVersionComparison compares catalog precedence, not deployment safety.
@@ -318,6 +304,7 @@ type ReleaseVersionComparison struct {
 // flag. Optional payload fields are omitted, unlike nullable status fields.
 type ReleaseObservation struct {
 	ID                string                    `json:"id"`
+	GraphQLID         string                    `json:"graphql_id,omitempty"`
 	TargetID          string                    `json:"target_id"`
 	Sequence          int64                     `json:"sequence"`
 	EventID           string                    `json:"event_id"`
@@ -334,31 +321,14 @@ func releaseSegment(value string) string {
 	return strings.ReplaceAll(url.PathEscape(value), "+", "%2B")
 }
 
-func (r ReleaseInstallationRef) path() (string, error) {
-	if (r.ID == "") == (r.Name == "") {
-		return "", fmt.Errorf("installation requires exactly one of name or ID")
-	}
-	if r.ID != "" {
-		return "installations/by-id/" + releaseSegment(r.ID), nil
-	}
-	return "installations/" + releaseSegment(r.Name), nil
-}
-
 func (r ReleaseTargetRef) path() (string, error) {
+	if (r.ID == "") == (r.Name == "") {
+		return "", fmt.Errorf("target requires exactly one of name or ID")
+	}
 	if r.ID != "" {
-		if r.Name != "" || r.Installation != (ReleaseInstallationRef{}) {
-			return "", fmt.Errorf("target ID cannot be combined with installation or name")
-		}
 		return "targets/by-id/" + releaseSegment(r.ID), nil
 	}
-	if r.Name == "" {
-		return "", fmt.Errorf("target requires an ID or installation and name")
-	}
-	parent, err := r.Installation.path()
-	if err != nil {
-		return "", err
-	}
-	return parent + "/targets/" + releaseSegment(r.Name), nil
+	return "targets/" + releaseSegment(r.Name), nil
 }
 
 func (r ReleaseComponentRef) path() (string, error) {
@@ -436,19 +406,9 @@ func releasesRequest[T any](ctx context.Context, s *ReleasesService, method, org
 	return result, resp, nil
 }
 
-// ListInstallations returns installations, including archived registrations.
-func (s *ReleasesService) ListInstallations(ctx context.Context, org string, opt *ReleasesListOptions) (ReleasesPage[ReleaseInstallation], *Response, error) {
-	return releasesRead[ReleasesPage[ReleaseInstallation]](ctx, s, org, "installations", nil, opt)
-}
-
-func (s *ReleasesService) GetInstallation(ctx context.Context, org string, ref ReleaseInstallationRef) (ReleaseInstallation, *Response, error) {
-	path, err := ref.path()
-	return releasesRead[ReleaseInstallation](ctx, s, org, path, err, nil)
-}
-
-func (s *ReleasesService) ListTargets(ctx context.Context, org string, ref ReleaseInstallationRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseTarget], *Response, error) {
-	path, err := ref.path()
-	return releasesRead[ReleasesPage[ReleaseTarget]](ctx, s, org, path+"/targets", err, opt)
+// ListTargets returns organization-owned targets, including archived registrations.
+func (s *ReleasesService) ListTargets(ctx context.Context, org string, opt *ReleasesListOptions) (ReleasesPage[ReleaseTarget], *Response, error) {
+	return releasesRead[ReleasesPage[ReleaseTarget]](ctx, s, org, "targets", nil, opt)
 }
 
 func (s *ReleasesService) GetTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
@@ -513,13 +473,8 @@ func (s *ReleasesService) ListComparisonPullRequests(ctx context.Context, org st
 	return releasesRead[ReleasesPage[ReleasePullRequest]](ctx, s, org, path+"/version-comparison/pull-requests", err, opt)
 }
 
-func (s *ReleasesService) CreateInstallation(ctx context.Context, org string, input ReleaseInstallationCreate) (ReleaseInstallation, *Response, error) {
-	return releasesRequest[ReleaseInstallation](ctx, s, http.MethodPost, org, "installations", nil, input)
-}
-
-func (s *ReleasesService) CreateTarget(ctx context.Context, org string, installation ReleaseInstallationRef, input ReleaseTargetCreate) (ReleaseTarget, *Response, error) {
-	path, err := installation.path()
-	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/targets", err, input)
+func (s *ReleasesService) CreateTarget(ctx context.Context, org string, input ReleaseTargetCreate) (ReleaseTarget, *Response, error) {
+	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, "targets", nil, input)
 }
 
 // UpdateTarget replaces labels when supplied; it does not rename the target.
@@ -567,27 +522,13 @@ func (s *ReleasesService) AppendObservations(ctx context.Context, org string, ta
 	return releasesRequest[[]ReleaseObservationWriteResult](ctx, s, http.MethodPost, org, path+"/observations", err, input)
 }
 
-// ArchiveInstallation also archives its active targets and components, without
-// deleting history. Repeated calls preserve the original archive timestamps.
-func (s *ReleasesService) ArchiveInstallation(ctx context.Context, org string, ref ReleaseInstallationRef) (ReleaseInstallation, *Response, error) {
-	path, err := ref.path()
-	return releasesRequest[ReleaseInstallation](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
-}
-
-// UnarchiveInstallation restores only the installation, not its children.
-func (s *ReleasesService) UnarchiveInstallation(ctx context.Context, org string, ref ReleaseInstallationRef) (ReleaseInstallation, *Response, error) {
-	path, err := ref.path()
-	return releasesRequest[ReleaseInstallation](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
-}
-
 // ArchiveTarget also archives its active components, without deleting history.
 func (s *ReleasesService) ArchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
 }
 
-// UnarchiveTarget restores only the target, not its components. Its installation
-// must be active.
+// UnarchiveTarget restores only the target, not its components.
 func (s *ReleasesService) UnarchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
@@ -598,7 +539,7 @@ func (s *ReleasesService) ArchiveComponent(ctx context.Context, org string, ref 
 	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
 }
 
-// UnarchiveComponent requires an active installation and target.
+// UnarchiveComponent requires an active target.
 func (s *ReleasesService) UnarchiveComponent(ctx context.Context, org string, ref ReleaseComponentRef) (ReleaseComponent, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})

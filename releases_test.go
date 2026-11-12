@@ -18,9 +18,8 @@ const releaseTestID = "019a1dd8-a49b-70c5-99b8-b8f9f0ed6824"
 
 // Fixtures follow the Rails presenters, including required null fields and
 // optional fields that must remain absent when re-encoded for an MCP consumer.
-const releaseInstallationJSON = `{"id":"installation-id","name":"prod","url":"https://api.example/installations/prod","id_url":"https://api.example/installations/by-id/installation-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
-const releaseTargetJSON = `{"id":"target-id","name":"east","labels":{"region":"us-east-1","empty":"","space":" "},"url":"https://api.example/target","id_url":"https://api.example/target-id","created_at":"2026-09-20T01:02:03Z","archived_at":"2026-09-21T01:02:03Z"}`
-const releaseComponentJSON = `{"id":"component-id","name":"api","target_id":"target-id","artifact":{"id":"artifact-id","name":"api","version_scheme":"semver"},"url":"https://api.example/component","id_url":"https://api.example/component-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
+const releaseTargetJSON = `{"id":"target-id","graphql_id":"opaque-target-id","name":"east","labels":{"region":"us-east-1","empty":"","space":" "},"url":"https://api.example/target","id_url":"https://api.example/target-id","created_at":"2026-09-20T01:02:03Z","archived_at":"2026-09-21T01:02:03Z"}`
+const releaseComponentJSON = `{"id":"component-id","graphql_id":"opaque-component-id","name":"api","target_id":"target-id","artifact":{"id":"artifact-id","graphql_id":"opaque-artifact-id","name":"api","version_scheme":"semver"},"url":"https://api.example/component","id_url":"https://api.example/component-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
 const releaseArtifactJSON = `{"id":"artifact-id","name":"api","version_scheme":"build_number","pipeline":{"id":"pipeline-id"},"url":"https://api.example/artifact","id_url":"https://api.example/artifact-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
 const releaseVersionJSON = `{"id":"version-id","version":"1.2.3+build.4","digest":null,"source_url":null,"source_build":null,"pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"},{"url":"https://example.com/pr/2"}],"created_by":null,"url":"https://api.example/version","id_url":"https://api.example/version-id","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`
 const releaseStatusJSON = `{"target_id":"target-id","component":"api","component_id":"component-id","present":false,"active_version":null,"active_digest":null,"last_active_version":"1.2.3","first_seen_at":"2026-09-20T01:02:03Z","last_seen_at":"2026-09-21T01:02:03Z","sequence":0,"catalog_resolution":{"status":"unknown","artifact_version_id":null,"digest_check":"not_checked","reason":"component_absent"}}`
@@ -29,8 +28,7 @@ const releaseComparisonJSON = `{"artifact":{"id":"artifact-id","name":"api","ver
 func TestReleasesService_Writes(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	installation := ReleaseInstallationRef{ID: releaseTestID}
-	target := ReleaseTargetRef{Installation: installation, Name: "east"}
+	target := ReleaseTargetRef{Name: "east"}
 	component := ReleaseComponentRef{ID: releaseTestID}
 	artifact := ReleaseArtifactRef{Name: "api"}
 	version := ReleaseVersionRef{Artifact: artifact, Version: "1.2.3+build.4"}
@@ -42,19 +40,13 @@ func TestReleasesService_Writes(t *testing.T) {
 		call                                  func(*ReleasesService) (any, *Response, error)
 	}{
 		{
-			name: "CreateInstallation", method: "POST", path: "installations", request: `{"name":"prod"}`, response: releaseInstallationJSON, status: 201,
+			name: "CreateTarget", method: "POST", path: "targets", request: `{"name":"east","labels":{"region":"au","empty":""}}`, response: releaseTargetJSON, status: 201,
 			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.CreateInstallation(ctx, "acme", ReleaseInstallationCreate{Name: "prod"})
+				return s.CreateTarget(ctx, "acme", ReleaseTargetCreate{Name: "east", Labels: map[string]string{"region": "au", "empty": ""}})
 			},
 		},
 		{
-			name: "CreateTarget", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets", request: `{"name":"east","labels":{"region":"au","empty":""}}`, response: releaseTargetJSON, status: 201,
-			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.CreateTarget(ctx, "acme", installation, ReleaseTargetCreate{Name: "east", Labels: map[string]string{"region": "au", "empty": ""}})
-			},
-		},
-		{
-			name: "UpdateTarget", method: "PATCH", path: "installations/by-id/" + releaseTestID + "/targets/east", request: `{"labels":{}}`, response: releaseTargetJSON, status: 200,
+			name: "UpdateTarget", method: "PATCH", path: "targets/east", request: `{"labels":{}}`, response: releaseTargetJSON, status: 200,
 			call: func(s *ReleasesService) (any, *Response, error) {
 				return s.UpdateTarget(ctx, "acme", target, ReleaseTargetUpdate{Labels: Some(map[string]string{})})
 			},
@@ -84,7 +76,7 @@ func TestReleasesService_Writes(t *testing.T) {
 			},
 		},
 		{
-			name: "AppendObservations", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets/east/observations", request: `{"events":[{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6824","type":"ComponentVersionObserved","component":"api","version":"1.2.3","digest":"` + digest + `","occurred_at":"2026-09-20T01:02:03Z"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"TargetAppeared"}]}`, response: `[` + observationJSON + `,{"id":"second","target_id":"target-id","sequence":9007199254740994,"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"TargetAppeared","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","created":true}]`, status: 200,
+			name: "AppendObservations", method: "POST", path: "targets/east/observations", request: `{"events":[{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6824","type":"ComponentVersionObserved","component":"api","version":"1.2.3","digest":"` + digest + `","occurred_at":"2026-09-20T01:02:03Z"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"TargetAppeared"}]}`, response: `[` + observationJSON + `,{"id":"second","target_id":"target-id","sequence":9007199254740994,"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"TargetAppeared","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","created":true}]`, status: 200,
 			call: func(s *ReleasesService) (any, *Response, error) {
 				return s.AppendObservations(ctx, "acme", target, []ReleaseObservationCreate{
 					{EventID: releaseTestID, Type: "ComponentVersionObserved", Component: "api", Version: "1.2.3", Digest: digest, OccurredAt: NewTimestamp(must(time.Parse(time.RFC3339, "2026-09-20T01:02:03Z")))},
@@ -93,19 +85,7 @@ func TestReleasesService_Writes(t *testing.T) {
 			},
 		},
 		{
-			name: "ArchiveInstallation", method: "POST", path: "installations/by-id/" + releaseTestID + "/archive", request: `{}`, response: releaseInstallationJSON, status: 200,
-			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.ArchiveInstallation(ctx, "acme", installation)
-			},
-		},
-		{
-			name: "UnarchiveInstallation", method: "POST", path: "installations/prod/unarchive", request: `{}`, response: releaseInstallationJSON, status: 200,
-			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.UnarchiveInstallation(ctx, "acme", ReleaseInstallationRef{Name: "prod"})
-			},
-		},
-		{
-			name: "ArchiveTarget", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets/east/archive", request: `{}`, response: releaseTargetJSON, status: 200,
+			name: "ArchiveTarget", method: "POST", path: "targets/east/archive", request: `{}`, response: releaseTargetJSON, status: 200,
 			call: func(s *ReleasesService) (any, *Response, error) { return s.ArchiveTarget(ctx, "acme", target) },
 		},
 		{
@@ -119,7 +99,7 @@ func TestReleasesService_Writes(t *testing.T) {
 			call: func(s *ReleasesService) (any, *Response, error) { return s.ArchiveComponent(ctx, "acme", component) },
 		},
 		{
-			name: "UnarchiveComponent", method: "POST", path: "installations/by-id/" + releaseTestID + "/targets/east/components/api/unarchive", request: `{}`, response: releaseComponentJSON, status: 200,
+			name: "UnarchiveComponent", method: "POST", path: "targets/east/components/api/unarchive", request: `{}`, response: releaseComponentJSON, status: 200,
 			call: func(s *ReleasesService) (any, *Response, error) {
 				return s.UnarchiveComponent(ctx, "acme", ReleaseComponentRef{Target: target, Name: "api"})
 			},
@@ -179,7 +159,7 @@ func TestReleasesService_WriteOptionalFields(t *testing.T) {
 		call          func(*ReleasesService) (any, *Response, error)
 	}{
 		{"default target labels", `{"name":"east"}`, func(s *ReleasesService) (any, *Response, error) {
-			return s.CreateTarget(ctx, "acme", ReleaseInstallationRef{Name: "prod"}, ReleaseTargetCreate{Name: "east"})
+			return s.CreateTarget(ctx, "acme", ReleaseTargetCreate{Name: "east"})
 		}},
 		{"unchanged labels", `{}`, func(s *ReleasesService) (any, *Response, error) {
 			return s.UpdateTarget(ctx, "acme", target, ReleaseTargetUpdate{})
@@ -276,11 +256,11 @@ func TestReleasePageLink_ToOptions(t *testing.T) {
 		want    ReleasesListOptions
 		wantErr bool
 	}{
-		{"next", "https://api.example/installations?after=opaque%2Bcursor%2F%3D&per_page=25", ReleasesListOptions{After: "opaque+cursor/=", PerPage: 25}, false},
-		{"previous", "https://api.example/installations?before=prior%2Bcursor&per_page=7", ReleasesListOptions{Before: "prior+cursor", PerPage: 7}, false},
-		{"first", "https://api.example/installations?per_page=10", ReleasesListOptions{PerPage: 10}, false},
+		{"next", "https://api.example/targets?after=opaque%2Bcursor%2F%3D&per_page=25", ReleasesListOptions{After: "opaque+cursor/=", PerPage: 25}, false},
+		{"previous", "https://api.example/targets?before=prior%2Bcursor&per_page=7", ReleasesListOptions{Before: "prior+cursor", PerPage: 7}, false},
+		{"first", "https://api.example/targets?per_page=10", ReleasesListOptions{PerPage: 10}, false},
 		{"invalid link", "https://api.example/%zz", ReleasesListOptions{}, true},
-		{"invalid page size", "https://api.example/installations?per_page=many", ReleasesListOptions{}, true},
+		{"invalid page size", "https://api.example/targets?per_page=many", ReleasesListOptions{}, true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -304,7 +284,6 @@ func TestReleasePageLink_ToOptions(t *testing.T) {
 func TestReleasesService_Reads(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	installation := ReleaseInstallationRef{Name: "prod"}
 	target := ReleaseTargetRef{ID: releaseTestID}
 	artifact := ReleaseArtifactRef{Name: "api"}
 	pagination := ReleasesListOptions{After: "opaque+cursor/=", PerPage: 25}
@@ -315,23 +294,15 @@ func TestReleasesService_Reads(t *testing.T) {
 		call                    func(*ReleasesService) (any, *Response, error)
 	}{
 		{
-			name: "ListInstallations", path: "installations", query: pageQuery, body: releaseTestPage(releaseInstallationJSON),
-			call: func(s *ReleasesService) (any, *Response, error) { return s.ListInstallations(ctx, "acme", &pagination) },
-		},
-		{
-			name: "GetInstallation", path: "installations/prod", body: releaseInstallationJSON,
-			call: func(s *ReleasesService) (any, *Response, error) { return s.GetInstallation(ctx, "acme", installation) },
-		},
-		{
-			name: "ListTargets", path: "installations/by-id/" + releaseTestID + "/targets", query: pageQuery, body: releaseTestPage(releaseTargetJSON),
+			name: "ListTargets", path: "targets", query: pageQuery, body: releaseTestPage(releaseTargetJSON),
 			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.ListTargets(ctx, "acme", ReleaseInstallationRef{ID: releaseTestID}, &pagination)
+				return s.ListTargets(ctx, "acme", &pagination)
 			},
 		},
 		{
-			name: "GetTarget", path: "installations/prod/targets/east", body: releaseTargetJSON,
+			name: "GetTarget", path: "targets/east", body: releaseTargetJSON,
 			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.GetTarget(ctx, "acme", ReleaseTargetRef{Installation: installation, Name: "east"})
+				return s.GetTarget(ctx, "acme", ReleaseTargetRef{Name: "east"})
 			},
 		},
 		{
@@ -436,28 +407,23 @@ func TestReleasesService_Reads(t *testing.T) {
 func TestReleasesService_Addressing(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	installation := ReleaseInstallationRef{ID: releaseTestID}
-	target := ReleaseTargetRef{Installation: installation, Name: "east"}
+	target := ReleaseTargetRef{Name: "east"}
 	tests := []struct {
 		name, path string
 		call       func(*ReleasesService) (any, *Response, error)
 	}{
-		{"installation ID", "installations/by-id/" + releaseTestID, func(s *ReleasesService) (any, *Response, error) { return s.GetInstallation(ctx, "acme", installation) }},
-		{"UUID name is not ID", "installations/" + releaseTestID, func(s *ReleasesService) (any, *Response, error) {
-			return s.GetInstallation(ctx, "acme", ReleaseInstallationRef{Name: releaseTestID})
+		{"UUID name is not ID", "targets/" + releaseTestID, func(s *ReleasesService) (any, *Response, error) {
+			return s.GetTarget(ctx, "acme", ReleaseTargetRef{Name: releaseTestID})
 		}},
 		{"target ID", "targets/by-id/" + releaseTestID, func(s *ReleasesService) (any, *Response, error) {
 			return s.GetTarget(ctx, "acme", ReleaseTargetRef{ID: releaseTestID})
 		}},
-		{"target under installation ID", "installations/by-id/" + releaseTestID + "/targets/east", func(s *ReleasesService) (any, *Response, error) { return s.GetTarget(ctx, "acme", target) }},
+		{"target by name", "targets/east", func(s *ReleasesService) (any, *Response, error) { return s.GetTarget(ctx, "acme", target) }},
 		{"component under target ID", "targets/by-id/" + releaseTestID + "/components/api", func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponent(ctx, "acme", ReleaseComponentRef{Target: ReleaseTargetRef{ID: releaseTestID}, Name: "api"})
 		}},
-		{"component under installation ID", "installations/by-id/" + releaseTestID + "/targets/east/components/api", func(s *ReleasesService) (any, *Response, error) {
+		{"component under target name", "targets/east/components/api", func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponent(ctx, "acme", ReleaseComponentRef{Target: target, Name: "api"})
-		}},
-		{"component all names", "installations/prod/targets/east/components/api", func(s *ReleasesService) (any, *Response, error) {
-			return s.GetComponent(ctx, "acme", ReleaseComponentRef{Target: ReleaseTargetRef{Installation: ReleaseInstallationRef{Name: "prod"}, Name: "east"}, Name: "api"})
 		}},
 		{"artifact ID", "artifacts/by-id/" + releaseTestID, func(s *ReleasesService) (any, *Response, error) {
 			return s.GetArtifact(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID})
@@ -507,24 +473,18 @@ func TestReleasesService_InvalidSelectors(t *testing.T) {
 		name string
 		call func(*ReleasesService) (any, *Response, error)
 	}{
-		{"empty installation", func(s *ReleasesService) (any, *Response, error) {
-			return s.GetInstallation(ctx, "acme", ReleaseInstallationRef{})
-		}},
-		{"ambiguous installation", func(s *ReleasesService) (any, *Response, error) {
-			return s.ListTargets(ctx, "acme", ReleaseInstallationRef{ID: releaseTestID, Name: "prod"}, nil)
-		}},
 		{"empty target", func(s *ReleasesService) (any, *Response, error) { return s.GetTarget(ctx, "acme", ReleaseTargetRef{}) }},
-		{"missing installation", func(s *ReleasesService) (any, *Response, error) {
-			return s.ListComponents(ctx, "acme", ReleaseTargetRef{Name: "east"}, nil)
+		{"missing target", func(s *ReleasesService) (any, *Response, error) {
+			return s.ListComponents(ctx, "acme", ReleaseTargetRef{}, nil)
 		}},
 		{"ambiguous target name", func(s *ReleasesService) (any, *Response, error) {
 			return s.GetTarget(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Name: "east"})
 		}},
-		{"ambiguous target parent", func(s *ReleasesService) (any, *Response, error) {
-			return s.ListComponentStatuses(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Installation: ReleaseInstallationRef{Name: "prod"}}, nil)
+		{"ambiguous status target", func(s *ReleasesService) (any, *Response, error) {
+			return s.ListComponentStatuses(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Name: "east"}, nil)
 		}},
 		{"invalid parent selector", func(s *ReleasesService) (any, *Response, error) {
-			return s.ListObservations(ctx, "acme", ReleaseTargetRef{Name: "east", Installation: ReleaseInstallationRef{ID: releaseTestID, Name: "prod"}}, nil)
+			return s.ListObservations(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Name: "east"}, nil)
 		}},
 		{"empty component", func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponent(ctx, "acme", ReleaseComponentRef{})
@@ -568,9 +528,6 @@ func TestReleasesService_InvalidSelectors(t *testing.T) {
 		{"invalid PR comparison artifact", func(s *ReleasesService) (any, *Response, error) {
 			return s.ListComparisonPullRequests(ctx, "acme", ReleaseArtifactRef{}, nil)
 		}},
-		{"create target without installation", func(s *ReleasesService) (any, *Response, error) {
-			return s.CreateTarget(ctx, "acme", ReleaseInstallationRef{}, ReleaseTargetCreate{Name: "east"})
-		}},
 		{"update ambiguous target", func(s *ReleasesService) (any, *Response, error) {
 			return s.UpdateTarget(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Name: "east"}, ReleaseTargetUpdate{})
 		}},
@@ -592,8 +549,8 @@ func TestReleasesService_InvalidSelectors(t *testing.T) {
 		{"append without target", func(s *ReleasesService) (any, *Response, error) {
 			return s.AppendObservations(ctx, "acme", ReleaseTargetRef{}, nil)
 		}},
-		{"archive without installation", func(s *ReleasesService) (any, *Response, error) {
-			return s.ArchiveInstallation(ctx, "acme", ReleaseInstallationRef{})
+		{"archive without target", func(s *ReleasesService) (any, *Response, error) {
+			return s.ArchiveTarget(ctx, "acme", ReleaseTargetRef{})
 		}},
 		{"unarchive without component", func(s *ReleasesService) (any, *Response, error) {
 			return s.UnarchiveComponent(ctx, "acme", ReleaseComponentRef{})
@@ -666,7 +623,7 @@ func TestReleasesService_APIErrorsAndContext(t *testing.T) {
 		t.Cleanup(teardown)
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		_, _, err := client.Releases.ListInstallations(ctx, "acme", nil)
+		_, _, err := client.Releases.ListTargets(ctx, "acme", nil)
 		if !errors.Is(err, context.Canceled) {
 			t.Fatalf("error=%v, want context.Canceled", err)
 		}
