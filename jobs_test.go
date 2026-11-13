@@ -153,6 +153,59 @@ func TestJobsService_ListByBuild_BrokenJob(t *testing.T) {
 	}
 }
 
+func TestJobsService_ListByBuild_TriggerFailedReason(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range []struct {
+		name   string
+		fields string
+		want   string
+	}{
+		{"failure", `,"trigger_failed_reason":"Pipeline \"deploy\" does not exist"`, `Pipeline "deploy" does not exist`},
+		{"permission", `,"trigger_failed_reason":"Trigger permission denied"`, "Trigger permission denied"},
+		{"creator", `,"trigger_failed_reason":"Build creation failed:\ninvalid branch"`, "Build creation failed:\ninvalid branch"},
+		{"null", `,"trigger_failed_reason":null`, ""},
+		{"absent", "", ""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc("/v2/organizations/org/pipelines/pipeline/builds/123/jobs", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "GET")
+				_, _ = fmt.Fprintf(w, `{"items":[{"id":"trigger","type":"trigger","state":"failed"%s}],"links":{}}`, tt.fields)
+			})
+
+			jobs, _, err := client.Jobs.ListByBuild(context.Background(), "org", "pipeline", "123", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(jobs.Items) != 1 {
+				t.Fatalf("got %d jobs, want 1", len(jobs.Items))
+			}
+			if got := jobs.Items[0].TriggerFailedReason; got != tt.want {
+				t.Errorf("TriggerFailedReason = %q, want %q", got, tt.want)
+			}
+			encoded, err := json.Marshal(jobs.Items[0])
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fields map[string]any
+			if err := json.Unmarshal(encoded, &fields); err != nil {
+				t.Fatal(err)
+			}
+			got, present := fields["trigger_failed_reason"]
+			if tt.want == "" {
+				if present {
+					t.Errorf("empty trigger_failed_reason should be omitted, got %v", got)
+				}
+			} else if got != tt.want {
+				t.Errorf("encoded trigger_failed_reason = %v, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestJobsService_ListByBuild_WithOptions(t *testing.T) {
 	t.Parallel()
 
