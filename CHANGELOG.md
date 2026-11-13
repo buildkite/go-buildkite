@@ -1,3 +1,13 @@
+## [v5.30.0](https://github.com/buildkite/go-buildkite/compare/v5.29.0...v5.30.0) (2026-11-13)
+
+* Add trigger failure reasons to jobs [#430](https://github.com/buildkite/go-buildkite/pull/430) ([mcncl](https://github.com/mcncl))
+* Expose concurrency metadata for predecessor jobs [#429](https://github.com/buildkite/go-buildkite/pull/429) ([nethsix](https://github.com/nethsix))
+* Make Releases targets organization-owned [#428](https://github.com/buildkite/go-buildkite/pull/428) ([js-murph](https://github.com/js-murph))
+* Support hosted queue creation and recommendations [#424](https://github.com/buildkite/go-buildkite/pull/424) ([sj26](https://github.com/sj26))
+* Add Releases API write operations [#426](https://github.com/buildkite/go-buildkite/pull/426) ([js-murph](https://github.com/js-murph))
+* Add read-only Releases API support [#425](https://github.com/buildkite/go-buildkite/pull/425) ([js-murph](https://github.com/js-murph))
+* Add typed job concurrency context support [#420](https://github.com/buildkite/go-buildkite/pull/420) ([nethsix](https://github.com/nethsix))
+
 ## [v5.29.0](https://github.com/buildkite/go-buildkite/compare/v5.28.0...v5.29.0) (2026-10-29)
 
 * PB-3605: Support raw annotation bodies when listing annotations [#393](https://github.com/buildkite/go-buildkite/pull/393) ([nethsix](https://github.com/nethsix))
