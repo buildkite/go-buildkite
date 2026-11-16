@@ -85,6 +85,7 @@ type Client struct {
 	TeamPipelines                *TeamPipelinesService
 	TeamSuites                   *TeamSuitesService
 	Tests                        *TestsService
+	TestPools                    *TestPoolsService
 	TestRuns                     *TestRunsService
 	TestSuites                   *TestSuitesService
 	TestWorkflows                *TestWorkflowsService
@@ -263,6 +264,7 @@ func (c *Client) populateDefaultServices() {
 	c.TeamPipelines = &TeamPipelinesService{c}
 	c.TeamSuites = &TeamSuitesService{c}
 	c.Tests = &TestsService{c}
+	c.TestPools = &TestPoolsService{c}
 	c.TestRuns = &TestRunsService{c}
 	c.TestSuites = &TestSuitesService{c}
 	c.TestWorkflows = &TestWorkflowsService{c}
