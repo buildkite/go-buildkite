@@ -34,14 +34,14 @@ type ReleaseComponentCreate struct {
 // ReleaseComponentInstanceCreate registers a catalog Component on a Target.
 // Name defaults to ComponentName when omitted.
 type ReleaseComponentInstanceCreate struct {
-	ComponentName string `json:"componentName"`
+	ComponentName string `json:"component_name"`
 	Name          string `json:"name,omitempty"`
 }
 
 // ReleaseComponentInstanceRegister addresses the Target by UUID in the body.
 type ReleaseComponentInstanceRegister struct {
 	ReleaseComponentInstanceCreate
-	TargetID string `json:"targetId"`
+	TargetID string `json:"target_id"`
 }
 
 type ReleaseArtifactCreate struct {
@@ -325,7 +325,7 @@ func (r ReleaseComponentInstanceRef) path() (string, error) {
 		if r.Name != "" || r.Target != (ReleaseTargetRef{}) {
 			return "", fmt.Errorf("component instance ID cannot be combined with target or name")
 		}
-		return "component_instance/by-id/" + releaseSegment(r.ID), nil
+		return "component-instances/by-id/" + releaseSegment(r.ID), nil
 	}
 	if r.Name == "" {
 		return "", fmt.Errorf("component instance requires an ID or target and name")
@@ -405,7 +405,7 @@ func (s *ReleasesService) ListComponentInstances(ctx context.Context, org string
 }
 
 func (s *ReleasesService) ListOrganizationComponentInstances(ctx context.Context, org string, opt *ReleasesComponentInstanceListOptions) (ReleasesPage[ReleaseComponentInstance], *Response, error) {
-	return releasesRead[ReleasesPage[ReleaseComponentInstance]](ctx, s, org, "component_instance", nil, opt)
+	return releasesRead[ReleasesPage[ReleaseComponentInstance]](ctx, s, org, "component-instances", nil, opt)
 }
 
 func (s *ReleasesService) GetComponentInstance(ctx context.Context, org string, ref ReleaseComponentInstanceRef) (ReleaseComponentInstance, *Response, error) {
@@ -477,7 +477,7 @@ func (s *ReleasesService) CreateComponentInstance(ctx context.Context, org strin
 }
 
 func (s *ReleasesService) RegisterComponentInstance(ctx context.Context, org string, input ReleaseComponentInstanceRegister) (ReleaseComponentInstance, *Response, error) {
-	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPost, org, "component_instance", nil, input)
+	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPost, org, "component-instances", nil, input)
 }
 
 func (s *ReleasesService) CreateArtifact(ctx context.Context, org string, input ReleaseArtifactCreate) (ReleaseArtifact, *Response, error) {

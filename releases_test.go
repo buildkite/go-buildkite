@@ -191,7 +191,7 @@ func TestReleasesService_ListOrganizationComponentInstances(t *testing.T) {
 	t.Parallel()
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
-	server.HandleFunc("/v2/organizations/acme/component_instance", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/acme/component-instances", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		testFormValues(t, r, values{"after": "opaque+cursor/=", "per_page": "25", "label[region]": "au +", "label[empty]": ""})
 		_, _ = fmt.Fprint(w, releaseTestPage(releaseInstanceJSON))
@@ -215,7 +215,7 @@ func TestReleasesService_GetComponentInstance(t *testing.T) {
 		path string
 	}{
 		{name: "Target ID", ref: ReleaseComponentInstanceRef{Target: ReleaseTargetRef{ID: releaseTestID}, Name: "api-blue"}, path: "targets/by-id/" + releaseTestID + "/instances/api-blue"},
-		{name: "Instance ID", ref: ReleaseComponentInstanceRef{ID: releaseTestID}, path: "component_instance/by-id/" + releaseTestID},
+		{name: "Instance ID", ref: ReleaseComponentInstanceRef{ID: releaseTestID}, path: "component-instances/by-id/" + releaseTestID},
 		{name: "Target name", ref: ReleaseComponentInstanceRef{Target: ReleaseTargetRef{Name: "east"}, Name: "by-label"}, path: "targets/east/instances/by-label"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -376,7 +376,7 @@ func TestReleasesService_CreateComponentInstance(t *testing.T) {
 	t.Cleanup(teardown)
 	server.HandleFunc("/v2/organizations/acme/targets/by-id/"+releaseTestID+"/instances", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
-		assertRequestJSON(t, r, `{"componentName":"api","name":"api-blue"}`)
+		assertRequestJSON(t, r, `{"component_name":"api","name":"api-blue"}`)
 		_, _ = fmt.Fprint(w, releaseInstanceJSON)
 	})
 	got, _, err := client.Releases.CreateComponentInstance(context.Background(), "acme", ReleaseTargetRef{ID: releaseTestID}, ReleaseComponentInstanceCreate{ComponentName: "api", Name: "api-blue"})
@@ -390,9 +390,9 @@ func TestReleasesService_RegisterComponentInstance(t *testing.T) {
 	t.Parallel()
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
-	server.HandleFunc("/v2/organizations/acme/component_instance", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/acme/component-instances", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
-		assertRequestJSON(t, r, `{"componentName":"api","targetId":"`+releaseTestID+`"}`)
+		assertRequestJSON(t, r, `{"component_name":"api","target_id":"`+releaseTestID+`"}`)
 		_, _ = fmt.Fprint(w, releaseInstanceJSON)
 	})
 	got, _, err := client.Releases.RegisterComponentInstance(context.Background(), "acme", ReleaseComponentInstanceRegister{
@@ -546,7 +546,7 @@ func TestReleasesService_ArchiveComponentInstance(t *testing.T) {
 	t.Parallel()
 	server, client, teardown := newMockServerAndClient(t)
 	t.Cleanup(teardown)
-	server.HandleFunc("/v2/organizations/acme/component_instance/by-id/"+releaseTestID+"/archive", func(w http.ResponseWriter, r *http.Request) {
+	server.HandleFunc("/v2/organizations/acme/component-instances/by-id/"+releaseTestID+"/archive", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		assertRequestJSON(t, r, `{}`)
 		_, _ = fmt.Fprint(w, releaseInstanceJSON)
@@ -651,7 +651,7 @@ func TestReleasesService_OptionalFields(t *testing.T) {
 			},
 		},
 		{
-			name: "default Instance name", path: "targets/east/instances", request: `{"componentName":"api"}`,
+			name: "default Instance name", path: "targets/east/instances", request: `{"component_name":"api"}`,
 			call: func(s *ReleasesService) (any, *Response, error) {
 				return s.CreateComponentInstance(ctx, "acme", ReleaseTargetRef{Name: "east"}, ReleaseComponentInstanceCreate{ComponentName: "api"})
 			},
@@ -985,7 +985,7 @@ func TestReleasesService_Escaping(t *testing.T) {
 }
 
 func TestReleasePageLink_ToOptions(t *testing.T) {
-	got, err := ReleasePageLink("https://api.example/component_instance?before=prior%2Bcursor&per_page=7&label[region]=au").ToOptions()
+	got, err := ReleasePageLink("https://api.example/component-instances?before=prior%2Bcursor&per_page=7&label[region]=au").ToOptions()
 	if err != nil || *got != (ReleasesListOptions{Before: "prior+cursor", PerPage: 7}) {
 		t.Fatalf("options=%#v, error=%v", got, err)
 	}
