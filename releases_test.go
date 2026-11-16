@@ -20,9 +20,9 @@ const releaseTargetJSON = `{"id":"target-id","graphql_id":"opaque-target","name"
 const releaseComponentJSON = `{"id":"component-id","graphql_id":"opaque-component","name":"api","artifact":{"id":"artifact-id","graphql_id":"opaque-artifact","name":"service"},"url":"https://api.example/component","id_url":"https://api.example/component-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
 const releaseInstanceJSON = `{"id":"instance-id","graphql_id":"opaque-instance","name":"api-blue","target_id":"target-id","component_id":"component-id","url":"https://api.example/instance","id_url":"https://api.example/instance-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
 const releaseArtifactJSON = `{"id":"artifact-id","graphql_id":"opaque-artifact","name":"service","url":"https://api.example/artifact","id_url":"https://api.example/artifact-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
-const releaseDigestJSON = `{"id":"digest-id","graphql_id":"opaque-digest","digest":"` + releaseTestDigest + `","source_url":null,"source_build":null,"pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"},{"url":"https://example.com/pr/2"}],"created_by":null,"url":"https://api.example/digest","id_url":"https://api.example/digest-id","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`
-const releaseStatusJSON = `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":false,"active_digest":null,"last_active_digest":"` + releaseTestDigest + `","first_seen_at":"2026-09-20T01:02:03Z","last_seen_at":"2026-09-21T01:02:03Z","sequence":9007199254740993,"catalog_resolution":{"status":"unknown","artifact_digest_id":null,"reason":"instance_absent"}}`
-const releaseObservationJSON = `{"id":"observation-id","graphql_id":"opaque-observation","target_id":"target-id","sequence":9007199254740993,"event_id":"` + releaseTestID + `","type":"ComponentInstanceDigestObserved","instance":"api-blue","observed_tag":"stable","digest":"` + releaseTestDigest + `","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","catalog_resolution":{"status":"resolved","artifact_digest_id":"digest-id","reason":null}}`
+const releaseVersionJSON = `{"id":"digest-id","graphql_id":"opaque-digest","digest":"` + releaseTestDigest + `","source_url":null,"source_build":null,"pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"},{"url":"https://example.com/pr/2"}],"created_by":null,"url":"https://api.example/digest","id_url":"https://api.example/digest-id","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`
+const releaseStatusJSON = `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":false,"active_digest":null,"last_active_digest":"` + releaseTestDigest + `","first_seen_at":"2026-09-20T01:02:03Z","last_seen_at":"2026-09-21T01:02:03Z","sequence":9007199254740993,"catalog_resolution":{"status":"unknown","reason":"instance_absent"}}`
+const releaseObservationJSON = `{"id":"observation-id","graphql_id":"opaque-observation","target_id":"target-id","sequence":9007199254740993,"event_id":"` + releaseTestID + `","type":"ComponentInstanceDigestObserved","instance":"api-blue","digest":"` + releaseTestDigest + `","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","catalog_resolution":{"status":"resolved","reason":null}}`
 
 func releaseTestPage(item string) string {
 	return `{"items":[` + item + `],"links":{"self":"https://api.example/self","first":"https://api.example/first","prev":"https://api.example/prev","next":"https://api.example/next?after=opaque%2Bcursor"}}`
@@ -35,7 +35,6 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 	component := ReleaseComponentRef{Name: "api"}
 	instance := ReleaseComponentInstanceRef{Target: target, Name: "api-blue"}
 	artifact := ReleaseArtifactRef{Name: "service"}
-	digest := ReleaseDigestRef{Artifact: artifact, Digest: releaseTestDigest}
 	pagination := ReleasesListOptions{After: "opaque+cursor/=", PerPage: 25}
 	pageQuery := "after=opaque%2Bcursor%2F%3D&per_page=25"
 	targetPath := "targets/by-id/" + releaseTestID
@@ -78,15 +77,11 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 		}},
 		{"ListArtifacts", "GET", "artifacts", pageQuery, "", releaseTestPage(releaseArtifactJSON), 200, func(s *ReleasesService) (any, *Response, error) { return s.ListArtifacts(ctx, "acme", &pagination) }},
 		{"GetArtifact", "GET", "artifacts/service", "", "", releaseArtifactJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.GetArtifact(ctx, "acme", artifact) }},
-		{"ListDigests", "GET", "artifacts/by-id/" + releaseTestID + "/digests", pageQuery, "", releaseTestPage(releaseDigestJSON), 200, func(s *ReleasesService) (any, *Response, error) {
-			return s.ListDigests(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID}, &pagination)
+		{"ListVersions", "GET", "artifacts/by-id/" + releaseTestID + "/versions", pageQuery, "", releaseTestPage(releaseVersionJSON), 200, func(s *ReleasesService) (any, *Response, error) {
+			return s.ListVersions(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID}, &pagination)
 		}},
-		{"GetDigest", "GET", "artifacts/service/digests/" + releaseTestDigest, "", "", releaseDigestJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.GetDigest(ctx, "acme", digest) }},
-		{"GetDigestByID", "GET", "artifact-digests/by-id/" + releaseTestID, "", "", releaseDigestJSON, 200, func(s *ReleasesService) (any, *Response, error) {
-			return s.GetDigest(ctx, "acme", ReleaseDigestRef{ID: releaseTestID})
-		}},
-		{"GetDigestByArtifactID", "GET", "artifacts/by-id/" + releaseTestID + "/digests/" + releaseTestDigest, "", "", releaseDigestJSON, 200, func(s *ReleasesService) (any, *Response, error) {
-			return s.GetDigest(ctx, "acme", ReleaseDigestRef{Artifact: ReleaseArtifactRef{ID: releaseTestID}, Digest: releaseTestDigest})
+		{"GetVersionByID", "GET", "artifact-versions/by-id/" + releaseTestID, "", "", releaseVersionJSON, 200, func(s *ReleasesService) (any, *Response, error) {
+			return s.GetVersion(ctx, "acme", ReleaseVersionRef{ID: releaseTestID})
 		}},
 		{"CreateTarget", "POST", "targets", "", `{"name":"east","labels":{"region":"au"}}`, releaseTargetJSON, 201, func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateTarget(ctx, "acme", ReleaseTargetCreate{Name: "east", Labels: map[string]string{"region": "au"}})
@@ -106,14 +101,14 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 		{"CreateArtifact", "POST", "artifacts", "", `{"name":"service"}`, releaseArtifactJSON, 201, func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateArtifact(ctx, "acme", ReleaseArtifactCreate{Name: "service"})
 		}},
-		{"PublishDigest", "POST", "artifacts/service/digests", "", `{"digest":"` + releaseTestDigest + `","source_build":{"id":"build-id"},"pull_requests":[{"url":"https://example.com/pr/2"}]}`, releaseDigestJSON, 201, func(s *ReleasesService) (any, *Response, error) {
-			return s.PublishDigest(ctx, "acme", artifact, ReleaseDigestPublish{Digest: releaseTestDigest, SourceBuild: Some(ReleaseReference{ID: "build-id"}), PullRequests: []ReleasePullRequest{{URL: "https://example.com/pr/2"}}})
+		{"PublishVersion", "POST", "artifacts/service/versions", "", `{"digest":"` + releaseTestDigest + `","source_build":{"id":"build-id"},"pull_requests":[{"url":"https://example.com/pr/2"}]}`, releaseVersionJSON, 201, func(s *ReleasesService) (any, *Response, error) {
+			return s.PublishVersion(ctx, "acme", artifact, ReleaseVersionPublish{Digest: releaseTestDigest, SourceBuild: Some(ReleaseReference{ID: "build-id"}), PullRequests: []ReleasePullRequest{{URL: "https://example.com/pr/2"}}})
 		}},
-		{"ReplayDigest", "POST", "artifacts/service/digests", "", `{"digest":"` + releaseTestDigest + `"}`, releaseDigestJSON, 200, func(s *ReleasesService) (any, *Response, error) {
-			return s.PublishDigest(ctx, "acme", artifact, ReleaseDigestPublish{Digest: releaseTestDigest})
+		{"PublishByArtifactID", "POST", "artifacts/by-id/" + releaseTestID + "/versions", "", `{"digest":"` + releaseTestDigest + `"}`, releaseVersionJSON, 201, func(s *ReleasesService) (any, *Response, error) {
+			return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID}, ReleaseVersionPublish{Digest: releaseTestDigest})
 		}},
-		{"YankDigest", "POST", "artifacts/service/digests/" + releaseTestDigest + "/yank", "", `{"reason":"withdrawn"}`, releaseDigestJSON, 200, func(s *ReleasesService) (any, *Response, error) {
-			return s.YankDigest(ctx, "acme", digest, ReleaseDigestYank{Reason: "withdrawn"})
+		{"YankVersion", "POST", "artifact-versions/by-id/" + releaseTestID + "/yank", "", `{"reason":"withdrawn"}`, releaseVersionJSON, 200, func(s *ReleasesService) (any, *Response, error) {
+			return s.YankVersion(ctx, "acme", ReleaseVersionRef{ID: releaseTestID}, ReleaseVersionYank{Reason: "withdrawn"})
 		}},
 		{"ArchiveTarget", "POST", targetPath + "/archive", "", `{}`, releaseTargetJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.ArchiveTarget(ctx, "acme", target) }},
 		{"UnarchiveTarget", "POST", targetPath + "/unarchive", "", `{}`, releaseTargetJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.UnarchiveTarget(ctx, "acme", target) }},
@@ -172,6 +167,29 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 	}
 }
 
+func TestReleasesService_PublicationFailureIsNotRetried(t *testing.T) {
+	t.Parallel()
+	for _, status := range []int{500, 201} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			calls := 0
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				calls++
+				w.WriteHeader(status)
+				if status == 201 {
+					_, _ = fmt.Fprint(w, `{"id":`)
+				} else {
+					_, _ = fmt.Fprint(w, `{"message":"outcome unknown"}`)
+				}
+			}))
+			t.Cleanup(server.Close)
+			_, _, err := must(NewClient(WithBaseURL(server.URL))).Releases.PublishVersion(context.Background(), "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Digest: releaseTestDigest})
+			if err == nil || calls != 1 {
+				t.Fatalf("error=%v, requests=%d; an ambiguous publication must not be replayed", err, calls)
+			}
+		})
+	}
+}
+
 func TestReleasesService_OptionalFields(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -189,13 +207,13 @@ func TestReleasesService_OptionalFields(t *testing.T) {
 			return s.CreateComponentInstance(ctx, "acme", ReleaseTargetRef{Name: "east"}, ReleaseComponentInstanceCreate{ComponentName: "api"})
 		}},
 		{`{"digest":"` + releaseTestDigest + `","source_build":null,"source_url":null}`, func(s *ReleasesService) (any, *Response, error) {
-			return s.PublishDigest(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseDigestPublish{Digest: releaseTestDigest, SourceBuild: Null[ReleaseReference](), SourceURL: Null[string]()})
+			return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Digest: releaseTestDigest, SourceBuild: Null[ReleaseReference](), SourceURL: Null[string]()})
 		}},
 		{`{"digest":"` + releaseTestDigest + `","source_url":""}`, func(s *ReleasesService) (any, *Response, error) {
-			return s.PublishDigest(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseDigestPublish{Digest: releaseTestDigest, SourceURL: Some("")})
+			return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Digest: releaseTestDigest, SourceURL: Some("")})
 		}},
 		{`{}`, func(s *ReleasesService) (any, *Response, error) {
-			return s.YankDigest(ctx, "acme", ReleaseDigestRef{ID: releaseTestID}, ReleaseDigestYank{})
+			return s.YankVersion(ctx, "acme", ReleaseVersionRef{ID: releaseTestID}, ReleaseVersionYank{})
 		}},
 	}
 	for _, tt := range tests {
@@ -232,7 +250,7 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 					t.Error(err)
 				}
-				assertJSONEqual(t, string(body), `{"events":[{"event_id":"`+releaseTestID+`","type":"ComponentInstanceDigestObserved","instance":"api-blue","digest":"`+releaseTestDigest+`","observed_tag":"stable"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"ComponentInstanceDisappeared","instance":"api-blue"}]}`)
+				assertJSONEqual(t, string(body), `{"events":[{"event_id":"`+releaseTestID+`","type":"ComponentInstanceDigestObserved","instance":"api-blue","digest":"`+releaseTestDigest+`"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"ComponentInstanceDisappeared","instance":"api-blue"}]}`)
 				w.WriteHeader(status)
 				if status < 300 {
 					_, _ = fmt.Fprint(w, response)
@@ -241,7 +259,7 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 				}
 			}))
 			t.Cleanup(server.Close)
-			got, resp, err := must(NewClient(WithBaseURL(server.URL))).Releases.AppendObservations(context.Background(), "acme", ReleaseTargetRef{Name: "east"}, []ReleaseObservationCreate{{EventID: releaseTestID, Type: "ComponentInstanceDigestObserved", Instance: "api-blue", Digest: releaseTestDigest, ObservedTag: "stable"}, {EventID: "019a1dd8-a49b-70c5-99b8-b8f9f0ed6825", Type: "ComponentInstanceDisappeared", Instance: "api-blue"}})
+			got, resp, err := must(NewClient(WithBaseURL(server.URL))).Releases.AppendObservations(context.Background(), "acme", ReleaseTargetRef{Name: "east"}, []ReleaseObservationCreate{{EventID: releaseTestID, Type: "ComponentInstanceDigestObserved", Instance: "api-blue", Digest: releaseTestDigest}, {EventID: "019a1dd8-a49b-70c5-99b8-b8f9f0ed6825", Type: "ComponentInstanceDisappeared", Instance: "api-blue"}})
 			if resp == nil || resp.StatusCode != status || calls != 1 {
 				t.Fatalf("response=%#v, calls=%d, error=%v", resp, calls, err)
 			}
@@ -290,17 +308,10 @@ func TestReleasesService_InvalidSelectors(t *testing.T) {
 			return s.GetComponentInstanceStatus(ctx, "acme", ReleaseTargetRef{Name: "east"}, "")
 		},
 		func(s *ReleasesService) (any, *Response, error) {
-			return s.ListDigests(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID, Name: "api"}, nil)
-		},
-		func(s *ReleasesService) (any, *Response, error) { return s.GetDigest(ctx, "acme", ReleaseDigestRef{}) },
-		func(s *ReleasesService) (any, *Response, error) {
-			return s.GetDigest(ctx, "acme", ReleaseDigestRef{Digest: releaseTestDigest})
+			return s.ListVersions(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID, Name: "api"}, nil)
 		},
 		func(s *ReleasesService) (any, *Response, error) {
-			return s.GetDigest(ctx, "acme", ReleaseDigestRef{ID: releaseTestID, Digest: releaseTestDigest})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
-			return s.GetDigest(ctx, "acme", ReleaseDigestRef{ID: releaseTestID, Artifact: ReleaseArtifactRef{Name: "api"}})
+			return s.GetVersion(ctx, "acme", ReleaseVersionRef{})
 		},
 		func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponent(ctx, "acme", ReleaseComponentCreate{Name: "api"})
@@ -332,16 +343,19 @@ func TestReleasesService_ResponseVariants(t *testing.T) {
 		name, body string
 		call       func(*ReleasesService) (any, *Response, error)
 	}{
-		{"never observed", `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":null,"active_digest":null,"last_active_digest":null,"first_seen_at":null,"last_seen_at":null,"sequence":null,"catalog_resolution":{"status":"unknown","artifact_digest_id":null,"reason":"no_active_digest"}}`, func(s *ReleasesService) (any, *Response, error) {
+		{"never observed", `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":null,"active_digest":null,"last_active_digest":null,"first_seen_at":null,"last_seen_at":null,"sequence":null,"catalog_resolution":{"status":"unknown","reason":"no_active_digest"}}`, func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponentInstanceStatus(ctx, "acme", target, "api-blue")
 		}},
-		{"resolved present", `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":true,"active_digest":"` + releaseTestDigest + `","last_active_digest":"` + releaseTestDigest + `","first_seen_at":null,"last_seen_at":null,"sequence":1,"catalog_resolution":{"status":"resolved","artifact_digest_id":"digest-id","reason":null}}`, func(s *ReleasesService) (any, *Response, error) {
+		{"resolved present", `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":true,"active_digest":"` + releaseTestDigest + `","last_active_digest":"` + releaseTestDigest + `","first_seen_at":null,"last_seen_at":null,"sequence":1,"catalog_resolution":{"status":"resolved","reason":null}}`, func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponentInstanceStatus(ctx, "acme", target, "api-blue")
 		}},
 		{"yanked provenance", `{"id":"digest-id","digest":"` + releaseTestDigest + `","source_url":"opaque source","source_build":{"id":"build-id"},"pull_requests":[],"created_by":{"id":"user-id","graphql_id":"opaque-user","name":null,"email":"person@example.com","avatar_url":null,"created_at":"2026-09-20T01:02:03Z"},"url":"https://api.example/digest","id_url":"https://api.example/digest-id","created_at":"2026-09-20T01:02:03Z","yanked":true,"yanked_at":"2026-09-21T01:02:03Z","yank_reason":"withdrawn"}`, func(s *ReleasesService) (any, *Response, error) {
-			return s.GetDigest(ctx, "acme", ReleaseDigestRef{ID: releaseTestID})
+			return s.GetVersion(ctx, "acme", ReleaseVersionRef{ID: releaseTestID})
 		}},
-		{"history payload presence", releaseTestPage(`{"id":"one","target_id":"target-id","sequence":1,"event_id":"` + releaseTestID + `","type":"ComponentInstanceAppeared","instance":"api-blue","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z"},{"id":"two","target_id":"target-id","sequence":2,"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"ComponentInstanceDigestObserved","instance":"api-blue","observed_tag":"legacy-label","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","catalog_resolution":{"status":"unknown","artifact_digest_id":null,"reason":"no_active_digest"}}`), func(s *ReleasesService) (any, *Response, error) { return s.ListObservations(ctx, "acme", target, nil) }},
+		{"legacy digestless publication", `{"id":"legacy-id","digest":null,"source_url":null,"source_build":null,"pull_requests":[],"created_by":null,"url":"https://api.example/legacy","id_url":"https://api.example/legacy","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`, func(s *ReleasesService) (any, *Response, error) {
+			return s.GetVersion(ctx, "acme", ReleaseVersionRef{ID: releaseTestID})
+		}},
+		{"history payload presence", releaseTestPage(`{"id":"one","target_id":"target-id","sequence":1,"event_id":"` + releaseTestID + `","type":"ComponentInstanceAppeared","instance":"api-blue","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z"},{"id":"two","target_id":"target-id","sequence":2,"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"ComponentInstanceDigestObserved","instance":"api-blue","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","catalog_resolution":{"status":"unknown","reason":"no_active_digest"}}`), func(s *ReleasesService) (any, *Response, error) { return s.ListObservations(ctx, "acme", target, nil) }},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -48,7 +48,7 @@ type ReleaseArtifactCreate struct {
 	Name string `json:"name"`
 }
 
-type ReleaseDigestPublish struct {
+type ReleaseVersionPublish struct {
 	Digest string `json:"digest"`
 	// An unset SourceBuild uses the agent OIDC token's build, if any.
 	// Null[ReleaseReference]() explicitly records no source build.
@@ -57,22 +57,20 @@ type ReleaseDigestPublish struct {
 	PullRequests []ReleasePullRequest       `json:"pull_requests,omitempty"`
 }
 
-type ReleaseDigestYank struct {
+type ReleaseVersionYank struct {
 	Reason string `json:"reason,omitempty"`
 }
 
 // ReleaseObservationCreate reports a fact, not desired state. EventID must be a
 // caller-supplied UUIDv7, reused with the same payload if the outcome is unknown.
 // Type is ComponentInstanceAppeared, ComponentInstanceDisappeared, or
-// ComponentInstanceDigestObserved. All require Instance. Only the latter accepts
-// ObservedTag and requires Digest.
+// ComponentInstanceDigestObserved. All require Instance; the latter requires Digest.
 type ReleaseObservationCreate struct {
-	EventID     string     `json:"event_id"`
-	Type        string     `json:"type"`
-	Instance    string     `json:"instance"`
-	ObservedTag string     `json:"observed_tag,omitempty"`
-	Digest      string     `json:"digest,omitempty"`
-	OccurredAt  *Timestamp `json:"occurred_at,omitempty"`
+	EventID    string     `json:"event_id"`
+	Type       string     `json:"type"`
+	Instance   string     `json:"instance"`
+	Digest     string     `json:"digest,omitempty"`
+	OccurredAt *Timestamp `json:"occurred_at,omitempty"`
 }
 
 type ReleaseObservationWriteResult struct {
@@ -106,11 +104,9 @@ type ReleaseArtifactRef struct {
 	ID   string `json:"id,omitempty"`
 }
 
-// ReleaseDigestRef selects by ID or by Artifact and exact SHA-256 digest.
-type ReleaseDigestRef struct {
-	ID       string             `json:"id,omitempty"`
-	Artifact ReleaseArtifactRef `json:"artifact,omitempty,omitzero"`
-	Digest   string             `json:"digest,omitempty"`
+// ReleaseVersionRef selects a publication by UUID, not by digest or version label.
+type ReleaseVersionRef struct {
+	ID string `json:"id"`
 }
 
 // ReleasesListOptions specifies cursor pagination, not page-number pagination.
@@ -233,10 +229,10 @@ type ReleaseReference struct {
 	ID string `json:"id"`
 }
 
-type ReleaseArtifactDigest struct {
+type ReleaseArtifactVersion struct {
 	ID           string               `json:"id"`
 	GraphQLID    string               `json:"graphql_id,omitempty"`
-	Digest       string               `json:"digest"`
+	Digest       *string              `json:"digest"`
 	SourceURL    *string              `json:"source_url"`
 	SourceBuild  *ReleaseReference    `json:"source_build"`
 	PullRequests []ReleasePullRequest `json:"pull_requests"`
@@ -280,9 +276,8 @@ type ReleaseComponentInstanceStatus struct {
 }
 
 type ReleaseCatalogResolution struct {
-	Status           string  `json:"status"`
-	ArtifactDigestID *string `json:"artifact_digest_id"`
-	Reason           *string `json:"reason"`
+	Status string  `json:"status"`
+	Reason *string `json:"reason"`
 }
 
 // ReleaseObservation is a stored observation, without the write-only created
@@ -295,7 +290,6 @@ type ReleaseObservation struct {
 	EventID           string                    `json:"event_id"`
 	Type              string                    `json:"type"`
 	Instance          string                    `json:"instance"`
-	ObservedTag       *string                   `json:"observed_tag,omitempty"`
 	Digest            *string                   `json:"digest,omitempty"`
 	OccurredAt        *Timestamp                `json:"occurred_at"`
 	RecordedAt        *Timestamp                `json:"recorded_at"`
@@ -353,21 +347,11 @@ func (r ReleaseArtifactRef) path() (string, error) {
 	return "artifacts/" + releaseSegment(r.Name), nil
 }
 
-func (r ReleaseDigestRef) path() (string, error) {
-	if r.ID != "" {
-		if r.Digest != "" || r.Artifact != (ReleaseArtifactRef{}) {
-			return "", fmt.Errorf("digest ID cannot be combined with artifact or digest")
-		}
-		return "artifact-digests/by-id/" + releaseSegment(r.ID), nil
+func (r ReleaseVersionRef) path() (string, error) {
+	if r.ID == "" {
+		return "", fmt.Errorf("version requires an ID")
 	}
-	if r.Digest == "" {
-		return "", fmt.Errorf("digest requires an ID or artifact and digest")
-	}
-	parent, err := r.Artifact.path()
-	if err != nil {
-		return "", err
-	}
-	return parent + "/digests/" + releaseSegment(r.Digest), nil
+	return "artifact-versions/by-id/" + releaseSegment(r.ID), nil
 }
 
 func releasesRead[T any](ctx context.Context, s *ReleasesService, org, path string, pathErr error, opt any) (T, *Response, error) {
@@ -461,14 +445,15 @@ func (s *ReleasesService) GetArtifact(ctx context.Context, org string, ref Relea
 	return releasesRead[ReleaseArtifact](ctx, s, org, path, err, nil)
 }
 
-func (s *ReleasesService) ListDigests(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseArtifactDigest], *Response, error) {
+// ListVersions lists publications newest first, including yanked and legacy rows.
+func (s *ReleasesService) ListVersions(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseArtifactVersion], *Response, error) {
 	path, err := ref.path()
-	return releasesRead[ReleasesPage[ReleaseArtifactDigest]](ctx, s, org, path+"/digests", err, opt)
+	return releasesRead[ReleasesPage[ReleaseArtifactVersion]](ctx, s, org, path+"/versions", err, opt)
 }
 
-func (s *ReleasesService) GetDigest(ctx context.Context, org string, ref ReleaseDigestRef) (ReleaseArtifactDigest, *Response, error) {
+func (s *ReleasesService) GetVersion(ctx context.Context, org string, ref ReleaseVersionRef) (ReleaseArtifactVersion, *Response, error) {
 	path, err := ref.path()
-	return releasesRead[ReleaseArtifactDigest](ctx, s, org, path, err, nil)
+	return releasesRead[ReleaseArtifactVersion](ctx, s, org, path, err, nil)
 }
 
 func (s *ReleasesService) CreateTarget(ctx context.Context, org string, input ReleaseTargetCreate) (ReleaseTarget, *Response, error) {
@@ -499,19 +484,19 @@ func (s *ReleasesService) CreateArtifact(ctx context.Context, org string, input 
 	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPost, org, "artifacts", nil, input)
 }
 
-// PublishDigest records an immutable SHA-256 digest and provenance. Replaying
-// the same Artifact and digest returns the original publication (HTTP 200).
-// It does not upload or verify content.
-func (s *ReleasesService) PublishDigest(ctx context.Context, org string, artifact ReleaseArtifactRef, input ReleaseDigestPublish) (ReleaseArtifactDigest, *Response, error) {
+// PublishVersion creates a new publication (HTTP 201), even for repeated digests
+// or identical requests. An ambiguous failure must not be retried automatically:
+// another successful POST creates another Version. It does not upload content.
+func (s *ReleasesService) PublishVersion(ctx context.Context, org string, artifact ReleaseArtifactRef, input ReleaseVersionPublish) (ReleaseArtifactVersion, *Response, error) {
 	path, err := artifact.path()
-	return releasesRequest[ReleaseArtifactDigest](ctx, s, http.MethodPost, org, path+"/digests", err, input)
+	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/versions", err, input)
 }
 
-// YankDigest preserves history. Repeated calls retain the original yank time
-// and reason; a yanked digest identity cannot be republished.
-func (s *ReleasesService) YankDigest(ctx context.Context, org string, ref ReleaseDigestRef, input ReleaseDigestYank) (ReleaseArtifactDigest, *Response, error) {
+// YankVersion marks only this publication. Repeated yanks preserve the original
+// time and reason; other Versions with the same digest are unaffected.
+func (s *ReleasesService) YankVersion(ctx context.Context, org string, ref ReleaseVersionRef, input ReleaseVersionYank) (ReleaseArtifactVersion, *Response, error) {
 	path, err := ref.path()
-	return releasesRequest[ReleaseArtifactDigest](ctx, s, http.MethodPost, org, path+"/yank", err, input)
+	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/yank", err, input)
 }
 
 // AppendObservations reports 1–100 events in input order. The API returns 201
