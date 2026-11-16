@@ -91,7 +91,7 @@ type ReleaseComponentRef struct {
 	Name string `json:"name,omitempty"`
 }
 
-// ReleaseComponentInstanceRef selects by ID or by Target and Instance name.
+// ReleaseComponentInstanceRef selects a component instance by ID or by Target and name.
 type ReleaseComponentInstanceRef struct {
 	ID     string           `json:"id,omitempty"`
 	Target ReleaseTargetRef `json:"target,omitempty,omitzero"`
@@ -124,7 +124,7 @@ type ReleasesObservationListOptions struct {
 
 type ReleasesComponentInstanceListOptions struct {
 	ReleasesListOptions
-	// Label matches all supplied label pairs on the Instance's Target.
+	// Label matches all supplied label pairs on the component instance's Target.
 	Label ReleaseTargetLabelFilters `url:"label,omitempty"`
 }
 
@@ -323,12 +323,12 @@ func (r ReleaseComponentRef) path() (string, error) {
 func (r ReleaseComponentInstanceRef) path() (string, error) {
 	if r.ID != "" {
 		if r.Name != "" || r.Target != (ReleaseTargetRef{}) {
-			return "", fmt.Errorf("instance ID cannot be combined with target or name")
+			return "", fmt.Errorf("component instance ID cannot be combined with target or name")
 		}
 		return "component_instance/by-id/" + releaseSegment(r.ID), nil
 	}
 	if r.Name == "" {
-		return "", fmt.Errorf("instance requires an ID or target and name")
+		return "", fmt.Errorf("component instance requires an ID or target and name")
 	}
 	parent, err := r.Target.path()
 	if err != nil {
@@ -426,7 +426,7 @@ func (s *ReleasesService) ListComponentInstanceStatuses(ctx context.Context, org
 func (s *ReleasesService) GetComponentInstanceStatus(ctx context.Context, org string, ref ReleaseTargetRef, instance string) (ReleaseComponentInstanceStatus, *Response, error) {
 	path, err := ref.path()
 	if err == nil && instance == "" {
-		err = fmt.Errorf("instance status requires an instance name")
+		err = fmt.Errorf("component instance status requires a name")
 	}
 	return releasesRead[ReleaseComponentInstanceStatus](ctx, s, org, path+"/instance-statuses/"+releaseSegment(instance), err, nil)
 }
@@ -511,13 +511,13 @@ func (s *ReleasesService) AppendObservations(ctx context.Context, org string, ta
 	return releasesRequest[[]ReleaseObservationWriteResult](ctx, s, http.MethodPost, org, path+"/observations", err, input)
 }
 
-// ArchiveTarget also archives its active Instances, without deleting history.
+// ArchiveTarget also archives its active component instances, without deleting history.
 func (s *ReleasesService) ArchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
 }
 
-// UnarchiveTarget restores only the Target, not its Instances.
+// UnarchiveTarget restores only the Target, not its component instances.
 func (s *ReleasesService) UnarchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})

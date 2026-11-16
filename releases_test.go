@@ -846,6 +846,36 @@ func TestReleasesService_InvalidSelectors(t *testing.T) {
 	}
 }
 
+func TestReleasesService_ComponentInstanceErrors(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	for _, tt := range []struct {
+		name string
+		call func(*ReleasesService) error
+	}{
+		{name: "missing selector", call: func(s *ReleasesService) error {
+			_, _, err := s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{})
+			return err
+		}},
+		{name: "conflicting selectors", call: func(s *ReleasesService) error {
+			_, _, err := s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID, Name: "api"})
+			return err
+		}},
+		{name: "missing status name", call: func(s *ReleasesService) error {
+			_, _, err := s.GetComponentInstanceStatus(ctx, "acme", ReleaseTargetRef{Name: "east"}, "")
+			return err
+		}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			_, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			if err := tt.call(client.Releases); err == nil || !strings.Contains(err.Error(), "component instance") {
+				t.Fatalf("error = %v, want component instance context", err)
+			}
+		})
+	}
+}
+
 func TestReleasesService_GetComponentInstanceStatus(t *testing.T) {
 	t.Parallel()
 	present, sequence, reason := true, int64(1), "no_active_version"
