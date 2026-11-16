@@ -56,11 +56,11 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 		{"ListComponentInstances", "GET", targetPath + "/instances", pageQuery + "&label[region]=au+%2B&label[empty]=", "", releaseTestPage(releaseInstanceJSON), 200, func(s *ReleasesService) (any, *Response, error) {
 			return s.ListComponentInstances(ctx, "acme", target, instanceOptions)
 		}},
-		{"ListOrganizationComponentInstances", "GET", "component_instance", pageQuery + "&label[region]=au+%2B&label[empty]=", "", releaseTestPage(releaseInstanceJSON), 200, func(s *ReleasesService) (any, *Response, error) {
+		{"ListOrganizationComponentInstances", "GET", "component-instances", pageQuery + "&label[region]=au+%2B&label[empty]=", "", releaseTestPage(releaseInstanceJSON), 200, func(s *ReleasesService) (any, *Response, error) {
 			return s.ListOrganizationComponentInstances(ctx, "acme", instanceOptions)
 		}},
 		{"GetComponentInstance", "GET", targetPath + "/instances/api-blue", "", "", releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.GetComponentInstance(ctx, "acme", instance) }},
-		{"GetComponentInstanceByID", "GET", "component_instance/by-id/" + releaseTestID, "", "", releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
+		{"GetComponentInstanceByID", "GET", "component-instances/by-id/" + releaseTestID, "", "", releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID})
 		}},
 		{"GetComponentInstanceByTargetName", "GET", "targets/east/instances/by-label", "", "", releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
@@ -92,10 +92,10 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 		{"CreateComponent", "POST", "components", "", `{"name":"api","artifact":{"id":"artifact-id"}}`, releaseComponentJSON, 201, func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponent(ctx, "acme", ReleaseComponentCreate{Name: "api", Artifact: ReleaseArtifactRef{ID: "artifact-id"}})
 		}},
-		{"CreateComponentInstance", "POST", targetPath + "/instances", "", `{"componentName":"api","name":"api-blue"}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
+		{"CreateComponentInstance", "POST", targetPath + "/instances", "", `{"component_name":"api","name":"api-blue"}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponentInstance(ctx, "acme", target, ReleaseComponentInstanceCreate{ComponentName: "api", Name: "api-blue"})
 		}},
-		{"RegisterComponentInstance", "POST", "component_instance", "", `{"componentName":"api","targetId":"` + releaseTestID + `"}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
+		{"RegisterComponentInstance", "POST", "component-instances", "", `{"component_name":"api","target_id":"` + releaseTestID + `"}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
 			return s.RegisterComponentInstance(ctx, "acme", ReleaseComponentInstanceRegister{ReleaseComponentInstanceCreate: ReleaseComponentInstanceCreate{ComponentName: "api"}, TargetID: releaseTestID})
 		}},
 		{"CreateArtifact", "POST", "artifacts", "", `{"name":"service"}`, releaseArtifactJSON, 201, func(s *ReleasesService) (any, *Response, error) {
@@ -114,7 +114,7 @@ func TestReleasesService_HTTPContract(t *testing.T) {
 		{"UnarchiveTarget", "POST", targetPath + "/unarchive", "", `{}`, releaseTargetJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.UnarchiveTarget(ctx, "acme", target) }},
 		{"ArchiveComponent", "POST", "components/api/archive", "", `{}`, releaseComponentJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.ArchiveComponent(ctx, "acme", component) }},
 		{"UnarchiveComponent", "POST", "components/api/unarchive", "", `{}`, releaseComponentJSON, 200, func(s *ReleasesService) (any, *Response, error) { return s.UnarchiveComponent(ctx, "acme", component) }},
-		{"ArchiveInstance", "POST", "component_instance/by-id/" + releaseTestID + "/archive", "", `{}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
+		{"ArchiveInstance", "POST", "component-instances/by-id/" + releaseTestID + "/archive", "", `{}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
 			return s.ArchiveComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID})
 		}},
 		{"UnarchiveInstance", "POST", targetPath + "/instances/api-blue/unarchive", "", `{}`, releaseInstanceJSON, 200, func(s *ReleasesService) (any, *Response, error) {
@@ -203,7 +203,7 @@ func TestReleasesService_OptionalFields(t *testing.T) {
 		{`{}`, func(s *ReleasesService) (any, *Response, error) {
 			return s.UpdateTarget(ctx, "acme", ReleaseTargetRef{Name: "east"}, ReleaseTargetUpdate{})
 		}},
-		{`{"componentName":"api"}`, func(s *ReleasesService) (any, *Response, error) {
+		{`{"component_name":"api"}`, func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponentInstance(ctx, "acme", ReleaseTargetRef{Name: "east"}, ReleaseComponentInstanceCreate{ComponentName: "api"})
 		}},
 		{`{"digest":"` + releaseTestDigest + `","source_build":null,"source_url":null}`, func(s *ReleasesService) (any, *Response, error) {
@@ -442,7 +442,7 @@ func TestReleasesService_Escaping(t *testing.T) {
 }
 
 func TestReleasePageLink_ToOptions(t *testing.T) {
-	got, err := ReleasePageLink("https://api.example/component_instance?before=prior%2Bcursor&per_page=7&label[region]=au").ToOptions()
+	got, err := ReleasePageLink("https://api.example/component-instances?before=prior%2Bcursor&per_page=7&label[region]=au").ToOptions()
 	if err != nil || *got != (ReleasesListOptions{Before: "prior+cursor", PerPage: 7}) {
 		t.Fatalf("options=%#v, error=%v", got, err)
 	}
