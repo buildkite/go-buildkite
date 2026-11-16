@@ -64,7 +64,7 @@ type ReleaseVersionYank struct {
 // ReleaseObservationCreate reports a fact, not desired state. EventID must be a
 // caller-supplied UUIDv7, reused with the same payload if the outcome is unknown.
 // Type is ComponentInstanceAppeared, ComponentInstanceDisappeared, or
-// ComponentInstanceDigestObserved. All require Instance; the latter requires Digest.
+// ComponentInstanceVersionObserved. All require Instance; the latter requires Digest.
 type ReleaseObservationCreate struct {
 	EventID    string     `json:"event_id"`
 	Type       string     `json:"type"`
