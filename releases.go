@@ -27,19 +27,29 @@ type ReleaseTargetUpdate struct {
 }
 
 type ReleaseComponentCreate struct {
-	Name     string              `json:"name"`
-	Artifact *ReleaseArtifactRef `json:"artifact,omitempty"`
+	Name     string             `json:"name"`
+	Artifact ReleaseArtifactRef `json:"artifact"`
+}
+
+// ReleaseComponentInstanceCreate registers a catalog Component on a Target.
+// Name defaults to ComponentName when omitted.
+type ReleaseComponentInstanceCreate struct {
+	ComponentName string `json:"componentName"`
+	Name          string `json:"name,omitempty"`
+}
+
+// ReleaseComponentInstanceRegister addresses the Target by UUID in the body.
+type ReleaseComponentInstanceRegister struct {
+	ReleaseComponentInstanceCreate
+	TargetID string `json:"targetId"`
 }
 
 type ReleaseArtifactCreate struct {
-	Name          string            `json:"name"`
-	VersionScheme string            `json:"version_scheme,omitempty"`
-	Pipeline      *ReleaseReference `json:"pipeline,omitempty"`
+	Name string `json:"name"`
 }
 
-type ReleaseVersionPublish struct {
-	Version string `json:"version"`
-	Digest  string `json:"digest"`
+type ReleaseDigestPublish struct {
+	Digest string `json:"digest"`
 	// An unset SourceBuild uses the agent OIDC token's build, if any.
 	// Null[ReleaseReference]() explicitly records no source build.
 	SourceBuild  Optional[ReleaseReference] `json:"source_build,omitzero"`
@@ -47,22 +57,22 @@ type ReleaseVersionPublish struct {
 	PullRequests []ReleasePullRequest       `json:"pull_requests,omitempty"`
 }
 
-type ReleaseVersionYank struct {
+type ReleaseDigestYank struct {
 	Reason string `json:"reason,omitempty"`
 }
 
 // ReleaseObservationCreate reports a fact, not desired state. EventID must be a
 // caller-supplied UUIDv7, reused with the same payload if the outcome is unknown.
-// Type is TargetAppeared, ComponentAppeared, ComponentDisappeared, or
-// ComponentVersionObserved. Only the latter accepts Version and Digest;
-// Component is required for all but TargetAppeared.
+// Type is ComponentInstanceAppeared, ComponentInstanceDisappeared, or
+// ComponentInstanceDigestObserved. All require Instance. Only the latter accepts
+// ObservedTag and requires Digest.
 type ReleaseObservationCreate struct {
-	EventID    string     `json:"event_id"`
-	Type       string     `json:"type"`
-	Component  string     `json:"component,omitempty"`
-	Version    string     `json:"version,omitempty"`
-	Digest     string     `json:"digest,omitempty"`
-	OccurredAt *Timestamp `json:"occurred_at,omitempty"`
+	EventID     string     `json:"event_id"`
+	Type        string     `json:"type"`
+	Instance    string     `json:"instance"`
+	ObservedTag string     `json:"observed_tag,omitempty"`
+	Digest      string     `json:"digest,omitempty"`
+	OccurredAt  *Timestamp `json:"occurred_at,omitempty"`
 }
 
 type ReleaseObservationWriteResult struct {
@@ -77,8 +87,14 @@ type ReleaseTargetRef struct {
 	Name string `json:"name,omitempty"`
 }
 
-// ReleaseComponentRef selects by ID or by target and component name.
+// ReleaseComponentRef selects an organization-owned catalog Component by name or ID.
 type ReleaseComponentRef struct {
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+// ReleaseComponentInstanceRef selects by ID or by Target and Instance name.
+type ReleaseComponentInstanceRef struct {
 	ID     string           `json:"id,omitempty"`
 	Target ReleaseTargetRef `json:"target,omitempty,omitzero"`
 	Name   string           `json:"name,omitempty"`
@@ -90,11 +106,11 @@ type ReleaseArtifactRef struct {
 	ID   string `json:"id,omitempty"`
 }
 
-// ReleaseVersionRef selects by ID or by artifact and exact version label.
-type ReleaseVersionRef struct {
+// ReleaseDigestRef selects by ID or by Artifact and exact SHA-256 digest.
+type ReleaseDigestRef struct {
 	ID       string             `json:"id,omitempty"`
 	Artifact ReleaseArtifactRef `json:"artifact,omitempty,omitzero"`
-	Version  string             `json:"version,omitempty"`
+	Digest   string             `json:"digest,omitempty"`
 }
 
 // ReleasesListOptions specifies cursor pagination, not page-number pagination.
@@ -106,39 +122,28 @@ type ReleasesListOptions struct {
 
 type ReleasesObservationListOptions struct {
 	ReleasesListOptions
-	Component string `url:"component,omitempty"`
-	Type      string `url:"type,omitempty"`
+	Instance string `url:"instance,omitempty"`
+	Type     string `url:"type,omitempty"`
 }
 
-type ReleasesVersionListOptions struct {
+type ReleasesComponentInstanceListOptions struct {
 	ReleasesListOptions
-	Order     string `url:"order,omitempty"`
-	Direction string `url:"direction,omitempty"`
-	NewerThan string `url:"newer_than,omitempty"`
-	OlderThan string `url:"older_than,omitempty"`
-	// A non-nil empty suffix selects unsuffixed versions; nil selects all.
-	Suffix *string `url:"suffix,omitempty"`
-	Yanked *bool   `url:"yanked,omitempty"`
+	// Label matches all supplied label pairs on the Instance's Target.
+	Label ReleaseTargetLabelFilters `url:"label,omitempty"`
 }
 
-// ReleasesComparisonOptions selects left relative to right. Supply exactly one
-// label or ID for each side. The API validates comparison selectors and schemes.
-type ReleasesComparisonOptions struct {
-	Left    string `url:"left,omitempty"`
-	LeftID  string `url:"left_id,omitempty"`
-	Right   string `url:"right,omitempty"`
-	RightID string `url:"right_id,omitempty"`
-}
+type ReleaseTargetLabelFilters map[string]string
 
-type ReleasesComparisonListOptions struct {
-	ReleasesListOptions
-	ReleasesComparisonOptions
+func (labels ReleaseTargetLabelFilters) EncodeValues(key string, values *url.Values) error {
+	for name, value := range labels {
+		values.Set(key+"["+name+"]", value)
+	}
+	return nil
 }
 
 type ReleasesPage[T any] struct {
-	Items    []T                     `json:"items"`
-	Links    ReleasePageLinks        `json:"links"`
-	Ordering *ReleaseVersionOrdering `json:"ordering,omitempty"`
+	Items []T              `json:"items"`
+	Links ReleasePageLinks `json:"links"`
 }
 
 type ReleasePageLink string
@@ -173,11 +178,6 @@ type ReleasePageLinks struct {
 	Next     ReleasePageLink `json:"next,omitempty"`
 }
 
-type ReleaseVersionOrdering struct {
-	Basis     string `json:"basis"`
-	Direction string `json:"direction"`
-}
-
 type ReleaseTarget struct {
 	ID         string            `json:"id"`
 	GraphQLID  string            `json:"graphql_id,omitempty"`
@@ -190,46 +190,53 @@ type ReleaseTarget struct {
 }
 
 type ReleaseComponent struct {
-	ID         string                  `json:"id"`
-	GraphQLID  string                  `json:"graphql_id,omitempty"`
-	Name       string                  `json:"name"`
-	TargetID   string                  `json:"target_id"`
-	Artifact   *ReleaseArtifactSummary `json:"artifact"`
-	URL        string                  `json:"url"`
-	IDURL      string                  `json:"id_url"`
-	CreatedAt  *Timestamp              `json:"created_at"`
-	ArchivedAt *Timestamp              `json:"archived_at"`
+	ID         string                 `json:"id"`
+	GraphQLID  string                 `json:"graphql_id,omitempty"`
+	Name       string                 `json:"name"`
+	Artifact   ReleaseArtifactSummary `json:"artifact"`
+	URL        string                 `json:"url"`
+	IDURL      string                 `json:"id_url"`
+	CreatedAt  *Timestamp             `json:"created_at"`
+	ArchivedAt *Timestamp             `json:"archived_at"`
+}
+
+type ReleaseComponentInstance struct {
+	ID          string     `json:"id"`
+	GraphQLID   string     `json:"graphql_id,omitempty"`
+	Name        string     `json:"name"`
+	TargetID    string     `json:"target_id"`
+	ComponentID string     `json:"component_id"`
+	URL         string     `json:"url"`
+	IDURL       string     `json:"id_url"`
+	CreatedAt   *Timestamp `json:"created_at"`
+	ArchivedAt  *Timestamp `json:"archived_at"`
 }
 
 type ReleaseArtifactSummary struct {
-	ID            string `json:"id"`
-	GraphQLID     string `json:"graphql_id,omitempty"`
-	Name          string `json:"name"`
-	VersionScheme string `json:"version_scheme"`
+	ID        string `json:"id"`
+	GraphQLID string `json:"graphql_id,omitempty"`
+	Name      string `json:"name"`
 }
 
 type ReleaseArtifact struct {
-	ID            string            `json:"id"`
-	GraphQLID     string            `json:"graphql_id,omitempty"`
-	Name          string            `json:"name"`
-	VersionScheme string            `json:"version_scheme"`
-	Pipeline      *ReleaseReference `json:"pipeline,omitempty"`
-	URL           string            `json:"url"`
-	IDURL         string            `json:"id_url"`
-	CreatedAt     *Timestamp        `json:"created_at"`
-	ArchivedAt    *Timestamp        `json:"archived_at"`
+	ID         string     `json:"id"`
+	GraphQLID  string     `json:"graphql_id,omitempty"`
+	Name       string     `json:"name"`
+	URL        string     `json:"url"`
+	IDURL      string     `json:"id_url"`
+	CreatedAt  *Timestamp `json:"created_at"`
+	ArchivedAt *Timestamp `json:"archived_at"`
 }
 
-// ReleaseReference is an organization-scoped build or pipeline reference.
+// ReleaseReference is an organization-scoped build reference.
 type ReleaseReference struct {
 	ID string `json:"id"`
 }
 
-type ReleaseArtifactVersion struct {
+type ReleaseArtifactDigest struct {
 	ID           string               `json:"id"`
 	GraphQLID    string               `json:"graphql_id,omitempty"`
-	Version      string               `json:"version"`
-	Digest       *string              `json:"digest"`
+	Digest       string               `json:"digest"`
 	SourceURL    *string              `json:"source_url"`
 	SourceBuild  *ReleaseReference    `json:"source_build"`
 	PullRequests []ReleasePullRequest `json:"pull_requests"`
@@ -259,14 +266,13 @@ type ReleasePullRequest struct {
 	ID            string `json:"id,omitempty"`
 }
 
-type ReleaseComponentStatus struct {
+type ReleaseComponentInstanceStatus struct {
 	TargetID          string                   `json:"target_id"`
-	Component         string                   `json:"component"`
-	ComponentID       string                   `json:"component_id"`
+	Instance          string                   `json:"instance"`
+	InstanceID        string                   `json:"instance_id"`
 	Present           *bool                    `json:"present"`
-	ActiveVersion     *string                  `json:"active_version"`
 	ActiveDigest      *string                  `json:"active_digest"`
-	LastActiveVersion *string                  `json:"last_active_version"`
+	LastActiveDigest  *string                  `json:"last_active_digest"`
 	FirstSeenAt       *Timestamp               `json:"first_seen_at"`
 	LastSeenAt        *Timestamp               `json:"last_seen_at"`
 	Sequence          *int64                   `json:"sequence"`
@@ -274,30 +280,9 @@ type ReleaseComponentStatus struct {
 }
 
 type ReleaseCatalogResolution struct {
-	Status            string  `json:"status"`
-	ArtifactVersionID *string `json:"artifact_version_id"`
-	DigestCheck       string  `json:"digest_check"`
-	Reason            *string `json:"reason"`
-}
-
-type ReleaseVersionSummary struct {
-	ID        string  `json:"id"`
-	GraphQLID string  `json:"graphql_id,omitempty"`
-	Version   string  `json:"version"`
-	Digest    *string `json:"digest"`
-	Yanked    bool    `json:"yanked"`
-}
-
-// ReleaseVersionComparison compares catalog precedence, not deployment safety.
-type ReleaseVersionComparison struct {
-	Artifact    ReleaseArtifactSummary `json:"artifact"`
-	Left        ReleaseVersionSummary  `json:"left"`
-	Right       ReleaseVersionSummary  `json:"right"`
-	Basis       *string                `json:"basis"`
-	Result      string                 `json:"result"`
-	Reason      string                 `json:"reason"`
-	SameVersion bool                   `json:"same_version"`
-	SameContent *bool                  `json:"same_content"`
+	Status           string  `json:"status"`
+	ArtifactDigestID *string `json:"artifact_digest_id"`
+	Reason           *string `json:"reason"`
 }
 
 // ReleaseObservation is a stored observation, without the write-only created
@@ -309,8 +294,8 @@ type ReleaseObservation struct {
 	Sequence          int64                     `json:"sequence"`
 	EventID           string                    `json:"event_id"`
 	Type              string                    `json:"type"`
-	Component         *string                   `json:"component,omitempty"`
-	Version           *string                   `json:"version,omitempty"`
+	Instance          string                    `json:"instance"`
+	ObservedTag       *string                   `json:"observed_tag,omitempty"`
 	Digest            *string                   `json:"digest,omitempty"`
 	OccurredAt        *Timestamp                `json:"occurred_at"`
 	RecordedAt        *Timestamp                `json:"recorded_at"`
@@ -332,20 +317,30 @@ func (r ReleaseTargetRef) path() (string, error) {
 }
 
 func (r ReleaseComponentRef) path() (string, error) {
+	if (r.ID == "") == (r.Name == "") {
+		return "", fmt.Errorf("component requires exactly one of name or ID")
+	}
 	if r.ID != "" {
-		if r.Name != "" || r.Target != (ReleaseTargetRef{}) {
-			return "", fmt.Errorf("component ID cannot be combined with target or name")
-		}
 		return "components/by-id/" + releaseSegment(r.ID), nil
 	}
+	return "components/" + releaseSegment(r.Name), nil
+}
+
+func (r ReleaseComponentInstanceRef) path() (string, error) {
+	if r.ID != "" {
+		if r.Name != "" || r.Target != (ReleaseTargetRef{}) {
+			return "", fmt.Errorf("instance ID cannot be combined with target or name")
+		}
+		return "component_instance/by-id/" + releaseSegment(r.ID), nil
+	}
 	if r.Name == "" {
-		return "", fmt.Errorf("component requires an ID or target and name")
+		return "", fmt.Errorf("instance requires an ID or target and name")
 	}
 	parent, err := r.Target.path()
 	if err != nil {
 		return "", err
 	}
-	return parent + "/components/" + releaseSegment(r.Name), nil
+	return parent + "/instances/" + releaseSegment(r.Name), nil
 }
 
 func (r ReleaseArtifactRef) path() (string, error) {
@@ -358,21 +353,21 @@ func (r ReleaseArtifactRef) path() (string, error) {
 	return "artifacts/" + releaseSegment(r.Name), nil
 }
 
-func (r ReleaseVersionRef) path() (string, error) {
+func (r ReleaseDigestRef) path() (string, error) {
 	if r.ID != "" {
-		if r.Version != "" || r.Artifact != (ReleaseArtifactRef{}) {
-			return "", fmt.Errorf("version ID cannot be combined with artifact or version label")
+		if r.Digest != "" || r.Artifact != (ReleaseArtifactRef{}) {
+			return "", fmt.Errorf("digest ID cannot be combined with artifact or digest")
 		}
-		return "artifact-versions/by-id/" + releaseSegment(r.ID), nil
+		return "artifact-digests/by-id/" + releaseSegment(r.ID), nil
 	}
-	if r.Version == "" {
-		return "", fmt.Errorf("version requires an ID or artifact and version label")
+	if r.Digest == "" {
+		return "", fmt.Errorf("digest requires an ID or artifact and digest")
 	}
 	parent, err := r.Artifact.path()
 	if err != nil {
 		return "", err
 	}
-	return parent + "/versions/" + releaseSegment(r.Version), nil
+	return parent + "/digests/" + releaseSegment(r.Digest), nil
 }
 
 func releasesRead[T any](ctx context.Context, s *ReleasesService, org, path string, pathErr error, opt any) (T, *Response, error) {
@@ -416,9 +411,22 @@ func (s *ReleasesService) GetTarget(ctx context.Context, org string, ref Release
 	return releasesRead[ReleaseTarget](ctx, s, org, path, err, nil)
 }
 
-func (s *ReleasesService) ListComponents(ctx context.Context, org string, ref ReleaseTargetRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseComponent], *Response, error) {
+func (s *ReleasesService) ListComponents(ctx context.Context, org string, opt *ReleasesListOptions) (ReleasesPage[ReleaseComponent], *Response, error) {
+	return releasesRead[ReleasesPage[ReleaseComponent]](ctx, s, org, "components", nil, opt)
+}
+
+func (s *ReleasesService) ListComponentInstances(ctx context.Context, org string, target ReleaseTargetRef, opt *ReleasesComponentInstanceListOptions) (ReleasesPage[ReleaseComponentInstance], *Response, error) {
+	path, err := target.path()
+	return releasesRead[ReleasesPage[ReleaseComponentInstance]](ctx, s, org, path+"/instances", err, opt)
+}
+
+func (s *ReleasesService) ListOrganizationComponentInstances(ctx context.Context, org string, opt *ReleasesComponentInstanceListOptions) (ReleasesPage[ReleaseComponentInstance], *Response, error) {
+	return releasesRead[ReleasesPage[ReleaseComponentInstance]](ctx, s, org, "component_instance", nil, opt)
+}
+
+func (s *ReleasesService) GetComponentInstance(ctx context.Context, org string, ref ReleaseComponentInstanceRef) (ReleaseComponentInstance, *Response, error) {
 	path, err := ref.path()
-	return releasesRead[ReleasesPage[ReleaseComponent]](ctx, s, org, path+"/components", err, opt)
+	return releasesRead[ReleaseComponentInstance](ctx, s, org, path, err, nil)
 }
 
 func (s *ReleasesService) GetComponent(ctx context.Context, org string, ref ReleaseComponentRef) (ReleaseComponent, *Response, error) {
@@ -426,17 +434,17 @@ func (s *ReleasesService) GetComponent(ctx context.Context, org string, ref Rele
 	return releasesRead[ReleaseComponent](ctx, s, org, path, err, nil)
 }
 
-func (s *ReleasesService) ListComponentStatuses(ctx context.Context, org string, ref ReleaseTargetRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseComponentStatus], *Response, error) {
+func (s *ReleasesService) ListComponentInstanceStatuses(ctx context.Context, org string, ref ReleaseTargetRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseComponentInstanceStatus], *Response, error) {
 	path, err := ref.path()
-	return releasesRead[ReleasesPage[ReleaseComponentStatus]](ctx, s, org, path+"/component-statuses", err, opt)
+	return releasesRead[ReleasesPage[ReleaseComponentInstanceStatus]](ctx, s, org, path+"/instance-statuses", err, opt)
 }
 
-func (s *ReleasesService) GetComponentStatus(ctx context.Context, org string, ref ReleaseTargetRef, component string) (ReleaseComponentStatus, *Response, error) {
+func (s *ReleasesService) GetComponentInstanceStatus(ctx context.Context, org string, ref ReleaseTargetRef, instance string) (ReleaseComponentInstanceStatus, *Response, error) {
 	path, err := ref.path()
-	if err == nil && component == "" {
-		err = fmt.Errorf("component status requires a component name")
+	if err == nil && instance == "" {
+		err = fmt.Errorf("instance status requires an instance name")
 	}
-	return releasesRead[ReleaseComponentStatus](ctx, s, org, path+"/component-statuses/"+releaseSegment(component), err, nil)
+	return releasesRead[ReleaseComponentInstanceStatus](ctx, s, org, path+"/instance-statuses/"+releaseSegment(instance), err, nil)
 }
 
 func (s *ReleasesService) ListObservations(ctx context.Context, org string, ref ReleaseTargetRef, opt *ReleasesObservationListOptions) (ReleasesPage[ReleaseObservation], *Response, error) {
@@ -453,24 +461,14 @@ func (s *ReleasesService) GetArtifact(ctx context.Context, org string, ref Relea
 	return releasesRead[ReleaseArtifact](ctx, s, org, path, err, nil)
 }
 
-func (s *ReleasesService) ListVersions(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesVersionListOptions) (ReleasesPage[ReleaseArtifactVersion], *Response, error) {
+func (s *ReleasesService) ListDigests(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesListOptions) (ReleasesPage[ReleaseArtifactDigest], *Response, error) {
 	path, err := ref.path()
-	return releasesRead[ReleasesPage[ReleaseArtifactVersion]](ctx, s, org, path+"/versions", err, opt)
+	return releasesRead[ReleasesPage[ReleaseArtifactDigest]](ctx, s, org, path+"/digests", err, opt)
 }
 
-func (s *ReleasesService) GetVersion(ctx context.Context, org string, ref ReleaseVersionRef) (ReleaseArtifactVersion, *Response, error) {
+func (s *ReleasesService) GetDigest(ctx context.Context, org string, ref ReleaseDigestRef) (ReleaseArtifactDigest, *Response, error) {
 	path, err := ref.path()
-	return releasesRead[ReleaseArtifactVersion](ctx, s, org, path, err, nil)
-}
-
-func (s *ReleasesService) CompareVersions(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesComparisonOptions) (ReleaseVersionComparison, *Response, error) {
-	path, err := ref.path()
-	return releasesRead[ReleaseVersionComparison](ctx, s, org, path+"/version-comparison", err, opt)
-}
-
-func (s *ReleasesService) ListComparisonPullRequests(ctx context.Context, org string, ref ReleaseArtifactRef, opt *ReleasesComparisonListOptions) (ReleasesPage[ReleasePullRequest], *Response, error) {
-	path, err := ref.path()
-	return releasesRead[ReleasesPage[ReleasePullRequest]](ctx, s, org, path+"/version-comparison/pull-requests", err, opt)
+	return releasesRead[ReleaseArtifactDigest](ctx, s, org, path, err, nil)
 }
 
 func (s *ReleasesService) CreateTarget(ctx context.Context, org string, input ReleaseTargetCreate) (ReleaseTarget, *Response, error) {
@@ -483,31 +481,37 @@ func (s *ReleasesService) UpdateTarget(ctx context.Context, org string, ref Rele
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPatch, org, path, err, input)
 }
 
-func (s *ReleasesService) CreateComponent(ctx context.Context, org string, target ReleaseTargetRef, input ReleaseComponentCreate) (ReleaseComponent, *Response, error) {
+func (s *ReleasesService) CreateComponent(ctx context.Context, org string, input ReleaseComponentCreate) (ReleaseComponent, *Response, error) {
+	_, err := input.Artifact.path()
+	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, "components", err, input)
+}
+
+func (s *ReleasesService) CreateComponentInstance(ctx context.Context, org string, target ReleaseTargetRef, input ReleaseComponentInstanceCreate) (ReleaseComponentInstance, *Response, error) {
 	path, err := target.path()
-	if err == nil && input.Artifact != nil {
-		_, err = input.Artifact.path()
-	}
-	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/components", err, input)
+	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPost, org, path+"/instances", err, input)
+}
+
+func (s *ReleasesService) RegisterComponentInstance(ctx context.Context, org string, input ReleaseComponentInstanceRegister) (ReleaseComponentInstance, *Response, error) {
+	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPost, org, "component_instance", nil, input)
 }
 
 func (s *ReleasesService) CreateArtifact(ctx context.Context, org string, input ReleaseArtifactCreate) (ReleaseArtifact, *Response, error) {
 	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPost, org, "artifacts", nil, input)
 }
 
-// PublishVersion records an immutable version and digest. Replaying the same
-// version and digest returns the original publication and provenance (HTTP 200).
+// PublishDigest records an immutable SHA-256 digest and provenance. Replaying
+// the same Artifact and digest returns the original publication (HTTP 200).
 // It does not upload or verify content.
-func (s *ReleasesService) PublishVersion(ctx context.Context, org string, artifact ReleaseArtifactRef, input ReleaseVersionPublish) (ReleaseArtifactVersion, *Response, error) {
+func (s *ReleasesService) PublishDigest(ctx context.Context, org string, artifact ReleaseArtifactRef, input ReleaseDigestPublish) (ReleaseArtifactDigest, *Response, error) {
 	path, err := artifact.path()
-	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/versions", err, input)
+	return releasesRequest[ReleaseArtifactDigest](ctx, s, http.MethodPost, org, path+"/digests", err, input)
 }
 
-// YankVersion preserves history. Repeated calls retain the original yank time
-// and reason; a yanked version identity cannot be republished.
-func (s *ReleasesService) YankVersion(ctx context.Context, org string, ref ReleaseVersionRef, input ReleaseVersionYank) (ReleaseArtifactVersion, *Response, error) {
+// YankDigest preserves history. Repeated calls retain the original yank time
+// and reason; a yanked digest identity cannot be republished.
+func (s *ReleasesService) YankDigest(ctx context.Context, org string, ref ReleaseDigestRef, input ReleaseDigestYank) (ReleaseArtifactDigest, *Response, error) {
 	path, err := ref.path()
-	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/yank", err, input)
+	return releasesRequest[ReleaseArtifactDigest](ctx, s, http.MethodPost, org, path+"/yank", err, input)
 }
 
 // AppendObservations reports 1–100 events in input order. The API returns 201
@@ -522,13 +526,13 @@ func (s *ReleasesService) AppendObservations(ctx context.Context, org string, ta
 	return releasesRequest[[]ReleaseObservationWriteResult](ctx, s, http.MethodPost, org, path+"/observations", err, input)
 }
 
-// ArchiveTarget also archives its active components, without deleting history.
+// ArchiveTarget also archives its active Instances, without deleting history.
 func (s *ReleasesService) ArchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
 }
 
-// UnarchiveTarget restores only the target, not its components.
+// UnarchiveTarget restores only the Target, not its Instances.
 func (s *ReleasesService) UnarchiveTarget(ctx context.Context, org string, ref ReleaseTargetRef) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
@@ -539,10 +543,20 @@ func (s *ReleasesService) ArchiveComponent(ctx context.Context, org string, ref 
 	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
 }
 
-// UnarchiveComponent requires an active target.
 func (s *ReleasesService) UnarchiveComponent(ctx context.Context, org string, ref ReleaseComponentRef) (ReleaseComponent, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
+}
+
+func (s *ReleasesService) ArchiveComponentInstance(ctx context.Context, org string, ref ReleaseComponentInstanceRef) (ReleaseComponentInstance, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPost, org, path+"/archive", err, struct{}{})
+}
+
+// UnarchiveComponentInstance requires an active Target.
+func (s *ReleasesService) UnarchiveComponentInstance(ctx context.Context, org string, ref ReleaseComponentInstanceRef) (ReleaseComponentInstance, *Response, error) {
+	path, err := ref.path()
+	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPost, org, path+"/unarchive", err, struct{}{})
 }
 
 func (s *ReleasesService) ArchiveArtifact(ctx context.Context, org string, ref ReleaseArtifactRef) (ReleaseArtifact, *Response, error) {
