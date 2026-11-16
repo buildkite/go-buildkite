@@ -83,6 +83,14 @@ var (
 	}
 )
 
+func assertReleaseResponse(t *testing.T, got, want any, fixture string) {
+	t.Helper()
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("response diff (-want +got):\n%s", diff)
+	}
+	assertJSONEqual(t, string(must(json.Marshal(got))), fixture)
+}
+
 func TestReleasesService_ListTargets(t *testing.T) {
 	t.Parallel()
 	server, client, teardown := newMockServerAndClient(t)
@@ -97,9 +105,7 @@ func TestReleasesService_ListTargets(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseTarget]{Items: []ReleaseTarget{releaseTarget}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListTargets diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseTargetJSON))
 }
 
 func TestReleasesService_GetTarget(t *testing.T) {
@@ -114,9 +120,7 @@ func TestReleasesService_GetTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseTarget, got); diff != "" {
-		t.Errorf("GetTarget diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseTarget, releaseTargetJSON)
 }
 
 func TestReleasesService_ListComponents(t *testing.T) {
@@ -133,9 +137,7 @@ func TestReleasesService_ListComponents(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseComponent]{Items: []ReleaseComponent{releaseComponent}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListComponents diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseComponentJSON))
 }
 
 func TestReleasesService_GetComponent(t *testing.T) {
@@ -160,9 +162,7 @@ func TestReleasesService_GetComponent(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if diff := cmp.Diff(releaseComponent, got); diff != "" {
-				t.Errorf("GetComponent diff (-want +got):\n%s", diff)
-			}
+			assertReleaseResponse(t, got, releaseComponent, releaseComponentJSON)
 		})
 	}
 }
@@ -184,9 +184,7 @@ func TestReleasesService_ListComponentInstances(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseComponentInstance]{Items: []ReleaseComponentInstance{releaseInstance}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListComponentInstances diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseInstanceJSON))
 }
 
 func TestReleasesService_ListOrganizationComponentInstances(t *testing.T) {
@@ -206,9 +204,7 @@ func TestReleasesService_ListOrganizationComponentInstances(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseComponentInstance]{Items: []ReleaseComponentInstance{releaseInstance}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListOrganizationComponentInstances diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseInstanceJSON))
 }
 
 func TestReleasesService_GetComponentInstance(t *testing.T) {
@@ -234,9 +230,7 @@ func TestReleasesService_GetComponentInstance(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if diff := cmp.Diff(releaseInstance, got); diff != "" {
-				t.Errorf("GetComponentInstance diff (-want +got):\n%s", diff)
-			}
+			assertReleaseResponse(t, got, releaseInstance, releaseInstanceJSON)
 		})
 	}
 }
@@ -255,9 +249,7 @@ func TestReleasesService_ListComponentInstanceStatuses(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseComponentInstanceStatus]{Items: []ReleaseComponentInstanceStatus{releaseStatus}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListComponentInstanceStatuses diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseStatusJSON))
 }
 
 func TestReleasesService_ListObservations(t *testing.T) {
@@ -276,9 +268,7 @@ func TestReleasesService_ListObservations(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseObservation]{Items: []ReleaseObservation{releaseObservation}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListObservations diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseObservationJSON))
 }
 
 func TestReleasesService_ListArtifacts(t *testing.T) {
@@ -295,9 +285,7 @@ func TestReleasesService_ListArtifacts(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseArtifact]{Items: []ReleaseArtifact{releaseArtifact}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListArtifacts diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseArtifactJSON))
 }
 
 func TestReleasesService_GetArtifact(t *testing.T) {
@@ -312,9 +300,7 @@ func TestReleasesService_GetArtifact(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseArtifact, got); diff != "" {
-		t.Errorf("GetArtifact diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseArtifact, releaseArtifactJSON)
 }
 
 func TestReleasesService_ListVersions(t *testing.T) {
@@ -331,9 +317,7 @@ func TestReleasesService_ListVersions(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := ReleasesPage[ReleaseArtifactVersion]{Items: []ReleaseArtifactVersion{releaseVersion}, Links: releaseLinks}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListVersions diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, want, releaseTestPage(releaseVersionJSON))
 }
 
 func TestReleasesService_CreateTarget(t *testing.T) {
@@ -350,9 +334,7 @@ func TestReleasesService_CreateTarget(t *testing.T) {
 	if err != nil || resp == nil || resp.StatusCode != http.StatusCreated {
 		t.Fatalf("response=%#v, error=%v", resp, err)
 	}
-	if diff := cmp.Diff(releaseTarget, got); diff != "" {
-		t.Errorf("CreateTarget diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseTarget, releaseTargetJSON)
 }
 
 func TestReleasesService_UpdateTarget(t *testing.T) {
@@ -368,9 +350,7 @@ func TestReleasesService_UpdateTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseTarget, got); diff != "" {
-		t.Errorf("UpdateTarget diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseTarget, releaseTargetJSON)
 }
 
 func TestReleasesService_CreateComponent(t *testing.T) {
@@ -387,9 +367,7 @@ func TestReleasesService_CreateComponent(t *testing.T) {
 	if err != nil || resp == nil || resp.StatusCode != http.StatusCreated {
 		t.Fatalf("response=%#v, error=%v", resp, err)
 	}
-	if diff := cmp.Diff(releaseComponent, got); diff != "" {
-		t.Errorf("CreateComponent diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseComponent, releaseComponentJSON)
 }
 
 func TestReleasesService_CreateComponentInstance(t *testing.T) {
@@ -405,9 +383,7 @@ func TestReleasesService_CreateComponentInstance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseInstance, got); diff != "" {
-		t.Errorf("CreateComponentInstance diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseInstance, releaseInstanceJSON)
 }
 
 func TestReleasesService_RegisterComponentInstance(t *testing.T) {
@@ -425,9 +401,7 @@ func TestReleasesService_RegisterComponentInstance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseInstance, got); diff != "" {
-		t.Errorf("RegisterComponentInstance diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseInstance, releaseInstanceJSON)
 }
 
 func TestReleasesService_CreateArtifact(t *testing.T) {
@@ -444,9 +418,7 @@ func TestReleasesService_CreateArtifact(t *testing.T) {
 	if err != nil || resp == nil || resp.StatusCode != http.StatusCreated {
 		t.Fatalf("response=%#v, error=%v", resp, err)
 	}
-	if diff := cmp.Diff(releaseArtifact, got); diff != "" {
-		t.Errorf("CreateArtifact diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseArtifact, releaseArtifactJSON)
 }
 
 func TestReleasesService_PublishVersion(t *testing.T) {
@@ -485,9 +457,7 @@ func TestReleasesService_PublishVersion(t *testing.T) {
 			if err != nil || resp == nil || resp.StatusCode != http.StatusCreated {
 				t.Fatalf("response=%#v, error=%v", resp, err)
 			}
-			if diff := cmp.Diff(releaseVersion, got); diff != "" {
-				t.Errorf("PublishVersion diff (-want +got):\n%s", diff)
-			}
+			assertReleaseResponse(t, got, releaseVersion, releaseVersionJSON)
 		})
 	}
 }
@@ -505,9 +475,7 @@ func TestReleasesService_YankVersion(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseVersion, got); diff != "" {
-		t.Errorf("YankVersion diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseVersion, releaseVersionJSON)
 }
 
 func TestReleasesService_ArchiveTarget(t *testing.T) {
@@ -523,9 +491,7 @@ func TestReleasesService_ArchiveTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseTarget, got); diff != "" {
-		t.Errorf("ArchiveTarget diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseTarget, releaseTargetJSON)
 }
 
 func TestReleasesService_UnarchiveTarget(t *testing.T) {
@@ -541,9 +507,7 @@ func TestReleasesService_UnarchiveTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseTarget, got); diff != "" {
-		t.Errorf("UnarchiveTarget diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseTarget, releaseTargetJSON)
 }
 
 func TestReleasesService_ArchiveComponent(t *testing.T) {
@@ -559,9 +523,7 @@ func TestReleasesService_ArchiveComponent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseComponent, got); diff != "" {
-		t.Errorf("ArchiveComponent diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseComponent, releaseComponentJSON)
 }
 
 func TestReleasesService_UnarchiveComponent(t *testing.T) {
@@ -577,9 +539,7 @@ func TestReleasesService_UnarchiveComponent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseComponent, got); diff != "" {
-		t.Errorf("UnarchiveComponent diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseComponent, releaseComponentJSON)
 }
 
 func TestReleasesService_ArchiveComponentInstance(t *testing.T) {
@@ -595,9 +555,7 @@ func TestReleasesService_ArchiveComponentInstance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseInstance, got); diff != "" {
-		t.Errorf("ArchiveComponentInstance diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseInstance, releaseInstanceJSON)
 }
 
 func TestReleasesService_UnarchiveComponentInstance(t *testing.T) {
@@ -613,9 +571,7 @@ func TestReleasesService_UnarchiveComponentInstance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseInstance, got); diff != "" {
-		t.Errorf("UnarchiveComponentInstance diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseInstance, releaseInstanceJSON)
 }
 
 func TestReleasesService_ArchiveArtifact(t *testing.T) {
@@ -631,9 +587,7 @@ func TestReleasesService_ArchiveArtifact(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseArtifact, got); diff != "" {
-		t.Errorf("ArchiveArtifact diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseArtifact, releaseArtifactJSON)
 }
 
 func TestReleasesService_UnarchiveArtifact(t *testing.T) {
@@ -649,9 +603,7 @@ func TestReleasesService_UnarchiveArtifact(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if diff := cmp.Diff(releaseArtifact, got); diff != "" {
-		t.Errorf("UnarchiveArtifact diff (-want +got):\n%s", diff)
-	}
+	assertReleaseResponse(t, got, releaseArtifact, releaseArtifactJSON)
 }
 
 func TestReleasesService_PublicationFailureIsNotRetried(t *testing.T) {
@@ -767,7 +719,6 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				assertJSONEqual(t, string(must(json.Marshal(got))), response)
 				want := []ReleaseObservationWriteResult{
 					{ReleaseObservation: releaseObservation, Created: false},
 					{
@@ -779,9 +730,7 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 						Created: true,
 					},
 				}
-				if diff := cmp.Diff(want, got); diff != "" {
-					t.Errorf("AppendObservations diff (-want +got):\n%s", diff)
-				}
+				assertReleaseResponse(t, got, want, response)
 			} else {
 				var apiErr *ErrorResponse
 				if !errors.As(err, &apiErr) || apiErr.Message != "observation rejected" || !strings.Contains(string(apiErr.RawBody), "/events/0/event_id") {
@@ -915,10 +864,7 @@ func TestReleasesService_GetComponentInstanceStatus(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("GetComponentInstanceStatus diff (-want +got):\n%s", diff)
-			}
-			assertJSONEqual(t, string(must(json.Marshal(got))), tt.body)
+			assertReleaseResponse(t, got, tt.want, tt.body)
 		})
 	}
 }
@@ -964,10 +910,7 @@ func TestReleasesService_GetVersion(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf("GetVersion diff (-want +got):\n%s", diff)
-			}
-			assertJSONEqual(t, string(must(json.Marshal(got))), tt.body)
+			assertReleaseResponse(t, got, tt.want, tt.body)
 		})
 	}
 }
@@ -993,10 +936,7 @@ func TestReleasesService_ListObservations_PayloadPresence(t *testing.T) {
 		},
 		Links: releaseLinks,
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("ListObservations diff (-want +got):\n%s", diff)
-	}
-	assertJSONEqual(t, string(must(json.Marshal(got))), body)
+	assertReleaseResponse(t, got, want, body)
 }
 
 func TestReleasesService_APIErrorsAndContext(t *testing.T) {
