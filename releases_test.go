@@ -32,7 +32,7 @@ func releaseTestPage(item string) string {
 
 var (
 	releaseCreatedAt          = NewTimestamp(time.Date(2026, 9, 20, 1, 2, 3, 0, time.UTC))
-	releaseUpdatedAt          = NewTimestamp(time.Date(2026, 9, 21, 1, 2, 3, 0, time.UTC))
+	releaseLaterAt            = NewTimestamp(time.Date(2026, 9, 21, 1, 2, 3, 0, time.UTC))
 	releaseRecordedAt         = NewTimestamp(time.Date(2026, 9, 20, 1, 3, 4, 0, time.UTC))
 	releaseDigest             = releaseTestDigest
 	releaseAbsent             = false
@@ -42,7 +42,7 @@ var (
 		ID: "target-id", GraphQLID: "opaque-target", Name: "east",
 		Labels: map[string]string{"region": "au", "empty": "", "space": " "},
 		URL:    "https://api.example/target", IDURL: "https://api.example/target-id",
-		CreatedAt: releaseCreatedAt, ArchivedAt: releaseUpdatedAt,
+		CreatedAt: releaseCreatedAt, ArchivedAt: releaseLaterAt,
 	}
 	releaseComponent = ReleaseComponent{
 		ID: "component-id", GraphQLID: "opaque-component", Name: "api",
@@ -68,7 +68,7 @@ var (
 	}
 	releaseStatus = ReleaseComponentInstanceStatus{
 		TargetID: "target-id", Instance: "api-blue", InstanceID: "instance-id", Present: &releaseAbsent,
-		LastActiveDigest: &releaseDigest, FirstSeenAt: releaseCreatedAt, LastSeenAt: releaseUpdatedAt, Sequence: &releaseSequence,
+		LastActiveDigest: &releaseDigest, FirstSeenAt: releaseCreatedAt, LastSeenAt: releaseLaterAt, Sequence: &releaseSequence,
 		CatalogResolution: ReleaseCatalogResolution{Status: "unknown", Reason: &releaseAbsentReason},
 	}
 	releaseObservation = ReleaseObservation{
@@ -744,50 +744,48 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 func TestReleasesService_InvalidSelectors(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	calls := []func(*ReleasesService) (any, *Response, error){
-		func(s *ReleasesService) (any, *Response, error) { return s.GetTarget(ctx, "acme", ReleaseTargetRef{}) },
-		func(s *ReleasesService) (any, *Response, error) {
+	for _, tt := range []struct {
+		name string
+		call func(*ReleasesService) (any, *Response, error)
+	}{
+		{name: "target missing selector", call: func(s *ReleasesService) (any, *Response, error) {
+			return s.GetTarget(ctx, "acme", ReleaseTargetRef{})
+		}},
+		{name: "target conflicting selectors", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.GetTarget(ctx, "acme", ReleaseTargetRef{ID: releaseTestID, Name: "east"})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "component missing selector", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponent(ctx, "acme", ReleaseComponentRef{})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "component conflicting selectors", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponent(ctx, "acme", ReleaseComponentRef{ID: releaseTestID, Name: "api"})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "component instance missing target", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{Name: "api"})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "component instance ID with target", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID, Target: ReleaseTargetRef{Name: "east"}})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
-			return s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID, Name: "api"})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
-			return s.GetComponentInstanceStatus(ctx, "acme", ReleaseTargetRef{Name: "east"}, "")
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "versions conflicting artifact selectors", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.ListVersions(ctx, "acme", ReleaseArtifactRef{ID: releaseTestID, Name: "api"}, nil)
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "version missing ID", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.GetVersion(ctx, "acme", ReleaseVersionRef{})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "create component missing artifact", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponent(ctx, "acme", ReleaseComponentCreate{Name: "api"})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "create component conflicting artifact selectors", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponent(ctx, "acme", ReleaseComponentCreate{Name: "api", Artifact: ReleaseArtifactRef{ID: releaseTestID, Name: "api"}})
-		},
-		func(s *ReleasesService) (any, *Response, error) {
+		}},
+		{name: "create component instance missing target", call: func(s *ReleasesService) (any, *Response, error) {
 			return s.CreateComponentInstance(ctx, "acme", ReleaseTargetRef{}, ReleaseComponentInstanceCreate{})
-		},
-	}
-	for i, call := range calls {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
+		}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
 			server, client, teardown := newMockServerAndClient(t)
 			t.Cleanup(teardown)
-			_, resp, err := call(client.Releases)
+			_, resp, err := tt.call(client.Releases)
 			if err == nil || resp != nil || len(server.calls) != 0 {
 				t.Fatalf("response=%#v, error=%v, HTTP calls=%v", resp, err, server.calls)
 			}
@@ -800,26 +798,27 @@ func TestReleasesService_ComponentInstanceErrors(t *testing.T) {
 	ctx := context.Background()
 	for _, tt := range []struct {
 		name string
-		call func(*ReleasesService) error
+		call func(*ReleasesService) (any, *Response, error)
 	}{
-		{name: "missing selector", call: func(s *ReleasesService) error {
-			_, _, err := s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{})
-			return err
+		{name: "missing selector", call: func(s *ReleasesService) (any, *Response, error) {
+			return s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{})
 		}},
-		{name: "conflicting selectors", call: func(s *ReleasesService) error {
-			_, _, err := s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID, Name: "api"})
-			return err
+		{name: "conflicting selectors", call: func(s *ReleasesService) (any, *Response, error) {
+			return s.GetComponentInstance(ctx, "acme", ReleaseComponentInstanceRef{ID: releaseTestID, Name: "api"})
 		}},
-		{name: "missing status name", call: func(s *ReleasesService) error {
-			_, _, err := s.GetComponentInstanceStatus(ctx, "acme", ReleaseTargetRef{Name: "east"}, "")
-			return err
+		{name: "missing status name", call: func(s *ReleasesService) (any, *Response, error) {
+			return s.GetComponentInstanceStatus(ctx, "acme", ReleaseTargetRef{Name: "east"}, "")
 		}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			_, client, teardown := newMockServerAndClient(t)
+			server, client, teardown := newMockServerAndClient(t)
 			t.Cleanup(teardown)
-			if err := tt.call(client.Releases); err == nil || !strings.Contains(err.Error(), "component instance") {
+			_, resp, err := tt.call(client.Releases)
+			if err == nil || !strings.Contains(err.Error(), "component instance") {
 				t.Fatalf("error = %v, want component instance context", err)
+			}
+			if resp != nil || len(server.calls) != 0 {
+				t.Fatalf("response=%#v, HTTP calls=%v; invalid selectors must not send a request", resp, server.calls)
 			}
 		})
 	}
@@ -886,7 +885,7 @@ func TestReleasesService_GetVersion(t *testing.T) {
 				PullRequests: []ReleasePullRequest{},
 				CreatedBy:    &ReleaseCreator{ID: "user-id", GraphQLID: "opaque-user", Email: &email, CreatedAt: releaseCreatedAt},
 				URL:          "https://api.example/digest", IDURL: "https://api.example/digest-id", CreatedAt: releaseCreatedAt,
-				Yanked: true, YankedAt: releaseUpdatedAt, YankReason: &reason,
+				Yanked: true, YankedAt: releaseLaterAt, YankReason: &reason,
 			},
 		},
 		{
