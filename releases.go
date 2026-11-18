@@ -473,40 +473,29 @@ func (s *ReleasesService) CreateTarget(ctx context.Context, org string, input Re
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPost, org, "targets", nil, input)
 }
 
-// UpdateTarget changes the name and/or replaces labels in one request. Renames
-// require an ID reference. Archived targets accept only name-only updates.
+// UpdateTarget changes the name and/or replaces labels in one request, by name or ID.
+// Archived targets accept only name-only updates.
 func (s *ReleasesService) UpdateTarget(ctx context.Context, org string, ref ReleaseTargetRef, input ReleaseTargetUpdate) (ReleaseTarget, *Response, error) {
 	path, err := ref.path()
-	if ref.ID == "" && !input.Name.IsZero() {
-		err = fmt.Errorf("renaming a target requires an ID")
-	}
 	return releasesRequest[ReleaseTarget](ctx, s, http.MethodPatch, org, path, err, input)
 }
 
-// UpdateComponent renames an active or archived component by ID without changing its artifact binding.
+// UpdateComponent renames an active or archived component by name or ID without changing its artifact binding.
 func (s *ReleasesService) UpdateComponent(ctx context.Context, org string, ref ReleaseComponentRef, input ReleaseComponentUpdate) (ReleaseComponent, *Response, error) {
 	path, err := ref.path()
-	if ref.ID == "" {
-		err = fmt.Errorf("renaming a component requires an ID")
-	}
 	return releasesRequest[ReleaseComponent](ctx, s, http.MethodPatch, org, path, err, input)
 }
 
-// UpdateComponentInstance renames an active or archived instance by ID without changing its bindings.
+// UpdateComponentInstance renames an active or archived instance by name or ID without changing its bindings.
+// A named instance accepts a Target reference by name or ID.
 func (s *ReleasesService) UpdateComponentInstance(ctx context.Context, org string, ref ReleaseComponentInstanceRef, input ReleaseComponentInstanceUpdate) (ReleaseComponentInstance, *Response, error) {
 	path, err := ref.path()
-	if ref.ID == "" {
-		err = fmt.Errorf("renaming a component instance requires an ID")
-	}
 	return releasesRequest[ReleaseComponentInstance](ctx, s, http.MethodPatch, org, path, err, input)
 }
 
-// UpdateArtifact renames an active or archived artifact by ID without changing its publications.
+// UpdateArtifact renames an active or archived artifact by name or ID without changing its publications.
 func (s *ReleasesService) UpdateArtifact(ctx context.Context, org string, ref ReleaseArtifactRef, input ReleaseArtifactUpdate) (ReleaseArtifact, *Response, error) {
 	path, err := ref.path()
-	if ref.ID == "" {
-		err = fmt.Errorf("renaming an artifact requires an ID")
-	}
 	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPatch, org, path, err, input)
 }
 

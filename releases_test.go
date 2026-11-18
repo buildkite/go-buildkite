@@ -357,9 +357,9 @@ func TestReleasesService_RenameRegistrations(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	for _, tt := range []struct {
-		name, path, body, response string
-		want                       any
-		call                       func(*ReleasesService, bool) (any, *Response, error)
+		name, path, namedPath, body, response string
+		want                                  any
+		call                                  func(*ReleasesService, bool) (any, *Response, error)
 	}{
 		{
 			name: "target", path: "targets", body: `{"name":"east"}`, response: releaseTargetJSON, want: releaseTarget,
@@ -392,9 +392,19 @@ func TestReleasesService_RenameRegistrations(t *testing.T) {
 			},
 		},
 		{
-			name: "instance", path: "component-instances", body: `{"name":"api-blue"}`, response: releaseInstanceJSON, want: releaseInstance,
+			name: "instance", path: "component-instances", namedPath: "targets/east/instances/old", body: `{"name":"api-blue"}`, response: releaseInstanceJSON, want: releaseInstance,
 			call: func(s *ReleasesService, byID bool) (any, *Response, error) {
 				ref := ReleaseComponentInstanceRef{Target: ReleaseTargetRef{Name: "east"}, Name: "old"}
+				if byID {
+					ref = ReleaseComponentInstanceRef{ID: releaseTestID}
+				}
+				return s.UpdateComponentInstance(ctx, "acme", ref, ReleaseComponentInstanceUpdate{Name: "api-blue"})
+			},
+		},
+		{
+			name: "instance under target ID", path: "component-instances", namedPath: "targets/by-id/" + releaseTestID + "/instances/old", body: `{"name":"api-blue"}`, response: releaseInstanceJSON, want: releaseInstance,
+			call: func(s *ReleasesService, byID bool) (any, *Response, error) {
+				ref := ReleaseComponentInstanceRef{Target: ReleaseTargetRef{ID: releaseTestID}, Name: "old"}
 				if byID {
 					ref = ReleaseComponentInstanceRef{ID: releaseTestID}
 				}
@@ -416,20 +426,24 @@ func TestReleasesService_RenameRegistrations(t *testing.T) {
 			t.Parallel()
 			server, client, teardown := newMockServerAndClient(t)
 			t.Cleanup(teardown)
-			_, resp, err := tt.call(client.Releases, false)
-			if err == nil || resp != nil || len(server.calls) != 0 {
-				t.Fatalf("name selector sent a rename: response=%v error=%v calls=%v", resp, err, server.calls)
+			namedPath := tt.namedPath
+			if namedPath == "" {
+				namedPath = tt.path + "/old"
 			}
-			server.HandleFunc("/v2/organizations/acme/"+tt.path+"/by-id/"+releaseTestID, func(w http.ResponseWriter, r *http.Request) {
-				testMethod(t, r, http.MethodPatch)
-				assertRequestJSON(t, r, tt.body)
-				_, _ = fmt.Fprint(w, tt.response)
-			})
-			got, resp, err := tt.call(client.Releases, true)
-			if err != nil || resp == nil || resp.StatusCode != http.StatusOK {
-				t.Fatalf("response=%v error=%v", resp, err)
+			for _, path := range []string{namedPath, tt.path + "/by-id/" + releaseTestID} {
+				server.HandleFunc("/v2/organizations/acme/"+path, func(w http.ResponseWriter, r *http.Request) {
+					testMethod(t, r, http.MethodPatch)
+					assertRequestJSON(t, r, tt.body)
+					_, _ = fmt.Fprint(w, tt.response)
+				})
 			}
-			assertReleaseResponse(t, got, tt.want, tt.response)
+			for _, byID := range []bool{false, true} {
+				got, resp, err := tt.call(client.Releases, byID)
+				if err != nil || resp == nil || resp.StatusCode != http.StatusOK {
+					t.Fatalf("byID=%t response=%v error=%v", byID, resp, err)
+				}
+				assertReleaseResponse(t, got, tt.want, tt.response)
+			}
 		})
 	}
 }
