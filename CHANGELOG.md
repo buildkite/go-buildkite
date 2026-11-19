@@ -1,3 +1,15 @@
+## [v5.31.0](https://github.com/buildkite/go-buildkite/compare/v5.30.0...v5.31.0) (2026-11-19)
+
+The Releases API interfaces are in preview, not generally available, and require the server-side feature flag. This release changes existing Releases types and methods; callers using the preview API may need updates.
+
+* Expose Queue Insights publication coverage [#440](https://github.com/buildkite/go-buildkite/pull/440) ([zero51](https://github.com/zero51))
+* Allow Releases registration updates by name [#438](https://github.com/buildkite/go-buildkite/pull/438) ([js-murph](https://github.com/js-murph))
+* Support renaming Releases registrations by ID [#437](https://github.com/buildkite/go-buildkite/pull/437) ([js-murph](https://github.com/js-murph))
+* Add Queue Insights support [#436](https://github.com/buildkite/go-buildkite/pull/436) ([zero51](https://github.com/zero51))
+* Clarify Releases selector tests [#435](https://github.com/buildkite/go-buildkite/pull/435) ([js-murph](https://github.com/js-murph))
+* Align Releases SDK tests with repository conventions [#433](https://github.com/buildkite/go-buildkite/pull/433) ([js-murph](https://github.com/js-murph))
+* Align Releases with Components, Instances and digests [#432](https://github.com/buildkite/go-buildkite/pull/432) ([js-murph](https://github.com/js-murph))
+
 ## [v5.30.0](https://github.com/buildkite/go-buildkite/compare/v5.29.0...v5.30.0) (2026-11-13)
 
 * Add trigger failure reasons to jobs [#430](https://github.com/buildkite/go-buildkite/pull/430) ([mcncl](https://github.com/mcncl))
