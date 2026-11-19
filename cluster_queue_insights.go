@@ -73,7 +73,7 @@ type ClusterQueueInsightsCompletions struct {
 }
 
 // ClusterQueueInsightsWaitTimes contains min, p50, p95 and max wait times in
-// seconds. Samples contains valid_count and incomplete_count.
+// seconds. Samples contains valid_count and unusable_duration_count.
 type ClusterQueueInsightsWaitTimes struct {
 	Window      ClusterQueueInsightsWindow `json:"window"`
 	ObservedAt  *Timestamp                 `json:"observed_at"`
@@ -108,17 +108,23 @@ type ClusterQueueInsightsPeriod struct {
 // and in_progress jobs, or total, passed and failed completions.
 // Counts use the last value in each bucket; completions count events per bucket.
 type ClusterQueueInsightsCountSeries struct {
-	Values      map[string][]*int64 `json:"values"`
-	Limitations map[string][]int    `json:"limitations"`
+	// PublicationCoveredSeconds is present for job completions only. It records
+	// publication coverage per bucket, not whether metric values are available.
+	PublicationCoveredSeconds []float64           `json:"publication_covered_seconds,omitempty"`
+	Values                    map[string][]*int64 `json:"values"`
+	Limitations               map[string][]int    `json:"limitations"`
 }
 
 // ClusterQueueInsightsWaitTimeSeries contains min, p50, p95 and max wait times.
-// Samples contains valid_count and incomplete_count per bucket.
+// Samples contains valid_count and unusable_duration_count per bucket.
 type ClusterQueueInsightsWaitTimeSeries struct {
-	Unit        string                `json:"unit"`
-	Values      map[string][]*float64 `json:"values"`
-	Samples     map[string][]*int64   `json:"samples"`
-	Limitations map[string][]int      `json:"limitations"`
+	Unit string `json:"unit"`
+	// PublicationCoveredSeconds records publication coverage per bucket,
+	// independently of whether wait-time values are available.
+	PublicationCoveredSeconds []float64             `json:"publication_covered_seconds"`
+	Values                    map[string][]*float64 `json:"values"`
+	Samples                   map[string][]*int64   `json:"samples"`
+	Limitations               map[string][]int      `json:"limitations"`
 }
 
 // ClusterQueueInsightsHistoryChanges compares the selected and previous periods.
