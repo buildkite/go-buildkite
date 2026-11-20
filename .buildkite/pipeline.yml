@@ -12,7 +12,7 @@ steps:
     secrets:
       - MISE_GITHUB_TOKEN
     plugins:
-      - mise#v1.1.5: ~
+      - mise#v1.1.6: ~
 
   - name: ":go::test_tube: Test"
     key: test
@@ -23,7 +23,7 @@ steps:
     plugins:
       - artifacts#v1.9.4:
           upload: "cover.{html,out}"
-      - mise#v1.1.5: ~
+      - mise#v1.1.6: ~
 
   - label: ":mag: Analytics OpenAPI drift"
     key: analytics-openapi-drift
@@ -32,7 +32,7 @@ steps:
     secrets:
       - MISE_GITHUB_TOKEN
     plugins:
-      - mise#v1.1.5: ~
+      - mise#v1.1.6: ~
 
   - label: ":writing_hand: Annotate with Test Failures"
     key: annotate
@@ -43,4 +43,4 @@ steps:
     plugins:
       - junit-annotate#v2.7.0:
           artifacts: junit-*.xml
-      - mise#v1.1.5: ~
+      - mise#v1.1.6: ~
