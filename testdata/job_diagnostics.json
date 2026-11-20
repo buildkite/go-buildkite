@@ -1,0 +1,79 @@
+{
+  "resource": {"type":"job","uuid":"job-id","url":"https://api.buildkite.com/jobs/job-id"},
+  "observed_at": "2026-11-19T02:34:56.123456Z",
+  "details": {
+    "name": null, "type":"manual", "hosted":false, "priority":0,
+    "lifecycle": {"state":"blocked","created_at":"2026-11-19T02:00:00Z","scheduled_at":null,"runnable_at":null,"started_at":null,"ended_at":null},
+    "timings": {"runnable_to_start_seconds":1.25,"execution_seconds":null},
+    "instance_shape": {"name":"LINUX_AMD64_2X4","machine_type":"linux","architecture":"amd64","cpu":2,"memory":4},
+    "agent":null,"step":{"type":"step","uuid":"step-id"},"queue":null,
+    "routing":{"type":"unclustered"},"exit_status":null,"soft_failed":false,
+    "broken_reason":null,"signal":null,"signal_reason":null,"retries_count":0,
+    "retry_source":{"job":{"type":"job","uuid":"previous-job"},"retry_type":"manual"},
+    "retried_in_job":null,"unblockable":false,"unblocked_at":null,"links":[]
+  },
+  "events": {
+    "window":{"from":"2026-11-12T02:34:56.123456Z","to":"2026-11-19T02:34:56.123456Z"},
+    "selection":{"order":"newest_first","max_items":100},
+    "items":[
+      {"uuid":"event-id","type":"future_event","occurred_at":"2026-11-19T02:01:01.123456Z","actor":{"type":"system","uuid":null},"details":{"large_integer":9007199254740993,"nested":{"null":null,"empty":[],"object":{},"values":[false,0,"text"]}}},
+      {"uuid":"empty-event","type":"started","occurred_at":"2026-11-19T02:00:01Z","actor":{"type":"agent","uuid":"agent-id"},"details":{}}
+    ],
+    "limitations":{"future_limitation":true}
+  },
+  "dependencies": {
+    "selection":{"order":"breadth_first","max_steps":50,"max_edges":100},
+    "items":null,"limitations":{"not_requested":true},"links":[{"rel":"jobs","url":"https://api.buildkite.com/jobs"}]
+  },
+  "concurrency": {
+    "items":[
+      {"requirements":{"type":"concurrency_group","resource":{"type":"concurrency_group","uuid":null,"key":"deploy/production","scope":null},"limit":2,"method":null},"evidence":null,"limitations":{"concurrency_group_context_unavailable":true}},
+      {"requirements":{"type":"platform","resource":{"type":"organization","uuid":"org-id"},"limit":17},"evidence":{"observed_at":"2026-11-19T02:34:56.123456Z","platform_limited_at":null},"limitations":{}},
+      {"requirements":{"type":"concurrency_group","resource":{"type":"concurrency_group","uuid":"group-id","key":"deploy/staging","scope":"custom"},"limit":3,"method":"ordered"},"evidence":{"observed_at":"2026-11-19T02:34:56.123456Z","selection":{"population":"subset_of_active_jobs_ahead_within_callers_scope_and_internal_limit","order":["scheduled_at","position","id"]},"jobs_ahead":[]},"limitations":{"bounded_subset":true}}
+    ],
+    "limitations":{}
+  },
+  "retries": {
+    "requirements": {
+      "automatic":[
+        {"exit_status":[-1,2],"signal":["SIGKILL","SIGTERM"],"signal_reason":null,"limit":4},
+        {"exit_status":"*","signal":"*","signal_reason":["none","agent_stop"],"limit":0},
+        {"exit_status":0,"signal":null,"signal_reason":"agent_stop","limit":2}
+      ],
+      "manual":{"allowed":false,"permit_on_passed":true,"reason":null}
+    },
+    "evidence":{"observed_at":"2026-11-19T02:34:56.123456Z","automatic_retries_before_attempt":[{"rule_index":0,"count":0},{"rule_index":1,"count":2}]},
+    "limitations":{"retry_decision_not_evaluated":true},"links":[]
+  },
+  "capacity":{"requirements":{"agent_query_rules":["queue=deploy","os=linux"]},"evidence":null,"limitations":{"capacity_evidence_not_supported":true},"links":[]},
+  "errors":{"items":null,"limitations":{"not_supported":true}},
+  "history":{"recent_runs":{"items":null,"limitations":{"not_supported":true}}},
+  "insights":[
+    {"resource":{"type":"queue","uuid":"queue-id"},"current":null,"recent":null,"limitations":{"not_requested":true},"links":[]},
+    {
+      "resource":{"type":"queue","uuid":"expanded-queue"},
+      "current":{
+        "agents":{"observed_at":null,"source_high_watermark_at":null,"values":{"busy":0,"connected":null},"limitations":{"source_unavailable":true}},
+        "jobs":{"observed_at":"2026-11-19T02:34:56Z","source_high_watermark_at":null,"values":{"running":7,"scheduled":0},"computed":{"in_progress":7,"awaiting_execution":0},"limitations":{}}
+      },
+      "recent":{
+        "job_completions":{"window":{"from":"2026-11-19T02:33:56Z","to":"2026-11-19T02:34:56Z"},"observed_at":null,"values":{"total":null},"limitations":{"source_unavailable":true}},
+        "wait_times":{"window":{"from":"2026-11-19T02:33:56Z","to":"2026-11-19T02:34:56Z"},"observed_at":"2026-11-19T02:34:56Z","unit":"seconds","values":{"min":0,"p95":4.25,"max":null},"samples":{"valid_count":2,"unusable_duration_count":0},"limitations":{}}
+      },
+      "links":[{"rel":"history","url":"https://api.buildkite.com/queues/expanded-queue/insights?include=history"}]
+    }
+  ],
+  "context": {
+    "scope": {
+      "organization":{"resource":{"type":"organization","uuid":"org-id","slug":"acme","url":"https://api.buildkite.com/organizations/acme"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"dispatch_paused":false}},
+      "pipeline":{"resource":{"type":"pipeline","uuid":"pipeline-id","slug":"deploy","url":"https://api.buildkite.com/pipelines/deploy"}},
+      "build":{"resource":{"type":"build","uuid":"build-id","number":42,"url":"https://api.buildkite.com/builds/42"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"state":"running","blocked":true,"cancel_reason":null,"branch":"main","commit":"abcdef"}},
+      "step":null,"cluster":null,"queue":null
+    },
+    "steps":[{"resource":{"type":"step","uuid":"step-id","key":null},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"type":"command","label":null,"group":null,"lifecycle":{"created_at":"2026-11-19T02:00:00Z","state":null,"outcome":null,"state_changed_at":null}}}],
+    "agents":[{"resource":{"type":"agent","uuid":"agent-id","url":"https://api.buildkite.com/agents/agent-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"connection_state":"connected","metadata":[],"queue":null,"connected_at":"2026-11-19T02:00:00Z","disconnected_at":null,"lost_at":null,"stopped_at":null,"paused":false,"paused_at":null,"paused_note":null},"events":{"window":{"from":"2026-11-12T02:34:56.123456Z","to":"2026-11-19T02:34:56.123456Z"},"selection":{"order":"newest_first","max_items":100},"items":null,"limitations":{"not_supported":true}}}],
+    "queues":[{"resource":{"type":"queue","uuid":"queue-id","key":"deploy","url":"https://api.buildkite.com/queues/queue-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"dispatch_paused":false,"dispatch_paused_at":null,"dispatch_paused_by":null,"dispatch_paused_note":null,"dispatch_suspended":true}}],
+    "jobs":[{"resource":{"type":"job","uuid":"previous-job","url":"https://api.buildkite.com/jobs/previous-job"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"name":"Deploy","type":"script","build":{"type":"build","uuid":"build-id"},"lifecycle":{"state":"failed","created_at":"2026-11-19T01:00:00Z","scheduled_at":"2026-11-19T01:00:00Z","runnable_at":"2026-11-19T01:01:00Z","started_at":"2026-11-19T01:02:00Z","ended_at":"2026-11-19T01:03:00Z"},"priority":-3,"exit_status":-1,"soft_failed":true,"broken_reason":null,"signal":"SIGKILL","signal_reason":"agent_stop","retries_count":null,"links":[{"rel":"diagnostics","url":"https://api.buildkite.com/jobs/previous-job/diagnostics"}]}}],
+    "builds":[],"limitations":{}
+  }
+}
