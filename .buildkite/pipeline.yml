@@ -41,6 +41,6 @@ steps:
     secrets:
       - MISE_GITHUB_TOKEN
     plugins:
-      - junit-annotate#v2.7.0:
+      - junit-annotate#v3.0.0:
           artifacts: junit-*.xml
       - mise#v1.1.5: ~
