@@ -2,6 +2,7 @@ package buildkite
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -9,6 +10,138 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 )
+
+func TestClusterTokensService_ScopeRequests(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range []struct {
+		name           string
+		permissions    Optional[[]string]
+		allowAllQueues Optional[bool]
+		queueIDs       Optional[[]string]
+		want           string
+	}{
+		{name: "omitted", want: `{}`},
+		{
+			name:        "no actions",
+			permissions: Some([]string{}),
+			want:        `{"permissions":[]}`,
+		},
+		{
+			name:           "no queues",
+			allowAllQueues: Some(false),
+			queueIDs:       Some([]string{}),
+			want:           `{"allow_all_queues":false,"allowed_queue_ids":[]}`,
+		},
+		{
+			name:           "restricted queues",
+			permissions:    Some([]string{"run_jobs", "upload_artifacts"}),
+			allowAllQueues: Some(false),
+			queueIDs:       Some([]string{"b7c9bc4f-526f-4c18-a3be-dc854ab75d57"}),
+			want:           `{"permissions":["run_jobs","upload_artifacts"],"allow_all_queues":false,"allowed_queue_ids":["b7c9bc4f-526f-4c18-a3be-dc854ab75d57"]}`,
+		},
+		{
+			name:           "all queues and clear bindings",
+			allowAllQueues: Some(true),
+			queueIDs:       Some([]string{}),
+			want:           `{"allow_all_queues":true,"allowed_queue_ids":[]}`,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+
+			server.HandleFunc("/v2/organizations/org/clusters/cluster/tokens", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "POST")
+				assertRequestJSON(t, r, tt.want)
+				_, _ = fmt.Fprint(w, `{}`)
+			})
+			server.HandleFunc("/v2/organizations/org/clusters/cluster/tokens/token", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "PATCH")
+				assertRequestJSON(t, r, tt.want)
+				_, _ = fmt.Fprint(w, `{}`)
+			})
+
+			_, _, err := client.ClusterTokens.Create(context.Background(), "org", "cluster", ClusterTokenCreate{
+				Permissions: tt.permissions, AllowAllQueues: tt.allowAllQueues, AllowedQueueIDs: tt.queueIDs,
+			})
+			if err != nil {
+				t.Fatalf("Create: %v", err)
+			}
+			_, _, err = client.ClusterTokens.Update(context.Background(), "org", "cluster", "token", ClusterTokenUpdate{
+				Permissions: tt.permissions, AllowAllQueues: tt.allowAllQueues, AllowedQueueIDs: tt.queueIDs,
+			})
+			if err != nil {
+				t.Fatalf("Update: %v", err)
+			}
+		})
+	}
+}
+
+func TestClusterTokensService_ScopeResponses(t *testing.T) {
+	t.Parallel()
+
+	for _, body := range []string{
+		`{}`,
+		`{"permissions":[]}`,
+		`{"permissions":[],"allow_all_queues":false,"allowed_queue_ids":[]}`,
+		`{"permissions":["run_jobs"],"allow_all_queues":true,"allowed_queue_ids":[]}`,
+		`{"permissions":["upload_artifacts","run_jobs"],"allow_all_queues":false,"allowed_queue_ids":["b7c9bc4f-526f-4c18-a3be-dc854ab75d57"]}`,
+	} {
+		t.Run(body, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+			server.HandleFunc("/v2/organizations/org/clusters/cluster/tokens", func(w http.ResponseWriter, r *http.Request) {
+				if r.Method == "GET" {
+					_, _ = fmt.Fprintf(w, "[%s]", body)
+				} else {
+					_, _ = fmt.Fprint(w, body)
+				}
+			})
+			server.HandleFunc("/v2/organizations/org/clusters/cluster/tokens/token", func(w http.ResponseWriter, r *http.Request) {
+				_, _ = fmt.Fprint(w, body)
+			})
+
+			tokens, _, err := client.ClusterTokens.List(context.Background(), "org", "cluster", nil)
+			if err != nil || len(tokens) != 1 {
+				t.Fatalf("List: tokens=%v, err=%v", tokens, err)
+			}
+			got, _, err := client.ClusterTokens.Get(context.Background(), "org", "cluster", "token")
+			if err != nil {
+				t.Fatalf("Get: %v", err)
+			}
+			created, _, err := client.ClusterTokens.Create(context.Background(), "org", "cluster", ClusterTokenCreate{})
+			if err != nil {
+				t.Fatalf("Create: %v", err)
+			}
+			updated, _, err := client.ClusterTokens.Update(context.Background(), "org", "cluster", "token", ClusterTokenUpdate{})
+			if err != nil {
+				t.Fatalf("Update: %v", err)
+			}
+			for name, token := range map[string]ClusterToken{"List": tokens[0], "Get": got, "Create": created, "Update": updated} {
+				t.Run(name, func(t *testing.T) {
+					encoded, err := json.Marshal(token)
+					if err != nil {
+						t.Fatal(err)
+					}
+					var fields map[string]json.RawMessage
+					if err := json.Unmarshal(encoded, &fields); err != nil {
+						t.Fatal(err)
+					}
+					scopes := make(map[string]json.RawMessage)
+					for _, key := range []string{"permissions", "allow_all_queues", "allowed_queue_ids"} {
+						if value, ok := fields[key]; ok {
+							scopes[key] = value
+						}
+					}
+					assertJSONEqual(t, string(must(json.Marshal(scopes))), body)
+				})
+			}
+		})
+	}
+}
 
 func TestClusterTokensService_List(t *testing.T) {
 	t.Parallel()
