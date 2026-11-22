@@ -1,3 +1,10 @@
+## [v5.32.0](https://github.com/buildkite/go-buildkite/compare/v5.31.0...v5.32.0) (2026-11-22)
+
+Test Scheduler is pre-GA and requires API enablement and `read_test_pool`, with access to the build and suite.
+
+* Add read-only Test Scheduler pool support [#434](https://github.com/buildkite/go-buildkite/pull/434) ([KatieWright26](https://github.com/KatieWright26))
+* Add job diagnostics API support [#443](https://github.com/buildkite/go-buildkite/pull/443) ([zero51](https://github.com/zero51))
+
 ## [v5.31.0](https://github.com/buildkite/go-buildkite/compare/v5.30.0...v5.31.0) (2026-11-19)
 
 The Releases API interfaces are in preview, not generally available, and require the server-side feature flag. This release changes existing Releases types and methods; callers using the preview API may need updates.
