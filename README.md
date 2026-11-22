@@ -50,6 +50,29 @@ See the [workflow example](test_workflows_example_test.go) for listing
 and inspection. Unavailable or unauthorized requests return errors rather than
 an empty workflow list. Workflow writes and event history are not included.
 
+## Test Scheduler pools
+
+Use `client.TestPools.List`, `Get`, and `GetMetrics` for read-only scheduler
+inspection. Test Scheduler is pre-GA and requires API enablement and
+`read_test_pool`, with access to the build and suite. These reads do not require
+`read_suites`; separate build/pipeline discovery calls need their own scopes.
+
+```go
+page, _, err := client.TestPools.List(ctx, org, &buildkite.TestPoolsListOptions{
+    PipelineID: pipelineUUID,
+    BuildID:    buildUUID,
+})
+pool, _, err := client.TestPools.Get(ctx, org, poolUUID, buildUUID)
+metrics, _, err := client.TestPools.GetMetrics(ctx, org, poolUUID, buildUUID)
+```
+
+Listing returns one page with opaque cursor links. Use `page.Links.Next.ToOptions()`
+or `page.Links.Previous.ToOptions()` to retain filters for another request; check
+that the link is nonempty first. No pages are fetched automatically.
+Metrics are replica-backed snapshots at `ObservedAt`: neither `Drained` nor zero
+active leases alone proves completion or success. API errors remain errors; a
+404 does not distinguish missing, inaccessible, expired, or gated resources.
+
 ## Migrating to v5 update payloads
 
 Version 5 changes update request structs so PATCH requests can distinguish
