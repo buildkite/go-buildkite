@@ -1,3 +1,7 @@
+## [v5.35.0](https://github.com/buildkite/go-buildkite/compare/v5.34.1...v5.35.0) (2026-11-23)
+
+* Support Packages registry visibility updates [#451](https://github.com/buildkite/go-buildkite/pull/451) ([sj26](https://github.com/sj26))
+
 ## [v5.34.1](https://github.com/buildkite/go-buildkite/compare/v5.34.0...v5.34.1) (2026-11-23)
 
 * Preserve queue cluster references in job diagnostics [#449](https://github.com/buildkite/go-buildkite/pull/449) ([zero51](https://github.com/zero51))
