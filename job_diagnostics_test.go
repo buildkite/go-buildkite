@@ -27,6 +27,20 @@ func TestJobsService_GetJobDiagnosticsByOrg(t *testing.T) {
 		{name: "defaults"},
 		{name: "empty options", opt: &JobDiagnosticsOptions{}},
 		{name: "includes", opt: &JobDiagnosticsOptions{Include: "events,dependencies,insights"}, query: "include=events%2Cdependencies%2Cinsights"},
+		{name: "automatic evidence without guidance", opt: &JobDiagnosticsOptions{Include: "auto"}, query: "include=auto"},
+		{name: "guidance with automatic and explicit evidence", opt: &JobDiagnosticsOptions{Include: "auto,events,guidance"}, query: "include=auto%2Cevents%2Cguidance", overrides: map[string]json.RawMessage{
+			"guidance": json.RawMessage(`{"findings":[{
+				"code":"manual_action_required",
+				"kind":"finding",
+				"message":"This manual job is blocked and requires user input or approval to continue.",
+				"evidence":["/details/type","/details/lifecycle/state","/details/unblockable"],
+				"limits":["The unblockable flag does not grant the caller permission or guarantee that an unblock request will succeed."],
+				"next_check":"Ask an authorized operator to review the manual step's inputs and confirm that unblocking is appropriate."
+			}]}`),
+		}},
+		{name: "guidance without findings", opt: &JobDiagnosticsOptions{Include: "guidance"}, query: "include=guidance", overrides: map[string]json.RawMessage{
+			"guidance": json.RawMessage(`{"findings":[]}`),
+		}},
 		{name: "expanded dependencies and dynamic payloads", overrides: map[string]json.RawMessage{
 			"dependencies": json.RawMessage(`{"selection":{"order":"breadth_first","max_steps":50,"max_edges":100},"items":[{"required_by":{"type":"step","uuid":"step-id","key":null},"step":{"type":"step","uuid":null,"key":"missing-step"},"source":"direct","allow_failure":false,"inherited_from":null},{"required_by":{"type":"step","uuid":"step-id","key":null},"step":{"type":"step","uuid":"upstream-id","key":"upstream"},"source":"upload","allow_failure":true,"inherited_from":{"type":"step","uuid":"group-id","key":null}}],"unexpanded_steps":[{"type":"step","uuid":"upstream-id","key":"upstream"}],"limitations":{"truncated":true},"links":[]}`),
 			"errors":       json.RawMessage(`{"items":[{"future":{"count":9007199254740993,"values":[null,false,0,{},[]]}}],"limitations":{}}`),

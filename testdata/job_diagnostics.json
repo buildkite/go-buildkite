@@ -43,7 +43,8 @@
       "manual":{"allowed":false,"permit_on_passed":true,"reason":null}
     },
     "evidence":{"observed_at":"2026-11-19T02:34:56.123456Z","automatic_retries_before_attempt":[{"rule_index":0,"count":0},{"rule_index":1,"count":2}]},
-    "limitations":{"retry_decision_not_evaluated":true},"links":[]
+    "limitations":{"retry_decision_not_evaluated":true},"links":[],
+    "notes":"Retry requirements describe configured policy, not whether this job can be retried in its current state. Current retry eligibility is not evaluated."
   },
   "capacity":{"requirements":{"agent_query_rules":["queue=deploy","os=linux"]},"evidence":null,"limitations":{"capacity_evidence_not_supported":true},"links":[]},
   "errors":{"items":null,"limitations":{"not_supported":true}},
