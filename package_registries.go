@@ -2,6 +2,8 @@ package buildkite
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 )
@@ -23,7 +25,7 @@ type PackageRegistry struct {
 	Description string `json:"description,omitempty"`
 	Emoji       string `json:"emoji,omitempty"`
 	Color       string `json:"color,omitempty"`
-	Public      bool   `json:"public,omitempty"`
+	Public      bool   `json:"public"`
 	OIDCPolicy  string `json:"oidc_policy,omitempty"`
 }
 
@@ -79,7 +81,27 @@ type UpdatePackageRegistryInput struct {
 	Description Optional[string]                    `json:"description,omitzero"` // A description for the package registry
 	Emoji       Optional[string]                    `json:"emoji,omitzero"`       // An emoji for the package registry, in buildkite format (eg ":rocket:")
 	Color       Optional[string]                    `json:"color,omitzero"`       // A color for the package registry, in hex format (eg "#FF0000")
-	OIDCPolicy  Optional[PackageRegistryOIDCPolicy] `json:"oidc_policy,omitzero"` // The OIDC policy for the package registry, as a YAML or JSON string
+	Visibility  Optional[string]                    `json:"visibility,omitzero"`  // "public" or "private"; omit to leave unchanged
+	OIDCPolicy  Optional[PackageRegistryOIDCPolicy] `json:"oidc_policy,omitzero"` // The OIDC policy as statements, or null to clear it
+
+	// OIDCPolicyYAML updates the same policy using YAML instead of statements.
+	// Set at most one of OIDCPolicy and OIDCPolicyYAML.
+	OIDCPolicyYAML *string `json:"-"`
+}
+
+// MarshalJSON encodes the OIDC policy in the representation chosen by the caller.
+func (input UpdatePackageRegistryInput) MarshalJSON() ([]byte, error) {
+	type updateInput UpdatePackageRegistryInput
+	if input.OIDCPolicyYAML == nil {
+		return json.Marshal(updateInput(input))
+	}
+	if !input.OIDCPolicy.IsZero() {
+		return nil, errors.New("set only one of OIDCPolicy and OIDCPolicyYAML")
+	}
+	return json.Marshal(struct {
+		updateInput
+		OIDCPolicy string `json:"oidc_policy"`
+	}{updateInput(input), *input.OIDCPolicyYAML})
 }
 
 // Update updates a package registry for an organization
