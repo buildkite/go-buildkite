@@ -6,8 +6,8 @@
     "lifecycle": {"state":"blocked","created_at":"2026-11-19T02:00:00Z","scheduled_at":null,"runnable_at":null,"started_at":null,"ended_at":null},
     "timings": {"runnable_to_start_seconds":1.25,"execution_seconds":null},
     "instance_shape": {"name":"LINUX_AMD64_2X4","machine_type":"linux","architecture":"amd64","cpu":2,"memory":4},
-    "agent":null,"step":{"type":"step","uuid":"step-id"},"queue":null,
-    "routing":{"type":"unclustered"},"exit_status":null,"soft_failed":false,
+    "agent":null,"step":{"type":"step","uuid":"step-id"},"queue":{"type":"queue","uuid":"queue-id"},
+    "routing":{"type":"clustered"},"exit_status":null,"soft_failed":false,
     "broken_reason":null,"signal":null,"signal_reason":null,"retries_count":0,
     "retry_source":{"job":{"type":"job","uuid":"previous-job"},"retry_type":"manual"},
     "retried_in_job":null,"unblockable":false,"unblocked_at":null,"links":[]
@@ -69,11 +69,13 @@
       "organization":{"resource":{"type":"organization","uuid":"org-id","slug":"acme","url":"https://api.buildkite.com/organizations/acme"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"dispatch_paused":false}},
       "pipeline":{"resource":{"type":"pipeline","uuid":"pipeline-id","slug":"deploy","url":"https://api.buildkite.com/pipelines/deploy"}},
       "build":{"resource":{"type":"build","uuid":"build-id","number":42,"url":"https://api.buildkite.com/builds/42"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"state":"running","blocked":true,"cancel_reason":null,"branch":"main","commit":"abcdef"}},
-      "step":null,"cluster":null,"queue":null
+      "step":null,
+      "cluster":{"resource":{"type":"cluster","uuid":"target-cluster-id","url":"https://api.buildkite.com/organizations/acme/clusters/target-cluster-id"}},
+      "queue":{"resource":{"type":"queue","uuid":"queue-id","key":"deploy","url":"https://api.buildkite.com/organizations/acme/clusters/target-cluster-id/queues/queue-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"cluster":{"type":"cluster","uuid":"target-cluster-id"},"dispatch_paused":false,"dispatch_paused_at":null,"dispatch_paused_by":null,"dispatch_paused_note":null,"dispatch_suspended":true}}
     },
     "steps":[{"resource":{"type":"step","uuid":"step-id","key":null},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"type":"command","label":null,"group":null,"lifecycle":{"created_at":"2026-11-19T02:00:00Z","state":null,"outcome":null,"state_changed_at":null}}}],
-    "agents":[{"resource":{"type":"agent","uuid":"agent-id","url":"https://api.buildkite.com/agents/agent-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"connection_state":"connected","metadata":[],"queue":null,"connected_at":"2026-11-19T02:00:00Z","disconnected_at":null,"lost_at":null,"stopped_at":null,"paused":false,"paused_at":null,"paused_note":null},"events":{"window":{"from":"2026-11-12T02:34:56.123456Z","to":"2026-11-19T02:34:56.123456Z"},"selection":{"order":"newest_first","max_items":100},"items":null,"limitations":{"not_supported":true}}}],
-    "queues":[{"resource":{"type":"queue","uuid":"queue-id","key":"deploy","url":"https://api.buildkite.com/queues/queue-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"dispatch_paused":false,"dispatch_paused_at":null,"dispatch_paused_by":null,"dispatch_paused_note":null,"dispatch_suspended":true}}],
+    "agents":[{"resource":{"type":"agent","uuid":"agent-id","url":"https://api.buildkite.com/agents/agent-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"connection_state":"connected","metadata":[],"queue":{"type":"queue","uuid":"agent-queue-id"},"connected_at":"2026-11-19T02:00:00Z","disconnected_at":null,"lost_at":null,"stopped_at":null,"paused":false,"paused_at":null,"paused_note":null},"events":{"window":{"from":"2026-11-12T02:34:56.123456Z","to":"2026-11-19T02:34:56.123456Z"},"selection":{"order":"newest_first","max_items":100},"items":null,"limitations":{"not_supported":true}}}],
+    "queues":[{"resource":{"type":"queue","uuid":"agent-queue-id","key":"deploy","url":"https://api.buildkite.com/organizations/acme/clusters/agent-cluster-id/queues/agent-queue-id"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"cluster":{"type":"cluster","uuid":"agent-cluster-id"},"dispatch_paused":false,"dispatch_paused_at":null,"dispatch_paused_by":null,"dispatch_paused_note":null,"dispatch_suspended":true}}],
     "jobs":[{"resource":{"type":"job","uuid":"previous-job","url":"https://api.buildkite.com/jobs/previous-job"},"observed_at":"2026-11-19T02:34:56.123456Z","details":{"name":"Deploy","type":"script","build":{"type":"build","uuid":"build-id"},"lifecycle":{"state":"failed","created_at":"2026-11-19T01:00:00Z","scheduled_at":"2026-11-19T01:00:00Z","runnable_at":"2026-11-19T01:01:00Z","started_at":"2026-11-19T01:02:00Z","ended_at":"2026-11-19T01:03:00Z"},"priority":-3,"exit_status":-1,"soft_failed":true,"broken_reason":null,"signal":"SIGKILL","signal_reason":"agent_stop","retries_count":null,"links":[{"rel":"diagnostics","url":"https://api.buildkite.com/jobs/previous-job/diagnostics"}]}}],
     "builds":[],"limitations":{}
   }
