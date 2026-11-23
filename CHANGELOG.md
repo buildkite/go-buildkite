@@ -1,3 +1,9 @@
+## [v5.33.0](https://github.com/buildkite/go-buildkite/compare/v5.32.0...v5.33.0) (2026-11-23)
+
+API request log exports are in private preview and must be enabled for the organization. Requests need an organization administrator's token with the `read_api_request_logs` scope.
+
+* Add API request log exports support [#445](https://github.com/buildkite/go-buildkite/pull/445) ([mcncl](https://github.com/mcncl))
+
 ## [v5.32.0](https://github.com/buildkite/go-buildkite/compare/v5.31.0...v5.32.0) (2026-11-22)
 
 Test Scheduler is pre-GA and requires API enablement and `read_test_pool`, with access to the build and suite.
