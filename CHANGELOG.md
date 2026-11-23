@@ -1,3 +1,9 @@
+## [v5.34.0](https://github.com/buildkite/go-buildkite/compare/v5.33.0...v5.34.0) (2026-11-23)
+
+The Go client now preserves job diagnostics findings when requested with `include=guidance`. It also preserves the API note that configured retry policy does not determine current retry eligibility.
+
+* Preserve job diagnostics guidance and retry notes [#447](https://github.com/buildkite/go-buildkite/pull/447) ([zero51](https://github.com/zero51))
+
 ## [v5.33.0](https://github.com/buildkite/go-buildkite/compare/v5.32.0...v5.33.0) (2026-11-23)
 
 API request log exports are in private preview and must be enabled for the organization. Requests need an organization administrator's token with the `read_api_request_logs` scope.
