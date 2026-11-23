@@ -48,6 +48,7 @@ type Client struct {
 
 	// Services used for talking to different parts of the buildkite API.
 	AccessTokens                 *AccessTokensService
+	APIRequestLogExports         *APIRequestLogExportsService
 	Agents                       *AgentsService
 	Annotations                  *AnnotationsService
 	Artifacts                    *ArtifactsService
@@ -227,6 +228,7 @@ func NewOpts(opts ...ClientOpt) (*Client, error) {
 
 func (c *Client) populateDefaultServices() {
 	c.AccessTokens = &AccessTokensService{c}
+	c.APIRequestLogExports = &APIRequestLogExportsService{c}
 	c.Agents = &AgentsService{c}
 	c.Annotations = &AnnotationsService{c}
 	c.Artifacts = &ArtifactsService{c}
