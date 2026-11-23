@@ -181,6 +181,66 @@ func TestPackageRegistryUpdate(t *testing.T) {
 	}
 }
 
+func TestPackageRegistryUpdateVisibility(t *testing.T) {
+	t.Parallel()
+
+	policyYAML := "[]\n"
+	for _, tt := range []struct {
+		name       string
+		input      UpdatePackageRegistryInput
+		wantBody   string
+		wantPublic bool
+	}{
+		{
+			name:       "public without changing policy",
+			input:      UpdatePackageRegistryInput{Visibility: Some("public")},
+			wantBody:   `{"visibility":"public"}`,
+			wantPublic: true,
+		},
+		{
+			name:     "private with YAML policy",
+			input:    UpdatePackageRegistryInput{Visibility: Some("private"), OIDCPolicyYAML: &policyYAML},
+			wantBody: `{"visibility":"private","oidc_policy":"[]\n"}`,
+		},
+		{
+			name:     "clear policy without changing visibility",
+			input:    UpdatePackageRegistryInput{OIDCPolicy: Null[PackageRegistryOIDCPolicy]()},
+			wantBody: `{"oidc_policy":null}`,
+		},
+		{
+			name:     "replace policy with statements",
+			input:    UpdatePackageRegistryInput{OIDCPolicy: Some(PackageRegistryOIDCPolicy{{Issuer: "https://agent.example.com", Claims: map[string]ClaimRule{}}})},
+			wantBody: `{"oidc_policy":[{"iss":"https://agent.example.com","claims":{}}]}`,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			server, client, teardown := newMockServerAndClient(t)
+			t.Cleanup(teardown)
+
+			want := `{"slug":"my-cool-registry","public":false}`
+			if tt.wantPublic {
+				want = `{"slug":"my-cool-registry","public":true}`
+			}
+			server.HandleFunc("/v2/packages/organizations/test-org/registries/my-cool-registry", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, "PATCH")
+				assertRequestJSON(t, r, tt.wantBody)
+				_, _ = w.Write([]byte(want))
+			})
+
+			got, _, err := client.PackageRegistriesService.Update(t.Context(), "test-org", "my-cool-registry", tt.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			encoded, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertJSONEqual(t, string(encoded), want)
+		})
+	}
+}
+
 func TestPackageRegistryDelete(t *testing.T) {
 	t.Parallel()
 
