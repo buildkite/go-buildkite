@@ -1,3 +1,7 @@
+## [v5.34.1](https://github.com/buildkite/go-buildkite/compare/v5.34.0...v5.34.1) (2026-11-23)
+
+* Preserve queue cluster references in job diagnostics [#449](https://github.com/buildkite/go-buildkite/pull/449) ([zero51](https://github.com/zero51))
+
 ## [v5.34.0](https://github.com/buildkite/go-buildkite/compare/v5.33.0...v5.34.0) (2026-11-23)
 
 The Go client now preserves job diagnostics findings when requested with `include=guidance`. It also preserves the API note that configured retry policy does not determine current retry eligibility.
