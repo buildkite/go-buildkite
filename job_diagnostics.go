@@ -6,10 +6,13 @@ import (
 	"fmt"
 )
 
-// JobDiagnosticsOptions specifies optional evidence to read for a job.
+// JobDiagnosticsOptions specifies optional evidence and guidance for a job.
 type JobDiagnosticsOptions struct {
-	// Include is a comma-separated list of "dependencies", "events" and
-	// "insights". Omit it to leave these optional reads off.
+	// Include is a comma-separated list of "auto", "dependencies", "events",
+	// "insights", and "guidance". Omit it to leave optional reads and guidance off.
+	// "auto" lets the server select evidence based on the job and availability.
+	// Explicit evidence includes can be combined with "auto".
+	// "guidance" adds findings based on the returned evidence without requesting more.
 	Include string `url:"include,omitempty"`
 }
 
@@ -42,6 +45,24 @@ type JobDiagnostics struct {
 	} `json:"history"`
 	Insights []JobDiagnosticsQueueInsights `json:"insights"`
 	Context  JobDiagnosticsContext         `json:"context"`
+	Guidance *JobDiagnosticsGuidance       `json:"guidance,omitempty"`
+}
+
+// JobDiagnosticsGuidance is present only when requested. An empty Findings
+// list does not establish that the job is healthy.
+type JobDiagnosticsGuidance struct {
+	Findings []JobDiagnosticsFinding `json:"findings"`
+}
+
+// JobDiagnosticsFinding is a server-provided finding or lead. Evidence contains
+// JSON Pointers into the diagnostics response.
+type JobDiagnosticsFinding struct {
+	Code      string   `json:"code"`
+	Kind      string   `json:"kind"`
+	Message   string   `json:"message"`
+	Evidence  []string `json:"evidence"`
+	Limits    []string `json:"limits"`
+	NextCheck string   `json:"next_check"`
 }
 
 type JobDiagnosticsReference struct {
@@ -238,6 +259,8 @@ type JobDiagnosticsRetries struct {
 	} `json:"evidence"`
 	Limitations map[string]bool      `json:"limitations"`
 	Links       []JobDiagnosticsLink `json:"links"`
+	// Notes explains that configured policy does not establish current retry eligibility.
+	Notes *string `json:"notes,omitempty"`
 }
 
 // JobDiagnosticsRetryRule retains matcher unions as JSON: exit_status is a
