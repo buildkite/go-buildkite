@@ -363,6 +363,7 @@ type JobDiagnosticsQueueRecord struct {
 	} `json:"resource"`
 	ObservedAt *Timestamp `json:"observed_at"`
 	Details    struct {
+		Cluster            JobDiagnosticsReference  `json:"cluster"`
 		DispatchPaused     bool                     `json:"dispatch_paused"`
 		DispatchPausedAt   *Timestamp               `json:"dispatch_paused_at"`
 		DispatchPausedBy   *JobDiagnosticsReference `json:"dispatch_paused_by"`
