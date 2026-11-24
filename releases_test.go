@@ -15,16 +15,16 @@ import (
 )
 
 const releaseTestID = "019a1dd8-a49b-70c5-99b8-b8f9f0ed6824"
-const releaseTestDigest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+const releaseTestTag = " 2026.11-RC1/候補 "
 
 // Fixtures follow the API contract, including required nulls and omitted fields.
 const releaseTargetJSON = `{"id":"target-id","graphql_id":"opaque-target","name":"east","labels":{"region":"au","empty":"","space":" "},"url":"https://api.example/target","id_url":"https://api.example/target-id","created_at":"2026-09-20T01:02:03Z","archived_at":"2026-09-21T01:02:03Z"}`
 const releaseComponentJSON = `{"id":"component-id","graphql_id":"opaque-component","name":"api","artifact":{"id":"artifact-id","graphql_id":"opaque-artifact","name":"service"},"url":"https://api.example/component","id_url":"https://api.example/component-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
 const releaseInstanceJSON = `{"id":"instance-id","graphql_id":"opaque-instance","name":"api-blue","target_id":"target-id","component_id":"component-id","url":"https://api.example/instance","id_url":"https://api.example/instance-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
 const releaseArtifactJSON = `{"id":"artifact-id","graphql_id":"opaque-artifact","name":"service","url":"https://api.example/artifact","id_url":"https://api.example/artifact-id","created_at":"2026-09-20T01:02:03Z","archived_at":null}`
-const releaseVersionJSON = `{"id":"digest-id","graphql_id":"opaque-digest","digest":"` + releaseTestDigest + `","source_url":null,"source_build":null,"pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"},{"url":"https://example.com/pr/2"}],"created_by":null,"url":"https://api.example/digest","id_url":"https://api.example/digest-id","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`
-const releaseStatusJSON = `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":false,"active_digest":null,"last_active_digest":"` + releaseTestDigest + `","first_seen_at":"2026-09-20T01:02:03Z","last_seen_at":"2026-09-21T01:02:03Z","sequence":9007199254740993,"catalog_resolution":{"status":"unknown","reason":"instance_absent"}}`
-const releaseObservationJSON = `{"id":"observation-id","graphql_id":"opaque-observation","target_id":"target-id","sequence":9007199254740993,"event_id":"` + releaseTestID + `","type":"ComponentInstanceVersionObserved","instance":"api-blue","digest":"` + releaseTestDigest + `","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","catalog_resolution":{"status":"resolved","reason":null}}`
+const releaseVersionJSON = `{"id":"version-id","graphql_id":"opaque-version","tag":"` + releaseTestTag + `","source_url":null,"source_build":null,"pull_requests":[{"url":"https://github.com/acme/api/pull/12","provider":"github","repository_url":"https://github.com/acme/api","id":"12"},{"url":"https://example.com/pr/2"}],"created_by":null,"url":"https://api.example/version","id_url":"https://api.example/version-id","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`
+const releaseStatusJSON = `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":false,"active_tag":null,"last_active_tag":"` + releaseTestTag + `","first_seen_at":"2026-09-20T01:02:03Z","last_seen_at":"2026-09-21T01:02:03Z","sequence":9007199254740993,"catalog_resolution":{"status":"unknown","reason":"instance_absent"}}`
+const releaseObservationJSON = `{"id":"observation-id","graphql_id":"opaque-observation","target_id":"target-id","sequence":9007199254740993,"event_id":"` + releaseTestID + `","type":"ComponentInstanceVersionObserved","instance":"api-blue","tag":"` + releaseTestTag + `","occurred_at":"2026-09-20T01:02:03Z","recorded_at":"2026-09-20T01:03:04Z","catalog_resolution":{"status":"resolved","reason":null}}`
 
 func releaseTestPage(item string) string {
 	return `{"items":[` + item + `],"links":{"self":"https://api.example/self","first":"https://api.example/first","prev":"https://api.example/prev","next":"https://api.example/next?after=opaque%2Bcursor"}}`
@@ -34,7 +34,7 @@ var (
 	releaseCreatedAt          = NewTimestamp(time.Date(2026, 9, 20, 1, 2, 3, 0, time.UTC))
 	releaseLaterAt            = NewTimestamp(time.Date(2026, 9, 21, 1, 2, 3, 0, time.UTC))
 	releaseRecordedAt         = NewTimestamp(time.Date(2026, 9, 20, 1, 3, 4, 0, time.UTC))
-	releaseDigest             = releaseTestDigest
+	releaseTag                = releaseTestTag
 	releaseAbsent             = false
 	releaseSequence     int64 = 9007199254740993
 	releaseAbsentReason       = "instance_absent"
@@ -59,21 +59,21 @@ var (
 		URL: "https://api.example/artifact", IDURL: "https://api.example/artifact-id", CreatedAt: releaseCreatedAt,
 	}
 	releaseVersion = ReleaseArtifactVersion{
-		ID: "digest-id", GraphQLID: "opaque-digest", Digest: &releaseDigest,
+		ID: "version-id", GraphQLID: "opaque-version", Tag: &releaseTag,
 		PullRequests: []ReleasePullRequest{
 			{URL: "https://github.com/acme/api/pull/12", Provider: "github", RepositoryURL: "https://github.com/acme/api", ID: "12"},
 			{URL: "https://example.com/pr/2"},
 		},
-		URL: "https://api.example/digest", IDURL: "https://api.example/digest-id", CreatedAt: releaseCreatedAt,
+		URL: "https://api.example/version", IDURL: "https://api.example/version-id", CreatedAt: releaseCreatedAt,
 	}
 	releaseStatus = ReleaseComponentInstanceStatus{
 		TargetID: "target-id", Instance: "api-blue", InstanceID: "instance-id", Present: &releaseAbsent,
-		LastActiveDigest: &releaseDigest, FirstSeenAt: releaseCreatedAt, LastSeenAt: releaseLaterAt, Sequence: &releaseSequence,
+		LastActiveTag: &releaseTag, FirstSeenAt: releaseCreatedAt, LastSeenAt: releaseLaterAt, Sequence: &releaseSequence,
 		CatalogResolution: ReleaseCatalogResolution{Status: "unknown", Reason: &releaseAbsentReason},
 	}
 	releaseObservation = ReleaseObservation{
 		ID: "observation-id", GraphQLID: "opaque-observation", TargetID: "target-id", Sequence: 9007199254740993,
-		EventID: releaseTestID, Type: "ComponentInstanceVersionObserved", Instance: "api-blue", Digest: &releaseDigest,
+		EventID: releaseTestID, Type: "ComponentInstanceVersionObserved", Instance: "api-blue", Tag: &releaseTag,
 		OccurredAt: releaseCreatedAt, RecordedAt: releaseRecordedAt,
 		CatalogResolution: &ReleaseCatalogResolution{Status: "resolved"},
 	}
@@ -527,12 +527,12 @@ func TestReleasesService_PublishVersion(t *testing.T) {
 	}{
 		{
 			name: "Artifact name", artifact: ReleaseArtifactRef{Name: "service"}, path: "artifacts/service/versions",
-			input:   ReleaseVersionPublish{Digest: releaseTestDigest, SourceBuild: Some(ReleaseReference{ID: "build-id"}), PullRequests: []ReleasePullRequest{{URL: "https://example.com/pr/2"}}},
-			request: `{"digest":"` + releaseTestDigest + `","source_build":{"id":"build-id"},"pull_requests":[{"url":"https://example.com/pr/2"}]}`,
+			input:   ReleaseVersionPublish{Tag: releaseTestTag, SourceBuild: Some(ReleaseReference{ID: "build-id"}), PullRequests: []ReleasePullRequest{{URL: "https://example.com/pr/2"}}},
+			request: `{"tag":"` + releaseTestTag + `","source_build":{"id":"build-id"},"pull_requests":[{"url":"https://example.com/pr/2"}]}`,
 		},
 		{
 			name: "Artifact ID", artifact: ReleaseArtifactRef{ID: releaseTestID}, path: "artifacts/by-id/" + releaseTestID + "/versions",
-			input: ReleaseVersionPublish{Digest: releaseTestDigest}, request: `{"digest":"` + releaseTestDigest + `"}`,
+			input: ReleaseVersionPublish{Tag: releaseTestTag}, request: `{"tag":"` + releaseTestTag + `"}`,
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -718,7 +718,7 @@ func TestReleasesService_PublicationFailureIsNotRetried(t *testing.T) {
 					_, _ = fmt.Fprint(w, `{"message":"outcome unknown"}`)
 				}
 			})
-			_, _, err := client.Releases.PublishVersion(context.Background(), "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Digest: releaseTestDigest})
+			_, _, err := client.Releases.PublishVersion(context.Background(), "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Tag: releaseTestTag})
 			if err == nil || calls != 1 {
 				t.Fatalf("error=%v, requests=%d; an ambiguous publication must not be replayed", err, calls)
 			}
@@ -752,15 +752,15 @@ func TestReleasesService_OptionalFields(t *testing.T) {
 			},
 		},
 		{
-			name: "explicit null provenance", path: "artifacts/service/versions", request: `{"digest":"` + releaseTestDigest + `","source_build":null,"source_url":null}`,
+			name: "explicit null provenance", path: "artifacts/service/versions", request: `{"tag":"` + releaseTestTag + `","source_build":null,"source_url":null}`,
 			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Digest: releaseTestDigest, SourceBuild: Null[ReleaseReference](), SourceURL: Null[string]()})
+				return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Tag: releaseTestTag, SourceBuild: Null[ReleaseReference](), SourceURL: Null[string]()})
 			},
 		},
 		{
-			name: "empty source", path: "artifacts/service/versions", request: `{"digest":"` + releaseTestDigest + `","source_url":""}`,
+			name: "empty source", path: "artifacts/service/versions", request: `{"tag":"` + releaseTestTag + `","source_url":""}`,
 			call: func(s *ReleasesService) (any, *Response, error) {
-				return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Digest: releaseTestDigest, SourceURL: Some("")})
+				return s.PublishVersion(ctx, "acme", ReleaseArtifactRef{Name: "service"}, ReleaseVersionPublish{Tag: releaseTestTag, SourceURL: Some("")})
 			},
 		},
 		{
@@ -798,7 +798,7 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 			server.HandleFunc("/v2/organizations/acme/targets/east/observations", func(w http.ResponseWriter, r *http.Request) {
 				calls++
 				testMethod(t, r, http.MethodPost)
-				assertRequestJSON(t, r, `{"events":[{"event_id":"`+releaseTestID+`","type":"ComponentInstanceVersionObserved","instance":"api-blue","digest":"`+releaseTestDigest+`"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"ComponentInstanceDisappeared","instance":"api-blue"}]}`)
+				assertRequestJSON(t, r, `{"events":[{"event_id":"`+releaseTestID+`","type":"ComponentInstanceVersionObserved","instance":"api-blue","tag":"`+releaseTestTag+`"},{"event_id":"019a1dd8-a49b-70c5-99b8-b8f9f0ed6825","type":"ComponentInstanceDisappeared","instance":"api-blue"}]}`)
 				w.WriteHeader(status)
 				if status < 300 {
 					_, _ = fmt.Fprint(w, response)
@@ -806,7 +806,7 @@ func TestReleasesService_ObservationBatch(t *testing.T) {
 					_, _ = fmt.Fprint(w, `{"message":"observation rejected","errors":[{"field":"/events/0/event_id","code":"conflict"}]}`)
 				}
 			})
-			got, resp, err := client.Releases.AppendObservations(context.Background(), "acme", ReleaseTargetRef{Name: "east"}, []ReleaseObservationCreate{{EventID: releaseTestID, Type: "ComponentInstanceVersionObserved", Instance: "api-blue", Digest: releaseTestDigest}, {EventID: "019a1dd8-a49b-70c5-99b8-b8f9f0ed6825", Type: "ComponentInstanceDisappeared", Instance: "api-blue"}})
+			got, resp, err := client.Releases.AppendObservations(context.Background(), "acme", ReleaseTargetRef{Name: "east"}, []ReleaseObservationCreate{{EventID: releaseTestID, Type: "ComponentInstanceVersionObserved", Instance: "api-blue", Tag: releaseTestTag}, {EventID: "019a1dd8-a49b-70c5-99b8-b8f9f0ed6825", Type: "ComponentInstanceDisappeared", Instance: "api-blue"}})
 			if resp == nil || resp.StatusCode != status || calls != 1 {
 				t.Fatalf("response=%#v, calls=%d, error=%v", resp, calls, err)
 			}
@@ -930,7 +930,7 @@ func TestReleasesService_GetComponentInstanceStatus(t *testing.T) {
 		{name: "absent", body: releaseStatusJSON, want: releaseStatus},
 		{
 			name: "never observed",
-			body: `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":null,"active_digest":null,"last_active_digest":null,"first_seen_at":null,"last_seen_at":null,"sequence":null,"catalog_resolution":{"status":"unknown","reason":"no_active_version"}}`,
+			body: `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":null,"active_tag":null,"last_active_tag":null,"first_seen_at":null,"last_seen_at":null,"sequence":null,"catalog_resolution":{"status":"unknown","reason":"no_active_version"}}`,
 			want: ReleaseComponentInstanceStatus{
 				TargetID: "target-id", Instance: "api-blue", InstanceID: "instance-id",
 				CatalogResolution: ReleaseCatalogResolution{Status: "unknown", Reason: &reason},
@@ -938,10 +938,10 @@ func TestReleasesService_GetComponentInstanceStatus(t *testing.T) {
 		},
 		{
 			name: "resolved present",
-			body: `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":true,"active_digest":"` + releaseTestDigest + `","last_active_digest":"` + releaseTestDigest + `","first_seen_at":null,"last_seen_at":null,"sequence":1,"catalog_resolution":{"status":"resolved","reason":null}}`,
+			body: `{"target_id":"target-id","instance":"api-blue","instance_id":"instance-id","present":true,"active_tag":"` + releaseTestTag + `","last_active_tag":"` + releaseTestTag + `","first_seen_at":null,"last_seen_at":null,"sequence":1,"catalog_resolution":{"status":"resolved","reason":null}}`,
 			want: ReleaseComponentInstanceStatus{
 				TargetID: "target-id", Instance: "api-blue", InstanceID: "instance-id", Present: &present,
-				ActiveDigest: &releaseDigest, LastActiveDigest: &releaseDigest, Sequence: &sequence,
+				ActiveTag: &releaseTag, LastActiveTag: &releaseTag, Sequence: &sequence,
 				CatalogResolution: ReleaseCatalogResolution{Status: "resolved"},
 			},
 		},
@@ -974,18 +974,18 @@ func TestReleasesService_GetVersion(t *testing.T) {
 		{name: "published", body: releaseVersionJSON, want: releaseVersion},
 		{
 			name: "yanked provenance",
-			body: `{"id":"digest-id","digest":"` + releaseTestDigest + `","source_url":"opaque source","source_build":{"id":"build-id"},"pull_requests":[],"created_by":{"id":"user-id","graphql_id":"opaque-user","name":null,"email":"person@example.com","avatar_url":null,"created_at":"2026-09-20T01:02:03Z"},"url":"https://api.example/digest","id_url":"https://api.example/digest-id","created_at":"2026-09-20T01:02:03Z","yanked":true,"yanked_at":"2026-09-21T01:02:03Z","yank_reason":"withdrawn"}`,
+			body: `{"id":"version-id","tag":"` + releaseTestTag + `","source_url":"opaque source","source_build":{"id":"build-id"},"pull_requests":[],"created_by":{"id":"user-id","graphql_id":"opaque-user","name":null,"email":"person@example.com","avatar_url":null,"created_at":"2026-09-20T01:02:03Z"},"url":"https://api.example/version","id_url":"https://api.example/version-id","created_at":"2026-09-20T01:02:03Z","yanked":true,"yanked_at":"2026-09-21T01:02:03Z","yank_reason":"withdrawn"}`,
 			want: ReleaseArtifactVersion{
-				ID: "digest-id", Digest: &releaseDigest, SourceURL: &source, SourceBuild: &ReleaseReference{ID: "build-id"},
+				ID: "version-id", Tag: &releaseTag, SourceURL: &source, SourceBuild: &ReleaseReference{ID: "build-id"},
 				PullRequests: []ReleasePullRequest{},
 				CreatedBy:    &ReleaseCreator{ID: "user-id", GraphQLID: "opaque-user", Email: &email, CreatedAt: releaseCreatedAt},
-				URL:          "https://api.example/digest", IDURL: "https://api.example/digest-id", CreatedAt: releaseCreatedAt,
+				URL:          "https://api.example/version", IDURL: "https://api.example/version-id", CreatedAt: releaseCreatedAt,
 				Yanked: true, YankedAt: releaseLaterAt, YankReason: &reason,
 			},
 		},
 		{
-			name: "legacy digestless publication",
-			body: `{"id":"legacy-id","digest":null,"source_url":null,"source_build":null,"pull_requests":[],"created_by":null,"url":"https://api.example/legacy","id_url":"https://api.example/legacy","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`,
+			name: "legacy tagless publication",
+			body: `{"id":"legacy-id","tag":null,"source_url":null,"source_build":null,"pull_requests":[],"created_by":null,"url":"https://api.example/legacy","id_url":"https://api.example/legacy","created_at":"2026-09-20T01:02:03Z","yanked":false,"yanked_at":null,"yank_reason":null}`,
 			want: ReleaseArtifactVersion{
 				ID: "legacy-id", PullRequests: []ReleasePullRequest{},
 				URL: "https://api.example/legacy", IDURL: "https://api.example/legacy", CreatedAt: releaseCreatedAt,
