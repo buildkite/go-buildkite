@@ -62,7 +62,9 @@ type ReleaseArtifactCreate struct {
 }
 
 type ReleaseVersionPublish struct {
-	Digest string `json:"digest"`
+	// Tag is a case-sensitive artifact identifier, sent as supplied. It does
+	// not uniquely identify a publication or verify the artifact's contents.
+	Tag string `json:"tag"`
 	// An unset SourceBuild uses the agent OIDC token's build, if any.
 	// Null[ReleaseReference]() explicitly records no source build.
 	SourceBuild  Optional[ReleaseReference] `json:"source_build,omitzero"`
@@ -77,12 +79,13 @@ type ReleaseVersionYank struct {
 // ReleaseObservationCreate reports a fact, not desired state. EventID must be a
 // caller-supplied UUIDv7, reused with the same payload if the outcome is unknown.
 // Type is ComponentInstanceAppeared, ComponentInstanceDisappeared, or
-// ComponentInstanceVersionObserved. All require Instance; the latter requires Digest.
+// ComponentInstanceVersionObserved. All require Instance. Tag is required only
+// for ComponentInstanceVersionObserved and must be omitted for the other types.
 type ReleaseObservationCreate struct {
 	EventID    string     `json:"event_id"`
 	Type       string     `json:"type"`
 	Instance   string     `json:"instance"`
-	Digest     string     `json:"digest,omitempty"`
+	Tag        string     `json:"tag,omitempty"`
 	OccurredAt *Timestamp `json:"occurred_at,omitempty"`
 }
 
@@ -117,7 +120,7 @@ type ReleaseArtifactRef struct {
 	ID   string `json:"id,omitempty"`
 }
 
-// ReleaseVersionRef selects a publication by UUID, not by digest or version label.
+// ReleaseVersionRef selects a publication by UUID, not by tag or version label.
 type ReleaseVersionRef struct {
 	ID string `json:"id"`
 }
@@ -245,7 +248,7 @@ type ReleaseReference struct {
 type ReleaseArtifactVersion struct {
 	ID           string               `json:"id"`
 	GraphQLID    string               `json:"graphql_id,omitempty"`
-	Digest       *string              `json:"digest"`
+	Tag          *string              `json:"tag"`
 	SourceURL    *string              `json:"source_url"`
 	SourceBuild  *ReleaseReference    `json:"source_build"`
 	PullRequests []ReleasePullRequest `json:"pull_requests"`
@@ -280,8 +283,8 @@ type ReleaseComponentInstanceStatus struct {
 	Instance          string                   `json:"instance"`
 	InstanceID        string                   `json:"instance_id"`
 	Present           *bool                    `json:"present"`
-	ActiveDigest      *string                  `json:"active_digest"`
-	LastActiveDigest  *string                  `json:"last_active_digest"`
+	ActiveTag         *string                  `json:"active_tag"`
+	LastActiveTag     *string                  `json:"last_active_tag"`
 	FirstSeenAt       *Timestamp               `json:"first_seen_at"`
 	LastSeenAt        *Timestamp               `json:"last_seen_at"`
 	Sequence          *int64                   `json:"sequence"`
@@ -303,7 +306,7 @@ type ReleaseObservation struct {
 	EventID           string                    `json:"event_id"`
 	Type              string                    `json:"type"`
 	Instance          string                    `json:"instance"`
-	Digest            *string                   `json:"digest,omitempty"`
+	Tag               *string                   `json:"tag,omitempty"`
 	OccurredAt        *Timestamp                `json:"occurred_at"`
 	RecordedAt        *Timestamp                `json:"recorded_at"`
 	CatalogResolution *ReleaseCatalogResolution `json:"catalog_resolution,omitempty"`
@@ -517,7 +520,7 @@ func (s *ReleasesService) CreateArtifact(ctx context.Context, org string, input 
 	return releasesRequest[ReleaseArtifact](ctx, s, http.MethodPost, org, "artifacts", nil, input)
 }
 
-// PublishVersion creates a new publication (HTTP 201), even for repeated digests
+// PublishVersion creates a new publication (HTTP 201), even for repeated tags
 // or identical requests. An ambiguous failure must not be retried automatically:
 // another successful POST creates another Version. It does not upload content.
 func (s *ReleasesService) PublishVersion(ctx context.Context, org string, artifact ReleaseArtifactRef, input ReleaseVersionPublish) (ReleaseArtifactVersion, *Response, error) {
@@ -526,7 +529,7 @@ func (s *ReleasesService) PublishVersion(ctx context.Context, org string, artifa
 }
 
 // YankVersion marks only this publication. Repeated yanks preserve the original
-// time and reason; other Versions with the same digest are unaffected.
+// time and reason; other Versions with the same tag are unaffected.
 func (s *ReleasesService) YankVersion(ctx context.Context, org string, ref ReleaseVersionRef, input ReleaseVersionYank) (ReleaseArtifactVersion, *Response, error) {
 	path, err := ref.path()
 	return releasesRequest[ReleaseArtifactVersion](ctx, s, http.MethodPost, org, path+"/yank", err, input)
