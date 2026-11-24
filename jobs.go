@@ -3,6 +3,7 @@ package buildkite
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -440,6 +441,8 @@ func (js *JobsService) CancelJobByOrg(ctx context.Context, org string, jobID str
 
 // GetJobLog - get a job’s log output
 //
+// For large logs, use DownloadJobLog, which does not hold the whole log in memory.
+//
 // buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
 func (js *JobsService) GetJobLog(ctx context.Context, org string, pipeline string, buildNumber string, jobID string) (JobLog, *Response, error) {
 	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/log", org, pipeline, buildNumber, jobID)
@@ -457,6 +460,32 @@ func (js *JobsService) GetJobLog(ctx context.Context, org string, pipeline strin
 	}
 
 	return jobLog, resp, err
+}
+
+// DownloadJobLog writes a job's raw log output to w as plain text. It copies
+// the response body to w and does not buffer the whole log in memory. The
+// bytes are not checked for valid UTF-8 and can differ from the content that
+// GetJobLog returns.
+//
+// A nil error does not mean the log is complete. For a running job, w gets the
+// log so far. A job with a deleted or absent log writes nothing to w and
+// returns no error.
+//
+// If DownloadJobLog returns an error after the body starts, w can hold partial
+// output. With WithHTTPDebug(true), the client buffers the whole response to
+// print it.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
+func (js *JobsService) DownloadJobLog(ctx context.Context, org, pipeline, buildNumber, jobID string, w io.Writer) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/pipelines/%s/builds/%s/jobs/%s/log", org, pipeline, buildNumber, jobID)
+	req, err := js.client.NewRequest(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept", "text/plain")
+
+	return js.client.Do(req, w)
 }
 
 // JobLogExists checks whether a log exists for the given job without fetching

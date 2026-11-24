@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -514,6 +515,56 @@ func TestJobsService_GetJobLog(t *testing.T) {
 	}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_DownloadJobLog(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	logBytes := []byte("plain text\n\x1b[31mred\x1b[0m\xff\xfe tail")
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		if got := r.Header.Get("Accept"); got != "text/plain" {
+			t.Errorf("Accept header = %q, want %q", got, "text/plain")
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write(logBytes)
+	})
+
+	var buf bytes.Buffer
+	_, err := client.Jobs.DownloadJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", &buf)
+	if err != nil {
+		t.Fatalf("DownloadJobLog returned error: %v", err)
+	}
+
+	if !bytes.Equal(buf.Bytes(), logBytes) {
+		t.Errorf("DownloadJobLog content = %q, want %q", buf.Bytes(), logBytes)
+	}
+}
+
+func TestJobsService_DownloadJobLog_NotFound(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = fmt.Fprint(w, `{"message":"Not Found"}`)
+	})
+
+	var buf bytes.Buffer
+	_, err := client.Jobs.DownloadJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", &buf)
+	if err == nil {
+		t.Fatal("DownloadJobLog returned nil error, want error")
+	}
+
+	if buf.Len() != 0 {
+		t.Errorf("DownloadJobLog wrote %q on error, want empty", buf.Bytes())
 	}
 }
 
