@@ -545,6 +545,33 @@ func TestJobsService_DownloadJobLog(t *testing.T) {
 	}
 }
 
+func TestJobsService_DownloadJobLogByOrg(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	logBytes := []byte("plain text\n\x1b[31mred\x1b[0m\xff\xfe tail")
+	server.HandleFunc("/v2/organizations/my-great-org/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		if got := r.Header.Get("Accept"); got != "text/plain" {
+			t.Errorf("Accept header = %q, want %q", got, "text/plain")
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write(logBytes)
+	})
+
+	var buf bytes.Buffer
+	_, err := client.Jobs.DownloadJobLogByOrg(context.Background(), "my-great-org", "awesome-job-id", &buf)
+	if err != nil {
+		t.Fatalf("DownloadJobLogByOrg returned error: %v", err)
+	}
+
+	if !bytes.Equal(buf.Bytes(), logBytes) {
+		t.Errorf("DownloadJobLogByOrg content = %q, want %q", buf.Bytes(), logBytes)
+	}
+}
+
 func TestJobsService_DownloadJobLog_NotFound(t *testing.T) {
 	t.Parallel()
 

@@ -488,6 +488,22 @@ func (js *JobsService) DownloadJobLog(ctx context.Context, org, pipeline, buildN
 	return js.client.Do(req, w)
 }
 
+// DownloadJobLogByOrg is like DownloadJobLog, but finds the job by
+// organization and job UUID.
+//
+// buildkite API docs: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
+func (js *JobsService) DownloadJobLogByOrg(ctx context.Context, org, jobID string, w io.Writer) (*Response, error) {
+	u := fmt.Sprintf("v2/organizations/%s/jobs/%s/log", org, jobID)
+	req, err := js.client.NewRequest(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept", "text/plain")
+
+	return js.client.Do(req, w)
+}
+
 // JobLogExists checks whether a log exists for the given job without fetching
 // its body. The response headers include the log size in Content-Length and
 // range support in Accept-Ranges.
