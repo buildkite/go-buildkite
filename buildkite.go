@@ -554,8 +554,11 @@ func (c *Client) Do(req *http.Request, v any) (*Response, error) {
 		return nil, rokoErr
 	}
 
+	drain := true
 	defer func() {
-		_, _ = io.Copy(io.Discard, resp.Body)
+		if drain {
+			_, _ = io.Copy(io.Discard, resp.Body)
+		}
 		_ = resp.Body.Close()
 	}()
 
@@ -571,7 +574,11 @@ func (c *Client) Do(req *http.Request, v any) (*Response, error) {
 
 	if v != nil {
 		if w, ok := v.(io.Writer); ok {
-			_, err = io.Copy(w, resp.Body)
+			if _, err = io.Copy(w, resp.Body); err != nil {
+				// Draining would download the rest of a possibly huge body
+				// before the caller sees the error.
+				drain = false
+			}
 		} else {
 			err = json.NewDecoder(resp.Body).Decode(v)
 		}

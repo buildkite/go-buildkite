@@ -595,6 +595,47 @@ func TestJobsService_DownloadJobLog_NotFound(t *testing.T) {
 	}
 }
 
+var errTestWrite = errors.New("write failed")
+
+type failingWriter struct{}
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errTestWrite }
+
+func TestJobsService_DownloadJobLog_WriterErrorReturnsWithoutDraining(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	// Registered after teardown so it runs first and unblocks the handler.
+	release := make(chan struct{})
+	t.Cleanup(func() { close(release) })
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("first chunk"))
+		w.(http.Flusher).Flush()
+		select {
+		case <-release:
+		case <-r.Context().Done():
+		}
+	})
+
+	done := make(chan error, 1)
+	go func() {
+		_, err := client.Jobs.DownloadJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", failingWriter{})
+		done <- err
+	}()
+
+	select {
+	case err := <-done:
+		if !errors.Is(err, errTestWrite) {
+			t.Errorf("DownloadJobLog error = %v, want %v", err, errTestWrite)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("DownloadJobLog did not return after the writer failed")
+	}
+}
+
 func TestJobsService_JobLogExists(t *testing.T) {
 	t.Parallel()
 
