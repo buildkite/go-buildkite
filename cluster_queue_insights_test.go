@@ -14,6 +14,7 @@ import (
 func TestClusterQueuesService_Insights(t *testing.T) {
 	t.Parallel()
 
+	aligned, unaligned := true, false
 	for _, tt := range []struct {
 		name  string
 		opt   *ClusterQueueInsightsOptions
@@ -30,6 +31,16 @@ func TestClusterQueuesService_Insights(t *testing.T) {
 			name:  "history comparison without history include",
 			opt:   &ClusterQueueInsightsOptions{Include: "history_comparison", TimePeriod: "7d"},
 			query: "include=history_comparison&time_period=7d",
+		},
+		{
+			name:  "publication-aligned comparison",
+			opt:   &ClusterQueueInsightsOptions{EndAtLatestPublishedMinute: &aligned, Include: "history_comparison", TimePeriod: "1h"},
+			query: "end_at_latest_published_minute=true&include=history_comparison&time_period=1h",
+		},
+		{
+			name:  "explicitly unaligned comparison",
+			opt:   &ClusterQueueInsightsOptions{EndAtLatestPublishedMinute: &unaligned, Include: "history_comparison", TimePeriod: "1h"},
+			query: "end_at_latest_published_minute=false&include=history_comparison&time_period=1h",
 		},
 		{
 			name:  "hourly changes without a time period",
@@ -175,18 +186,18 @@ const queueInsightsAllJSON = `{
       "window":{"from":"2026-11-12T07:30:00Z","to":"2026-11-12T08:30:00Z","interval_seconds":60},
       "counts":{"aggregation":"last","agents":{"values":{"connected":[0,null]},"limitations":{"missing_publication":[1]}},"jobs":{"values":{"awaiting_execution":[2,null],"in_progress":[1,null]},"limitations":{"missing_publication":[1]}}},
       "job_completions":{"publication_covered_seconds":[60,60],"values":{"total":[4,0],"passed":[3,0],"failed":[1,0]},"limitations":{}},
-      "wait_times":{"unit":"seconds","publication_covered_seconds":[60,17.25],"values":{"min":[0.25,null],"p50":[1.5,null],"p95":[3.75,null],"max":[5,null]},"samples":{"valid_count":[3,null],"unusable_duration_count":[1,null]},"limitations":{"partial_bucket":[1],"unusable_wait_durations":[0]}}
+      "wait_times":{"unit":"seconds","publication_covered_seconds":[60,17.25],"values":{"min":[0.25,null],"mean":[2,null],"p50":[1.5,null],"p75":[3,null],"p90":[3.5,null],"p95":[3.75,null],"max":[5,null]},"samples":{"valid_count":[3,null],"unusable_duration_count":[1,null]},"limitations":{"partial_bucket":[1],"unusable_wait_durations":[0]}}
     },
     "previous_period":{
       "window":{"from":"2026-11-12T06:30:00Z","to":"2026-11-12T07:30:00Z","interval_seconds":60},
       "counts":{"aggregation":"last","agents":{"values":{"connected":[1,0]},"limitations":{}},"jobs":{"values":{"awaiting_execution":[1,1],"in_progress":[0,0]},"limitations":{}}},
       "job_completions":{"publication_covered_seconds":[60,60],"values":{"total":[2,0],"passed":[1,0],"failed":[1,0]},"limitations":{}},
-      "wait_times":{"unit":"seconds","publication_covered_seconds":[0,60],"values":{"min":[null,1],"p50":[null,2],"p95":[null,4],"max":[null,6]},"samples":{"valid_count":[null,1],"unusable_duration_count":[null,0]},"limitations":{"missing_publication":[0]}}
+      "wait_times":{"unit":"seconds","publication_covered_seconds":[0,60],"values":{"min":[null,1],"mean":[null,2.75],"p50":[null,2],"p75":[null,3],"p90":[null,3.5],"p95":[null,4],"max":[null,6]},"samples":{"valid_count":[null,1],"unusable_duration_count":[null,0]},"limitations":{"missing_publication":[0]}}
     },
     "changes":{
       "counts":{"basis":"last_bucket","agents":{"connected":{"selected":null,"previous":0,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}}},"jobs":{"awaiting_execution":{"selected":null,"previous":1,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"in_progress":{"selected":null,"previous":0,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}}}},
       "job_completions":{"basis":"period_total","total":{"selected":4,"previous":2,"difference":2,"relative_change_percent":100,"limitations":{}},"pass_rate":{"unit":"percent","selected":75,"previous":50,"percentage_point_change":25,"limitations":{}}},
-      "wait_times":{"basis":"last_bucket","unit":"seconds","min":{"selected":null,"previous":1,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"p50":{"selected":null,"previous":2,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"p95":{"selected":null,"previous":4,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"max":{"selected":null,"previous":6,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}}}
+      "wait_times":{"basis":"last_bucket","unit":"seconds","min":{"selected":null,"previous":1,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"mean":{"selected":null,"previous":2.75,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"p50":{"selected":null,"previous":2,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"p75":{"selected":null,"previous":3,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"p90":{"selected":null,"previous":3.5,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"p95":{"selected":null,"previous":4,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}},"max":{"selected":null,"previous":6,"difference":null,"relative_change_percent":null,"limitations":{"selected_value_unavailable":true}}}
     }
   },
   "hourly_changes":{
