@@ -9,6 +9,11 @@ import (
 // [ClusterQueuesService.Insights]. Invalid values and combinations are
 // validated by the API.
 type ClusterQueueInsightsOptions struct {
+	// EndAtLatestPublishedMinute aligns history comparisons to the latest common
+	// publication cutoff. True requires "history_comparison" and a "1h" time
+	// period (the default). Nil or false retains the requested windows.
+	EndAtLatestPublishedMinute *bool `url:"end_at_latest_published_minute,omitempty"`
+
 	// Include is a comma-separated list of "history", "history_comparison"
 	// and "hourly_changes". Each can be requested independently.
 	// "history_comparison" returns both history periods and their changes.
@@ -115,7 +120,7 @@ type ClusterQueueInsightsCountSeries struct {
 	Limitations               map[string][]int    `json:"limitations"`
 }
 
-// ClusterQueueInsightsWaitTimeSeries contains min, p50, p95 and max wait times.
+// ClusterQueueInsightsWaitTimeSeries contains min, mean, p50, p75, p90, p95 and max wait times.
 // Samples contains valid_count and unusable_duration_count per bucket.
 type ClusterQueueInsightsWaitTimeSeries struct {
 	Unit string `json:"unit"`
@@ -145,7 +150,10 @@ type ClusterQueueInsightsHistoryChanges struct {
 		Basis string                     `json:"basis"`
 		Unit  string                     `json:"unit"`
 		Min   ClusterQueueInsightsChange `json:"min"`
+		Mean  ClusterQueueInsightsChange `json:"mean"`
 		P50   ClusterQueueInsightsChange `json:"p50"`
+		P75   ClusterQueueInsightsChange `json:"p75"`
+		P90   ClusterQueueInsightsChange `json:"p90"`
 		P95   ClusterQueueInsightsChange `json:"p95"`
 		Max   ClusterQueueInsightsChange `json:"max"`
 	} `json:"wait_times"`
