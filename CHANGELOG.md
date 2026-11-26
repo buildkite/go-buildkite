@@ -1,3 +1,19 @@
+## [v5.36.0](https://github.com/buildkite/go-buildkite/compare/v5.35.0...v5.36.0) (2026-11-26)
+
+`GetJobLog` holds the whole log in memory. For large job logs, use `DownloadJobLog` or `DownloadJobLogByOrg`. They stream the log as plain text to an `io.Writer`.
+
+The Releases API interfaces are in preview. This release replaces the Releases `Digest` fields with `Tag` fields. Callers that use the preview API may need updates.
+
+* Add DownloadJobLog and DownloadJobLogByOrg to stream job logs as plain text [#454](https://github.com/buildkite/go-buildkite/pull/454) ([JuanitoFatas](https://github.com/JuanitoFatas))
+* Use artifact tags in the Releases SDK [#453](https://github.com/buildkite/go-buildkite/pull/453) ([js-murph](https://github.com/js-murph))
+* Update buildkite plugin junit-annotate to v3 [#439](https://github.com/buildkite/go-buildkite/pull/439) ([renovate[bot]](https://github.com/apps/renovate))
+* Update buildkite plugin mise to v1.1.6 [#418](https://github.com/buildkite/go-buildkite/pull/418) ([renovate[bot]](https://github.com/apps/renovate))
+* Update buildkite plugin artifacts to v1.11.0 [#390](https://github.com/buildkite/go-buildkite/pull/390) ([renovate[bot]](https://github.com/apps/renovate))
+* Update golang Docker tag to v1.27 [#369](https://github.com/buildkite/go-buildkite/pull/369) ([renovate[bot]](https://github.com/apps/renovate))
+* Update dependency go to v1.27.4 [#367](https://github.com/buildkite/go-buildkite/pull/367) ([renovate[bot]](https://github.com/apps/renovate))
+* Update dependency lefthook to v2.2.2 [#370](https://github.com/buildkite/go-buildkite/pull/370) ([renovate[bot]](https://github.com/apps/renovate))
+* Update dependency golangci-lint to v2.15.0 [#368](https://github.com/buildkite/go-buildkite/pull/368) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [v5.35.0](https://github.com/buildkite/go-buildkite/compare/v5.34.1...v5.35.0) (2026-11-23)
 
 * Support Packages registry visibility updates [#451](https://github.com/buildkite/go-buildkite/pull/451) ([sj26](https://github.com/sj26))
