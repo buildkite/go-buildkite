@@ -1,6 +1,7 @@
 package buildkite
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -514,6 +515,124 @@ func TestJobsService_GetJobLog(t *testing.T) {
 	}
 	if diff := cmp.Diff(job, want); diff != "" {
 		t.Errorf("GetJobLog diff: (-got +want)\n%s", diff)
+	}
+}
+
+func TestJobsService_DownloadJobLog(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	logBytes := []byte("plain text\n\x1b[31mred\x1b[0m\xff\xfe tail")
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		if got := r.Header.Get("Accept"); got != "text/plain" {
+			t.Errorf("Accept header = %q, want %q", got, "text/plain")
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write(logBytes)
+	})
+
+	var buf bytes.Buffer
+	_, err := client.Jobs.DownloadJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", &buf)
+	if err != nil {
+		t.Fatalf("DownloadJobLog returned error: %v", err)
+	}
+
+	if !bytes.Equal(buf.Bytes(), logBytes) {
+		t.Errorf("DownloadJobLog content = %q, want %q", buf.Bytes(), logBytes)
+	}
+}
+
+func TestJobsService_DownloadJobLogByOrg(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	logBytes := []byte("plain text\n\x1b[31mred\x1b[0m\xff\xfe tail")
+	server.HandleFunc("/v2/organizations/my-great-org/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		if got := r.Header.Get("Accept"); got != "text/plain" {
+			t.Errorf("Accept header = %q, want %q", got, "text/plain")
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write(logBytes)
+	})
+
+	var buf bytes.Buffer
+	_, err := client.Jobs.DownloadJobLogByOrg(context.Background(), "my-great-org", "awesome-job-id", &buf)
+	if err != nil {
+		t.Fatalf("DownloadJobLogByOrg returned error: %v", err)
+	}
+
+	if !bytes.Equal(buf.Bytes(), logBytes) {
+		t.Errorf("DownloadJobLogByOrg content = %q, want %q", buf.Bytes(), logBytes)
+	}
+}
+
+func TestJobsService_DownloadJobLog_NotFound(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = fmt.Fprint(w, `{"message":"Not Found"}`)
+	})
+
+	var buf bytes.Buffer
+	_, err := client.Jobs.DownloadJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", &buf)
+	if err == nil {
+		t.Fatal("DownloadJobLog returned nil error, want error")
+	}
+
+	if buf.Len() != 0 {
+		t.Errorf("DownloadJobLog wrote %q on error, want empty", buf.Bytes())
+	}
+}
+
+var errTestWrite = errors.New("write failed")
+
+type failingWriter struct{}
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errTestWrite }
+
+func TestJobsService_DownloadJobLog_WriterErrorReturnsWithoutDraining(t *testing.T) {
+	t.Parallel()
+
+	server, client, teardown := newMockServerAndClient(t)
+	t.Cleanup(teardown)
+
+	// Registered after teardown so it runs first and unblocks the handler.
+	release := make(chan struct{})
+	t.Cleanup(func() { close(release) })
+
+	server.HandleFunc("/v2/organizations/my-great-org/pipelines/sup-keith/builds/awesome-build/jobs/awesome-job-id/log", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("first chunk"))
+		w.(http.Flusher).Flush()
+		select {
+		case <-release:
+		case <-r.Context().Done():
+		}
+	})
+
+	done := make(chan error, 1)
+	go func() {
+		_, err := client.Jobs.DownloadJobLog(context.Background(), "my-great-org", "sup-keith", "awesome-build", "awesome-job-id", failingWriter{})
+		done <- err
+	}()
+
+	select {
+	case err := <-done:
+		if !errors.Is(err, errTestWrite) {
+			t.Errorf("DownloadJobLog error = %v, want %v", err, errTestWrite)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("DownloadJobLog did not return after the writer failed")
 	}
 }
 
